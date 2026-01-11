@@ -1,0 +1,7262 @@
+[
+  {
+    "material": "Aluminium",
+    "model": "AGM 56 M 4b",
+    "powerKW": 0.09,
+    "speedRPM": 1375,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 0.4,
+      "tourqueNm": 0.6
+    },
+    "DOL": {
+      "current": 1.2,
+      "laln": 3,
+      "tourque": 1.3,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.58,
+    "Phase": 3,
+    "frameSize": 56,
+    "shaftDia": 9,
+    "shaftLength": 20,
+    "shaftFeather": 10,
+    "IE": 1,
+    "frontBear": "6200 ZZ",
+    "rearBear": "",
+    "noiseLvl": 44,
+    "weightKg": 2.8,
+    "effCurve": [
+      0.625,
+      0.623,
+      0.551
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.12,
+    "netpower": 0.056249999999999994
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 63 M 4a",
+    "powerKW": 0.12,
+    "speedRPM": 1365,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 0.4,
+      "tourqueNm": 0.8
+    },
+    "DOL": {
+      "current": 1.4,
+      "laln": 3.5,
+      "tourque": 1.6,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.74,
+    "Phase": 3,
+    "frameSize": 63,
+    "shaftDia": 11,
+    "shaftLength": 23,
+    "shaftFeather": 13,
+    "IE": 1,
+    "frontBear": "6201 ZZ",
+    "rearBear": "",
+    "noiseLvl": 43,
+    "weightKg": 3.4,
+    "effCurve": [
+      0.571,
+      0.571,
+      0.533
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.18,
+    "netpower": 0.06852
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 63 M 4b",
+    "powerKW": 0.18,
+    "speedRPM": 1340,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 0.6,
+      "tourqueNm": 1.3
+    },
+    "DOL": {
+      "current": 1.7,
+      "laln": 2.8,
+      "tourque": 2,
+      "MaMn": 1.5
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.73,
+    "Phase": 3,
+    "frameSize": 63,
+    "shaftDia": 11,
+    "shaftLength": 23,
+    "shaftFeather": 13,
+    "IE": 1,
+    "frontBear": "6201 ZZ",
+    "rearBear": "",
+    "noiseLvl": 43,
+    "weightKg": 3.9,
+    "effCurve": [
+      0.597,
+      0.597,
+      0.558
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.25,
+    "netpower": 0.10745999999999999
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 71 M 4a",
+    "powerKW": 0.25,
+    "speedRPM": 1380,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 0.6,
+      "tourqueNm": 1.7
+    },
+    "DOL": {
+      "current": 2.3,
+      "laln": 3.8,
+      "tourque": 3.1,
+      "MaMn": 1.8
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.72,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 1,
+    "frontBear": "6202 ZZ",
+    "rearBear": "",
+    "noiseLvl": 46,
+    "weightKg": 4.9,
+    "effCurve": [
+      0.619,
+      0.618,
+      0.582
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.33,
+    "netpower": 0.15475
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 71 M 4b",
+    "powerKW": 0.37,
+    "speedRPM": 1390,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.1,
+      "tourqueNm": 2.5
+    },
+    "DOL": {
+      "current": 4.1,
+      "laln": 3.7,
+      "tourque": 5.5,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.67,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 2,
+    "frontBear": "6202 ZZ",
+    "rearBear": "",
+    "noiseLvl": 54,
+    "weightKg": 6.3,
+    "effCurve": [
+      0.727,
+      0.727,
+      0.71
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.5,
+    "netpower": 0.26899
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 80 M 4a",
+    "powerKW": 0.55,
+    "speedRPM": 1365,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.45,
+      "tourqueNm": 3.8
+    },
+    "DOL": {
+      "current": 5.1,
+      "laln": 3.5,
+      "tourque": 7.2,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.71,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 2,
+    "frontBear": "6204 ZZ",
+    "rearBear": "",
+    "noiseLvl": 50,
+    "weightKg": 8.3,
+    "effCurve": [
+      0.771,
+      0.771,
+      0.754
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.75,
+    "netpower": 0.42405000000000004
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 80 H 4b",
+    "powerKW": 0.75,
+    "speedRPM": 1425,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.85,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": 12.6,
+    "effCurve": [
+      0.825,
+      0.825,
+      0.808
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1,
+    "netpower": 0.6187499999999999
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 S 4a",
+    "powerKW": 1.1,
+    "speedRPM": 1440,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.6,
+      "tourqueNm": 7.3
+    },
+    "DOL": {
+      "current": 13.3,
+      "laln": 5.1,
+      "tourque": 18.3,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.73,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "",
+    "noiseLvl": 54,
+    "weightKg": 13.8,
+    "effCurve": [
+      0.841,
+      0.841,
+      0.828
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1.5,
+    "netpower": 0.9251
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 L 4b",
+    "powerKW": 1.5,
+    "speedRPM": 1440,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 3.3,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": 17,
+    "effCurve": [
+      0.854,
+      0.8545,
+      0.839
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 2,
+    "netpower": 1.281
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 100 L 4a",
+    "powerKW": 2.2,
+    "speedRPM": 1445,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 5,
+      "tourqueNm": 14.5
+    },
+    "DOL": {
+      "current": 29.5,
+      "laln": 5.9,
+      "tourque": 39.2,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.73,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "",
+    "noiseLvl": 55,
+    "weightKg": 26.3,
+    "effCurve": [
+      0.867,
+      0.868,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 3,
+    "netpower": 1.9074000000000002
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 100 H 4b",
+    "powerKW": 3,
+    "speedRPM": 1445,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 6.6,
+      "tourqueNm": 19.8
+    },
+    "DOL": {
+      "current": 42.2,
+      "laln": 6.4,
+      "tourque": 63.4,
+      "MaMn": 3.2
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "",
+    "noiseLvl": 55,
+    "weightKg": 29.2,
+    "effCurve": [
+      0.877,
+      0.878,
+      0.861
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 4,
+    "netpower": 2.6310000000000002
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 112 M 4a",
+    "powerKW": 4,
+    "speedRPM": 1450,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 8,
+      "tourqueNm": 26.3
+    },
+    "DOL": {
+      "current": 52.8,
+      "laln": 6.6,
+      "tourque": 78.9,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": 16.8,
+      "laln": 2.1,
+      "tourque": 26.3,
+      "MaMn": 1
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "",
+    "noiseLvl": 56,
+    "weightKg": 36,
+    "effCurve": [
+      0.886,
+      0.885,
+      0.88
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 5.5,
+    "netpower": 3.544
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 S 4a",
+    "powerKW": 5.5,
+    "speedRPM": 1450,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 11,
+      "tourqueNm": 36.2
+    },
+    "DOL": {
+      "current": 77,
+      "laln": 7,
+      "tourque": 97.7,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": 25.3,
+      "laln": 2.3,
+      "tourque": 32.6,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "",
+    "noiseLvl": 61,
+    "weightKg": 38.4,
+    "effCurve": [
+      0.896,
+      0.896,
+      0.888
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 7.5,
+    "netpower": 4.928
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 M 4b",
+    "powerKW": 7.5,
+    "speedRPM": 1470,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 15.4,
+      "tourqueNm": 48.7
+    },
+    "DOL": {
+      "current": 115.5,
+      "laln": 7.5,
+      "tourque": 146.1,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": 37,
+      "laln": 2.4,
+      "tourque": 48.7,
+      "MaMn": 1
+    },
+    "powerFactor": 0.78,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "",
+    "noiseLvl": 61,
+    "weightKg": 49.3,
+    "effCurve": [
+      0.904,
+      0.905,
+      0.896
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 10,
+    "netpower": 6.78
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 M 4a",
+    "powerKW": 11,
+    "speedRPM": 1470,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 21.1,
+      "tourqueNm": 71.5
+    },
+    "DOL": {
+      "current": 128.7,
+      "laln": 6.1,
+      "tourque": 135.9,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 42.2,
+      "laln": 2,
+      "tourque": 42.9,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ",
+    "rearBear": "",
+    "noiseLvl": 64,
+    "weightKg": 92,
+    "effCurve": [
+      0.914,
+      0.913,
+      0.911
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 15,
+    "netpower": 10.054
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 L 4b",
+    "powerKW": 15,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 28.5,
+      "tourqueNm": 97.1
+    },
+    "DOL": {
+      "current": 191,
+      "laln": 6.7,
+      "tourque": 194.2,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": 62.7,
+      "laln": 2.2,
+      "tourque": 58.3,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ",
+    "rearBear": "",
+    "noiseLvl": 64,
+    "weightKg": 115,
+    "effCurve": [
+      0.921,
+      0.92,
+      0.918
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 20,
+    "netpower": 13.815000000000001
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 180 M 4a",
+    "powerKW": 18.5,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 34,
+      "tourqueNm": 119.8
+    },
+    "DOL": {
+      "current": 268.6,
+      "laln": 7.9,
+      "tourque": 299.5,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": 85,
+      "laln": 2.5,
+      "tourque": 95.8,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ",
+    "rearBear": "",
+    "noiseLvl": 64,
+    "weightKg": 160,
+    "effCurve": [
+      0.926,
+      0.926,
+      0.916
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 25,
+    "netpower": 17.131
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 180 L 4b",
+    "powerKW": 22,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 39.4,
+      "tourqueNm": 142.4
+    },
+    "DOL": {
+      "current": 295.5,
+      "laln": 7.5,
+      "tourque": 341.8,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 94.6,
+      "laln": 2.4,
+      "tourque": 113.9,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ",
+    "rearBear": "",
+    "noiseLvl": 64,
+    "weightKg": 176,
+    "effCurve": [
+      0.93,
+      0.928,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 30,
+    "netpower": 20.46
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 200 L 4a",
+    "powerKW": 30,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 52.8,
+      "tourqueNm": 194.2
+    },
+    "DOL": {
+      "current": 433,
+      "laln": 8.2,
+      "tourque": 466.1,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 137.3,
+      "laln": 2.6,
+      "tourque": 155.4,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.88,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ",
+    "rearBear": "",
+    "noiseLvl": 66,
+    "weightKg": 273,
+    "effCurve": [
+      0.936,
+      0.935,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 40,
+    "netpower": 28.080000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 225 S 4a",
+    "powerKW": 37,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 67,
+      "tourqueNm": 239.6
+    },
+    "DOL": {
+      "current": 502.5,
+      "laln": 7.5,
+      "tourque": 742.8,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": 160.8,
+      "laln": 2.4,
+      "tourque": 239.6,
+      "MaMn": 1
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6313 ZZ",
+    "rearBear": "",
+    "noiseLvl": 66,
+    "weightKg": 350,
+    "effCurve": [
+      0.939,
+      0.939,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 50,
+    "netpower": 34.742999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 225 M 4b",
+    "powerKW": 45,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 80,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": 397.5,
+    "effCurve": [
+      0.9424999999999999,
+      0.943,
+      0.9375
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 55,
+    "netpower": 42.412499999999994
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 250 M 4a",
+    "powerKW": 55,
+    "speedRPM": 1480,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 96,
+      "tourqueNm": 354
+    },
+    "DOL": {
+      "current": 739.2,
+      "laln": 7.7,
+      "tourque": 1135.7,
+      "MaMn": 3.2
+    },
+    "starDelta": {
+      "current": 249.6,
+      "laln": 2.6,
+      "tourque": 390.4,
+      "MaMn": 1.1
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ",
+    "rearBear": "",
+    "noiseLvl": 67,
+    "weightKg": 445,
+    "effCurve": [
+      0.946,
+      0.947,
+      0.94
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 75,
+    "netpower": 52.029999999999994
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 S 4a",
+    "powerKW": 75,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 133,
+      "tourqueNm": 482.3
+    },
+    "DOL": {
+      "current": 1010.8,
+      "laln": 7.6,
+      "tourque": 1398.7,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 332.5,
+      "laln": 2.5,
+      "tourque": 482.3,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ",
+    "rearBear": "",
+    "noiseLvl": 70,
+    "weightKg": 605,
+    "effCurve": [
+      0.95,
+      0.949,
+      0.944
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 100,
+    "netpower": 71.25
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 M 4b",
+    "powerKW": 90,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 158,
+      "tourqueNm": 578.8
+    },
+    "DOL": {
+      "current": 1169.2,
+      "laln": 7.4,
+      "tourque": 1678.5,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 395,
+      "laln": 2.5,
+      "tourque": 578.8,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ C3",
+    "rearBear": "",
+    "noiseLvl": 70,
+    "weightKg": 665,
+    "effCurve": [
+      0.952,
+      0.952,
+      0.948
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 125,
+    "netpower": 85.67999999999999
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 315 S 4a",
+    "powerKW": 110,
+    "speedRPM": 1490,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 194,
+      "tourqueNm": 705
+    },
+    "DOL": {
+      "current": 1435.6,
+      "laln": 7.4,
+      "tourque": 1692,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 485,
+      "laln": 2.5,
+      "tourque": 564,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 315,
+    "shaftDia": 85,
+    "shaftLength": 170,
+    "shaftFeather": 160,
+    "IE": 3,
+    "frontBear": "6318 C3",
+    "rearBear": "",
+    "noiseLvl": 75,
+    "weightKg": 861,
+    "effCurve": [
+      0.954,
+      0.952,
+      0.95
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 150,
+    "netpower": 104.94
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 56 M 2a",
+    "powerKW": 0.09,
+    "speedRPM": 2800,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 0.25,
+      "tourqueNm": 0.3
+    },
+    "DOL": {
+      "current": 1,
+      "laln": 4,
+      "tourque": 0.8,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 56,
+    "shaftDia": 9,
+    "shaftLength": 20,
+    "shaftFeather": 10,
+    "IE": null,
+    "frontBear": "6200 ZZ",
+    "rearBear": "6200 ZZ",
+    "noiseLvl": 44,
+    "weightKg": 2.7,
+    "effCurve": [
+      0.634,
+      0.631,
+      0.558
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.12,
+    "netpower": 0.05706
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 56 M 2b",
+    "powerKW": 0.12,
+    "speedRPM": 2800,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 0.35,
+      "tourqueNm": 0.4
+    },
+    "DOL": {
+      "current": 1.5,
+      "laln": 4.3,
+      "tourque": 1,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 56,
+    "shaftDia": 9,
+    "shaftLength": 20,
+    "shaftFeather": 10,
+    "IE": 1,
+    "frontBear": "6200 ZZ",
+    "rearBear": "6200 ZZ",
+    "noiseLvl": null,
+    "weightKg": 2.8,
+    "effCurve": [
+      0.645,
+      0.641,
+      0.569
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.18,
+    "netpower": 0.0774
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 63 M 2a",
+    "powerKW": 0.18,
+    "speedRPM": 2820,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1,
+      "tourqueNm": 0.6
+    },
+    "DOL": {
+      "current": 2.5,
+      "laln": 2.5,
+      "tourque": 1.7,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 63,
+    "shaftDia": 11,
+    "shaftLength": 23,
+    "shaftFeather": 13,
+    "IE": 1,
+    "frontBear": "6201 ZZ",
+    "rearBear": "6201 ZZ",
+    "noiseLvl": null,
+    "weightKg": 3.6,
+    "effCurve": [
+      0.644,
+      0.642,
+      0.577
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.25,
+    "netpower": 0.11592
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 63 M 2b",
+    "powerKW": 0.25,
+    "speedRPM": 2840,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1,
+      "tourqueNm": 0.8
+    },
+    "DOL": {
+      "current": 2.9,
+      "laln": 2.9,
+      "tourque": 2,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.8,
+    "Phase": 3,
+    "frameSize": 63,
+    "shaftDia": 11,
+    "shaftLength": 23,
+    "shaftFeather": 13,
+    "IE": 1,
+    "frontBear": "6201 ZZ",
+    "rearBear": "6201 ZZ",
+    "noiseLvl": null,
+    "weightKg": 4,
+    "effCurve": [
+      0.673,
+      0.671,
+      0.609
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.33,
+    "netpower": 0.16825
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 71 M 2a",
+    "powerKW": 0.37,
+    "speedRPM": 2800,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1,
+      "tourqueNm": 1.3
+    },
+    "DOL": {
+      "current": 5,
+      "laln": 5,
+      "tourque": 3.1,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 2,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 4.9,
+    "effCurve": [
+      0.695,
+      0.695,
+      0.679
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.5,
+    "netpower": 0.25715
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 71 M 2b",
+    "powerKW": 0.55,
+    "speedRPM": 2780,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1.2,
+      "tourqueNm": 1.9
+    },
+    "DOL": {
+      "current": 5.4,
+      "laln": 4.5,
+      "tourque": 4.6,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.89,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 2,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 6,
+    "effCurve": [
+      0.741,
+      0.741,
+      0.724
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.75,
+    "netpower": 0.40755
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 80 M 2a",
+    "powerKW": 0.75,
+    "speedRPM": 2880,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1.6,
+      "tourqueNm": 2.5
+    },
+    "DOL": {
+      "current": 9.9,
+      "laln": 6.2,
+      "tourque": 6.3,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ",
+    "rearBear": "6204 ZZ",
+    "noiseLvl": null,
+    "weightKg": 8.8,
+    "effCurve": [
+      0.807,
+      0.806,
+      0.785
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1,
+    "netpower": 0.6052500000000001
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 80 M 2b",
+    "powerKW": 1.1,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 2.3,
+      "tourqueNm": 3.6
+    },
+    "DOL": {
+      "current": 13.6,
+      "laln": 5.9,
+      "tourque": 9.4,
+      "MaMn": 2.6
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.83,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ",
+    "rearBear": "6204 ZZ",
+    "noiseLvl": null,
+    "weightKg": 10.4,
+    "effCurve": [
+      0.827,
+      0.825,
+      0.806
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1.5,
+    "netpower": 0.9097000000000001
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 S 2a",
+    "powerKW": 1.5,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 3.3,
+      "tourqueNm": 4.9
+    },
+    "DOL": {
+      "current": 20.8,
+      "laln": 6.3,
+      "tourque": 15.2,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.78,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": 62,
+    "weightKg": 13.5,
+    "effCurve": [
+      0.842,
+      0.84,
+      0.825
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 2,
+    "netpower": 1.263
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 L 2b",
+    "powerKW": 2.2,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 4.45,
+      "tourqueNm": 7.2
+    },
+    "DOL": {
+      "current": 29.4,
+      "laln": 6.6,
+      "tourque": 20.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.83,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": 62,
+    "weightKg": 16,
+    "effCurve": [
+      0.859,
+      0.854,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 3,
+    "netpower": 1.8898000000000001
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 100 L 2a",
+    "powerKW": 3,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 5.8,
+      "tourqueNm": 9.9
+    },
+    "DOL": {
+      "current": 44.1,
+      "laln": 7.6,
+      "tourque": 33.7,
+      "MaMn": 3.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": 64,
+    "weightKg": 22,
+    "effCurve": [
+      0.871,
+      0.869,
+      0.853
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 4,
+    "netpower": 2.613
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 112 M 2a",
+    "powerKW": 4,
+    "speedRPM": 2920,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 7.4,
+      "tourqueNm": 13.1
+    },
+    "DOL": {
+      "current": 53.3,
+      "laln": 7.2,
+      "tourque": 36.7,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": 17,
+      "laln": 2.3,
+      "tourque": 11.8,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.89,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": 66,
+    "weightKg": 24.1,
+    "effCurve": [
+      0.881,
+      0.88,
+      0.872
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 5.5,
+    "netpower": 3.524
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 S 2a",
+    "powerKW": 5.5,
+    "speedRPM": 2925,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 9.7,
+      "tourqueNm": 18
+    },
+    "DOL": {
+      "current": 69.8,
+      "laln": 7.2,
+      "tourque": 37.8,
+      "MaMn": 2.1
+    },
+    "starDelta": {
+      "current": 22.3,
+      "laln": 2.3,
+      "tourque": 12.6,
+      "MaMn": 0.7
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "6208 ZZ",
+    "noiseLvl": 68,
+    "weightKg": 51,
+    "effCurve": [
+      0.892,
+      0.89,
+      0.874
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 7.5,
+    "netpower": 4.906
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 M 2b",
+    "powerKW": 7.5,
+    "speedRPM": 2930,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 12.9,
+      "tourqueNm": 24.4
+    },
+    "DOL": {
+      "current": 100.6,
+      "laln": 7.8,
+      "tourque": 48.8,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": 32.3,
+      "laln": 2.5,
+      "tourque": 14.6,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.93,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "6208 ZZ",
+    "noiseLvl": 68,
+    "weightKg": 63,
+    "effCurve": [
+      0.901,
+      0.901,
+      0.895
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 10,
+    "netpower": 6.7575
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 M 2a",
+    "powerKW": 11,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 19,
+      "tourqueNm": 35.5
+    },
+    "DOL": {
+      "current": 134.9,
+      "laln": 7.1,
+      "tourque": 71,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 90,
+    "effCurve": [
+      0.912,
+      0.912,
+      0.904
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 15,
+    "netpower": 10.032
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 M 2b",
+    "powerKW": 15,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 25.7,
+      "tourqueNm": 48.5
+    },
+    "DOL": {
+      "current": 203,
+      "laln": 7.9,
+      "tourque": 106.7,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 105,
+    "effCurve": [
+      0.919,
+      0.918,
+      0.912
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 20,
+    "netpower": 13.785
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 L 2c",
+    "powerKW": 18.5,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 31.4,
+      "tourqueNm": 59.7
+    },
+    "DOL": {
+      "current": 254.3,
+      "laln": 8.1,
+      "tourque": 131.3,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": 81.6,
+      "laln": 2.6,
+      "tourque": 41.8,
+      "MaMn": 0.7
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": 70,
+    "weightKg": 122,
+    "effCurve": [
+      0.924,
+      0.925,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 25,
+    "netpower": 17.094
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 180 M 2a",
+    "powerKW": 22,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 36.9,
+      "tourqueNm": 71
+    },
+    "DOL": {
+      "current": 313.7,
+      "laln": 8.5,
+      "tourque": 205.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.93,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ C3",
+    "rearBear": "6310 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 157,
+    "effCurve": [
+      0.927,
+      0.926,
+      0.922
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 30,
+    "netpower": 20.394000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 200 L 2a",
+    "powerKW": 30,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 52,
+      "tourqueNm": 96.1
+    },
+    "DOL": {
+      "current": 442,
+      "laln": 8.5,
+      "tourque": 278,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.89,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 210,
+    "effCurve": [
+      0.933,
+      0.933,
+      0.928
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 40,
+    "netpower": 27.990000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 200 L 2b",
+    "powerKW": 37,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 63,
+      "tourqueNm": 118.6
+    },
+    "DOL": {
+      "current": 522.9,
+      "laln": 8.3,
+      "tourque": 332.1,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6312 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 240,
+    "effCurve": [
+      0.937,
+      0.937,
+      0.931
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 50,
+    "netpower": 34.669000000000004
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 225 M 2a",
+    "powerKW": 45,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 77,
+      "tourqueNm": 144
+    },
+    "DOL": {
+      "current": 669.6,
+      "laln": 8.7,
+      "tourque": 389.3,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 55,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6213 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 400,
+    "effCurve": [
+      0.94,
+      0.941,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 55,
+    "netpower": 42.3
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 250 M 2a",
+    "powerKW": 55,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 92,
+      "tourqueNm": 176
+    },
+    "DOL": {
+      "current": 800,
+      "laln": 8.7,
+      "tourque": 510.4,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6215 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 480,
+    "effCurve": [
+      0.943,
+      0.945,
+      0.933
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 75,
+    "netpower": 51.864999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 S 2a",
+    "powerKW": 75,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 127,
+      "tourqueNm": 239.9
+    },
+    "DOL": {
+      "current": 1016,
+      "laln": 8,
+      "tourque": 695,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 585,
+    "effCurve": [
+      0.9464999999999999,
+      0.9475,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 100,
+    "netpower": 70.9875
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 M 2b",
+    "powerKW": 90,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 148,
+      "tourqueNm": 287.9
+    },
+    "DOL": {
+      "current": 1213.6,
+      "laln": 8.2,
+      "tourque": 834.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 645,
+    "effCurve": [
+      0.95,
+      0.95,
+      0.937
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 125,
+    "netpower": 85.5
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 315 S 2a",
+    "powerKW": 110,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 186,
+      "tourqueNm": 351.9
+    },
+    "DOL": {
+      "current": 1488,
+      "laln": 8,
+      "tourque": 879,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 315,
+    "shaftDia": 65,
+    "shaftLength": 170,
+    "shaftFeather": 160,
+    "IE": 3,
+    "frontBear": "6316 ZZ C3",
+    "rearBear": "6316 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 742,
+    "effCurve": [
+      0.952,
+      0.952,
+      0.94
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 150,
+    "netpower": 104.72
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 71 M 6a",
+    "powerKW": 0.18,
+    "speedRPM": 915,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 0.6,
+      "tourqueNm": 1.9
+    },
+    "DOL": {
+      "current": 1.9,
+      "laln": 3.2,
+      "tourque": 3.2,
+      "MaMn": 1.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.68,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 1,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": 42,
+    "weightKg": 5,
+    "effCurve": [
+      0.63,
+      0.629,
+      0.587
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.25,
+    "netpower": 0.1134
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM 71 M 6b",
+    "powerKW": 0.25,
+    "speedRPM": 915,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 1,
+      "tourqueNm": 2.6
+    },
+    "DOL": {
+      "current": 2.8,
+      "laln": 2.8,
+      "tourque": 4.4,
+      "MaMn": 1.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.68,
+    "Phase": 3,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 1,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": 42,
+    "weightKg": 5.7,
+    "effCurve": [
+      0.638,
+      0.637,
+      0.596
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.33,
+    "netpower": 0.1595
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 80 M 6a",
+    "powerKW": 0.37,
+    "speedRPM": 910,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 1.1,
+      "tourqueNm": 3.9
+    },
+    "DOL": {
+      "current": 4,
+      "laln": 3.6,
+      "tourque": 8.2,
+      "MaMn": 2.1
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.72,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 2,
+    "frontBear": "6204 ZZ",
+    "rearBear": "6204 ZZ",
+    "noiseLvl": null,
+    "weightKg": 8.1,
+    "effCurve": [
+      0.676,
+      0.676,
+      0.65
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.5,
+    "netpower": 0.25012
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM2EL 80 M 6b",
+    "powerKW": 0.55,
+    "speedRPM": 890,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 1.4,
+      "tourqueNm": 5.9
+    },
+    "DOL": {
+      "current": 4.9,
+      "laln": 3.5,
+      "tourque": 11.2,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.78,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 2,
+    "frontBear": "6204 ZZ",
+    "rearBear": "6204 ZZ",
+    "noiseLvl": 47,
+    "weightKg": 9.4,
+    "effCurve": [
+      0.731,
+      0.731,
+      0.72
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 0.75,
+    "netpower": 0.40205
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 S 6a",
+    "powerKW": 0.75,
+    "speedRPM": 950,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 2,
+      "tourqueNm": 7.5
+    },
+    "DOL": {
+      "current": 8,
+      "laln": 4,
+      "tourque": 15,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.69,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": 48,
+    "weightKg": 13.3,
+    "effCurve": [
+      0.789,
+      0.789,
+      0.769
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1,
+    "netpower": 0.59175
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 90 L 6b",
+    "powerKW": 1.1,
+    "speedRPM": 950,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 2.9,
+      "tourqueNm": 11.1
+    },
+    "DOL": {
+      "current": 11.6,
+      "laln": 4,
+      "tourque": 22.2,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.68,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": 48,
+    "weightKg": 15.2,
+    "effCurve": [
+      0.81,
+      0.81,
+      0.783
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 1.5,
+    "netpower": 0.8910000000000001
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 100 L 6a",
+    "powerKW": 1.5,
+    "speedRPM": 955,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 3.6,
+      "tourqueNm": 15
+    },
+    "DOL": {
+      "current": 18.4,
+      "laln": 5.1,
+      "tourque": 36,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.73,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": 52,
+    "weightKg": 22.8,
+    "effCurve": [
+      0.825,
+      0.823,
+      0.803
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 2,
+    "netpower": 1.2374999999999998
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 112 M 6a",
+    "powerKW": 2.2,
+    "speedRPM": 960,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 5.3,
+      "tourqueNm": 21.9
+    },
+    "DOL": {
+      "current": 30.7,
+      "laln": 5.8,
+      "tourque": 56.9,
+      "MaMn": 2.6
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.71,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": 56,
+    "weightKg": 30,
+    "effCurve": [
+      0.843,
+      0.841,
+      0.821
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 3,
+    "netpower": 1.8546
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 S 6a",
+    "powerKW": 3,
+    "speedRPM": 960,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 7.1,
+      "tourqueNm": 29.8
+    },
+    "DOL": {
+      "current": 38.3,
+      "laln": 5.4,
+      "tourque": 62.6,
+      "MaMn": 2.1
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.73,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "6208 ZZ",
+    "noiseLvl": 60,
+    "weightKg": 39,
+    "effCurve": [
+      0.852,
+      0.833,
+      0.832
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 4,
+    "netpower": 2.556
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 M 6b",
+    "powerKW": 4,
+    "speedRPM": 975,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 10.2,
+      "tourqueNm": 39.2
+    },
+    "DOL": {
+      "current": 57.1,
+      "laln": 5.6,
+      "tourque": 98,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.65,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "6208 ZZ",
+    "noiseLvl": 60,
+    "weightKg": 49,
+    "effCurve": [
+      0.868,
+      0.867,
+      0.864
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 5.5,
+    "netpower": 3.472
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 132 M 6c",
+    "powerKW": 5.5,
+    "speedRPM": 975,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 13.7,
+      "tourqueNm": 53.9
+    },
+    "DOL": {
+      "current": 80.8,
+      "laln": 5.9,
+      "tourque": 140.1,
+      "MaMn": 2.6
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.66,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ",
+    "rearBear": "6208 ZZ",
+    "noiseLvl": 60,
+    "weightKg": 63,
+    "effCurve": [
+      0.88,
+      0.878,
+      0.875
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 7.5,
+    "netpower": 4.84
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 M 6a",
+    "powerKW": 7.5,
+    "speedRPM": 970,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 16.2,
+      "tourqueNm": 73.8
+    },
+    "DOL": {
+      "current": 108.5,
+      "laln": 6.7,
+      "tourque": 191.9,
+      "MaMn": 2.6
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": 63,
+    "weightKg": 96,
+    "effCurve": [
+      0.891,
+      0.89,
+      0.881
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 10,
+    "netpower": 6.6825
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 160 L 6b",
+    "powerKW": 11,
+    "speedRPM": 975,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 22.7,
+      "tourqueNm": 107.7
+    },
+    "DOL": {
+      "current": 161,
+      "laln": 7.1,
+      "tourque": 269.3,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 122,
+    "effCurve": [
+      0.903,
+      0.903,
+      0.89
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 15,
+    "netpower": 9.933
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 180 L 6a",
+    "powerKW": 15,
+    "speedRPM": 975,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 146.9,
+      "tourqueNm": 0.83
+    },
+    "DOL": {
+      "current": 229.6,
+      "laln": 1.6,
+      "tourque": 352.6,
+      "MaMn": 424.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.83,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ C3",
+    "rearBear": "6210 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 162,
+    "effCurve": [
+      0.912,
+      0.912,
+      0.908
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 20,
+    "netpower": 13.68
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 200 L 6a",
+    "powerKW": 18.5,
+    "speedRPM": 980,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 36.8,
+      "tourqueNm": 180.3
+    },
+    "DOL": {
+      "current": 290.7,
+      "laln": 7.9,
+      "tourque": 522.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.79,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 188,
+    "effCurve": [
+      0.917,
+      0.916,
+      0.913
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 25,
+    "netpower": 16.9645
+  },
+  {
+    "material": "Aluminium",
+    "model": "AGM3EL 200 L 6b",
+    "powerKW": 22,
+    "speedRPM": 980,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 42.2,
+      "tourqueNm": 214.4
+    },
+    "DOL": {
+      "current": 312.3,
+      "laln": 7.4,
+      "tourque": 621.6,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 101.3,
+      "laln": 2.4,
+      "tourque": 193,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 200,
+    "effCurve": [
+      0.922,
+      0.92,
+      0.917
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 30,
+    "netpower": 20.284000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3EL 225 M 6a",
+    "powerKW": 30,
+    "speedRPM": 985,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 58,
+      "tourqueNm": 290.9
+    },
+    "DOL": {
+      "current": 406,
+      "laln": 7,
+      "tourque": 960,
+      "MaMn": 3.3
+    },
+    "starDelta": {
+      "current": 133.4,
+      "laln": 2.3,
+      "tourque": 320,
+      "MaMn": 1.1
+    },
+    "powerFactor": 0.8,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 350,
+    "effCurve": [
+      0.929,
+      0.929,
+      0.921
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 40,
+    "netpower": 27.87
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM2E 250 M 6a",
+    "powerKW": 37,
+    "speedRPM": 985,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 71,
+      "tourqueNm": 358.7
+    },
+    "DOL": {
+      "current": 499.8,
+      "laln": 7,
+      "tourque": 1076,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": 164.2,
+      "laln": 2.3,
+      "tourque": 358.7,
+      "MaMn": 1
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 2,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6215 ZZ C3",
+    "noiseLvl": 66,
+    "weightKg": 380,
+    "effCurve": [
+      0.922,
+      0.922,
+      0.901
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 50,
+    "netpower": 34.114000000000004
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 250 M 6a",
+    "powerKW": 37,
+    "speedRPM": 985,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 70,
+      "tourqueNm": 358.7
+    },
+    "DOL": {
+      "current": 490,
+      "laln": 7,
+      "tourque": 1004.4,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": 161,
+      "laln": 2.3,
+      "tourque": 322.8,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6215 ZZ C3",
+    "noiseLvl": 66,
+    "weightKg": 440,
+    "effCurve": [
+      0.933,
+      0.932,
+      0.929
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 50,
+    "netpower": 34.521
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 S 6a",
+    "powerKW": 45,
+    "speedRPM": 990,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 88,
+      "tourqueNm": 434.1
+    },
+    "DOL": {
+      "current": 607.2,
+      "laln": 6.9,
+      "tourque": 1302.3,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": 202.4,
+      "laln": 2.3,
+      "tourque": 434.1,
+      "MaMn": 1
+    },
+    "powerFactor": 0.79,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ C3",
+    "rearBear": "6316 ZZ C3",
+    "noiseLvl": 67,
+    "weightKg": 553,
+    "effCurve": [
+      0.937,
+      0.937,
+      0.929
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 55,
+    "netpower": 42.165
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 280 M 6b",
+    "powerKW": 55,
+    "speedRPM": 990,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 112,
+      "tourqueNm": 530.8
+    },
+    "DOL": {
+      "current": 817.6,
+      "laln": 7.3,
+      "tourque": 1751,
+      "MaMn": 3.3
+    },
+    "starDelta": {
+      "current": 268.8,
+      "laln": 2.4,
+      "tourque": 583.7,
+      "MaMn": 1.1
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ C3",
+    "rearBear": "6316 ZZ C3",
+    "noiseLvl": 67,
+    "weightKg": 578,
+    "effCurve": [
+      0.941,
+      0.941,
+      0.928
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 75,
+    "netpower": 51.754999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 315 S 6a",
+    "powerKW": 75,
+    "speedRPM": 990,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 140,
+      "tourqueNm": 723.5
+    },
+    "DOL": {
+      "current": 1008,
+      "laln": 7.2,
+      "tourque": 1953.5,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": 336,
+      "laln": 2.4,
+      "tourque": 651.2,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 315,
+    "shaftDia": 85,
+    "shaftLength": 170,
+    "shaftFeather": 160,
+    "IE": 3,
+    "frontBear": "6318 C3",
+    "rearBear": "6318 C3",
+    "noiseLvl": 72,
+    "weightKg": 805,
+    "effCurve": [
+      0.946,
+      0.946,
+      0.944
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 100,
+    "netpower": 70.95
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 315 M 6b",
+    "powerKW": 90,
+    "speedRPM": 990,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 166,
+      "tourqueNm": 868.2
+    },
+    "DOL": {
+      "current": 1195.2,
+      "laln": 7.2,
+      "tourque": 2344.1,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": 398,
+      "laln": 2.4,
+      "tourque": 781,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.83,
+    "Phase": 3,
+    "frameSize": 315,
+    "shaftDia": 85,
+    "shaftLength": 170,
+    "shaftFeather": 160,
+    "IE": 3,
+    "frontBear": "6318 C3",
+    "rearBear": "6318 C3",
+    "noiseLvl": 72,
+    "weightKg": 860,
+    "effCurve": [
+      0.949,
+      0.949,
+      0.945
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 125,
+    "netpower": 85.41
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3E 315 M 6c",
+    "powerKW": 110,
+    "speedRPM": 990,
+    "NoPoles": 6,
+    "rated": {
+      "currentInput": 198,
+      "tourqueNm": 1061.1
+    },
+    "DOL": {
+      "current": 1425.6,
+      "laln": 7.2,
+      "tourque": 2865,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": 475,
+      "laln": 2.4,
+      "tourque": 955,
+      "MaMn": 0.9
+    },
+    "powerFactor": 0.84,
+    "Phase": 3,
+    "frameSize": 315,
+    "shaftDia": 85,
+    "shaftLength": 170,
+    "shaftFeather": 160,
+    "IE": 2,
+    "frontBear": "6318 C3",
+    "rearBear": "6318 C3",
+    "noiseLvl": 72,
+    "weightKg": 980,
+    "effCurve": [
+      0.951,
+      0.951,
+      0.949
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "F",
+    "powerHorse": 150,
+    "netpower": 104.61
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GMD 80 M 4a",
+    "powerKW": 0.55,
+    "speedRPM": 1365,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.6,
+      "tourqueNm": 3.85
+    },
+    "DOL": {
+      "current": 5.6,
+      "laln": 3.5,
+      "tourque": 7.3,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.72,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 1,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 12.7,
+    "effCurve": [
+      0.691,
+      0.69,
+      0.682
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 0.75,
+    "netpower": 0.38005
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 80 M 4b",
+    "powerKW": 0.75,
+    "speedRPM": 1410,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.1,
+      "tourqueNm": 5.08
+    },
+    "DOL": {
+      "current": 5,
+      "laln": 2.4,
+      "tourque": 2.6,
+      "MaMn": 0.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.65,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 15.6,
+    "effCurve": [
+      0.825,
+      0.825,
+      0.808
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 1,
+    "netpower": 0.6187499999999999
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 90 S 4a",
+    "powerKW": 1.1,
+    "speedRPM": 1430,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.6,
+      "tourqueNm": 7.35
+    },
+    "DOL": {
+      "current": 14.3,
+      "laln": 5.5,
+      "tourque": 16.9,
+      "MaMn": 2.3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 20.7,
+    "effCurve": [
+      0.841,
+      0.841,
+      0.828
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 1.5,
+    "netpower": 0.9251
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 90 L 4b",
+    "powerKW": 1.5,
+    "speedRPM": 1430,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 3.5,
+      "tourqueNm": 10.02
+    },
+    "DOL": {
+      "current": 20.7,
+      "laln": 5.9,
+      "tourque": 33.1,
+      "MaMn": 3.3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 24,
+    "effCurve": [
+      0.854,
+      0.8545,
+      0.839
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 2,
+    "netpower": 1.281
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 100 L 4a",
+    "powerKW": 2.2,
+    "speedRPM": 1435,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 5,
+      "tourqueNm": 14.6
+    },
+    "DOL": {
+      "current": 29.5,
+      "laln": 5.9,
+      "tourque": 42.3,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 31.6,
+    "effCurve": [
+      0.867,
+      0.868,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 3,
+    "netpower": 1.9074000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 100 L 4b",
+    "powerKW": 3,
+    "speedRPM": 1435,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 6.6,
+      "tourqueNm": 20
+    },
+    "DOL": {
+      "current": 40.9,
+      "laln": 6.2,
+      "tourque": 58,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 38,
+    "effCurve": [
+      0.877,
+      0.878,
+      0.861
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 4,
+    "netpower": 2.6310000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 112 M 4a",
+    "powerKW": 4,
+    "speedRPM": 1455,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 8.2,
+      "tourqueNm": 26.3
+    },
+    "DOL": {
+      "current": 54.1,
+      "laln": 6.6,
+      "tourque": 65.8,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 49,
+    "effCurve": [
+      0.886,
+      0.885,
+      0.88
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 5.5,
+    "netpower": 3.544
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 132 S 4a",
+    "powerKW": 5.5,
+    "speedRPM": 1465,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 11.2,
+      "tourqueNm": 35.9
+    },
+    "DOL": {
+      "current": 78.4,
+      "laln": 7,
+      "tourque": 100.5,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 58,
+    "effCurve": [
+      0.896,
+      0.896,
+      0.888
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 7.5,
+    "netpower": 4.928
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 132 M 4b",
+    "powerKW": 7.5,
+    "speedRPM": 1465,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 15.4,
+      "tourqueNm": 48.9
+    },
+    "DOL": {
+      "current": 109.3,
+      "laln": 7.1,
+      "tourque": 132,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.79,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 69,
+    "effCurve": [
+      0.904,
+      0.905,
+      0.896
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 10,
+    "netpower": 6.78
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 160 M 4a",
+    "powerKW": 11,
+    "speedRPM": 1470,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 21.1,
+      "tourqueNm": 71.5
+    },
+    "DOL": {
+      "current": 128.7,
+      "laln": 6.1,
+      "tourque": 135.9,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 42.2,
+      "laln": 2,
+      "tourque": 42.9,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ S0 C4 G175",
+    "rearBear": "6309 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 124,
+    "effCurve": [
+      0.914,
+      0.913,
+      0.911
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 15,
+    "netpower": 10.054
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 160 L 4b",
+    "powerKW": 15,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 28.5,
+      "tourqueNm": 97.1
+    },
+    "DOL": {
+      "current": 191,
+      "laln": 6.7,
+      "tourque": 194.2,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": 62.7,
+      "laln": 2.2,
+      "tourque": 58.3,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ S0 C4 G175",
+    "rearBear": "6309 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 151,
+    "effCurve": [
+      0.921,
+      0.92,
+      0.918
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 20,
+    "netpower": 13.815000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 180 M 4a",
+    "powerKW": 18.5,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 34,
+      "tourqueNm": 119.8
+    },
+    "DOL": {
+      "current": 268.6,
+      "laln": 7.9,
+      "tourque": 299.5,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": 85,
+      "laln": 2.5,
+      "tourque": 95.8,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ S0 C4 G175",
+    "rearBear": "6310 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 194,
+    "effCurve": [
+      0.926,
+      0.926,
+      0.916
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 25,
+    "netpower": 17.131
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 180 L 4b",
+    "powerKW": 22,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 39.4,
+      "tourqueNm": 142.4
+    },
+    "DOL": {
+      "current": 295.5,
+      "laln": 7.5,
+      "tourque": 341.8,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 94.6,
+      "laln": 2.4,
+      "tourque": 113.9,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ S0 C4 G175",
+    "rearBear": "6310 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 215,
+    "effCurve": [
+      0.93,
+      0.928,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 30,
+    "netpower": 20.46
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 200 L 4a",
+    "powerKW": 30,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 52.8,
+      "tourqueNm": 194.2
+    },
+    "DOL": {
+      "current": 433,
+      "laln": 8.2,
+      "tourque": 466.1,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 137.3,
+      "laln": 2.6,
+      "tourque": 155.4,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.88,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ S0 C4 G175",
+    "rearBear": "6312 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 273,
+    "effCurve": [
+      0.936,
+      0.935,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 40,
+    "netpower": 28.080000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 225 S 4a",
+    "powerKW": 37,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 67,
+      "tourqueNm": 239.6
+    },
+    "DOL": {
+      "current": 502.5,
+      "laln": 7.5,
+      "tourque": 742.8,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": 160.8,
+      "laln": 2.4,
+      "tourque": 239.6,
+      "MaMn": 1
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6313 ZZ S0 C4 G175",
+    "rearBear": "6313 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 350,
+    "effCurve": [
+      0.939,
+      0.939,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 50,
+    "netpower": 34.742999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 225 M 4b",
+    "powerKW": 45,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 80,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6313 ZZ S0 C4 G175",
+    "rearBear": "6313 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 397.5,
+    "effCurve": [
+      0.9444999999999999,
+      0.944,
+      0.9395
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 55,
+    "netpower": 42.5025
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 250 M 4a",
+    "powerKW": 55,
+    "speedRPM": 1480,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 96,
+      "tourqueNm": 354
+    },
+    "DOL": {
+      "current": 739.2,
+      "laln": 7.7,
+      "tourque": 1135.7,
+      "MaMn": 3.2
+    },
+    "starDelta": {
+      "current": 249.6,
+      "laln": 2.6,
+      "tourque": 390.4,
+      "MaMn": 1.1
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ S0 C4 G175",
+    "rearBear": "6315 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 445,
+    "effCurve": [
+      0.946,
+      0.947,
+      0.94
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 75,
+    "netpower": 52.029999999999994
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 280 S 4a",
+    "powerKW": 75,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 133,
+      "tourqueNm": 482.3
+    },
+    "DOL": {
+      "current": 1010.8,
+      "laln": 7.6,
+      "tourque": 1398.7,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 332.5,
+      "laln": 2.5,
+      "tourque": 482.3,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ S0 C4 G175",
+    "rearBear": "6316 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 605,
+    "effCurve": [
+      0.95,
+      0.949,
+      0.944
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 100,
+    "netpower": 71.25
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 280 M 4b",
+    "powerKW": 90,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 158,
+      "tourqueNm": 578.8
+    },
+    "DOL": {
+      "current": 1169.2,
+      "laln": 7.4,
+      "tourque": 1678.5,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 395,
+      "laln": 2.5,
+      "tourque": 578.8,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ  S0 C4 G175",
+    "rearBear": "6316 ZZ  S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 665,
+    "effCurve": [
+      0.952,
+      0.952,
+      0.948
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 125,
+    "netpower": 85.67999999999999
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 80 M 2a",
+    "powerKW": 0.75,
+    "speedRPM": 2860,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1.6,
+      "tourqueNm": 2.5
+    },
+    "DOL": {
+      "current": 9.9,
+      "laln": 6.2,
+      "tourque": 6.3,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 14,
+    "effCurve": [
+      0.807,
+      0.806,
+      0.785
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 1,
+    "netpower": 0.6052500000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 80 M 2b",
+    "powerKW": 1.1,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 2.3,
+      "tourqueNm": 3.62
+    },
+    "DOL": {
+      "current": 14.5,
+      "laln": 6.3,
+      "tourque": 9.8,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.84,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 15.6,
+    "effCurve": [
+      0.827,
+      0.825,
+      0.806
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 1.5,
+    "netpower": 0.9097000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 90 S 2a",
+    "powerKW": 1.5,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 3.4,
+      "tourqueNm": 4.94
+    },
+    "DOL": {
+      "current": 21.4,
+      "laln": 6.3,
+      "tourque": 15.3,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.76,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 19.8,
+    "effCurve": [
+      0.842,
+      0.84,
+      0.825
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 2,
+    "netpower": 1.263
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 90 L 2b",
+    "powerKW": 2.2,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 4.48,
+      "tourqueNm": 7.24
+    },
+    "DOL": {
+      "current": 29.6,
+      "laln": 6.6,
+      "tourque": 21,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.84,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 22.3,
+    "effCurve": [
+      0.859,
+      0.854,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 3,
+    "netpower": 1.8898000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 100 L 2a",
+    "powerKW": 3,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 6,
+      "tourqueNm": 9.9
+    },
+    "DOL": {
+      "current": 45.6,
+      "laln": 7.6,
+      "tourque": 33.7,
+      "MaMn": 3.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 30.9,
+    "effCurve": [
+      0.871,
+      0.869,
+      0.853
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 4,
+    "netpower": 2.613
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 112 M 2a",
+    "powerKW": 4,
+    "speedRPM": 2910,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 7.4,
+      "tourqueNm": 13.1
+    },
+    "DOL": {
+      "current": 53.3,
+      "laln": 7.2,
+      "tourque": 36.7,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 35,
+    "effCurve": [
+      0.881,
+      0.88,
+      0.872
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 5.5,
+    "netpower": 3.524
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 132 S 2a",
+    "powerKW": 5.5,
+    "speedRPM": 2930,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 11,
+      "tourqueNm": 17.9
+    },
+    "DOL": {
+      "current": 80.3,
+      "laln": 7.3,
+      "tourque": 50.1,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 51,
+    "effCurve": [
+      0.892,
+      0.89,
+      0.874
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 7.5,
+    "netpower": 4.906
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 132 S 2b",
+    "powerKW": 7.5,
+    "speedRPM": 2910,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 13.6,
+      "tourqueNm": 24.6
+    },
+    "DOL": {
+      "current": 97.9,
+      "laln": 7.2,
+      "tourque": 73.8,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 56,
+    "effCurve": [
+      0.901,
+      0.901,
+      0.895
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 10,
+    "netpower": 6.7575
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 160 M 2a",
+    "powerKW": 11,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 19,
+      "tourqueNm": 35.5
+    },
+    "DOL": {
+      "current": 134.9,
+      "laln": 7.1,
+      "tourque": 71,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 113,
+    "effCurve": [
+      0.912,
+      0.912,
+      0.904
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 15,
+    "netpower": 10.032
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 160 M 2b",
+    "powerKW": 15,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 25.7,
+      "tourqueNm": 48.5
+    },
+    "DOL": {
+      "current": 203,
+      "laln": 7.9,
+      "tourque": 106.7,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 128,
+    "effCurve": [
+      0.919,
+      0.918,
+      0.912
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 20,
+    "netpower": 13.785
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 160 L 2c",
+    "powerKW": 18.5,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 31.4,
+      "tourqueNm": 59.7
+    },
+    "DOL": {
+      "current": 254.3,
+      "laln": 8.1,
+      "tourque": 131.3,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": 81.6,
+      "laln": 2.6,
+      "tourque": 41.8,
+      "MaMn": 0.7
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 128,
+    "effCurve": [
+      0.924,
+      0.925,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 25,
+    "netpower": 17.094
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 180 M 2a",
+    "powerKW": 22,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 36.9,
+      "tourqueNm": 71
+    },
+    "DOL": {
+      "current": 313.7,
+      "laln": 8.5,
+      "tourque": 205.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.93,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ C3",
+    "rearBear": "6310 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 170,
+    "effCurve": [
+      0.927,
+      0.926,
+      0.922
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 30,
+    "netpower": 20.394000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 200 L 2a",
+    "powerKW": 30,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 52,
+      "tourqueNm": 96.1
+    },
+    "DOL": {
+      "current": 442,
+      "laln": 8.5,
+      "tourque": 278,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.89,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 210,
+    "effCurve": [
+      0.933,
+      0.933,
+      0.928
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 40,
+    "netpower": 27.990000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 200 L 2b",
+    "powerKW": 37,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 63,
+      "tourqueNm": 118.6
+    },
+    "DOL": {
+      "current": 522.9,
+      "laln": 8.3,
+      "tourque": 332.1,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6312 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 240,
+    "effCurve": [
+      0.937,
+      0.937,
+      0.931
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 50,
+    "netpower": 34.669000000000004
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 225 M 2a",
+    "powerKW": 45,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 77,
+      "tourqueNm": 144
+    },
+    "DOL": {
+      "current": 669.6,
+      "laln": 8.7,
+      "tourque": 389.3,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 55,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6213 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 400,
+    "effCurve": [
+      0.94,
+      0.941,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 55,
+    "netpower": 42.3
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 250 M 2a",
+    "powerKW": 55,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 92,
+      "tourqueNm": 176
+    },
+    "DOL": {
+      "current": 800,
+      "laln": 8.7,
+      "tourque": 510.4,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6215 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 445,
+    "effCurve": [
+      0.943,
+      0.945,
+      0.933
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 75,
+    "netpower": 51.864999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 280 S 2a",
+    "powerKW": 75,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 127,
+      "tourqueNm": 239.9
+    },
+    "DOL": {
+      "current": 1016,
+      "laln": 8,
+      "tourque": 695,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 585,
+    "effCurve": [
+      0.9464999999999999,
+      0.9475,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 100,
+    "netpower": 70.9875
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3ED 280 M 2b",
+    "powerKW": 90,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 148,
+      "tourqueNm": 287.9
+    },
+    "DOL": {
+      "current": 1213.6,
+      "laln": 8.2,
+      "tourque": 834.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 645,
+    "effCurve": [
+      0.95,
+      0.95,
+      0.937
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F300)",
+    "powerHorse": 125,
+    "netpower": 85.5
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GMD 80 M 4a",
+    "powerKW": 0.55,
+    "speedRPM": 1365,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.6,
+      "tourqueNm": 3.85
+    },
+    "DOL": {
+      "current": 5.6,
+      "laln": 3.5,
+      "tourque": 7.3,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 0,
+      "laln": 0,
+      "tourque": 0,
+      "MaMn": 0
+    },
+    "powerFactor": 0.72,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 1,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 12.7,
+    "effCurve": [
+      0.691,
+      0.69,
+      0.682
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 0.75,
+    "netpower": 0.38005
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 80 M 4b",
+    "powerKW": 0.75,
+    "speedRPM": 1410,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.1,
+      "tourqueNm": 5.08
+    },
+    "DOL": {
+      "current": 5,
+      "laln": 2.4,
+      "tourque": 2.6,
+      "MaMn": 0.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.65,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 15.6,
+    "effCurve": [
+      0.825,
+      0.825,
+      0.808
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 1,
+    "netpower": 0.6187499999999999
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 90 S 4a",
+    "powerKW": 1.1,
+    "speedRPM": 1430,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.6,
+      "tourqueNm": 7.35
+    },
+    "DOL": {
+      "current": 14.3,
+      "laln": 5.5,
+      "tourque": 16.9,
+      "MaMn": 2.3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 20.7,
+    "effCurve": [
+      0.841,
+      0.841,
+      0.828
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 1.5,
+    "netpower": 0.9251
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 90 L 4b",
+    "powerKW": 1.5,
+    "speedRPM": 1430,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 3.5,
+      "tourqueNm": 10.02
+    },
+    "DOL": {
+      "current": 20.7,
+      "laln": 5.9,
+      "tourque": 33.1,
+      "MaMn": 3.3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 24,
+    "effCurve": [
+      0.854,
+      0.8545,
+      0.839
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 2,
+    "netpower": 1.281
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 100 L 4a",
+    "powerKW": 2.2,
+    "speedRPM": 1435,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 5,
+      "tourqueNm": 14.6
+    },
+    "DOL": {
+      "current": 29.5,
+      "laln": 5.9,
+      "tourque": 42.3,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.75,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 31.6,
+    "effCurve": [
+      0.867,
+      0.868,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 3,
+    "netpower": 1.9074000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 100 L 4b",
+    "powerKW": 3,
+    "speedRPM": 1435,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 6.6,
+      "tourqueNm": 20
+    },
+    "DOL": {
+      "current": 40.9,
+      "laln": 6.2,
+      "tourque": 58,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.77,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 38,
+    "effCurve": [
+      0.877,
+      0.878,
+      0.861
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 4,
+    "netpower": 2.6310000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 112 M 4a",
+    "powerKW": 4,
+    "speedRPM": 1455,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 8.2,
+      "tourqueNm": 26.3
+    },
+    "DOL": {
+      "current": 54.1,
+      "laln": 6.6,
+      "tourque": 65.8,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 49,
+    "effCurve": [
+      0.886,
+      0.885,
+      0.88
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 5.5,
+    "netpower": 3.544
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 132 S 4a",
+    "powerKW": 5.5,
+    "speedRPM": 1465,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 11.2,
+      "tourqueNm": 35.9
+    },
+    "DOL": {
+      "current": 78.4,
+      "laln": 7,
+      "tourque": 100.5,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.81,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 58,
+    "effCurve": [
+      0.896,
+      0.896,
+      0.888
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 7.5,
+    "netpower": 4.928
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 132 M 4b",
+    "powerKW": 7.5,
+    "speedRPM": 1465,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 15.4,
+      "tourqueNm": 48.9
+    },
+    "DOL": {
+      "current": 109.3,
+      "laln": 7.1,
+      "tourque": 132,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.79,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 69,
+    "effCurve": [
+      0.904,
+      0.905,
+      0.896
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 10,
+    "netpower": 6.78
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 160 M 4a",
+    "powerKW": 11,
+    "speedRPM": 1470,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 21.1,
+      "tourqueNm": 71.5
+    },
+    "DOL": {
+      "current": 128.7,
+      "laln": 6.1,
+      "tourque": 135.9,
+      "MaMn": 1.9
+    },
+    "starDelta": {
+      "current": 42.2,
+      "laln": 2,
+      "tourque": 42.9,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ S0 C4 G175",
+    "rearBear": "6309 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 124,
+    "effCurve": [
+      0.914,
+      0.913,
+      0.911
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 15,
+    "netpower": 10.054
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 160 L 4b",
+    "powerKW": 15,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 28.5,
+      "tourqueNm": 97.1
+    },
+    "DOL": {
+      "current": 191,
+      "laln": 6.7,
+      "tourque": 194.2,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": 62.7,
+      "laln": 2.2,
+      "tourque": 58.3,
+      "MaMn": 0.6
+    },
+    "powerFactor": 0.82,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ S0 C4 G175",
+    "rearBear": "6309 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 151,
+    "effCurve": [
+      0.921,
+      0.92,
+      0.918
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 20,
+    "netpower": 13.815000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 180 M 4a",
+    "powerKW": 18.5,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 34,
+      "tourqueNm": 119.8
+    },
+    "DOL": {
+      "current": 268.6,
+      "laln": 7.9,
+      "tourque": 299.5,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": 85,
+      "laln": 2.5,
+      "tourque": 95.8,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ S0 C4 G175",
+    "rearBear": "6310 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 194,
+    "effCurve": [
+      0.926,
+      0.926,
+      0.916
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 25,
+    "netpower": 17.131
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 180 L 4b",
+    "powerKW": 22,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 39.4,
+      "tourqueNm": 142.4
+    },
+    "DOL": {
+      "current": 295.5,
+      "laln": 7.5,
+      "tourque": 341.8,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 94.6,
+      "laln": 2.4,
+      "tourque": 113.9,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ S0 C4 G175",
+    "rearBear": "6310 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 215,
+    "effCurve": [
+      0.93,
+      0.928,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 30,
+    "netpower": 20.46
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 200 L 4a",
+    "powerKW": 30,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 52.8,
+      "tourqueNm": 194.2
+    },
+    "DOL": {
+      "current": 433,
+      "laln": 8.2,
+      "tourque": 466.1,
+      "MaMn": 2.4
+    },
+    "starDelta": {
+      "current": 137.3,
+      "laln": 2.6,
+      "tourque": 155.4,
+      "MaMn": 0.8
+    },
+    "powerFactor": 0.88,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ S0 C4 G175",
+    "rearBear": "6312 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 273,
+    "effCurve": [
+      0.936,
+      0.935,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 40,
+    "netpower": 28.080000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 225 S 4a",
+    "powerKW": 37,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 67,
+      "tourqueNm": 239.6
+    },
+    "DOL": {
+      "current": 502.5,
+      "laln": 7.5,
+      "tourque": 742.8,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": 160.8,
+      "laln": 2.4,
+      "tourque": 239.6,
+      "MaMn": 1
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6313 ZZ S0 C4 G175",
+    "rearBear": "6313 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 350,
+    "effCurve": [
+      0.939,
+      0.939,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 50,
+    "netpower": 34.742999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 225 M 4b",
+    "powerKW": 45,
+    "speedRPM": 1475,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 80,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6313 ZZ S0 C4 G175",
+    "rearBear": "6313 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 397.5,
+    "effCurve": [
+      0.9444999999999999,
+      0.944,
+      0.9395
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 55,
+    "netpower": 42.5025
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 250 M 4a",
+    "powerKW": 55,
+    "speedRPM": 1480,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 96,
+      "tourqueNm": 354
+    },
+    "DOL": {
+      "current": 739.2,
+      "laln": 7.7,
+      "tourque": 1135.7,
+      "MaMn": 3.2
+    },
+    "starDelta": {
+      "current": 249.6,
+      "laln": 2.6,
+      "tourque": 390.4,
+      "MaMn": 1.1
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ S0 C4 G175",
+    "rearBear": "6315 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 445,
+    "effCurve": [
+      0.946,
+      0.947,
+      0.94
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 75,
+    "netpower": 52.029999999999994
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 280 S 4a",
+    "powerKW": 75,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 133,
+      "tourqueNm": 482.3
+    },
+    "DOL": {
+      "current": 1010.8,
+      "laln": 7.6,
+      "tourque": 1398.7,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 332.5,
+      "laln": 2.5,
+      "tourque": 482.3,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ S0 C4 G175",
+    "rearBear": "6316 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 605,
+    "effCurve": [
+      0.95,
+      0.949,
+      0.944
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 100,
+    "netpower": 71.25
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 280 M 4b",
+    "powerKW": 90,
+    "speedRPM": 1485,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 158,
+      "tourqueNm": 578.8
+    },
+    "DOL": {
+      "current": 1169.2,
+      "laln": 7.4,
+      "tourque": 1678.5,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": 395,
+      "laln": 2.5,
+      "tourque": 578.8,
+      "MaMn": 1
+    },
+    "powerFactor": 0.86,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 75,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6316 ZZ  S0 C4 G175",
+    "rearBear": "6316 ZZ  S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 665,
+    "effCurve": [
+      0.952,
+      0.952,
+      0.948
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 125,
+    "netpower": 85.67999999999999
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 80 M 2a",
+    "powerKW": 0.75,
+    "speedRPM": 2860,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 1.6,
+      "tourqueNm": 2.5
+    },
+    "DOL": {
+      "current": 9.9,
+      "laln": 6.2,
+      "tourque": 6.3,
+      "MaMn": 2.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.87,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 14,
+    "effCurve": [
+      0.807,
+      0.806,
+      0.785
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 1,
+    "netpower": 0.6052500000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 80 M 2b",
+    "powerKW": 1.1,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 2.3,
+      "tourqueNm": 3.62
+    },
+    "DOL": {
+      "current": 14.5,
+      "laln": 6.3,
+      "tourque": 9.8,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.84,
+    "Phase": 3,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 3,
+    "frontBear": "6204 ZZ S0 C4 G175",
+    "rearBear": "6204 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 15.6,
+    "effCurve": [
+      0.827,
+      0.825,
+      0.806
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 1.5,
+    "netpower": 0.9097000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 90 S 2a",
+    "powerKW": 1.5,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 3.4,
+      "tourqueNm": 4.94
+    },
+    "DOL": {
+      "current": 21.4,
+      "laln": 6.3,
+      "tourque": 15.3,
+      "MaMn": 3.1
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.76,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 19.8,
+    "effCurve": [
+      0.842,
+      0.84,
+      0.825
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 2,
+    "netpower": 1.263
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 90 L 2b",
+    "powerKW": 2.2,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 4.48,
+      "tourqueNm": 7.24
+    },
+    "DOL": {
+      "current": 29.6,
+      "laln": 6.6,
+      "tourque": 21,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.84,
+    "Phase": 3,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 3,
+    "frontBear": "6205 ZZ S0 C4 G175",
+    "rearBear": "6205 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 22.3,
+    "effCurve": [
+      0.859,
+      0.854,
+      0.85
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 3,
+    "netpower": 1.8898000000000001
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 100 L 2a",
+    "powerKW": 3,
+    "speedRPM": 2900,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 6,
+      "tourqueNm": 9.9
+    },
+    "DOL": {
+      "current": 45.6,
+      "laln": 7.6,
+      "tourque": 33.7,
+      "MaMn": 3.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 30.9,
+    "effCurve": [
+      0.871,
+      0.869,
+      0.853
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 4,
+    "netpower": 2.613
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 112 M 2a",
+    "powerKW": 4,
+    "speedRPM": 2910,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 7.4,
+      "tourqueNm": 13.1
+    },
+    "DOL": {
+      "current": 53.3,
+      "laln": 7.2,
+      "tourque": 36.7,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 112,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 3,
+    "frontBear": "6206 ZZ S0 C4 G175",
+    "rearBear": "6206 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 35,
+    "effCurve": [
+      0.881,
+      0.88,
+      0.872
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 5.5,
+    "netpower": 3.524
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 132 S 2a",
+    "powerKW": 5.5,
+    "speedRPM": 2930,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 11,
+      "tourqueNm": 17.9
+    },
+    "DOL": {
+      "current": 80.3,
+      "laln": 7.3,
+      "tourque": 50.1,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.85,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 51,
+    "effCurve": [
+      0.892,
+      0.89,
+      0.874
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 7.5,
+    "netpower": 4.906
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 132 S 2b",
+    "powerKW": 7.5,
+    "speedRPM": 2910,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 13.6,
+      "tourqueNm": 24.6
+    },
+    "DOL": {
+      "current": 97.9,
+      "laln": 7.2,
+      "tourque": 73.8,
+      "MaMn": 3
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 132,
+    "shaftDia": 38,
+    "shaftLength": 80,
+    "shaftFeather": 70,
+    "IE": 3,
+    "frontBear": "6208 ZZ S0 C4 G175",
+    "rearBear": "6208 ZZ S0 C4 G175",
+    "noiseLvl": null,
+    "weightKg": 56,
+    "effCurve": [
+      0.901,
+      0.901,
+      0.895
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 10,
+    "netpower": 6.7575
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 160 M 2a",
+    "powerKW": 11,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 19,
+      "tourqueNm": 35.5
+    },
+    "DOL": {
+      "current": 134.9,
+      "laln": 7.1,
+      "tourque": 71,
+      "MaMn": 2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 113,
+    "effCurve": [
+      0.912,
+      0.912,
+      0.904
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 15,
+    "netpower": 10.032
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 160 M 2b",
+    "powerKW": 15,
+    "speedRPM": 2955,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 25.7,
+      "tourqueNm": 48.5
+    },
+    "DOL": {
+      "current": 203,
+      "laln": 7.9,
+      "tourque": 106.7,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 128,
+    "effCurve": [
+      0.919,
+      0.918,
+      0.912
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 20,
+    "netpower": 13.785
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 160 L 2c",
+    "powerKW": 18.5,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 31.4,
+      "tourqueNm": 59.7
+    },
+    "DOL": {
+      "current": 254.3,
+      "laln": 8.1,
+      "tourque": 131.3,
+      "MaMn": 2.2
+    },
+    "starDelta": {
+      "current": 81.6,
+      "laln": 2.6,
+      "tourque": 41.8,
+      "MaMn": 0.7
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 160,
+    "shaftDia": 42,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6309 ZZ C3",
+    "rearBear": "6209 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 128,
+    "effCurve": [
+      0.924,
+      0.925,
+      0.92
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 25,
+    "netpower": 17.094
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 180 M 2a",
+    "powerKW": 22,
+    "speedRPM": 2960,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 36.9,
+      "tourqueNm": 71
+    },
+    "DOL": {
+      "current": 313.7,
+      "laln": 8.5,
+      "tourque": 205.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.93,
+    "Phase": 3,
+    "frameSize": 180,
+    "shaftDia": 48,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6310 ZZ C3",
+    "rearBear": "6310 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 170,
+    "effCurve": [
+      0.927,
+      0.926,
+      0.922
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 30,
+    "netpower": 20.394000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 200 L 2a",
+    "powerKW": 30,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 52,
+      "tourqueNm": 96.1
+    },
+    "DOL": {
+      "current": 442,
+      "laln": 8.5,
+      "tourque": 278,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.89,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6212 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 210,
+    "effCurve": [
+      0.933,
+      0.933,
+      0.928
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 40,
+    "netpower": 27.990000000000002
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 200 L 2b",
+    "powerKW": 37,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 63,
+      "tourqueNm": 118.6
+    },
+    "DOL": {
+      "current": 522.9,
+      "laln": 8.3,
+      "tourque": 332.1,
+      "MaMn": 2.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 200,
+    "shaftDia": 55,
+    "shaftLength": 110,
+    "shaftFeather": 100,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6312 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 240,
+    "effCurve": [
+      0.937,
+      0.937,
+      0.931
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 50,
+    "netpower": 34.669000000000004
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 225 M 2a",
+    "powerKW": 45,
+    "speedRPM": 2980,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 77,
+      "tourqueNm": 144
+    },
+    "DOL": {
+      "current": 669.6,
+      "laln": 8.7,
+      "tourque": 389.3,
+      "MaMn": 2.7
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 225,
+    "shaftDia": 55,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6312 ZZ C3",
+    "rearBear": "6213 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 400,
+    "effCurve": [
+      0.94,
+      0.941,
+      0.93
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 55,
+    "netpower": 42.3
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 250 M 2a",
+    "powerKW": 55,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 92,
+      "tourqueNm": 176
+    },
+    "DOL": {
+      "current": 800,
+      "laln": 8.7,
+      "tourque": 510.4,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 250,
+    "shaftDia": 60,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6215 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 445,
+    "effCurve": [
+      0.943,
+      0.945,
+      0.933
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 75,
+    "netpower": 51.864999999999995
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 280 S 2a",
+    "powerKW": 75,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 127,
+      "tourqueNm": 239.9
+    },
+    "DOL": {
+      "current": 1016,
+      "laln": 8,
+      "tourque": 695,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 585,
+    "effCurve": [
+      0.9464999999999999,
+      0.9475,
+      0.935
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 100,
+    "netpower": 70.9875
+  },
+  {
+    "material": "Cast Iron",
+    "model": "GM3F4 280 M 2b",
+    "powerKW": 90,
+    "speedRPM": 2985,
+    "NoPoles": 2,
+    "rated": {
+      "currentInput": 148,
+      "tourqueNm": 287.9
+    },
+    "DOL": {
+      "current": 1213.6,
+      "laln": 8.2,
+      "tourque": 834.9,
+      "MaMn": 2.9
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.92,
+    "Phase": 3,
+    "frameSize": 280,
+    "shaftDia": 65,
+    "shaftLength": 140,
+    "shaftFeather": 130,
+    "IE": 3,
+    "frontBear": "6315 ZZ C3",
+    "rearBear": "6315 ZZ C3",
+    "noiseLvl": null,
+    "weightKg": 645,
+    "effCurve": [
+      0.95,
+      0.95,
+      0.937
+    ],
+    "NoCapacitors": null,
+    "NoPhases": 3,
+    "insClass": "H (F400)",
+    "powerHorse": 125,
+    "netpower": 85.5
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  },
+  {
+    "material": "Aluminum",
+    "model": "M21D 63 M 4a",
+    "powerKW": 0.18,
+    "speedRPM": 1420,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 1.5,
+      "tourqueNm": 1.22
+    },
+    "DOL": {
+      "current": 5.25,
+      "laln": 3.5,
+      "tourque": 0.6,
+      "MaMn": 0.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.95,
+    "Phase": 1,
+    "frameSize": 63,
+    "shaftDia": 11,
+    "shaftLength": 23,
+    "shaftFeather": 13,
+    "IE": 1,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 5.5,
+    "effCurve": [
+      0.575,
+      0,
+      0
+    ],
+    "NoCapacitors": 1,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 0.25,
+    "netpower": 0.1035
+  },
+  {
+    "material": "Aluminum",
+    "model": "M21D 71 M 4c",
+    "powerKW": 0.25,
+    "speedRPM": 1410,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2,
+      "tourqueNm": 1.7
+    },
+    "DOL": {
+      "current": 7.6,
+      "laln": 3.8,
+      "tourque": 0.7,
+      "MaMn": 0.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.9,
+    "Phase": 1,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 1,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 5.96,
+    "effCurve": [
+      0.685,
+      0,
+      0
+    ],
+    "NoCapacitors": 1,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 0.33,
+    "netpower": 0.17125
+  },
+  {
+    "material": "Aluminum",
+    "model": "M22D 71 M 4d",
+    "powerKW": 0.37,
+    "speedRPM": 1385,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 2.4,
+      "tourqueNm": 2.55
+    },
+    "DOL": {
+      "current": 6.48,
+      "laln": 2.7,
+      "tourque": 1,
+      "MaMn": 0.4
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.96,
+    "Phase": 1,
+    "frameSize": 71,
+    "shaftDia": 14,
+    "shaftLength": 30,
+    "shaftFeather": 20,
+    "IE": 2,
+    "frontBear": "6202 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 7.1,
+    "effCurve": [
+      0.727,
+      0,
+      0
+    ],
+    "NoCapacitors": 1,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 0.5,
+    "netpower": 0.26899
+  },
+  {
+    "material": "Aluminum",
+    "model": "M22D 80 M 4b",
+    "powerKW": 0.55,
+    "speedRPM": 1415,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 3.4,
+      "tourqueNm": 3.71
+    },
+    "DOL": {
+      "current": 11.56,
+      "laln": 3.4,
+      "tourque": 1.7,
+      "MaMn": 0.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.97,
+    "Phase": 1,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 2,
+    "frontBear": "6204 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 9.4,
+    "effCurve": [
+      0.771,
+      0,
+      0
+    ],
+    "NoCapacitors": 1,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 0.75,
+    "netpower": 0.42405000000000004
+  },
+  {
+    "material": "Aluminum",
+    "model": "M21D 80 M 4c",
+    "powerKW": 0.75,
+    "speedRPM": 1400,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 5.7,
+      "tourqueNm": 5.1
+    },
+    "DOL": {
+      "current": 21.66,
+      "laln": 3.8,
+      "tourque": 2.6,
+      "MaMn": 0.5
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.86,
+    "Phase": 1,
+    "frameSize": 80,
+    "shaftDia": 19,
+    "shaftLength": 40,
+    "shaftFeather": 30,
+    "IE": 1,
+    "frontBear": "6304 ZZ",
+    "rearBear": "6202 ZZ",
+    "noiseLvl": null,
+    "weightKg": 9.9,
+    "effCurve": [
+      0.7,
+      0,
+      0
+    ],
+    "NoCapacitors": 1,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 1,
+    "netpower": 0.5249999999999999
+  },
+  {
+    "material": "Aluminum",
+    "model": "MK22D 90 S 4c",
+    "powerKW": 1.1,
+    "speedRPM": 1450,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 6.2,
+      "tourqueNm": 7.24
+    },
+    "DOL": {
+      "current": 28.52,
+      "laln": 4.6,
+      "tourque": 13,
+      "MaMn": 1.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.99,
+    "Phase": 1,
+    "frameSize": 90,
+    "shaftDia": 25,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 2,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": null,
+    "weightKg": 17.8,
+    "effCurve": [
+      0.814,
+      0,
+      0
+    ],
+    "NoCapacitors": 2,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 1.5,
+    "netpower": 0.8954
+  },
+  {
+    "material": "Aluminum",
+    "model": "MK22D 90 L 4d",
+    "powerKW": 1.5,
+    "speedRPM": 1440,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 8.4,
+      "tourqueNm": 9.95
+    },
+    "DOL": {
+      "current": 36.12,
+      "laln": 4.3,
+      "tourque": 17.9,
+      "MaMn": 1.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.99,
+    "Phase": 1,
+    "frameSize": 90,
+    "shaftDia": 24,
+    "shaftLength": 50,
+    "shaftFeather": 40,
+    "IE": 2,
+    "frontBear": "6205 ZZ",
+    "rearBear": "6205 ZZ",
+    "noiseLvl": null,
+    "weightKg": 19.3,
+    "effCurve": [
+      0.828,
+      0,
+      0
+    ],
+    "NoCapacitors": 2,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 2,
+    "netpower": 1.242
+  },
+  {
+    "material": "Aluminum",
+    "model": "MK22D 100 L 4b",
+    "powerKW": 2.2,
+    "speedRPM": 1450,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 12.1,
+      "tourqueNm": 14.49
+    },
+    "DOL": {
+      "current": 49.21,
+      "laln": 4.1,
+      "tourque": 26.1,
+      "MaMn": 1.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.98,
+    "Phase": 1,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 2,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": null,
+    "weightKg": 23,
+    "effCurve": [
+      0.843,
+      0,
+      0
+    ],
+    "NoCapacitors": 2,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 3,
+    "netpower": 1.8546
+  },
+  {
+    "material": "Aluminum",
+    "model": "MK21D 100 L 4c",
+    "powerKW": 3,
+    "speedRPM": 1450,
+    "NoPoles": 4,
+    "rated": {
+      "currentInput": 16.5,
+      "tourqueNm": 19.76
+    },
+    "DOL": {
+      "current": 69.3,
+      "laln": 4.2,
+      "tourque": 35.6,
+      "MaMn": 1.8
+    },
+    "starDelta": {
+      "current": null,
+      "laln": 0,
+      "tourque": null,
+      "MaMn": 0
+    },
+    "powerFactor": 0.99,
+    "Phase": 1,
+    "frameSize": 100,
+    "shaftDia": 28,
+    "shaftLength": 60,
+    "shaftFeather": 50,
+    "IE": 2,
+    "frontBear": "6206 ZZ",
+    "rearBear": "6206 ZZ",
+    "noiseLvl": null,
+    "weightKg": 24.5,
+    "effCurve": [
+      0.855,
+      0,
+      0
+    ],
+    "NoCapacitors": 2,
+    "NoPhases": 1,
+    "insClass": "F",
+    "powerHorse": 4,
+    "netpower": 2.565
+  },
+  {
+    "material": "",
+    "model": "null",
+    "powerKW": null,
+    "speedRPM": null,
+    "NoPoles": null,
+    "rated": {
+      "currentInput": null,
+      "tourqueNm": null
+    },
+    "DOL": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "starDelta": {
+      "current": null,
+      "laln": null,
+      "tourque": null,
+      "MaMn": null
+    },
+    "powerFactor": null,
+    "Phase": null,
+    "frameSize": null,
+    "shaftDia": null,
+    "shaftLength": null,
+    "shaftFeather": null,
+    "IE": null,
+    "frontBear": "",
+    "rearBear": "",
+    "noiseLvl": null,
+    "weightKg": null,
+    "effCurve": [
+      0,
+      0,
+      0
+    ],
+    "NoCapacitors": null,
+    "NoPhases": null,
+    "insClass": "",
+    "powerHorse": null,
+    "netpower": 0
+  }
+]

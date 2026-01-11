@@ -1,0 +1,272 @@
+/* White theme with black text */
+.results-page {
+  background: #ffffff;
+  min-height: 100vh;
+  padding: 1rem 0;
+}
+
+.results-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.results-header h1 {
+  font-size: 1.5rem;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.btn-ghost,
+.btn-ghost-danger {
+  background: transparent;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.btn-ghost {
+  color: #000000;
+}
+
+.btn-ghost:hover {
+  color: #333333;
+}
+
+.btn-ghost-danger {
+  color: #ef4444;
+}
+
+.btn-ghost-danger:hover {
+  color: #dc2626;
+}
+
+.results-table-container {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.results-table thead {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.results-table th {
+  padding: 0.875rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.8125rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.results-table th.center {
+  text-align: center;
+}
+
+.results-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.results-table tbody tr:nth-child(even) {
+  background: #ffffff;
+}
+
+.results-table tbody tr:nth-child(odd) {
+  background: #ffffff;
+}
+
+.results-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.results-table tbody tr.selected {
+  background: #f0f9ff;
+  border-left: 3px solid #0ea5e9;
+}
+
+.results-table td {
+  padding: 0.875rem 1rem;
+  color: #334155;
+  font-size: 0.875rem;
+}
+
+.results-table td.center {
+  text-align: center;
+}
+
+.fan-tag {
+  font-weight: bold;
+  color: #3b82f6;
+  font-size: 0.75rem;
+}
+
+.fan-model {
+  font-weight: 600;
+  color: #0ea5e9;
+  font-size: 0.9375rem;
+}
+
+.detail-section {
+  background: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+  margin-bottom: 1rem;
+  padding: 1.25rem 1.5rem;
+}
+
+.detail-section h2 {
+  font-size: 1rem;
+  color: #1e293b;
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.detail-section h3 {
+  font-size: 0.875rem;
+  color: #1e293b;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+  margin-bottom: 0;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 0;
+  padding: 1rem 1.5rem;
+  border: none;
+  border-right: 1px solid #e2e8f0;
+}
+
+.detail-card:last-child {
+  border-right: none;
+}
+
+.detail-card h4 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #1e293b;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.625rem;
+  padding: 0.25rem 0;
+}
+
+.detail-row:last-child {
+  margin-bottom: 0;
+}
+
+.detail-label {
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.detail-value {
+  color: #1e293b;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.curve-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  justify-content: center;
+}
+
+.curve-btn {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.curve-btn-primary {
+  background: #3b82f6;
+  color: white;
+  border: none;
+}
+
+.curve-btn-primary:hover {
+  background: #2563eb;
+}
+
+.curve-btn-outline {
+  background: transparent;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+}
+
+.curve-btn-outline:hover {
+  background: #eff6ff;
+}
+
+.back-button {
+  display: block;
+  margin: 1.5rem auto;
+  background: transparent;
+  color: #3b82f6;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: color 0.2s;
+}
+
+.back-button:hover {
+  color: #2563eb;
+}
+
+@media (max-width: 768px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .results-table-container {
+    overflow-x: auto;
+  }
+}

@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model FanData {
+  id               Int       @id @default(autoincrement())
+  No               Int?
+  Model            String?
+  AFS              Int?      @map("AF-S")
+  AFL              Int?      @map("AF-L")
+  WF               Int?
+  ARTF             Int?
+  SF               Int?
+  ABSFC            Int?      @map("ABSF-C")
+  ABSFS            Int?      @map("ABSF-S")
+  SABF             Int?
+  SARTF            Int?
+  AJF              Int?
+  bladesSymbol     String
+  bladesMaterial   String
+  noBlades         Int
+  bladesAngle      Float
+  hubType          Int
+  impellerConf     String
+  impellerInnerDia Float
+  desigDensity     Float
+  RPM              Float
+  airFlow          String
+  totPressure      String
+  velPressure      String
+  staticPressure   String
+  fanInputPow      String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("fan_data")
+}
+
+model MotorData {
+  id             Int       @id @default(autoincrement())
+  material       String?   // can be null
+  model          String?   // can be null
+  powerKW        Float?    // can be null
+  speedRPM       Float?    // can be null
+  NoPoles        Int?      // can be null
+  rated          String?   // can be null (JSON stored as string)
+  DOL            String?   // can be null (JSON stored as string)
+  starDelta      String?   // can be null (JSON stored as string)
+  powerFactor    Float?    // can be null
+  Phase          Int?      // can be null
+  frameSize      Int?      // can be null
+  shaftDia       Float?    // can be null
+  shaftLength    Float?    // can be null
+  shaftFeather   Float?    // can be null
+  IE             Int?      // can be null
+  frontBear      String?   // can be null
+  rearBear       String?   // can be null
+  noiseLvl       Int?      // can be null
+  weightKg       Float?    // can be null
+  effCurve       String?   // can be null (JSON stored as string)
+  NoCapacitors   Int?      // can be null
+  NoPhases       Int?      // can be null
+  insClass       String?   // can be null
+  powerHorse     Float?    // can be null
+  netpower       Float?    // can be null
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("motor_data")
+}
+
+// Centrifugal Fan Data
+model CentrifugalFanData {
+  id                Int       @id @default(autoincrement())
+  bladesType        String?
+  bladesModel       String?
+  minSpeedRPM       Int?
+  highSpeedRPM      Int?
+  impellerType      String?
+  fanShaftDiameter  Float?
+  innerDiameter     Float?
+  desigDensity      Float?
+  RPM               Float?
+  airFlow           String    // JSON array stored as string
+  totPressure       String    // JSON array stored as string
+  velPressure       String    // JSON array stored as string
+  staticPressure    String    // JSON array stored as string
+  fanInputPow       String    // JSON array stored as string
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@map("centrifugal_fan_data")
+}
+
+// Centrifugal Motor Data (separate from axial motors)
+model CentrifugalMotorData {
+  id             Int       @id @default(autoincrement())
+  material       String?
+  model          String?
+  powerKW        Float?
+  speedRPM       Float?
+  NoPoles        Int?
+  rated          String?
+  DOL            String?
+  starDelta      String?
+  powerFactor    Float?
+  Phase          Int?
+  frameSize      Int?
+  shaftDia       Float?
+  shaftLength    Float?
+  shaftFeather   Float?
+  IE             Int?
+  frontBear      String?
+  rearBear       String?
+  noiseLvl       Int?
+  weightKg       Float?
+  effCurve       String?
+  NoCapacitors   Int?
+  NoPhases       Int?
+  insClass       String?
+  powerHorse     Float?
+  netpower       Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("centrifugal_motor_data")
+}
+
+// Pulley Database
+model PulleyData {
+  id            Int       @id @default(autoincrement())
+  beltSection   String?
+  minPD         Float?
+  maxPD         Float?
+  grooves       Int?
+  data          String    // JSON stored as string for complex pulley data
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("pulley_data")
+}
+
+// Belt Length Standards
+model BeltLengthStandard {
+  id            Int       @id @default(autoincrement())
+  beltSection   String?
+  lengths       String    // JSON array of standard lengths
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("belt_length_standard")
+}
+
+// Pulley Standards
+model PulleyStandard {
+  id            Int       @id @default(autoincrement())
+  beltSection   String?
+  minPD         Float?
+  maxPD         Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("pulley_standard")
+}
+

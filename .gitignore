@@ -1,0 +1,102 @@
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# Runtime data
+# =========================
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.tgz
+
+# =========================
+# Node / Dependency directories
+# =========================
+node_modules/
+bower_components/
+jspm_packages/
+web_modules/
+
+# Yarn v3
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# npm / Yarn cache
+.npm
+.yarn-integrity
+
+# =========================
+# Build output / bundlers
+# =========================
+build/
+dist/
+out/
+release/
+releases/
+app-builds/
+electron-dist/
+electron-build/
+.cache/
+.parcel-cache/
+.vite/
+*.snap
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# TypeScript
+# =========================
+*.tsbuildinfo
+
+# =========================
+# ESLint / Stylelint / Tool caches
+# =========================
+.eslintcache
+.stylelintcache
+
+# =========================
+# Electron / Desktop artifacts
+# =========================
+*.dmg
+*.exe
+*.msi
+*.AppImage
+*.deb
+*.rpm
+
+# =========================
+# IDE / Editor files
+# =========================
+.vscode/
+.idea/
+*.swp
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# =========================
+# Testing / Coverage
+# =========================
+coverage/
+.nyc_output/

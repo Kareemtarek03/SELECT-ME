@@ -1,0 +1,118 @@
+{
+  "name": "mechatronics-fan-selection",
+  "version": "1.0.0",
+  "description": "Mechatronics Fan Selection Desktop Application",
+  "main": "electron-main.cjs",
+  "author": "Kareem Tarek",
+  "license": "ISC",
+  "type": "module",
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "nodemon server/index.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm install && npm run build",
+    "install-all": "npm install && cd client && npm install",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:seed": "node prisma/seed.js",
+    "db:setup": "npm run prisma:migrate && npm run prisma:generate && npm run prisma:seed",
+    "electron": "electron .",
+    "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5001 && electron .\"",
+    "electron:build": "npm run build && electron-builder",
+    "electron:pack": "electron-builder --dir",
+    "dist": "npm run build && electron-builder",
+    "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && electron-builder",
+    "clean": "rimraf dist client/build",
+    "optimize-images": "node scripts/optimize-images.cjs"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.7.1",
+    "chart.js": "^4.5.1",
+    "chartjs-node-canvas": "^5.0.0",
+    "cors": "^2.8.5",
+    "cubic-spline": "^3.0.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.0",
+    "pdfkit": "^0.17.2",
+    "prisma": "^5.7.1",
+    "svg-to-pdfkit": "^0.1.8",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.2",
+    "baseline-browser-mapping": "^2.9.14",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "electron": "^22.0.0",
+    "electron-builder": "^24.9.1",
+    "nodemon": "^3.1.10",
+    "rimraf": "^5.0.5",
+    "sharp": "^0.33.2",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.mechatronics.selectme",
+    "productName": "SELECT ME",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron-main.cjs",
+      "package.json",
+      "server/**/*",
+      "prisma/**/*",
+      "!prisma/migrations/**",
+      "!server/axialFan.json",
+      "!**/*.md",
+      "!**/*.map",
+      "!**/*.log",
+      "!**/test/**",
+      "!**/tests/**",
+      "!**/__tests__/**"
+    ],
+    "extraResources": [
+      {
+        "from": "client/build",
+        "to": "client/build",
+        "filter": [
+          "**/*",
+          "!**/*.map"
+        ]
+      },
+      {
+        "from": "Catologs",
+        "to": "Catologs",
+        "filter": [
+          "**/*.pdf"
+        ]
+      }
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/canvas/**",
+      "**/node_modules/@prisma/engines/**",
+      "server/Newmodules/axial/AxialPDF/PDF/**",
+      "server/Newmodules/centrifugal/CentrifugalPDF/assets/**"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "client/public/icon-256.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
