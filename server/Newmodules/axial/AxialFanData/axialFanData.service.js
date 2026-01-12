@@ -2,13 +2,25 @@ import fs from "fs";
 import xlsx from "xlsx";
 import path from "path";
 import { fileURLToPath } from "url";
-import { PrismaClient } from "@prisma/client";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Prisma client (local instance). This file uses it optionally when dataSource === 'db' or filePath === 'db'.
-const prisma = new PrismaClient();
+// Prisma client - lazy loaded only when needed (for database mode)
+// This allows the module to work in Electron desktop where @prisma/client may not be available
+let prisma = null;
+async function getPrismaClient() {
+  if (!prisma) {
+    try {
+      const { PrismaClient } = await import("@prisma/client");
+      prisma = new PrismaClient();
+    } catch (err) {
+      console.warn("Prisma client not available - database mode disabled");
+      prisma = null;
+    }
+  }
+  return prisma;
+}
 
 // Calculate density based on temperature
 function calcDensity(tempC) {
@@ -157,7 +169,9 @@ export async function processFanDataService(inputOptions) {
     }
 
     // read from Prisma FanData table and map DB rows to the expected nested shape
-    const rows = await prisma.fanData.findMany({ where: whereClause });
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const rows = await prismaClient.fanData.findMany({ where: whereClause });
     rawData = rows
       .map((r) => ({
         // map flattened DB fields to the nested structure the rest of the service expects
@@ -519,7 +533,9 @@ export async function Output({ units, input, dataSource }) {
     let motors = [];
     try {
       // Prefer DB-backed motor data via Prisma; fallback to file if DB not available
-      const rows = await prisma.motorData.findMany();
+      const prismaClient = await getPrismaClient();
+      if (!prismaClient) throw new Error("Database not available");
+      const rows = await prismaClient.motorData.findMany();
       // Transform Prisma rows to include effCurve array for frontend compatibility
       // Desktop uses SQLite with effCurve as JSON string, web uses PostgreSQL with separate efficiency fields
       motors = rows.map((m) => {
@@ -667,7 +683,9 @@ export async function exportFanData(res) {
   // try DB first, fallback to file
   let data = [];
   try {
-    const rows = await prisma.fanData.findMany();
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const rows = await prismaClient.fanData.findMany();
     data = rows.map((r) => ({
       Id: r.id,
       "Blade Symbol": r.bladesSymbol,
@@ -979,24 +997,28 @@ export async function importFanDataFromExcel(
         }
       }
 
+      const prismaClient = await getPrismaClient();
+      if (!prismaClient) throw new Error("Database not available");
+
       if (id) {
-        const existing = await prisma.fanData.findUnique({ where: { id } });
+        const existing = await prismaClient.fanData.findUnique({ where: { id } });
         if (!existing) {
           console.warn(`No existing fan with id=${id}, creating new instead.`);
-          await prisma.fanData.create({ data: dataPayload });
+          await prismaClient.fanData.create({ data: dataPayload });
           continue;
         }
-        await prisma.fanData.update({ where: { id }, data: dataPayload });
+        await prismaClient.fanData.update({ where: { id }, data: dataPayload });
         continue;
       }
 
       // No id: try to match by impellerInnerDia + noBlades + bladesSymbol if present
       else {
-        await prisma.fanData.create({ data: dataPayload });
+        await prismaClient.fanData.create({ data: dataPayload });
       }
     }
 
-    return await prisma.fanData.findMany();
+    const prismaClientFinal = await getPrismaClient();
+    return await prismaClientFinal.fanData.findMany();
   } catch (err) {
     // fallback to file write
     try {

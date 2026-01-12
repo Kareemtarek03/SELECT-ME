@@ -1,6 +1,17 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+// Prisma client - lazy loaded only when needed (for database mode)
+let prisma = null;
+async function getPrismaClient() {
+    if (!prisma) {
+        try {
+            const { PrismaClient } = await import("@prisma/client");
+            prisma = new PrismaClient();
+        } catch (err) {
+            console.warn("Prisma client not available - database mode disabled");
+            prisma = null;
+        }
+    }
+    return prisma;
+}
 
 // =============================================
 // CONSTANTS - Motor Pricing Configuration
@@ -75,7 +86,9 @@ export const parsePrice = (value) => {
  * @returns {Promise<number>} - The price with VAT or 0 if not found
  */
 export const getDollarRate = async () => {
-    const item = await prisma.pricingItem.findFirst({
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) return 0;
+    const item = await prismaClient.pricingItem.findFirst({
         where: { sr: DOLLAR_RATE_SR },
     });
     return item?.priceWithVat || 0;
@@ -86,7 +99,9 @@ export const getDollarRate = async () => {
  * @returns {Promise<number>} - The price with VAT or 0 if not found
  */
 export const getElectricalMotorsFactor = async () => {
-    const item = await prisma.pricingItem.findFirst({
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) return 0;
+    const item = await prismaClient.pricingItem.findFirst({
         where: { sr: ELECTRICAL_MOTORS_SR },
     });
     return item?.priceWithVat || 0;
@@ -97,7 +112,9 @@ export const getElectricalMotorsFactor = async () => {
  * @returns {Promise<number>} - The price with VAT or 0 if not found
  */
 export const getElectricalCablesFactor = async () => {
-    const item = await prisma.pricingItem.findFirst({
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) return 0;
+    const item = await prismaClient.pricingItem.findFirst({
         where: { sr: ELECTRICAL_CABLES_SR },
     });
     return item?.priceWithVat || 0;
@@ -108,7 +125,9 @@ export const getElectricalCablesFactor = async () => {
  * @returns {Promise<number>} - The price with VAT or 0 if not found
  */
 export const getElectricalComponentFactor = async () => {
-    const item = await prisma.pricingItem.findFirst({
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) return 0;
+    const item = await prismaClient.pricingItem.findFirst({
         where: { sr: ELECTRICAL_COMPONENT_SR },
     });
     return item?.priceWithVat || 0;
@@ -119,11 +138,20 @@ export const getElectricalComponentFactor = async () => {
  * @returns {Promise<{dollarRate: number, electricalMotorsFactor: number, electricalCablesFactor: number, electricalComponentFactor: number}>}
  */
 export const getPricingFactors = async () => {
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) {
+        return {
+            dollarRate: 0,
+            electricalMotorsFactor: 0,
+            electricalCablesFactor: 0,
+            electricalComponentFactor: 0,
+        };
+    }
     const [dollarRateItem, electricalMotorsItem, electricalCablesItem, electricalComponentItem] = await Promise.all([
-        prisma.pricingItem.findFirst({ where: { sr: DOLLAR_RATE_SR } }),
-        prisma.pricingItem.findFirst({ where: { sr: ELECTRICAL_MOTORS_SR } }),
-        prisma.pricingItem.findFirst({ where: { sr: ELECTRICAL_CABLES_SR } }),
-        prisma.pricingItem.findFirst({ where: { sr: ELECTRICAL_COMPONENT_SR } }),
+        prismaClient.pricingItem.findFirst({ where: { sr: DOLLAR_RATE_SR } }),
+        prismaClient.pricingItem.findFirst({ where: { sr: ELECTRICAL_MOTORS_SR } }),
+        prismaClient.pricingItem.findFirst({ where: { sr: ELECTRICAL_CABLES_SR } }),
+        prismaClient.pricingItem.findFirst({ where: { sr: ELECTRICAL_COMPONENT_SR } }),
     ]);
 
     return {
@@ -552,7 +580,7 @@ export const recalculateAllMotorPrices = async (newFactors = null) => {
     console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
     // Get all motors that have base prices set
-    const motors = await prisma.motorData.findMany({
+    const motors = await (await getPrismaClient()).motorData.findMany({
         where: {
             OR: [
                 { b3PriceWithoutVat: { not: null } },
@@ -588,7 +616,7 @@ export const recalculateAllMotorPrices = async (newFactors = null) => {
         );
 
         // Update the motor record
-        const updated = await prisma.motorData.update({
+        const updated = await (await getPrismaClient()).motorData.update({
             where: { id: motor.id },
             data: {
                 b3PriceWithVat: newB3Price,
@@ -622,7 +650,7 @@ export const recalculateAllCablePrices = async () => {
     console.log(`📊 Using Electrical Cables Factor (Sr=${ELECTRICAL_CABLES_SR}): ${factors.electricalCablesFactor}`);
     console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
-    const motors = await prisma.motorData.findMany({
+    const motors = await (await getPrismaClient()).motorData.findMany({
         where: { cablePriceWithoutVat: { not: null } },
     });
 
@@ -638,7 +666,7 @@ export const recalculateAllCablePrices = async () => {
         const oldPrice = motor.cablePriceWithVat;
         const newPrice = calculateCablePriceWithVat(motor.cablePriceWithoutVat, factors.electricalCablesFactor);
 
-        const updated = await prisma.motorData.update({
+        const updated = await (await getPrismaClient()).motorData.update({
             where: { id: motor.id },
             data: { cablePriceWithVat: newPrice },
         });
@@ -666,7 +694,7 @@ export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
     console.log(`📊 Using Electrical Component Factor (Sr=${ELECTRICAL_COMPONENT_SR}): ${factors.electricalComponentFactor}`);
     console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
-    const motors = await prisma.motorData.findMany({
+    const motors = await (await getPrismaClient()).motorData.findMany({
         where: {
             OR: [
                 { cableLugsUPWithoutVat: { not: null } },
@@ -692,7 +720,7 @@ export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
         const newHeatShrinkUP = calculateCableHeatShrinkUPWithVat(motor.cableHeatShrinkUPWithoutVat, factors.electricalComponentFactor);
         const newHeatShrinkTP = calculateCableHeatShrinkTPWithVat(newHeatShrinkUP, motor.cableHeatShrinkNo);
 
-        const updated = await prisma.motorData.update({
+        const updated = await (await getPrismaClient()).motorData.update({
             where: { id: motor.id },
             data: {
                 cableLugsUPWithVat: newCableLugsUP,
@@ -727,7 +755,7 @@ export const recalculateAllElectricalPrices = async () => {
     console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
     // Get all motors - we need to recalculate totals for all
-    const motors = await prisma.motorData.findMany();
+    const motors = await (await getPrismaClient()).motorData.findMany();
 
     if (motors.length === 0) {
         console.log(`⚠️ No motors found in database`);
@@ -785,7 +813,7 @@ export const recalculateAllElectricalPrices = async () => {
             electricalBoxUPWithVat
         );
 
-        const updated = await prisma.motorData.update({
+        const updated = await (await getPrismaClient()).motorData.update({
             where: { id: motor.id },
             data: {
                 flexibleConnectorUPWithVat,
@@ -819,7 +847,7 @@ export const recalculateAllPrices = async () => {
     console.log(`${"=".repeat(60)}`);
 
     const factors = await getPricingFactors();
-    const motors = await prisma.motorData.findMany();
+    const motors = await (await getPrismaClient()).motorData.findMany();
 
     if (motors.length === 0) {
         console.log(`⚠️ No motors found`);
@@ -832,7 +860,7 @@ export const recalculateAllPrices = async () => {
     for (const motor of motors) {
         const calculatedPrices = await calculateMotorPrices(motor, factors);
 
-        const updated = await prisma.motorData.update({
+        const updated = await (await getPrismaClient()).motorData.update({
             where: { id: motor.id },
             data: calculatedPrices,
         });

@@ -1,6 +1,5 @@
 import fs from "fs";
 import xlsx from "xlsx";
-import { PrismaClient } from "@prisma/client";
 import {
   calculateMotorPrices,
   stripCalculatedFields,
@@ -9,7 +8,21 @@ import {
 } from "./axialMotorPricing.service.js";
 
 const MOTOR_FILE = "./MotorData.json";
-const prisma = new PrismaClient();
+
+// Prisma client - lazy loaded only when needed (for database mode)
+let prisma = null;
+async function getPrismaClient() {
+  if (!prisma) {
+    try {
+      const { PrismaClient } = await import("@prisma/client");
+      prisma = new PrismaClient();
+    } catch (err) {
+      console.warn("Prisma client not available - database mode disabled");
+      prisma = null;
+    }
+  }
+  return prisma;
+}
 
 // Exact JSON column names in order (matching MotorData.json)
 const MOTOR_JSON_COLUMNS = [
@@ -249,7 +262,9 @@ function mapJsonToDbFormat(jsonData) {
 // Try to read motor data from DB; fall back to file read if DB not available
 export async function readMotorFile() {
   try {
-    const rows = await prisma.motorData.findMany();
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const rows = await prismaClient.motorData.findMany();
     // Map DB rows to exact JSON column names
     return rows
       .map(mapDbRowToJsonFormat)
@@ -309,7 +324,9 @@ export async function createMotor(jsonData) {
       totalPriceWithVat: calculatedPrices.totalPriceWithVat,
     };
 
-    const created = await prisma.motorData.create({
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const created = await prismaClient.motorData.create({
       data: finalData,
     });
 
@@ -346,7 +363,9 @@ export async function updateMotorById(id, jsonData) {
     CALCULATED_DB_FIELDS.forEach(field => delete updateData[field]);
 
     // Get the current motor data to merge with updates for price calculation
-    const currentMotor = await prisma.motorData.findUnique({ where: { id: numId } });
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const currentMotor = await prismaClient.motorData.findUnique({ where: { id: numId } });
     if (!currentMotor) {
       const notFound = new Error("Motor not found");
       notFound.code = "NOT_FOUND";
@@ -391,7 +410,7 @@ export async function updateMotorById(id, jsonData) {
     updateData.electricalBoxUPWithVat = calculatedPrices.electricalBoxUPWithVat;
     updateData.totalPriceWithVat = calculatedPrices.totalPriceWithVat;
 
-    const updated = await prisma.motorData.update({
+    const updated = await prismaClient.motorData.update({
       where: { id: numId },
       data: updateData,
     });
@@ -417,7 +436,9 @@ export async function deleteMotorById(id) {
 
   try {
     // try DB delete first
-    const deleted = await prisma.motorData.delete({ where: { id: numId } });
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const deleted = await prismaClient.motorData.delete({ where: { id: numId } });
     return { id: deleted.id };
   } catch (err) {
     // fallback to file-based deletion
@@ -803,36 +824,39 @@ export async function updateMotorDataFromExcel(
         }
       }
 
+      const prismaClient = await getPrismaClient();
+      if (!prismaClient) throw new Error("Database not available");
+
       if (id) {
         // update by id
-        const existing = await prisma.motorData.findUnique({ where: { id } });
+        const existing = await prismaClient.motorData.findUnique({ where: { id } });
         if (!existing) {
           // skip if no such id
-          await prisma.motorData.create({ data: dataPayload });
+          await prismaClient.motorData.create({ data: dataPayload });
         }
-        await prisma.motorData.update({ where: { id }, data: dataPayload });
+        await prismaClient.motorData.update({ where: { id }, data: dataPayload });
         continue;
       }
 
       // otherwise try matching by model if present
       // const modelVal = (dataPayload.model ?? rec.model ?? rec.Model ?? "") + "";
       // if (modelVal) {
-      //   const existing = await prisma.motorData.findFirst({
+      //   const existing = await prismaClient.motorData.findFirst({
       //     where: { model: { equals: modelVal, mode: "insensitive" } },
       //   });
       //   if (existing) {
       //     console.log(existing,dataPayload)
-      //     await prisma.motorData.update({
+      //     await prismaClient.motorData.update({
       //       where: { id: existing.id },
       //       data: dataPayload,
       //     });
       //   } else {
-      //     await prisma.motorData.create({ data: dataPayload });
+      //     await prismaClient.motorData.create({ data: dataPayload });
       //   }
       // }
       else {
         // no id and no model -> create new
-        await prisma.motorData.create({ data: dataPayload });
+        await prismaClient.motorData.create({ data: dataPayload });
       }
     }
 

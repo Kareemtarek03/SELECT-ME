@@ -1,9 +1,21 @@
 import { processFanDataService, main, Output } from "./axialFanData.service.js";
 import { exportFanData, importFanDataFromExcel } from "./axialFanData.service.js";
-import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 
-const prisma = new PrismaClient();
+// Prisma client - lazy loaded only when needed (for database mode)
+let prisma = null;
+async function getPrismaClient() {
+  if (!prisma) {
+    try {
+      const { PrismaClient } = await import("@prisma/client");
+      prisma = new PrismaClient();
+    } catch (err) {
+      console.warn("Prisma client not available - database mode disabled");
+      prisma = null;
+    }
+  }
+  return prisma;
+}
 
 export async function processFanDataController(req, res) {
   try {
@@ -72,7 +84,9 @@ export async function filter(req, res) {
 export async function getOutputFile(req, res) {
   try {
     // Read fan data directly from the database
-    const rows = await prisma.fanData.findMany();
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const rows = await prismaClient.fanData.findMany();
     const data = rows
       .map((r) => ({
         Id: r.id,
@@ -176,7 +190,9 @@ export async function deleteFanDataController(req, res) {
 
     try {
       // attempt to delete from DB
-      await prisma.fanData.delete({ where: { id } });
+      const prismaClient = await getPrismaClient();
+      if (!prismaClient) throw new Error("Database not available");
+      await prismaClient.fanData.delete({ where: { id } });
       return res.json({ message: `Deleted fan data with id=${id}` });
     } catch (dbErr) {
       // If DB delete fails (not found or DB not available), try file fallback

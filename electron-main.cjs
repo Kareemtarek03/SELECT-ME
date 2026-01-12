@@ -33,6 +33,26 @@ function getAppPath() {
     return path.join(path.dirname(app.getPath("exe")), "resources", "app");
 }
 
+// Helper function to get the correct module path for dynamic imports
+// In production, ES modules are unpacked from asar to app.asar.unpacked folder
+// Windows requires forward slashes in file:// URLs for ES module imports
+function getModulePath(relativePath) {
+    let fullPath;
+    if (isDev) {
+        // In development, use __dirname directly
+        fullPath = path.join(__dirname, relativePath);
+    } else {
+        // In production, ES modules are extracted to app.asar.unpacked
+        // __dirname points to app.asar, we need app.asar.unpacked
+        const asarPath = __dirname; // e.g., C:\...\resources\app.asar
+        const unpackedPath = asarPath + '.unpacked'; // e.g., C:\...\resources\app.asar.unpacked
+        fullPath = path.join(unpackedPath, relativePath);
+    }
+    // Convert Windows backslashes to forward slashes for ES module compatibility
+    const normalizedPath = fullPath.replace(/\\/g, '/');
+    return `file:///${normalizedPath}`;
+}
+
 // Load data from JSON files
 function loadData(clientBuildPath) {
     try {
@@ -263,7 +283,7 @@ function startServer() {
             expressApp.post("/api/axial/fan-data/filter", async (req, res) => {
                 try {
                     const { units, input } = req.body;
-                    const axialService = await import('./server/Newmodules/axial/AxialFanData/axialFanData.service.js');
+                    const axialService = await import(getModulePath('server/Newmodules/axial/AxialFanData/axialFanData.service.js'));
                     const result = await axialService.Output({ units, input, dataSource: 'file' });
                     res.json({ message: "Success", data: result.data || result });
                 } catch (err) {
@@ -276,7 +296,7 @@ function startServer() {
             expressApp.post("/api/centrifugal/fan-data/process", async (req, res) => {
                 try {
                     const { units, input } = req.body;
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
 
                     // Build inputOptions with selectedFanType extracted from units.fanType
                     const inputOptions = {
@@ -312,7 +332,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase11", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase11(req.body);
                     res.json({ message: "✅ Phase 11 calculated successfully!", phase11: result });
                 } catch (err) {
@@ -323,7 +343,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase12", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase12(req.body);
                     res.json({ message: "✅ Phase 12 calculated successfully!", phase12: result });
                 } catch (err) {
@@ -334,7 +354,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase13", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase13(req.body);
                     res.json({ message: "✅ Phase 13 calculated successfully!", phase13: result });
                 } catch (err) {
@@ -345,7 +365,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase14", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase14(req.body);
                     res.json({ message: "✅ Phase 14 calculated successfully!", phase14: result });
                 } catch (err) {
@@ -356,7 +376,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase15", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase15(req.body);
                     res.json({ message: "✅ Phase 15 calculated successfully!", phase15: result });
                 } catch (err) {
@@ -367,7 +387,7 @@ function startServer() {
 
             expressApp.post("/api/centrifugal/fan-data/phase16", async (req, res) => {
                 try {
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
                     const result = centrifugalService.processPhase16(req.body);
                     res.json({ message: "✅ Phase 16 calculated successfully!", phase16: result });
                 } catch (err) {
@@ -380,7 +400,7 @@ function startServer() {
             expressApp.post("/api/centrifugal/fan-data/phase17", async (req, res) => {
                 try {
                     const { selectedFan, distance, directivityQ } = req.body;
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
 
                     // Create a phase18-like result structure from selectedFan for Phase 20
                     const phase18Result = {
@@ -409,7 +429,7 @@ function startServer() {
             expressApp.post("/api/centrifugal/fan-data/phase19", async (req, res) => {
                 try {
                     const { selectedFan, phase18Result } = req.body;
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
 
                     const result = centrifugalService.processPhase19({
                         selectedFan,
@@ -428,7 +448,7 @@ function startServer() {
                     const { phase16Data, phase13Motors, phase17Data, selectedFan } = req.body;
 
                     // Import centrifugal service for Phase 18 and Phase 19 calculations
-                    const centrifugalService = await import('./server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js');
+                    const centrifugalService = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js'));
 
                     // Build consolidated results array - MUST match web version structure
                     // Web version calls Phase 18 service for EACH row to apply fan affinity laws
@@ -546,7 +566,7 @@ function startServer() {
 
                     // Dynamically import the Axial PDF generator from Newmodules
                     if (!generateAxialFanDatasheetPDF) {
-                        const pdfModule = await import('./server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js');
+                        const pdfModule = await import(getModulePath('server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js'));
                         generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
                     }
 
@@ -575,7 +595,7 @@ function startServer() {
 
                     // Dynamically import the Centrifugal PDF generator from Newmodules
                     if (!generateCentrifugalFanDatasheetPDF) {
-                        const pdfModule = await import('./server/Newmodules/centrifugal/CentrifugalPDF/centrifugalPdfGenerator.service.js');
+                        const pdfModule = await import(getModulePath('server/Newmodules/centrifugal/CentrifugalPDF/centrifugalPdfGenerator.service.js'));
                         generateCentrifugalFanDatasheetPDF = pdfModule.generateCentrifugalFanDatasheetPDF;
                     }
 
@@ -604,7 +624,7 @@ function startServer() {
 
                     // Dynamically import the Axial PDF generator from Newmodules
                     if (!generateAxialFanDatasheetPDF) {
-                        const pdfModule = await import('./server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js');
+                        const pdfModule = await import(getModulePath('server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js'));
                         generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
                     }
 
@@ -632,7 +652,7 @@ function startServer() {
 
                     // Dynamically import the Axial PDF generator from Newmodules
                     if (!generateAxialFanDatasheetPDF) {
-                        const pdfModule = await import('./server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js');
+                        const pdfModule = await import(getModulePath('server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js'));
                         generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
                     }
 

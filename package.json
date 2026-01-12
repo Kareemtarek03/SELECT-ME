@@ -94,6 +94,7 @@
     "asarUnpack": [
       "**/node_modules/canvas/**",
       "**/node_modules/@prisma/engines/**",
+      "**/server/Newmodules/**",
       "server/Newmodules/axial/AxialPDF/PDF/**",
       "server/Newmodules/centrifugal/CentrifugalPDF/assets/**"
     ],
