@@ -152,13 +152,16 @@ export default function CentrifugalFanFinalResultPage() {
             };
 
             const userInput = {
-                TempC: input?.TempC,
-                RPM: input?.RPM,
+                TempC: input?.TempC ?? 20,
+                RPM: input?.RPM ?? 1440,
                 airFlow: input?.airFlow,
                 staticPressure: input?.staticPressure,
-                SPF: secondInputData?.spf || 10,
-                frictionLosses: secondInputData?.frictionLosses || 15,
-                fanUnitNo: input?.fanUnitNo || "EX-01",
+                SPF: secondInputData?.spf ?? 10,
+                frictionLosses: secondInputData?.frictionLosses ?? 15,
+                fanUnitNo: input?.fanUnitNo ?? "EX-01",
+                NoPhases: input?.NoPhases ?? 3,
+                directivityFactor: input?.directivityFactor ?? 1,
+                distanceFromSource: input?.distanceFromSource ?? 3,
             };
 
             const response = await fetch(`${apiBaseUrl}/api/centrifugal/pdf/datasheet`, {
@@ -283,7 +286,7 @@ export default function CentrifugalFanFinalResultPage() {
             >
                 {/* Content Area */}
                 <Box flex={1} py={6} px={6}>
-                    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+                    <div style={{ maxWidth: "1400px", width: "100%", margin: "0 auto" }}>
                         {/* Header */}
                         <div style={{ marginBottom: "1.5rem" }}>
                             <h1 style={{ fontSize: "1.25rem", color: "#1e293b", marginBottom: "0.25rem", fontWeight: "600" }}>
@@ -483,7 +486,7 @@ export default function CentrifugalFanFinalResultPage() {
                                                     <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
                                                         <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Input Density</span>
                                                         <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
-                                                            {calculateDensity(input?.TempC) ? `${calculateDensity(input?.TempC).toFixed(2)} kg/m³` : "—"}
+                                                            {`${calculateDensity(input?.TempC ?? 20).toFixed(3)} kg/m³`}
                                                         </span>
                                                     </div>
                                                     <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>

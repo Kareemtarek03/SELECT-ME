@@ -304,7 +304,7 @@ export default function CentrifugalFanSecondInputPage() {
             <HamburgerMenu />
 
             <Box flex={1} overflow="auto" px={6} py={4} bg="#f8fafc">
-                <Box maxW="950px" mx="auto" bg="white" borderRadius="16px" p={6} boxShadow="0 1px 3px rgba(0,0,0,0.05)">
+                <Box maxW="1200px" w="100%" mx="auto" bg="white" borderRadius="16px" p={{ base: 4, md: 6 }} boxShadow="0 1px 3px rgba(0,0,0,0.05)">
                     <Box mb={4}>
                         <Heading size="lg" color="#1e293b" mb={1} fontWeight="bold">
                             Configure {selectedFan?.fanModel || "Centrifugal Fan"}
@@ -321,7 +321,7 @@ export default function CentrifugalFanSecondInputPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">⚡ Motor Data</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(4, 1fr)" gap={4}>
+                                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
                                     <Box>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                             <Text {...labelStyle} mb={0}>Insulation Class</Text>
@@ -397,7 +397,7 @@ export default function CentrifugalFanSecondInputPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">🔧 Belt Selection</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(3, 1fr)" gap={4}>
+                                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={4}>
                                     <Box>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                             <Text {...labelStyle} mb={0}>Friction Losses</Text>
@@ -457,7 +457,7 @@ export default function CentrifugalFanSecondInputPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">🔊 Sound Data</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(2, 1fr)" gap={4}>
+                                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={4}>
                                     <Box>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                             <Text {...labelStyle} mb={0}>Distance</Text>

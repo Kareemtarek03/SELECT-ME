@@ -74,7 +74,7 @@ export default function AxialFanTypesPage() {
             <HamburgerMenu />
 
             <Box flex={1} overflow="auto" px={6} py={2}>
-                <Box maxW="950px" mx="auto">
+                <Box maxW="1200px" w="100%" mx="auto">
                     {/* Header */}
                     <Box mb={3}>
                         <Heading size="md" color="#1e293b" mb={0} fontWeight="bold">
@@ -114,7 +114,7 @@ export default function AxialFanTypesPage() {
                     </Box>
 
                     {/* Fan Type Grid */}
-                    <Grid templateColumns="repeat(3, 1fr)" gap={5}>
+                    <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={{ base: 3, md: 5 }}>
                         {currentFanTypes.map((fanType) => (
                             <Box
                                 key={fanType.id}

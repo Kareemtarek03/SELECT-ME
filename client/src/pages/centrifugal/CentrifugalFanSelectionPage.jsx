@@ -29,8 +29,9 @@ export default function CentrifugalFanSelectionPage() {
             airFlow: "CFM",
             pressure: "Pa",
             power: "kW",
+            insulationClass: "F",
         },
-        input: { RPM: 1440, TempC: 20, fanUnitNo: "EX-01" },
+        input: { RPM: 1440, TempC: 20, fanUnitNo: "EX-01", SPF: 10, frictionLosses: 15, directivityFactor: 1, distanceFromSource: 3, beltType: "SPA", motorPoles: 4, maxRPMChange: 50 },
     };
 
     const handleInputChange = (e) => {
@@ -44,7 +45,7 @@ export default function CentrifugalFanSelectionPage() {
         if (!input.airFlow || !input.staticPressure) {
             setMessage({
                 type: "warning",
-                text: "Please provide both Air Flow and Static Pressure.",
+                text: "Please enter Airflow and Static Pressure to continue.",
             });
             return;
         }
@@ -180,7 +181,7 @@ export default function CentrifugalFanSelectionPage() {
             <HamburgerMenu />
 
             <Box flex={1} overflow="auto" px={6} py={4} bg="#f8fafc">
-                <Box maxW="950px" mx="auto" bg="white" borderRadius="16px" p={6} boxShadow="0 1px 3px rgba(0,0,0,0.05)">
+                <Box maxW="1200px" w="100%" mx="auto" bg="white" borderRadius="16px" p={{ base: 4, md: 6 }} boxShadow="0 1px 3px rgba(0,0,0,0.05)">
                     <Box mb={4}>
                         <Heading size="lg" color="#1e293b" mb={1} fontWeight="bold">
                             Centrifugal Fan Selection - {units.centrifugalFanType || "Select Type"}
@@ -197,7 +198,7 @@ export default function CentrifugalFanSelectionPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">⚙️ Basic Parameters</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(4, 1fr)" gap={4}>
+                                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
                                     <Box>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                             <Text {...labelStyle}>RPM</Text>
@@ -277,7 +278,7 @@ export default function CentrifugalFanSelectionPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">💨 Airflow & Pressure</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={{ base: 3, md: 5 }}>
                                     <Box {...sectionCardStyle}>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                                             <Text {...labelStyle} mb={0}>Required Airflow</Text>
@@ -338,7 +339,7 @@ export default function CentrifugalFanSelectionPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">⚡ Power Configuration</Text>
                                 </Box>
-                                <Grid templateColumns="repeat(2, 1fr)" gap={5}>
+                                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={{ base: 3, md: 5 }}>
                                     <Box>
                                         <Text {...labelStyle}>Power Unit</Text>
                                         <UnitSelect

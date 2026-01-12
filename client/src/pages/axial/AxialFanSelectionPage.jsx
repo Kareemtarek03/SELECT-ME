@@ -34,7 +34,7 @@ export default function AxialFanSelectionPage() {
       fanType: "AF-L",
       insulationClass: "F",
     },
-    input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 5, Safety: 5, fanUnitNo: "EX-01" },
+    input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 10, Safety: 5, fanUnitNo: "EX-01", directivityFactor: 1, distanceFromSource: 3 },
   };
 
   const handleInputChange = (e) => {
@@ -48,7 +48,7 @@ export default function AxialFanSelectionPage() {
     if (!input.airFlow || !input.staticPressure) {
       setMessage({
         type: "warning",
-        text: "Please provide both Air Flow and Static Pressure.",
+        text: "Please enter Airflow and Static Pressure to continue.",
       });
       return;
     }
@@ -114,8 +114,8 @@ export default function AxialFanSelectionPage() {
       NoPhases: DEFAULTS.input.NoPhases,
       SPF: DEFAULTS.input.SPF,
       Safety: DEFAULTS.input.Safety,
-      directivityFactor: 2,
-      distanceFromSource: 1,
+      directivityFactor: 1,
+      distanceFromSource: 3,
       fanUnitNo: DEFAULTS.input.fanUnitNo,
     });
     setUnits((prev) => ({
@@ -182,7 +182,7 @@ export default function AxialFanSelectionPage() {
       <HamburgerMenu />
 
       <Box flex={1} overflow="auto" px={4} py={2}>
-        <Box maxW="950px" mx="auto" h="100%" display="flex" flexDirection="column">
+        <Box maxW="1200px" w="100%" mx="auto" h="100%" display="flex" flexDirection="column">
           <Box mb={2}>
             <Heading size="md" color="#1e293b" mb={0} fontWeight="bold">
               Axial Fan Selection - {units.fanType || "Select Type"}
@@ -199,7 +199,7 @@ export default function AxialFanSelectionPage() {
                 <Box {...sectionTitleStyle}>
                   <Text fontSize="sm" fontWeight="semibold" color="#1e293b">⚙️ Basic Parameters</Text>
                 </Box>
-                <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={3}>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">RPM</Text>
@@ -264,7 +264,7 @@ export default function AxialFanSelectionPage() {
                 <Box {...sectionTitleStyle}>
                   <Text fontSize="sm" fontWeight="semibold" color="#1e293b">💨 Airflow & Pressure</Text>
                 </Box>
-                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Airflow</Text>
@@ -325,7 +325,7 @@ export default function AxialFanSelectionPage() {
                 <Box {...sectionTitleStyle}>
                   <Text fontSize="sm" fontWeight="semibold" color="#1e293b">⚡ Power & Safety</Text>
                 </Box>
-                <Grid templateColumns="repeat(4, 1fr)" gap={3}>
+                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={3}>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Power Unit</Text>
@@ -391,7 +391,7 @@ export default function AxialFanSelectionPage() {
                 <Box {...sectionTitleStyle}>
                   <Text fontSize="sm" fontWeight="semibold" color="#1e293b">🔊 Sound Data</Text>
                 </Box>
-                <Grid templateColumns="repeat(2, 1fr)" gap={3}>
+                <Grid templateColumns={{ base: "1fr", md: "repeat(2, 1fr)" }} gap={3}>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                       <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Directivity Factor (Q)</Text>

@@ -208,7 +208,13 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     motorEff = motorEff / 100;
   }
 
-  const inputDensity = calculateDensity(userInput?.TempC);
+  // Use userInput values with fallbacks from fanData or defaults
+  // Temperature: userInput -> default 20°C
+  // RPM: userInput -> fanData.RPM (from backend recalculation)
+  // InputDensity: fanData.InputDensity (calculated by backend) -> calculate from temp
+  const tempC = userInput?.TempC ?? 20;
+  const fanRPM = userInput?.RPM ?? fanData.RPM ?? 1440;
+  const inputDensity = fanData.InputDensity ?? calculateDensity(tempC);
 
   // Model number from selected fan in axial results page
   const modelNum = fanData.FanModel || "AF-L-1250-8|30\\AM-8T-7.5";
@@ -553,9 +559,9 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     ["- Design Motor Input Power [kW]", ":", fmt(sound.motorInputPower, 2)],
     ["- Design Fan Static Efficiency [%]", ":", fmtPct(pred.FanStaticEfficiencyPred)],
     ["- Design Fan Total Efficiency [%]", ":", fmtPct(pred.FanTotalEfficiencyPred)],
-    ["- Temperature [C°]", ":", fmt(userInput?.TempC, 0)],
-    ["- Density [kg/m3]", ":", fmt(fanData.InputDensity, 1)],
-    ["- Fan Speed [RPM]", ":", fmt(userInput?.RPM, 0)],
+    ["- Temperature [C°]", ":", fmt(tempC, 0)],
+    ["- Density [kg/m3]", ":", fmt(inputDensity, 3)],
+    ["- Fan Speed [RPM]", ":", fmt(fanRPM, 0)],
     ["- Sound Pressure @ 3 m [dBA]", ":", fmt(sound.lpA, 1)],
     ["- Sound Power @ 3 m [dBA]", ":", fmt(sound.lwA, 1)],
   ];

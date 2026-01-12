@@ -202,7 +202,9 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     const fanType = units?.centrifugalFanType || selectedFan.fanModel || "CF-SIB-B";
     const isBackward = fanType.includes("IB") || fanType.includes("B-B");
     const isSmoke = fanType.startsWith("SCF");
-    const inputDensity = calculateDensity(userInput?.TempC);
+    // Ensure TempC has a default value of 20°C if not provided
+    const tempC = userInput?.TempC != null ? userInput.TempC : 20;
+    const inputDensity = calculateDensity(tempC);
     // Support both property names: efficiency50Hz (Express) and efficiency (Electron)
     let motorEff = phase17Motor.efficiency50Hz || phase17Motor.efficiency;
     // If efficiency is already a percentage (>1), convert to decimal
@@ -210,10 +212,10 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
         motorEff = motorEff / 100;
     }
     // Calculate motor input power using Phase 20 formula
-    // motorPowerFactor comes from frictionLosses user input
-    // safetyFactor comes from SPF user input
-    const motorPowerFactor = userInput?.frictionLosses != null ? userInput.frictionLosses / 100 : null;
-    const safetyFactor = userInput?.SPF != null ? userInput.SPF / 100 : null;
+    // motorPowerFactor comes from frictionLosses user input (default 15%)
+    // safetyFactor comes from SPF user input (default 10%)
+    const motorPowerFactor = userInput?.frictionLosses != null ? userInput.frictionLosses / 100 : 0.15;
+    const safetyFactor = userInput?.SPF != null ? userInput.SPF / 100 : 0.10;
     const motorInputPower = calculateMotorInputPower(phase18.fanInputPower, motorEff, motorPowerFactor, safetyFactor);
 
     // ========== SECTION 1: HEADER (from Image 1) ==========
@@ -530,8 +532,8 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
         ["- Design Motor Input Power [kW]", ":", fmt(motorInputPower, 2)],
         ["- Design Fan Static Efficiency [%]", ":", fmtPct(phase18.staticEfficiency)],
         ["- Design Fan Total Efficiency [%]", ":", fmtPct(phase18.totalEfficiency)],
-        ["- Temperature [C°]", ":", fmt(userInput?.TempC, 0)],
-        ["- Density [kg/m3]", ":", fmt(inputDensity, 1)],
+        ["- Temperature [C°]", ":", fmt(tempC, 0)],
+        ["- Density [kg/m3]", ":", fmt(inputDensity, 2)],
         ["- Fan Speed [RPM]", ":", fmt(phase18.fanSpeedN2, 0)],
         ["- Sound Pressure @ 3 m  [dBA]", ":", fmt(phase20?.LP?.total, 1)],
         ["- Sound Power @ 3 m  [dBA]", ":", fmt(phase20?.LW?.total, 1)],

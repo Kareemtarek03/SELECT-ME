@@ -26,28 +26,46 @@ export const FormProvider = ({ children }) => {
     loadFromStorage('fanSelector_units', {
       airFlow: null,
       pressure: null,
-      power: null,
+      power: "kW",
       fanType: null,
       centrifugalFanType: null,
+      insulationClass: "F",
     })
   );
 
-  const [input, setInput] = useState(() =>
-    loadFromStorage('fanSelector_input', {
-      RPM: null,
-      TempC: null,
+  const [input, setInput] = useState(() => {
+    const stored = loadFromStorage('fanSelector_input', null);
+    // Merge stored values with defaults to ensure critical fields always have values
+    const defaults = {
+      RPM: 1440,
+      TempC: 20,
       airFlow: null,
       staticPressure: null,
-      NoPhases: null,
-      Safety: null,
-      SPF: null,
+      NoPhases: 3,
+      Safety: 5,
+      SPF: 10,
       // Sound Data fields
-      directivityFactor: 2,  // Q - default value
-      distanceFromSource: 1, // r - default value in meters
+      directivityFactor: 1,  // Q - default value
+      distanceFromSource: 3, // r - default value in meters
+      // Centrifugal-specific fields
+      frictionLosses: 15,
+      beltType: "SPA",
+      motorPoles: 4,
+      maxRPMChange: 50,
       // Fan Unit No field
       fanUnitNo: "EX-01",    // Default value for datasheet naming
-    })
-  );
+    };
+    // If stored exists, merge with defaults (stored values take precedence if not null)
+    if (stored) {
+      return {
+        ...defaults,
+        ...Object.fromEntries(
+          Object.entries(stored).filter(([_, v]) => v !== null && v !== undefined)
+        ),
+      };
+    }
+    return defaults;
+  });
 
   const [results, setResults] = useState(() =>
     loadFromStorage('fanSelector_results', null)
@@ -70,20 +88,25 @@ export const FormProvider = ({ children }) => {
     setUnits({
       airFlow: null,
       pressure: null,
-      power: null,
+      power: "kW",
       fanType: null,
       centrifugalFanType: null,
+      insulationClass: "F",
     });
     setInput({
-      RPM: null,
-      TempC: null,
+      RPM: 1440,
+      TempC: 20,
       airFlow: null,
       staticPressure: null,
-      NoPhases: null,
-      Safety: null,
-      SPF: null,
-      directivityFactor: 2,
-      distanceFromSource: 1,
+      NoPhases: 3,
+      Safety: 5,
+      SPF: 10,
+      directivityFactor: 1,
+      distanceFromSource: 3,
+      frictionLosses: 15,
+      beltType: "SPA",
+      motorPoles: 4,
+      maxRPMChange: 50,
       fanUnitNo: "EX-01",
     });
     setResults(null);

@@ -314,8 +314,8 @@ export default function ResultsPage() {
 
   const getDefaultForField = (type, name) => {
     const DEFAULTS = {
-      units: { airFlow: "CFM", pressure: "Pa", power: "kW", fanType: "AF-L" },
-      input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 5, Safety: 5 },
+      units: { airFlow: "CFM", pressure: "Pa", power: "kW", fanType: "AF-L", insulationClass: "F" },
+      input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 10, Safety: 5, directivityFactor: 1, distanceFromSource: 3 },
     };
     return DEFAULTS[type][name];
   };
@@ -713,8 +713,21 @@ export default function ResultsPage() {
                           },
                           body: JSON.stringify({
                             fanData: fan,
-                            userInput: input,
-                            units: units,
+                            userInput: {
+                              ...input,
+                              RPM: input?.RPM ?? 1440,
+                              TempC: input?.TempC ?? 20,
+                              NoPhases: input?.NoPhases ?? 3,
+                              SPF: input?.SPF ?? 10,
+                              Safety: input?.Safety ?? 5,
+                              directivityFactor: input?.directivityFactor ?? 1,
+                              distanceFromSource: input?.distanceFromSource ?? 3,
+                            },
+                            units: {
+                              ...units,
+                              power: units?.power ?? "kW",
+                              insulationClass: units?.insulationClass ?? "F",
+                            },
                           }),
                         })
                           .then((response) => response.blob())
