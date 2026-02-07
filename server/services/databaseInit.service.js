@@ -36,12 +36,12 @@ function getBaseDataPath() {
     const electronAppPath = process.env.APP_PATH || process.env.RESOURCES_PATH;
     if (electronAppPath) {
         // If we're in production Electron, the files are often in app.asar.unpacked
-        // but APP_PATH might point to app.asar. Check if we need to use unpacked version.
-        if (electronAppPath.endsWith('.asar')) {
-            const unpackedPath = electronAppPath + '.unpacked';
-            if (fs.existsSync(unpackedPath)) {
-                return unpackedPath;
-            }
+        // Priority 1: Check if there's an unpacked version of the APP_PATH itself
+        const appAsarPath = electronAppPath.endsWith('.asar') ? electronAppPath : electronAppPath + '.asar';
+        const unpackedPath = appAsarPath + '.unpacked';
+
+        if (fs.existsSync(unpackedPath)) {
+            return unpackedPath;
         }
         return electronAppPath;
     }

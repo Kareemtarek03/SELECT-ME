@@ -44,7 +44,9 @@ if (!isDev) {
     }
 
     // Force Prisma to use the writable database path
-    process.env.DATABASE_URL = `file:${dbPath}`;
+    // Normalize path to use forward slashes for Prisma/SQLite on Windows
+    const normalizedDbPath = dbPath.replace(/\\/g, "/");
+    process.env.DATABASE_URL = `file:${normalizedDbPath}`;
     console.log("Production Database URL:", process.env.DATABASE_URL);
 }
 
@@ -59,7 +61,7 @@ function getAppPath() {
     if (isDev) {
         return __dirname;
     }
-    return path.join(path.dirname(app.getPath("exe")), "resources", "app");
+    return app.getAppPath();
 }
 
 // Helper function to get the correct module path for dynamic imports
@@ -317,7 +319,11 @@ function startServer() {
                     res.json({ message: "Success", data: result.data || result });
                 } catch (err) {
                     console.error("Axial API error:", err);
-                    res.status(500).json({ error: err.message, details: err.message });
+                    res.status(500).json({
+                        error: err.message || "Unknown Axial API error",
+                        details: err.message,
+                        stack: isDev ? err.stack : undefined
+                    });
                 }
             });
 
@@ -355,7 +361,11 @@ function startServer() {
                     });
                 } catch (err) {
                     console.error("Centrifugal API error:", err);
-                    res.status(500).json({ error: err.message, details: err.message });
+                    res.status(500).json({
+                        error: err.message || "Unknown Centrifugal API error",
+                        details: err.message,
+                        stack: isDev ? err.stack : undefined
+                    });
                 }
             });
 
