@@ -270,14 +270,14 @@ export default function ResultsPage() {
       dataKey: "StaticPressureNew",
       airflowKey: "AirFlowNew",
       unit: units?.pressure || "Pa",
-      color: "#3b82f6",
+      color: "#000000",
     },
     {
       name: "Fan Input Power",
       dataKey: "FanInputPowerNew",
       airflowKey: "AirFlowNew",
       unit: units?.power || "kW",
-      color: "#10b981",
+      color: "#002060",
     },
     {
       name: "Static Efficiency",
@@ -285,7 +285,7 @@ export default function ResultsPage() {
       airflowKey: "AirFlowNew",
       unit: "%",
       multiplier: 100,
-      color: "#8b5cf6",
+      color: "#385723",
     },
     {
       name: "Total Efficiency",
@@ -293,7 +293,7 @@ export default function ResultsPage() {
       airflowKey: "AirFlowNew",
       unit: "%",
       multiplier: 100,
-      color: "#ec4899",
+      color: "#385723",
     },
   ];
 
@@ -1039,24 +1039,24 @@ export default function ResultsPage() {
                             }}
                           >
                             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.StaticPressureNew} onChange={() => toggleCurveVisibility("StaticPressureNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#3b82f6" }} />
-                              <span style={{ color: "#3b82f6", fontWeight: "500" }}>Static Pressure</span>
+                              <input type="checkbox" checked={curveVisibility.StaticPressureNew} onChange={() => toggleCurveVisibility("StaticPressureNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#000000" }} />
+                              <span style={{ color: "#000000", fontWeight: "500" }}>Static Pressure</span>
                             </label>
                             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanInputPowerNew} onChange={() => toggleCurveVisibility("FanInputPowerNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#10b981" }} />
-                              <span style={{ color: "#10b981", fontWeight: "500" }}>Fan Input Power</span>
+                              <input type="checkbox" checked={curveVisibility.FanInputPowerNew} onChange={() => toggleCurveVisibility("FanInputPowerNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#002060" }} />
+                              <span style={{ color: "#002060", fontWeight: "500" }}>Fan Input Power</span>
                             </label>
                             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanStaticEfficiency} onChange={() => toggleCurveVisibility("FanStaticEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#8b5cf6" }} />
-                              <span style={{ color: "#8b5cf6", fontWeight: "500" }}>Static Efficiency</span>
+                              <input type="checkbox" checked={curveVisibility.FanStaticEfficiency} onChange={() => toggleCurveVisibility("FanStaticEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
+                              <span style={{ color: "#385723", fontWeight: "500" }}>Static Efficiency</span>
                             </label>
                             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanTotalEfficiency} onChange={() => toggleCurveVisibility("FanTotalEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#ec4899" }} />
-                              <span style={{ color: "#ec4899", fontWeight: "500" }}>Total Efficiency</span>
+                              <input type="checkbox" checked={curveVisibility.FanTotalEfficiency} onChange={() => toggleCurveVisibility("FanTotalEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
+                              <span style={{ color: "#385723", fontWeight: "500" }}>Total Efficiency</span>
                             </label>
                             <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.SystemCurve} onChange={() => toggleCurveVisibility("SystemCurve")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#ef4444" }} />
-                              <span style={{ color: "#ef4444", fontWeight: "500" }}>System Curve</span>
+                              <input type="checkbox" checked={curveVisibility.SystemCurve} onChange={() => toggleCurveVisibility("SystemCurve")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#FF0000" }} />
+                              <span style={{ color: "#FF0000", fontWeight: "500" }}>System Curve</span>
                             </label>
                           </div>
 
@@ -1245,10 +1245,19 @@ export default function ResultsPage() {
 
                                   // Generate dynamic ticks for Static Pressure Y-axis
                                   const pressureRange = finalMaxPressure;
-                                  const pressureStep = Math.max(
-                                    50,
-                                    Math.ceil(pressureRange / 6 / 50) * 50
-                                  ); // Round to nearest 50, min 50
+                                  // Adaptive scaling for Pressure range
+                                  const getAdaptiveStep = (range, targetTicks = 6) => {
+                                    if (range <= 0) return 1;
+                                    const rawStep = range / targetTicks;
+                                    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                                    const norm = rawStep / mag;
+                                    if (norm <= 1) return 1 * mag;
+                                    if (norm <= 2) return 2 * mag;
+                                    if (norm <= 5) return 5 * mag;
+                                    return 10 * mag;
+                                  };
+
+                                  const pressureStep = getAdaptiveStep(pressureRange);
                                   const pressureTicks = [];
                                   for (
                                     let tick = 0;
@@ -1262,10 +1271,7 @@ export default function ResultsPage() {
 
                                   // Generate dynamic ticks for Power Y-axis
                                   const powerRange = maxPower;
-                                  const powerStep = Math.max(
-                                    2,
-                                    Math.ceil(powerRange / 5 / 2) * 2
-                                  ); // Round to nearest 2, min 2
+                                  const powerStep = getAdaptiveStep(powerRange, 5);
                                   const powerTicks = [];
                                   for (
                                     let tick = 0;
@@ -1305,11 +1311,11 @@ export default function ResultsPage() {
                                         domain={[niceMin, niceMax]}
                                         type="number"
                                         label={{
-                                          value: `Airflow (${units?.airFlow || "CFM"
+                                          value: `Air Flow (${units?.airFlow || "CFM"
                                             })`,
                                           position: "insideBottom",
                                           offset: -10,
-                                          fill: "#1e293b",
+                                          fill: "#000000",
                                           style: {
                                             fontSize: "16px",
                                             fontWeight: "600",
@@ -1319,8 +1325,8 @@ export default function ResultsPage() {
                                       <YAxis
                                         yAxisId="pressure"
                                         orientation="left"
-                                        stroke="#3b82f6"
-                                        tick={{ fill: "#3b82f6", fontSize: 14 }}
+                                        stroke="#000000"
+                                        tick={{ fill: "#000000", fontSize: 14 }}
                                         ticks={pressureTicks}
                                         domain={[
                                           0,
@@ -1335,7 +1341,7 @@ export default function ResultsPage() {
                                           angle: -90,
                                           position: "insideLeft",
                                           offset: -10,
-                                          fill: "#3b82f6",
+                                          fill: "#000000",
                                           style: {
                                             fontSize: "18px",
                                             fontWeight: "600",
@@ -1347,8 +1353,8 @@ export default function ResultsPage() {
                                       <YAxis
                                         yAxisId="efficiency"
                                         orientation="right"
-                                        stroke="#8b5cf6"
-                                        tick={{ fill: "#8b5cf6", fontSize: 14 }}
+                                        stroke="#385723"
+                                        tick={{ fill: "#385723", fontSize: 14 }}
                                         ticks={efficiencyTicks}
                                         domain={[0, 100]}
                                         hide={false}
@@ -1359,7 +1365,7 @@ export default function ResultsPage() {
                                           position: "right",
                                           offset: 0,
                                           dx: -20,
-                                          fill: "#8b5cf6",
+                                          fill: "#385723",
                                           style: {
                                             fontSize: "18px",
                                             fontWeight: "600",
@@ -1371,8 +1377,8 @@ export default function ResultsPage() {
                                       <YAxis
                                         yAxisId="power"
                                         orientation="right"
-                                        stroke="#10b981"
-                                        tick={{ fill: "#10b981", fontSize: 14 }}
+                                        stroke="#002060"
+                                        tick={{ fill: "#002060", fontSize: 14 }}
                                         ticks={powerTicks}
                                         domain={[
                                           0,
@@ -1380,15 +1386,15 @@ export default function ResultsPage() {
                                         ]}
                                         hide={false}
                                         allowDataOverflow={true}
-                                        axisLine={{ stroke: "#10b981" }}
-                                        tickLine={{ stroke: "#10b981" }}
+                                        axisLine={{ stroke: "#002060" }}
+                                        tickLine={{ stroke: "#002060" }}
                                         label={{
                                           value: `Power (${units?.power || "kW"})`,
                                           angle: 90,
                                           position: "right",
                                           offset: 0,
                                           dx: 3,
-                                          fill: "#10b981",
+                                          fill: "#002060",
                                           style: {
                                             fontSize: "18px",
                                             fontWeight: "600",
@@ -1403,24 +1409,42 @@ export default function ResultsPage() {
                                           borderRadius: "8px",
                                           color: "#000000",
                                         }}
+                                        itemSorter={(item) => {
+                                          const order = {
+                                            StaticPressureNew: 1,
+                                            FanInputPowerNew: 2,
+                                            FanStaticEfficiency: 3,
+                                            FanTotalEfficiency: 4,
+                                          };
+                                          return order[item.dataKey] || 100;
+                                        }}
                                         formatter={(value, name) => {
-                                          if (name === "SystemCurve") {
-                                            return [
-                                              value?.toFixed(2) || "-",
-                                              "System Curve",
-                                            ];
+                                          const labels = {
+                                            StaticPressureNew: "Pst",
+                                            FanInputPowerNew: "Psh",
+                                            FanStaticEfficiency: "ηst",
+                                            FanTotalEfficiency: "ηtot",
+                                          };
+                                          const unit = {
+                                            StaticPressureNew: units?.pressure || "Pa",
+                                            FanInputPowerNew: units?.power || "kW",
+                                            FanStaticEfficiency: "%",
+                                            FanTotalEfficiency: "%",
+                                          };
+
+                                          // Match decimal points from reference image
+                                          let decimals = 2;
+                                          if (name === "StaticPressureNew" || name === "FanStaticEfficiency" || name === "FanTotalEfficiency") {
+                                            decimals = 1;
                                           }
-                                          const graphType = graphTypes.find(
-                                            (g) => g.dataKey === name
-                                          );
+                                          if (name === 'SystemCurve') return null;
                                           return [
-                                            value?.toFixed(2) || "-",
-                                            graphType?.name || name,
+                                            `${value ? value.toFixed(decimals) : "0.00"} ${unit[name] || ""}`,
+                                            labels[name] || name,
                                           ];
                                         }}
                                         labelFormatter={(label) =>
-                                          `Airflow: ${Number(label).toFixed(0)} ${units?.airFlow || "CFM"
-                                          }`
+                                          `Q: ${Number(label).toLocaleString()} ${units?.airFlow || "CFM"}`
                                         }
                                       />
                                       {/* Static Pressure - Blue */}
@@ -1429,7 +1453,7 @@ export default function ResultsPage() {
                                           yAxisId="pressure"
                                           type="monotone"
                                           dataKey="StaticPressureNew"
-                                          stroke="#3b82f6"
+                                          stroke="#000000"
                                           strokeWidth={2.5}
                                           dot={false}
                                           isAnimationActive={true}
@@ -1442,7 +1466,7 @@ export default function ResultsPage() {
                                         yAxisId="power"
                                         type="monotone"
                                         dataKey="FanInputPowerNew"
-                                        stroke={curveVisibility.FanInputPowerNew ? "#10b981" : "transparent"}
+                                        stroke={curveVisibility.FanInputPowerNew ? "#002060" : "transparent"}
                                         strokeWidth={curveVisibility.FanInputPowerNew ? 2.5 : 0}
                                         dot={false}
                                         isAnimationActive={true}
@@ -1455,7 +1479,7 @@ export default function ResultsPage() {
                                           yAxisId="efficiency"
                                           type="monotone"
                                           dataKey="FanStaticEfficiency"
-                                          stroke="#8b5cf6"
+                                          stroke="#385723"
                                           strokeWidth={2.5}
                                           dot={false}
                                           isAnimationActive={true}
@@ -1469,8 +1493,9 @@ export default function ResultsPage() {
                                           yAxisId="efficiency"
                                           type="monotone"
                                           dataKey="FanTotalEfficiency"
-                                          stroke="#ec4899"
+                                          stroke="#385723"
                                           strokeWidth={2.5}
+                                          strokeDasharray="5 5"
                                           dot={false}
                                           isAnimationActive={true}
                                           strokeLinecap="round"
@@ -1483,9 +1508,8 @@ export default function ResultsPage() {
                                           yAxisId="pressure"
                                           type="monotone"
                                           dataKey="SystemCurve"
-                                          stroke="#ef4444"
+                                          stroke="#FF0000"
                                           strokeWidth={2.5}
-                                          strokeDasharray="5 5"
                                           dot={false}
                                           isAnimationActive={true}
                                           strokeLinecap="round"
@@ -1505,28 +1529,28 @@ export default function ResultsPage() {
                             return (
                               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", marginTop: "1.5rem", backgroundColor: "#f8fafc", borderRadius: "8px", overflow: "hidden" }}>
                                 <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#1e293b" fontSize="xl" fontWeight="bold">
+                                  <Text color="#000000" fontSize="xl" fontWeight="bold">
                                     {predictions.StaticPressurePred?.toFixed(2) || "—"}
                                   </Text>
-                                  <Text color="#64748b" fontSize="xs" textTransform="uppercase" mt={1}>static pressure</Text>
+                                  <Text color="#000000" fontSize="xs" textTransform="uppercase" mt={1}>static pressure</Text>
                                 </div>
                                 <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#1e293b" fontSize="xl" fontWeight="bold">
+                                  <Text color="#002060" fontSize="xl" fontWeight="bold">
                                     {predictions.FanInputPowerPred?.toFixed(3) || "—"}
                                   </Text>
-                                  <Text color="#64748b" fontSize="xs" textTransform="uppercase" mt={1}>fan input Power</Text>
+                                  <Text color="#002060" fontSize="xs" textTransform="uppercase" mt={1}>fan input Power</Text>
                                 </div>
                                 <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#1e293b" fontSize="xl" fontWeight="bold">
+                                  <Text color="#385723" fontSize="xl" fontWeight="bold">
                                     {predictions.FanStaticEfficiencyPred ? (predictions.FanStaticEfficiencyPred * 100).toFixed(1) : "—"}
                                   </Text>
-                                  <Text color="#64748b" fontSize="xs" textTransform="uppercase" mt={1}>Static efficiency</Text>
+                                  <Text color="#385723" fontSize="xs" textTransform="uppercase" mt={1}>Static efficiency</Text>
                                 </div>
                                 <div style={{ textAlign: "center", padding: "1rem" }}>
-                                  <Text color="#1e293b" fontSize="xl" fontWeight="bold">
+                                  <Text color="#385723" fontSize="xl" fontWeight="bold">
                                     {predictions.FanTotalEfficiencyPred ? (predictions.FanTotalEfficiencyPred * 100).toFixed(1) : "—"}
                                   </Text>
-                                  <Text color="#64748b" fontSize="xs" textTransform="uppercase" mt={1}>Total efficiency</Text>
+                                  <Text color="#385723" fontSize="xs" textTransform="uppercase" mt={1}>Total efficiency</Text>
                                 </div>
                               </div>
                             );

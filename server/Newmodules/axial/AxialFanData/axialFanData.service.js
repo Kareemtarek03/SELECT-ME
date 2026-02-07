@@ -492,7 +492,27 @@ export async function Output({ units, input, dataSource }) {
           fan.predictions.StaticPressureNew ??
           fan.predictions.StaticPressurepred;
         if (typeof sp !== "number" || Number.isNaN(sp)) return false;
-        const staticPressureVariance = 25; // 25% variance for static pressure tolerance
+        const pressureFactors = {
+          "Pa": 1,
+          "kPa": 0.001,
+          "bar": 0.00001,
+          "psi": 0.000145038,
+          "in.wg": 0.00401865,
+        };
+        const currentUnit = units?.pressure || units?.staticPressure || "Pa";
+        const factor = pressureFactors[currentUnit] || 1;
+        const testSp = sp / factor;
+
+        const staticPressureVariance =
+          testSp < 38 ? 50 :
+            testSp <= 75 ? 35 :
+              testSp <= 125 ? 25 :
+                testSp <= 175 ? 20 :
+                  testSp <= 225 ? 17.5 :
+                    testSp <= 275 ? 15 :
+                      testSp <= 325 ? 12.5 :
+                        testSp <= 425 ? 10 :
+                          testSp <= 575 ? 7.5 : 5; // Adaptive variance for static pressure tolerance
         const l = 1 - staticPressureVariance / 100;
         const u = 1 + staticPressureVariance / 100;
         const lower = staticRef * l;
