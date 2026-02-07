@@ -15,7 +15,7 @@ const router = express.Router();
  * }
  */
 // Use :filename? to allow it to be part of the URL path for better browser support
-router.post('/datasheet/:filename?', async (req, res) => {
+router.post('/datasheet', async (req, res) => {
     try {
         // Handle form submission (jsonPayload string) or standard JSON body
         if (req.body.jsonPayload) {

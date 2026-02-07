@@ -230,35 +230,19 @@ export default function ResultsPage() {
     });
   };
 
-
   // Filter state for Inner Diameter, Configuration, and Material
   const [filterInnerDia, setFilterInnerDia] = useState("");
   const [filterConfig, setFilterConfig] = useState("");
   const [filterMaterial, setFilterMaterial] = useState("");
-
 
   // Filter options (hardcoded from database values)
   const innerDiaOptions = [
     315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1100, 1250, 1350,
   ];
   const configOptions =
-    filterMaterial === "PF" ?
-      [
-        "3-6",
-        "6-6",
-      ] :
-      [
-        "5-5",
-        "6-3",
-        "6-6",
-        "9-3",
-        "9-9",
-        "12-6",
-        "12-12",
-        "16-8",
-        "16-16",
-      ]
-
+    filterMaterial === "PF"
+      ? ["3-6", "6-6"]
+      : ["5-5", "6-3", "6-6", "9-3", "9-9", "12-6", "12-12", "16-8", "16-16"];
 
   const materialOptions = ["A", "P"];
 
@@ -309,7 +293,6 @@ export default function ResultsPage() {
     );
   };
 
-
   // Extract results from context
   const apiData = contextResults?.data;
 
@@ -322,8 +305,22 @@ export default function ResultsPage() {
 
   const getDefaultForField = (type, name) => {
     const DEFAULTS = {
-      units: { airFlow: "CFM", pressure: "Pa", power: "kW", fanType: "AF-L", insulationClass: "F" },
-      input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 10, Safety: 5, directivityFactor: 1, distanceFromSource: 3 },
+      units: {
+        airFlow: "CFM",
+        pressure: "Pa",
+        power: "kW",
+        fanType: "AF-L",
+        insulationClass: "F",
+      },
+      input: {
+        RPM: 1440,
+        TempC: 20,
+        NoPhases: 3,
+        SPF: 10,
+        Safety: 5,
+        directivityFactor: 1,
+        distanceFromSource: 3,
+      },
     };
     return DEFAULTS[type][name];
   };
@@ -413,16 +410,15 @@ export default function ResultsPage() {
     <Flex minH="100vh" bg="#f8fafc" flexDirection="column">
       <HamburgerMenu />
       {/* Main Content */}
-      <Box
-        flex={1}
-        display="flex"
-        flexDirection="column"
-      >
+      <Box flex={1} display="flex" flexDirection="column">
         {/* Content Area */}
         <Box flex={1} py={{ base: 6, md: 8 }} px={{ base: 4, md: 8, lg: 12 }}>
           <div style={{ maxWidth: "1400px", margin: "0 auto" }}>
             {/* Header */}
-            <div className="results-header" style={{ marginBottom: "2rem", textAlign: "center" }}>
+            <div
+              className="results-header"
+              style={{ marginBottom: "2rem", textAlign: "center" }}
+            >
               <h1
                 style={{
                   fontSize: "1.5rem",
@@ -453,7 +449,11 @@ export default function ResultsPage() {
                 >
                   {/* Inner Diameter Filter */}
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
                   >
                     <label
                       style={{
@@ -490,7 +490,11 @@ export default function ResultsPage() {
                     </select>
                   </div>
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
                   >
                     <label
                       style={{
@@ -529,7 +533,11 @@ export default function ResultsPage() {
 
                   {/* Configuration Filter */}
                   <div
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                    }}
                   >
                     <label
                       style={{
@@ -566,8 +574,6 @@ export default function ResultsPage() {
                     </select>
                   </div>
 
-
-
                   {/* Results count */}
                   <span style={{ color: "#94a3b8", fontSize: "0.875rem" }}>
                     Showing {filteredFans.length} of {fans.length} fans
@@ -582,7 +588,8 @@ export default function ResultsPage() {
                         <th className="center">Model Number</th>
                         <th className="center">
                           Air Flow (
-                          {units?.airFlow || getDefaultForField("units", "airFlow")}
+                          {units?.airFlow ||
+                            getDefaultForField("units", "airFlow")}
                           )
                         </th>
                         <th className="center">
@@ -593,19 +600,20 @@ export default function ResultsPage() {
                         </th>
                         <th className="center">
                           Fan Input Power (
-                          {units?.power || getDefaultForField("units", "power")})
+                          {units?.power || getDefaultForField("units", "power")}
+                          )
                         </th>
 
                         <th className="center">Static Efficiency (%)</th>
                         <th className="center">Total Efficiency (%)</th>
                       </tr>
                     </thead>
-                    <tbody style={
-                      {
+                    <tbody
+                      style={{
                         maxHeight: 100,
-                        overflowY: 'scroll'
-                      }
-                    }>
+                        overflowY: "scroll",
+                      }}
+                    >
                       {filteredFans.map((fan, idx) => {
                         const predictions = fan.predictions || {};
                         const pressureValue =
@@ -616,18 +624,25 @@ export default function ResultsPage() {
                           predictions.VelocityPressurePred?.toFixed(2) || "-";
                         const staticEfficiencyValue =
                           predictions.FanStaticEfficiencyPred
-                            ? (predictions.FanStaticEfficiencyPred * 100).toFixed(2)
+                            ? (
+                                predictions.FanStaticEfficiencyPred * 100
+                              ).toFixed(2)
                             : "-";
                         const totalEfficiencyValue =
                           predictions.FanTotalEfficiencyPred
-                            ? (predictions.FanTotalEfficiencyPred * 100).toFixed(2)
+                            ? (
+                                predictions.FanTotalEfficiencyPred * 100
+                              ).toFixed(2)
                             : "-";
-                        const AirFlow = parseInt(input.airFlow)?.toFixed(2) || "-";
+                        const AirFlow =
+                          parseInt(input.airFlow)?.toFixed(2) || "-";
 
                         return (
                           <tr
                             key={idx}
-                            className={selectedFanIndex === idx ? "selected" : ""}
+                            className={
+                              selectedFanIndex === idx ? "selected" : ""
+                            }
                             onClick={() =>
                               setSelectedFanIndex(
                                 selectedFanIndex === idx ? null : idx
@@ -664,8 +679,16 @@ export default function ResultsPage() {
                     marginBottom: "1rem",
                   }}
                 >
-                  <h2 style={{ margin: 0, fontSize: "1rem", fontWeight: "600", color: "#1e293b" }}>
-                    Details: {filteredFans[selectedFanIndex]?.FanModel ||
+                  <h2
+                    style={{
+                      margin: 0,
+                      fontSize: "1rem",
+                      fontWeight: "600",
+                      color: "#1e293b",
+                    }}
+                  >
+                    Details:{" "}
+                    {filteredFans[selectedFanIndex]?.FanModel ||
                       `Fan ${selectedFanIndex + 1}`}
                   </h2>
 
@@ -719,46 +742,41 @@ export default function ResultsPage() {
                     <button
                       onClick={() => {
                         const fan = filteredFans[selectedFanIndex];
-
-                        const payload = {
-                          fanData: fan,
-                          userInput: {
-                            ...input,
-                            RPM: input?.RPM ?? 1440,
-                            TempC: input?.TempC ?? 20,
-                            NoPhases: input?.NoPhases ?? 3,
-                            SPF: input?.SPF ?? 10,
-                            Safety: input?.Safety ?? 5,
-                            directivityFactor: input?.directivityFactor ?? 1,
-                            distanceFromSource: input?.distanceFromSource ?? 3,
+                        // Open PDF in new tab
+                        fetch("/api/axial/pdf/datasheet", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
                           },
-                          units: {
-                            ...units,
-                            power: units?.power ?? "kW",
-                            insulationClass: units?.insulationClass ?? "F",
-                          },
-                        };
-
-                        const fanUnitNo = input?.fanUnitNo || "EX-01";
-                        const safeName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
-
-                        // Create a hidden form to submit data to new tab
-                        // This allows the browser to respect the URL path for the filename
-                        const form = document.createElement("form");
-                        form.method = "POST";
-                        form.action = `/api/axial/pdf/datasheet/${safeName}.pdf`;
-                        form.target = "_blank";
-                        form.style.display = "none";
-
-                        const inputField = document.createElement("input");
-                        inputField.type = "hidden";
-                        inputField.name = "jsonPayload";
-                        inputField.value = JSON.stringify(payload);
-
-                        form.appendChild(inputField);
-                        document.body.appendChild(form);
-                        form.submit();
-                        document.body.removeChild(form);
+                          body: JSON.stringify({
+                            fanData: fan,
+                            userInput: {
+                              ...input,
+                              RPM: input?.RPM ?? 1440,
+                              TempC: input?.TempC ?? 20,
+                              NoPhases: input?.NoPhases ?? 3,
+                              SPF: input?.SPF ?? 10,
+                              Safety: input?.Safety ?? 5,
+                              directivityFactor: input?.directivityFactor ?? 1,
+                              distanceFromSource:
+                                input?.distanceFromSource ?? 3,
+                            },
+                            units: {
+                              ...units,
+                              power: units?.power ?? "kW",
+                              insulationClass: units?.insulationClass ?? "F",
+                            },
+                          }),
+                        })
+                          .then((response) => response.blob())
+                          .then((blob) => {
+                            const url = window.URL.createObjectURL(blob);
+                            window.open(url, "_blank");
+                          })
+                          .catch((error) => {
+                            console.error("Error generating PDF:", error);
+                            alert("Failed to generate PDF datasheet");
+                          });
                       }}
                       style={{
                         background:
@@ -822,7 +840,8 @@ export default function ResultsPage() {
                       background: "transparent",
                       border: "none",
                       padding: "0.75rem 1.25rem",
-                      color: activeTab === "performance" ? "#1e293b" : "#94a3b8",
+                      color:
+                        activeTab === "performance" ? "#1e293b" : "#94a3b8",
                       fontSize: "0.875rem",
                       fontWeight: activeTab === "performance" ? "600" : "400",
                       cursor: "pointer",
@@ -862,10 +881,12 @@ export default function ResultsPage() {
                       marginBottom: "-1px",
                     }}
                     onMouseEnter={(e) => {
-                      if (activeTab !== "curve") e.target.style.color = "#64748b";
+                      if (activeTab !== "curve")
+                        e.target.style.color = "#64748b";
                     }}
                     onMouseLeave={(e) => {
-                      if (activeTab !== "curve") e.target.style.color = "#94a3b8";
+                      if (activeTab !== "curve")
+                        e.target.style.color = "#94a3b8";
                     }}
                   >
                     Fan Curve
@@ -888,10 +909,12 @@ export default function ResultsPage() {
                       marginBottom: "-1px",
                     }}
                     onMouseEnter={(e) => {
-                      if (activeTab !== "noise") e.target.style.color = "#64748b";
+                      if (activeTab !== "noise")
+                        e.target.style.color = "#64748b";
                     }}
                     onMouseLeave={(e) => {
-                      if (activeTab !== "noise") e.target.style.color = "#94a3b8";
+                      if (activeTab !== "noise")
+                        e.target.style.color = "#94a3b8";
                     }}
                   >
                     Noise Graph
@@ -910,20 +933,28 @@ export default function ResultsPage() {
                   };
 
                   const blades = item.Blades
-                    ? `${item.Blades.symbol || ""}${item.Blades.material ? ` (${item.Blades.material})` : ""
-                    } - ${item.Blades.noBlades || ""} blades @ ${item.Blades.angle || ""
-                    }°`
+                    ? `${item.Blades.symbol || ""}${
+                        item.Blades.material ? ` (${item.Blades.material})` : ""
+                      } - ${item.Blades.noBlades || ""} blades @ ${
+                        item.Blades.angle || ""
+                      }°`
                     : null;
                   const imp = item.Impeller
-                    ? `${item.Impeller.conf || ""} (inner ${item.Impeller.innerDia || ""
-                    } mm)`
+                    ? `${item.Impeller.conf || ""} (inner ${
+                        item.Impeller.innerDia || ""
+                      } mm)`
                     : null;
 
                   const motor = item.matchedMotor;
                   // Motor efficiency: try efficiency50Hz first, then effCurve[0]
                   // Handle both decimal (0.936) and percentage (93.6) formats
-                  let motorEff = motor?.efficiency50Hz ??
-                    (motor && Array.isArray(motor.effCurve) && motor.effCurve.length > 0 ? motor.effCurve[0] : null);
+                  let motorEff =
+                    motor?.efficiency50Hz ??
+                    (motor &&
+                    Array.isArray(motor.effCurve) &&
+                    motor.effCurve.length > 0
+                      ? motor.effCurve[0]
+                      : null);
                   // If efficiency is already a percentage (>1), convert to decimal for display
                   if (motorEff != null && motorEff > 1) {
                     motorEff = motorEff / 100;
@@ -933,86 +964,330 @@ export default function ResultsPage() {
                     <div key={idx}>
                       {/* Performance Data Section - Only show when activeTab is 'performance' */}
                       {activeTab === "performance" && (
-                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "1fr 1fr",
+                            gap: "1.5rem",
+                          }}
+                        >
                           {/* Fan Specifications Card */}
-                          <div style={{
-                            background: "#f8fafc",
-                            borderRadius: "12px",
-                            border: "1px solid #e2e8f0",
-                            padding: "1.25rem"
-                          }}>
-                            <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                              <span style={{ color: "#3b82f6" }}>⚙</span> Fan Specifications
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              border: "1px solid #e2e8f0",
+                              padding: "1.25rem",
+                            }}
+                          >
+                            <h4
+                              style={{
+                                color: "#1e293b",
+                                fontSize: "0.9375rem",
+                                fontWeight: "600",
+                                marginBottom: "1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                              }}
+                            >
+                              <span style={{ color: "#3b82f6" }}>⚙</span> Fan
+                              Specifications
                             </h4>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Input Density</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
-                                {summaryFields.InputDensity ? `${summaryFields.InputDensity} kg/m³` : "—"}
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Input Density
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {summaryFields.InputDensity
+                                  ? `${summaryFields.InputDensity} kg/m³`
+                                  : "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Fan Speed</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
-                                {summaryFields.RPM ? `${summaryFields.RPM} RPM` : "—"}
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Fan Speed
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {summaryFields.RPM
+                                  ? `${summaryFields.RPM} RPM`
+                                  : "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Blades</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Blades
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {blades || "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Impeller</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Impeller
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {imp || "—"}
                               </span>
                             </div>
                           </div>
 
                           {/* Motor Details Card */}
-                          <div style={{
-                            background: "#f8fafc",
-                            borderRadius: "12px",
-                            border: "1px solid #e2e8f0",
-                            padding: "1.25rem"
-                          }}>
-                            <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                              <span style={{ color: "#3b82f6" }}>⚡</span> Motor Details
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              border: "1px solid #e2e8f0",
+                              padding: "1.25rem",
+                            }}
+                          >
+                            <h4
+                              style={{
+                                color: "#1e293b",
+                                fontSize: "0.9375rem",
+                                fontWeight: "600",
+                                marginBottom: "1rem",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                              }}
+                            >
+                              <span style={{ color: "#3b82f6" }}>⚡</span> Motor
+                              Details
                             </h4>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Motor Model</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Motor Model
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {motor?.model || "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Power (kW)</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Power (kW)
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {motor?.powerKW || "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>No. of Poles</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                No. of Poles
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {motor?.NoPoles || "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Volt / Phase / Freq</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
-                                {motor?.Phase ? `${motor.Phase === 1 ? "220" : motor.Phase === 3 ? "380" : "—"}V / ${motor.Phase}Ph / 50Hz` : "—"}
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Volt / Phase / Freq
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {motor?.Phase
+                                  ? `${
+                                      motor.Phase === 1
+                                        ? "220"
+                                        : motor.Phase === 3
+                                        ? "380"
+                                        : "—"
+                                    }V / ${motor.Phase}Ph / 50Hz`
+                                  : "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0", borderBottom: "1px solid #e2e8f0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Motor Efficiency</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
-                                {motorEff != null ? `${(motorEff * 100).toFixed(1)}%` : "—"}
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                                borderBottom: "1px solid #e2e8f0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Motor Efficiency
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
+                                {motorEff != null
+                                  ? `${(motorEff * 100).toFixed(1)}%`
+                                  : "—"}
                               </span>
                             </div>
-                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.625rem 0" }}>
-                              <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Insulation Class</span>
-                              <span style={{ color: "#1e293b", fontSize: "0.875rem", fontWeight: "500" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                padding: "0.625rem 0",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  color: "#64748b",
+                                  fontSize: "0.875rem",
+                                }}
+                              >
+                                Insulation Class
+                              </span>
+                              <span
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "0.875rem",
+                                  fontWeight: "500",
+                                }}
+                              >
                                 {motor?.insClass || "—"}
                               </span>
                             </div>
@@ -1023,7 +1298,16 @@ export default function ResultsPage() {
                       {/* Fan Curve Section - Only show when activeTab is 'curve' */}
                       {activeTab === "curve" && (
                         <div>
-                          <h4 style={{ color: "#1e293b", fontSize: "1rem", fontWeight: "600", marginBottom: "1rem" }}>Fan Performance Curves</h4>
+                          <h4
+                            style={{
+                              color: "#1e293b",
+                              fontSize: "1rem",
+                              fontWeight: "600",
+                              marginBottom: "1rem",
+                            }}
+                          >
+                            Fan Performance Curves
+                          </h4>
 
                           {/* Legend Bar with Checkboxes */}
                           <div
@@ -1038,30 +1322,157 @@ export default function ResultsPage() {
                               borderRadius: "8px",
                             }}
                           >
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.StaticPressureNew} onChange={() => toggleCurveVisibility("StaticPressureNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#000000" }} />
-                              <span style={{ color: "#000000", fontWeight: "500" }}>Static Pressure</span>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={curveVisibility.StaticPressureNew}
+                                onChange={() =>
+                                  toggleCurveVisibility("StaticPressureNew")
+                                }
+                                style={{
+                                  cursor: "pointer",
+                                  width: "14px",
+                                  height: "14px",
+                                  accentColor: "#000000",
+                                }}
+                              />
+                              <span
+                                style={{ color: "#000000", fontWeight: "500" }}
+                              >
+                                Static Pressure
+                              </span>
                             </label>
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanInputPowerNew} onChange={() => toggleCurveVisibility("FanInputPowerNew")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#002060" }} />
-                              <span style={{ color: "#002060", fontWeight: "500" }}>Fan Input Power</span>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={curveVisibility.FanInputPowerNew}
+                                onChange={() =>
+                                  toggleCurveVisibility("FanInputPowerNew")
+                                }
+                                style={{
+                                  cursor: "pointer",
+                                  width: "14px",
+                                  height: "14px",
+                                  accentColor: "#002060",
+                                }}
+                              />
+                              <span
+                                style={{ color: "#002060", fontWeight: "500" }}
+                              >
+                                Fan Input Power
+                              </span>
                             </label>
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanStaticEfficiency} onChange={() => toggleCurveVisibility("FanStaticEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
-                              <span style={{ color: "#385723", fontWeight: "500" }}>Static Efficiency</span>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={curveVisibility.FanStaticEfficiency}
+                                onChange={() =>
+                                  toggleCurveVisibility("FanStaticEfficiency")
+                                }
+                                style={{
+                                  cursor: "pointer",
+                                  width: "14px",
+                                  height: "14px",
+                                  accentColor: "#385723",
+                                }}
+                              />
+                              <span
+                                style={{ color: "#385723", fontWeight: "500" }}
+                              >
+                                Static Efficiency
+                              </span>
                             </label>
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.FanTotalEfficiency} onChange={() => toggleCurveVisibility("FanTotalEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
-                              <span style={{ color: "#385723", fontWeight: "500" }}>Total Efficiency</span>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={curveVisibility.FanTotalEfficiency}
+                                onChange={() =>
+                                  toggleCurveVisibility("FanTotalEfficiency")
+                                }
+                                style={{
+                                  cursor: "pointer",
+                                  width: "14px",
+                                  height: "14px",
+                                  accentColor: "#385723",
+                                }}
+                              />
+                              <span
+                                style={{ color: "#385723", fontWeight: "500" }}
+                              >
+                                Total Efficiency
+                              </span>
                             </label>
-                            <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                              <input type="checkbox" checked={curveVisibility.SystemCurve} onChange={() => toggleCurveVisibility("SystemCurve")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#FF0000" }} />
-                              <span style={{ color: "#FF0000", fontWeight: "500" }}>System Curve</span>
+                            <label
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.5rem",
+                                cursor: "pointer",
+                                fontSize: "0.8rem",
+                              }}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={curveVisibility.SystemCurve}
+                                onChange={() =>
+                                  toggleCurveVisibility("SystemCurve")
+                                }
+                                style={{
+                                  cursor: "pointer",
+                                  width: "14px",
+                                  height: "14px",
+                                  accentColor: "#FF0000",
+                                }}
+                              />
+                              <span
+                                style={{ color: "#FF0000", fontWeight: "500" }}
+                              >
+                                System Curve
+                              </span>
                             </label>
                           </div>
 
                           {/* Chart Container */}
-                          <div style={{ background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "1rem" }}>
+                          <div
+                            style={{
+                              background: "#f8fafc",
+                              borderRadius: "12px",
+                              border: "1px solid #e2e8f0",
+                              padding: "1rem",
+                            }}
+                          >
                             <div
                               style={{
                                 width: "100%",
@@ -1093,7 +1504,8 @@ export default function ResultsPage() {
 
                                   // Generate evenly spaced x-axis ticks (10-12 ticks)
                                   const tickCount = 12;
-                                  const rawStep = (xMax - xMin) / (tickCount - 1);
+                                  const rawStep =
+                                    (xMax - xMin) / (tickCount - 1);
                                   // Round step to a nice number
                                   const magnitude = Math.pow(
                                     10,
@@ -1121,7 +1533,11 @@ export default function ResultsPage() {
                                     const yData = item[graph.dataKey] || [];
                                     // Filter out null/undefined values and sort by airflow
                                     const validIndices = [];
-                                    for (let i = 0; i < airflowData.length; i++) {
+                                    for (
+                                      let i = 0;
+                                      i < airflowData.length;
+                                      i++
+                                    ) {
                                       if (
                                         airflowData[i] != null &&
                                         yData[i] != null &&
@@ -1143,12 +1559,17 @@ export default function ResultsPage() {
                                     );
                                     const yArray = validIndices.map(
                                       (i) =>
-                                        Number(yData[i]) * (graph.multiplier || 1)
+                                        Number(yData[i]) *
+                                        (graph.multiplier || 1)
                                     );
 
                                     if (xArray.length >= 2) {
                                       curveData[graph.dataKey] =
-                                        linearInterpolation(xArray, yArray, 200);
+                                        linearInterpolation(
+                                          xArray,
+                                          yArray,
+                                          200
+                                        );
                                     } else {
                                       curveData[graph.dataKey] = xArray.map(
                                         (x, i) => ({ x, y: yArray[i] })
@@ -1172,7 +1593,8 @@ export default function ResultsPage() {
 
                                   // Calculate System Curve: y = a * x²
                                   // a = predictedStaticPressure / (userAirflowInput²)
-                                  const itemPredictions = item.predictions || {};
+                                  const itemPredictions =
+                                    item.predictions || {};
                                   const predictedStaticPressure =
                                     itemPredictions.StaticPressurePred;
                                   const userAirflowInput = input?.airFlow;
@@ -1189,7 +1611,8 @@ export default function ResultsPage() {
                                     // Generate System Curve points for all x values in mergedDataMap
                                     mergedDataMap.forEach((dataPoint, xKey) => {
                                       const x = dataPoint.x;
-                                      const systemY = coefficientA * Math.pow(x, 2);
+                                      const systemY =
+                                        coefficientA * Math.pow(x, 2);
                                       dataPoint.SystemCurve = systemY;
                                     });
                                   }
@@ -1233,7 +1656,9 @@ export default function ResultsPage() {
                                     const maxSystemPressure =
                                       coefficientA * Math.pow(xMax, 2);
                                     if (maxSystemPressure > maxPressure) {
-                                      validPressureValues.push(maxSystemPressure);
+                                      validPressureValues.push(
+                                        maxSystemPressure
+                                      );
                                     }
                                   }
 
@@ -1246,10 +1671,16 @@ export default function ResultsPage() {
                                   // Generate dynamic ticks for Static Pressure Y-axis
                                   const pressureRange = finalMaxPressure;
                                   // Adaptive scaling for Pressure range
-                                  const getAdaptiveStep = (range, targetTicks = 6) => {
+                                  const getAdaptiveStep = (
+                                    range,
+                                    targetTicks = 6
+                                  ) => {
                                     if (range <= 0) return 1;
                                     const rawStep = range / targetTicks;
-                                    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+                                    const mag = Math.pow(
+                                      10,
+                                      Math.floor(Math.log10(rawStep))
+                                    );
                                     const norm = rawStep / mag;
                                     if (norm <= 1) return 1 * mag;
                                     if (norm <= 2) return 2 * mag;
@@ -1257,13 +1688,14 @@ export default function ResultsPage() {
                                     return 10 * mag;
                                   };
 
-                                  const pressureStep = getAdaptiveStep(pressureRange);
+                                  const pressureStep =
+                                    getAdaptiveStep(pressureRange);
                                   const pressureTicks = [];
                                   for (
                                     let tick = 0;
                                     tick <=
                                     Math.ceil(finalMaxPressure / pressureStep) *
-                                    pressureStep;
+                                      pressureStep;
                                     tick += pressureStep
                                   ) {
                                     pressureTicks.push(tick);
@@ -1271,7 +1703,10 @@ export default function ResultsPage() {
 
                                   // Generate dynamic ticks for Power Y-axis
                                   const powerRange = maxPower;
-                                  const powerStep = getAdaptiveStep(powerRange, 5);
+                                  const powerStep = getAdaptiveStep(
+                                    powerRange,
+                                    5
+                                  );
                                   const powerTicks = [];
                                   for (
                                     let tick = 0;
@@ -1311,8 +1746,9 @@ export default function ResultsPage() {
                                         domain={[niceMin, niceMax]}
                                         type="number"
                                         label={{
-                                          value: `Air Flow (${units?.airFlow || "CFM"
-                                            })`,
+                                          value: `Air Flow (${
+                                            units?.airFlow || "CFM"
+                                          })`,
                                           position: "insideBottom",
                                           offset: -10,
                                           fill: "#000000",
@@ -1330,14 +1766,16 @@ export default function ResultsPage() {
                                         ticks={pressureTicks}
                                         domain={[
                                           0,
-                                          pressureTicks[pressureTicks.length - 1] ||
-                                          100,
+                                          pressureTicks[
+                                            pressureTicks.length - 1
+                                          ] || 100,
                                         ]}
                                         hide={false}
                                         allowDataOverflow={true}
                                         label={{
-                                          value: `Pressure (${units?.pressure || "Pa"
-                                            })`,
+                                          value: `Pressure (${
+                                            units?.pressure || "Pa"
+                                          })`,
                                           angle: -90,
                                           position: "insideLeft",
                                           offset: -10,
@@ -1382,14 +1820,17 @@ export default function ResultsPage() {
                                         ticks={powerTicks}
                                         domain={[
                                           0,
-                                          powerTicks[powerTicks.length - 1] || 10,
+                                          powerTicks[powerTicks.length - 1] ||
+                                            10,
                                         ]}
                                         hide={false}
                                         allowDataOverflow={true}
                                         axisLine={{ stroke: "#002060" }}
                                         tickLine={{ stroke: "#002060" }}
                                         label={{
-                                          value: `Power (${units?.power || "kW"})`,
+                                          value: `Power (${
+                                            units?.power || "kW"
+                                          })`,
                                           angle: 90,
                                           position: "right",
                                           offset: 0,
@@ -1426,25 +1867,40 @@ export default function ResultsPage() {
                                             FanTotalEfficiency: "ηtot",
                                           };
                                           const unit = {
-                                            StaticPressureNew: units?.pressure || "Pa",
-                                            FanInputPowerNew: units?.power || "kW",
+                                            StaticPressureNew:
+                                              units?.pressure || "Pa",
+                                            FanInputPowerNew:
+                                              units?.power || "kW",
                                             FanStaticEfficiency: "%",
                                             FanTotalEfficiency: "%",
                                           };
 
                                           // Match decimal points from reference image
                                           let decimals = 2;
-                                          if (name === "StaticPressureNew" || name === "FanStaticEfficiency" || name === "FanTotalEfficiency") {
+                                          if (
+                                            name === "StaticPressureNew" ||
+                                            name === "FanStaticEfficiency" ||
+                                            name === "FanTotalEfficiency"
+                                          ) {
                                             decimals = 1;
                                           }
-                                          if (name === 'SystemCurve') return null;
+                                          if (name === "SystemCurve")
+                                            return null;
                                           return [
-                                            `${value ? value.toFixed(decimals) : "0.00"} ${unit[name] || ""}`,
+                                            `${
+                                              value
+                                                ? value.toFixed(decimals)
+                                                : "0.00"
+                                            } ${unit[name] || ""}`,
                                             labels[name] || name,
                                           ];
                                         }}
                                         labelFormatter={(label) =>
-                                          `Q: ${Number(label).toLocaleString()} ${units?.airFlow || "CFM"}`
+                                          `Q: ${Number(
+                                            label
+                                          ).toLocaleString()} ${
+                                            units?.airFlow || "CFM"
+                                          }`
                                         }
                                       />
                                       {/* Static Pressure - Blue */}
@@ -1466,8 +1922,16 @@ export default function ResultsPage() {
                                         yAxisId="power"
                                         type="monotone"
                                         dataKey="FanInputPowerNew"
-                                        stroke={curveVisibility.FanInputPowerNew ? "#002060" : "transparent"}
-                                        strokeWidth={curveVisibility.FanInputPowerNew ? 2.5 : 0}
+                                        stroke={
+                                          curveVisibility.FanInputPowerNew
+                                            ? "#002060"
+                                            : "transparent"
+                                        }
+                                        strokeWidth={
+                                          curveVisibility.FanInputPowerNew
+                                            ? 2.5
+                                            : 0
+                                        }
                                         dot={false}
                                         isAnimationActive={true}
                                         strokeLinecap="round"
@@ -1527,30 +1991,120 @@ export default function ResultsPage() {
                           {(() => {
                             const predictions = item.predictions || {};
                             return (
-                              <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", marginTop: "1.5rem", backgroundColor: "#f8fafc", borderRadius: "8px", overflow: "hidden" }}>
-                                <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#000000" fontSize="xl" fontWeight="bold">
-                                    {predictions.StaticPressurePred?.toFixed(2) || "—"}
+                              <div
+                                style={{
+                                  display: "grid",
+                                  gridTemplateColumns: "repeat(4, 1fr)",
+                                  marginTop: "1.5rem",
+                                  backgroundColor: "#f8fafc",
+                                  borderRadius: "8px",
+                                  overflow: "hidden",
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    padding: "1rem",
+                                    borderRight: "1px solid #cbd5e1",
+                                  }}
+                                >
+                                  <Text
+                                    color="#000000"
+                                    fontSize="xl"
+                                    fontWeight="bold"
+                                  >
+                                    {predictions.StaticPressurePred?.toFixed(
+                                      2
+                                    ) || "—"}
                                   </Text>
-                                  <Text color="#000000" fontSize="xs" textTransform="uppercase" mt={1}>static pressure</Text>
+                                  <Text
+                                    color="#000000"
+                                    fontSize="xs"
+                                    textTransform="uppercase"
+                                    mt={1}
+                                  >
+                                    static pressure
+                                  </Text>
                                 </div>
-                                <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#002060" fontSize="xl" fontWeight="bold">
-                                    {predictions.FanInputPowerPred?.toFixed(3) || "—"}
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    padding: "1rem",
+                                    borderRight: "1px solid #cbd5e1",
+                                  }}
+                                >
+                                  <Text
+                                    color="#002060"
+                                    fontSize="xl"
+                                    fontWeight="bold"
+                                  >
+                                    {predictions.FanInputPowerPred?.toFixed(
+                                      3
+                                    ) || "—"}
                                   </Text>
-                                  <Text color="#002060" fontSize="xs" textTransform="uppercase" mt={1}>fan input Power</Text>
+                                  <Text
+                                    color="#002060"
+                                    fontSize="xs"
+                                    textTransform="uppercase"
+                                    mt={1}
+                                  >
+                                    fan input Power
+                                  </Text>
                                 </div>
-                                <div style={{ textAlign: "center", padding: "1rem", borderRight: "1px solid #cbd5e1" }}>
-                                  <Text color="#385723" fontSize="xl" fontWeight="bold">
-                                    {predictions.FanStaticEfficiencyPred ? (predictions.FanStaticEfficiencyPred * 100).toFixed(1) : "—"}
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    padding: "1rem",
+                                    borderRight: "1px solid #cbd5e1",
+                                  }}
+                                >
+                                  <Text
+                                    color="#385723"
+                                    fontSize="xl"
+                                    fontWeight="bold"
+                                  >
+                                    {predictions.FanStaticEfficiencyPred
+                                      ? (
+                                          predictions.FanStaticEfficiencyPred *
+                                          100
+                                        ).toFixed(1)
+                                      : "—"}
                                   </Text>
-                                  <Text color="#385723" fontSize="xs" textTransform="uppercase" mt={1}>Static efficiency</Text>
+                                  <Text
+                                    color="#385723"
+                                    fontSize="xs"
+                                    textTransform="uppercase"
+                                    mt={1}
+                                  >
+                                    Static efficiency
+                                  </Text>
                                 </div>
-                                <div style={{ textAlign: "center", padding: "1rem" }}>
-                                  <Text color="#385723" fontSize="xl" fontWeight="bold">
-                                    {predictions.FanTotalEfficiencyPred ? (predictions.FanTotalEfficiencyPred * 100).toFixed(1) : "—"}
+                                <div
+                                  style={{
+                                    textAlign: "center",
+                                    padding: "1rem",
+                                  }}
+                                >
+                                  <Text
+                                    color="#385723"
+                                    fontSize="xl"
+                                    fontWeight="bold"
+                                  >
+                                    {predictions.FanTotalEfficiencyPred
+                                      ? (
+                                          predictions.FanTotalEfficiencyPred *
+                                          100
+                                        ).toFixed(1)
+                                      : "—"}
                                   </Text>
-                                  <Text color="#385723" fontSize="xs" textTransform="uppercase" mt={1}>Total efficiency</Text>
+                                  <Text
+                                    color="#385723"
+                                    fontSize="xs"
+                                    textTransform="uppercase"
+                                    mt={1}
+                                  >
+                                    Total efficiency
+                                  </Text>
                                 </div>
                               </div>
                             );
@@ -1564,7 +2118,8 @@ export default function ResultsPage() {
                           {(() => {
                             const predictions = item.predictions || {};
                             const fanInputPower = predictions.FanInputPowerPred;
-                            const staticPressure = predictions.StaticPressurePred;
+                            const staticPressure =
+                              predictions.StaticPressurePred;
 
                             // Get motor efficiency from matched motor
                             // Try efficiency50Hz first, then effCurve average
@@ -1587,7 +2142,8 @@ export default function ResultsPage() {
 
                             // Get SPF and sound data from user input
                             const spf = input?.SPF || 5;
-                            const directivityFactor = input?.directivityFactor || 2;
+                            const directivityFactor =
+                              input?.directivityFactor || 2;
                             const distanceFromSource =
                               input?.distanceFromSource || 1;
 
@@ -1619,64 +2175,274 @@ export default function ResultsPage() {
                             }
 
                             // Colors for bars - solid colors
-                            const lwBarColors = ["#3b82f6", "#3b82f6", "#3b82f6", "#3b82f6", "#3b82f6", "#3b82f6", "#3b82f6", "#3b82f6"];
-                            const lpBarColors = ["#14b8a6", "#14b8a6", "#14b8a6", "#14b8a6", "#14b8a6", "#14b8a6", "#14b8a6", "#14b8a6"];
+                            const lwBarColors = [
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                              "#3b82f6",
+                            ];
+                            const lpBarColors = [
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                              "#14b8a6",
+                            ];
 
                             return (
                               <>
                                 {/* Summary Cards - Colored backgrounds */}
-                                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
-                                  <div style={{ background: "#dbeafe", borderRadius: "12px", padding: "1.25rem", textAlign: "center" }}>
-                                    <div style={{ color: "#64748b", fontSize: "0.75rem", marginBottom: "0.5rem", textTransform: "uppercase" }}>LW(A)</div>
-                                    <div style={{ color: "#3b82f6", fontSize: "1.75rem", fontWeight: "bold" }}>
-                                      {noiseData.lwA}<span style={{ fontSize: "0.875rem", fontWeight: "normal" }}> dB(A)</span>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "repeat(4, 1fr)",
+                                    gap: "1rem",
+                                    marginBottom: "1.5rem",
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      background: "#dbeafe",
+                                      borderRadius: "12px",
+                                      padding: "1.25rem",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        color: "#64748b",
+                                        fontSize: "0.75rem",
+                                        marginBottom: "0.5rem",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      LW(A)
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: "#3b82f6",
+                                        fontSize: "1.75rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {noiseData.lwA}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        {" "}
+                                        dB(A)
+                                      </span>
                                     </div>
                                   </div>
-                                  <div style={{ background: "#fef3c7", borderRadius: "12px", padding: "1.25rem", textAlign: "center" }}>
-                                    <div style={{ color: "#64748b", fontSize: "0.75rem", marginBottom: "0.5rem", textTransform: "uppercase" }}>LP(A)</div>
-                                    <div style={{ color: "#f59e0b", fontSize: "1.75rem", fontWeight: "bold" }}>
-                                      {noiseData.lpA}<span style={{ fontSize: "0.875rem", fontWeight: "normal" }}> dB(A)</span>
+                                  <div
+                                    style={{
+                                      background: "#fef3c7",
+                                      borderRadius: "12px",
+                                      padding: "1.25rem",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        color: "#64748b",
+                                        fontSize: "0.75rem",
+                                        marginBottom: "0.5rem",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      LP(A)
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: "#f59e0b",
+                                        fontSize: "1.75rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {noiseData.lpA}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        {" "}
+                                        dB(A)
+                                      </span>
                                     </div>
                                   </div>
-                                  <div style={{ background: "#d1fae5", borderRadius: "12px", padding: "1.25rem", textAlign: "center" }}>
-                                    <div style={{ color: "#64748b", fontSize: "0.75rem", marginBottom: "0.5rem", textTransform: "uppercase" }}>Directivity (Q)</div>
-                                    <div style={{ color: "#10b981", fontSize: "1.75rem", fontWeight: "bold" }}>
+                                  <div
+                                    style={{
+                                      background: "#d1fae5",
+                                      borderRadius: "12px",
+                                      padding: "1.25rem",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        color: "#64748b",
+                                        fontSize: "0.75rem",
+                                        marginBottom: "0.5rem",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      Directivity (Q)
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: "#10b981",
+                                        fontSize: "1.75rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
                                       {noiseData.Q}
                                     </div>
                                   </div>
-                                  <div style={{ background: "#fce7f3", borderRadius: "12px", padding: "1.25rem", textAlign: "center" }}>
-                                    <div style={{ color: "#64748b", fontSize: "0.75rem", marginBottom: "0.5rem", textTransform: "uppercase" }}>Distance (r)</div>
-                                    <div style={{ color: "#ec4899", fontSize: "1.75rem", fontWeight: "bold" }}>
-                                      {noiseData.r}<span style={{ fontSize: "0.875rem", fontWeight: "normal" }}>m</span>
+                                  <div
+                                    style={{
+                                      background: "#fce7f3",
+                                      borderRadius: "12px",
+                                      padding: "1.25rem",
+                                      textAlign: "center",
+                                    }}
+                                  >
+                                    <div
+                                      style={{
+                                        color: "#64748b",
+                                        fontSize: "0.75rem",
+                                        marginBottom: "0.5rem",
+                                        textTransform: "uppercase",
+                                      }}
+                                    >
+                                      Distance (r)
+                                    </div>
+                                    <div
+                                      style={{
+                                        color: "#ec4899",
+                                        fontSize: "1.75rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {noiseData.r}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        m
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
 
                                 {/* Two Graphs Side by Side */}
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem", marginBottom: "1.5rem" }}>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: "1.5rem",
+                                    marginBottom: "1.5rem",
+                                  }}
+                                >
                                   {/* LW(A) Graph */}
-                                  <div style={{ background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
-                                    <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem" }}>Sound Power Spectrum</h4>
-                                    <div style={{ width: "100%", height: "280px" }}>
-                                      <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={noiseData.lwSpectrum} margin={{ top: 10, right: 10, left: 0, bottom: 30 }}>
-                                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                  <div
+                                    style={{
+                                      background: "#f8fafc",
+                                      borderRadius: "12px",
+                                      border: "1px solid #e2e8f0",
+                                      padding: "1.25rem",
+                                    }}
+                                  >
+                                    <h4
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.9375rem",
+                                        fontWeight: "600",
+                                        marginBottom: "1rem",
+                                      }}
+                                    >
+                                      Sound Power Spectrum
+                                    </h4>
+                                    <div
+                                      style={{ width: "100%", height: "280px" }}
+                                    >
+                                      <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                      >
+                                        <BarChart
+                                          data={noiseData.lwSpectrum}
+                                          margin={{
+                                            top: 10,
+                                            right: 10,
+                                            left: 0,
+                                            bottom: 30,
+                                          }}
+                                        >
+                                          <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="#e2e8f0"
+                                          />
                                           <XAxis
                                             dataKey="frequency"
                                             stroke="#94a3b8"
-                                            tick={{ fill: "#64748b", fontSize: 11 }}
-                                            label={{ value: "Frequency (Hz)", position: "insideBottom", offset: -10, fill: "#64748b", style: { fontSize: "12px" } }}
+                                            tick={{
+                                              fill: "#64748b",
+                                              fontSize: 11,
+                                            }}
+                                            label={{
+                                              value: "Frequency (Hz)",
+                                              position: "insideBottom",
+                                              offset: -10,
+                                              fill: "#64748b",
+                                              style: { fontSize: "12px" },
+                                            }}
                                           />
                                           <YAxis
                                             stroke="#94a3b8"
-                                            tick={{ fill: "#64748b", fontSize: 11 }}
+                                            tick={{
+                                              fill: "#64748b",
+                                              fontSize: 11,
+                                            }}
                                             domain={[0, "auto"]}
-                                            label={{ value: "dB", angle: -90, position: "insideLeft", fill: "#64748b", dx: 10, style: { fontSize: "12px" } }}
+                                            label={{
+                                              value: "dB",
+                                              angle: -90,
+                                              position: "insideLeft",
+                                              fill: "#64748b",
+                                              dx: 10,
+                                              style: { fontSize: "12px" },
+                                            }}
                                           />
-                                          <Bar dataKey="soundPower" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                                            {noiseData.lwSpectrum.map((entry, index) => (
-                                              <Cell key={`lw-cell-${index}`} fill={lwBarColors[index % lwBarColors.length]} />
-                                            ))}
+                                          <Bar
+                                            dataKey="soundPower"
+                                            radius={[4, 4, 0, 0]}
+                                            isAnimationActive={false}
+                                          >
+                                            {noiseData.lwSpectrum.map(
+                                              (entry, index) => (
+                                                <Cell
+                                                  key={`lw-cell-${index}`}
+                                                  fill={
+                                                    lwBarColors[
+                                                      index % lwBarColors.length
+                                                    ]
+                                                  }
+                                                />
+                                              )
+                                            )}
                                           </Bar>
                                         </BarChart>
                                       </ResponsiveContainer>
@@ -1684,28 +2450,92 @@ export default function ResultsPage() {
                                   </div>
 
                                   {/* LP(A) Graph */}
-                                  <div style={{ background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "1.25rem" }}>
-                                    <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem" }}>Sound Pressure Spectrum</h4>
-                                    <div style={{ width: "100%", height: "280px" }}>
-                                      <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={noiseData.lpSpectrum} margin={{ top: 10, right: 10, left: 0, bottom: 30 }}>
-                                          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                  <div
+                                    style={{
+                                      background: "#f8fafc",
+                                      borderRadius: "12px",
+                                      border: "1px solid #e2e8f0",
+                                      padding: "1.25rem",
+                                    }}
+                                  >
+                                    <h4
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.9375rem",
+                                        fontWeight: "600",
+                                        marginBottom: "1rem",
+                                      }}
+                                    >
+                                      Sound Pressure Spectrum
+                                    </h4>
+                                    <div
+                                      style={{ width: "100%", height: "280px" }}
+                                    >
+                                      <ResponsiveContainer
+                                        width="100%"
+                                        height="100%"
+                                      >
+                                        <BarChart
+                                          data={noiseData.lpSpectrum}
+                                          margin={{
+                                            top: 10,
+                                            right: 10,
+                                            left: 0,
+                                            bottom: 30,
+                                          }}
+                                        >
+                                          <CartesianGrid
+                                            strokeDasharray="3 3"
+                                            stroke="#e2e8f0"
+                                          />
                                           <XAxis
                                             dataKey="frequency"
                                             stroke="#94a3b8"
-                                            tick={{ fill: "#64748b", fontSize: 11 }}
-                                            label={{ value: "Frequency (Hz)", position: "insideBottom", offset: -10, fill: "#64748b", style: { fontSize: "12px" } }}
+                                            tick={{
+                                              fill: "#64748b",
+                                              fontSize: 11,
+                                            }}
+                                            label={{
+                                              value: "Frequency (Hz)",
+                                              position: "insideBottom",
+                                              offset: -10,
+                                              fill: "#64748b",
+                                              style: { fontSize: "12px" },
+                                            }}
                                           />
                                           <YAxis
                                             stroke="#94a3b8"
-                                            tick={{ fill: "#64748b", fontSize: 11 }}
+                                            tick={{
+                                              fill: "#64748b",
+                                              fontSize: 11,
+                                            }}
                                             domain={[0, "auto"]}
-                                            label={{ value: "dB", angle: -90, position: "insideLeft", fill: "#64748b", dx: 10, style: { fontSize: "12px" } }}
+                                            label={{
+                                              value: "dB",
+                                              angle: -90,
+                                              position: "insideLeft",
+                                              fill: "#64748b",
+                                              dx: 10,
+                                              style: { fontSize: "12px" },
+                                            }}
                                           />
-                                          <Bar dataKey="soundPressure" radius={[4, 4, 0, 0]} isAnimationActive={false}>
-                                            {noiseData.lpSpectrum.map((entry, index) => (
-                                              <Cell key={`lp-cell-${index}`} fill={lpBarColors[index % lpBarColors.length]} />
-                                            ))}
+                                          <Bar
+                                            dataKey="soundPressure"
+                                            radius={[4, 4, 0, 0]}
+                                            isAnimationActive={false}
+                                          >
+                                            {noiseData.lpSpectrum.map(
+                                              (entry, index) => (
+                                                <Cell
+                                                  key={`lp-cell-${index}`}
+                                                  fill={
+                                                    lpBarColors[
+                                                      index % lpBarColors.length
+                                                    ]
+                                                  }
+                                                />
+                                              )
+                                            )}
                                           </Bar>
                                         </BarChart>
                                       </ResponsiveContainer>
@@ -1715,36 +2545,130 @@ export default function ResultsPage() {
 
                                 {/* Octave Band Data Table */}
                                 <div>
-                                  <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem" }}>Octave Band Data</h4>
-                                  <div style={{ overflowX: "auto", background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
-                                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+                                  <h4
+                                    style={{
+                                      color: "#1e293b",
+                                      fontSize: "0.9375rem",
+                                      fontWeight: "600",
+                                      marginBottom: "1rem",
+                                    }}
+                                  >
+                                    Octave Band Data
+                                  </h4>
+                                  <div
+                                    style={{
+                                      overflowX: "auto",
+                                      background: "#f8fafc",
+                                      borderRadius: "12px",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <table
+                                      style={{
+                                        width: "100%",
+                                        borderCollapse: "collapse",
+                                        fontSize: "0.875rem",
+                                      }}
+                                    >
                                       <thead>
-                                        <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                                          <th style={{ padding: "0.875rem 1rem", textAlign: "left", color: "#64748b", fontWeight: "500", fontSize: "0.75rem", textTransform: "uppercase" }}>Frequency</th>
-                                          {noiseData.lwSpectrum.map((band, i) => (
-                                            <th key={i} style={{ padding: "0.875rem 1rem", textAlign: "center", color: "#64748b", fontWeight: "500", fontSize: "0.75rem" }}>{band.frequency}</th>
-                                          ))}
+                                        <tr
+                                          style={{
+                                            borderBottom: "1px solid #e2e8f0",
+                                          }}
+                                        >
+                                          <th
+                                            style={{
+                                              padding: "0.875rem 1rem",
+                                              textAlign: "left",
+                                              color: "#64748b",
+                                              fontWeight: "500",
+                                              fontSize: "0.75rem",
+                                              textTransform: "uppercase",
+                                            }}
+                                          >
+                                            Frequency
+                                          </th>
+                                          {noiseData.lwSpectrum.map(
+                                            (band, i) => (
+                                              <th
+                                                key={i}
+                                                style={{
+                                                  padding: "0.875rem 1rem",
+                                                  textAlign: "center",
+                                                  color: "#64748b",
+                                                  fontWeight: "500",
+                                                  fontSize: "0.75rem",
+                                                }}
+                                              >
+                                                {band.frequency}
+                                              </th>
+                                            )
+                                          )}
                                         </tr>
                                       </thead>
                                       <tbody>
-                                        <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                                          <td style={{ padding: "0.875rem 1rem", textAlign: "left", color: "#64748b", fontWeight: "500" }}>LW (dB)</td>
-                                          {noiseData.lwSpectrum.map((band, i) => (
-                                            <td key={i} style={{ padding: "0.875rem 1rem", textAlign: "center", color: "#3b82f6", fontWeight: "600" }}>{band.soundPower}</td>
-                                          ))}
+                                        <tr
+                                          style={{
+                                            borderBottom: "1px solid #e2e8f0",
+                                          }}
+                                        >
+                                          <td
+                                            style={{
+                                              padding: "0.875rem 1rem",
+                                              textAlign: "left",
+                                              color: "#64748b",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            LW (dB)
+                                          </td>
+                                          {noiseData.lwSpectrum.map(
+                                            (band, i) => (
+                                              <td
+                                                key={i}
+                                                style={{
+                                                  padding: "0.875rem 1rem",
+                                                  textAlign: "center",
+                                                  color: "#3b82f6",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                {band.soundPower}
+                                              </td>
+                                            )
+                                          )}
                                         </tr>
                                         <tr>
-                                          <td style={{ padding: "0.875rem 1rem", textAlign: "left", color: "#64748b", fontWeight: "500" }}>LP (dB)</td>
-                                          {noiseData.lpSpectrum.map((band, i) => (
-                                            <td key={i} style={{ padding: "0.875rem 1rem", textAlign: "center", color: "#14b8a6", fontWeight: "600" }}>{band.soundPressure}</td>
-                                          ))}
+                                          <td
+                                            style={{
+                                              padding: "0.875rem 1rem",
+                                              textAlign: "left",
+                                              color: "#64748b",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            LP (dB)
+                                          </td>
+                                          {noiseData.lpSpectrum.map(
+                                            (band, i) => (
+                                              <td
+                                                key={i}
+                                                style={{
+                                                  padding: "0.875rem 1rem",
+                                                  textAlign: "center",
+                                                  color: "#14b8a6",
+                                                  fontWeight: "600",
+                                                }}
+                                              >
+                                                {band.soundPressure}
+                                              </td>
+                                            )
+                                          )}
                                         </tr>
                                       </tbody>
                                     </table>
                                   </div>
                                 </div>
-
-
                               </>
                             );
                           })()}
@@ -1792,22 +2716,22 @@ export default function ResultsPage() {
                 <span>←</span> Back to Search
               </button>
             </div>
-
-          </div >
-        </Box >
+          </div>
+        </Box>
 
         {/* Footer */}
-        < Box
+        <Box
           py={6}
           px={{ base: 4, md: 8, lg: 12 }}
           borderTop="1px solid"
           borderColor="rgba(148, 163, 184, 0.1)"
         >
           <Text color="#64748B" fontSize="sm" textAlign="center">
-            &copy; {currentYear} Mechatronics Fan Selection. All rights reserved.
+            &copy; {currentYear} Mechatronics Fan Selection. All rights
+            reserved.
           </Text>
-        </Box >
-      </Box >
-    </Flex >
+        </Box>
+      </Box>
+    </Flex>
   );
 }
