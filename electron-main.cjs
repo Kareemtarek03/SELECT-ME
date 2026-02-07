@@ -24,6 +24,9 @@ if (!isDev) {
     const userDataPath = app.getPath("userData");
     const dbPath = path.join(userDataPath, "database.db");
 
+    console.log("Configuring production database...");
+    console.log("User Data Path:", userDataPath);
+
     // Ensure the directory exists
     if (!fs.existsSync(userDataPath)) {
         fs.mkdirSync(userDataPath, { recursive: true });
@@ -33,10 +36,24 @@ if (!isDev) {
     if (!fs.existsSync(dbPath)) {
         try {
             // In production, the original dev.db is in the prisma folder
-            const templateDbPath = path.join(__dirname, "prisma", "dev.db");
+            // Use app.getAppPath() to find it inside the asar
+            const appPath = app.getAppPath();
+            const templateDbPath = path.join(appPath, "prisma", "dev.db");
+
+            console.log("Searching for template database at:", templateDbPath);
+
             if (fs.existsSync(templateDbPath)) {
+                // Use synchronous copy for reliability during startup
                 fs.copyFileSync(templateDbPath, dbPath);
-                console.log("Template database copied to:", dbPath);
+                console.log("Template database copied successfully to:", dbPath);
+            } else {
+                console.warn("Template database NOT found at:", templateDbPath);
+                // Fallback check in resources folder
+                const fallbackTemplatePath = path.join(process.resourcesPath, "prisma", "dev.db");
+                if (fs.existsSync(fallbackTemplatePath)) {
+                    fs.copyFileSync(fallbackTemplatePath, dbPath);
+                    console.log("Template database copied from fallback path:", dbPath);
+                }
             }
         } catch (copyErr) {
             console.error("Failed to copy template database:", copyErr);
@@ -47,7 +64,29 @@ if (!isDev) {
     // Normalize path to use forward slashes for Prisma/SQLite on Windows
     const normalizedDbPath = dbPath.replace(/\\/g, "/");
     process.env.DATABASE_URL = `file:${normalizedDbPath}`;
-    console.log("Production Database URL:", process.env.DATABASE_URL);
+    console.log("Production DATABASE_URL set to:", process.env.DATABASE_URL);
+
+    // Prisma Engine Resolution for Packaged App
+    try {
+        const resourcesPath = process.resourcesPath;
+        const unpackedPath = path.join(resourcesPath, "app.asar.unpacked");
+
+        // Locate engine binaries (unpacked via asarUnpack in package.json)
+        const engineDir = path.join(unpackedPath, "node_modules", "@prisma", "engines");
+        if (fs.existsSync(engineDir)) {
+            const files = fs.readdirSync(engineDir);
+            const engineFile = files.find(f => f.includes('query_engine') && (f.endsWith('.node') || f.endsWith('.exe') || f.endsWith('.dll.node')));
+
+            if (engineFile) {
+                const fullEnginePath = path.join(engineDir, engineFile);
+                process.env.PRISMA_QUERY_ENGINE_LIBRARY = fullEnginePath;
+                process.env.PRISMA_QUERY_ENGINE_BINARY = fullEnginePath;
+                console.log("Prisma Engine located at:", fullEnginePath);
+            }
+        }
+    } catch (engineErr) {
+        console.warn("Failed to resolve Prisma engine path:", engineErr.message);
+    }
 }
 
 function getResourcesPath() {

@@ -2492,9 +2492,30 @@ async function getPrismaClient() {
   if (!prisma) {
     try {
       const { PrismaClient } = await import("@prisma/client");
-      prisma = new PrismaClient();
+      const dbUrl = process.env.DATABASE_URL;
+
+      console.log(`Centrifugal Service: Initializing PrismaClient with URL: ${dbUrl}`);
+
+      const options = {};
+      if (dbUrl) {
+        options.datasources = {
+          db: {
+            url: dbUrl
+          }
+        };
+      }
+
+      prisma = new PrismaClient(options);
+
+      // Test connection
+      await prisma.$connect();
+      console.log("Centrifugal Service: Prisma connected successfully");
+
     } catch (err) {
-      console.warn("Prisma client not available - database mode disabled");
+      console.error("Centrifugal Service: Prisma client not available or connection failed:", err.message);
+      if (err.message.includes('engine') || err.message.includes('binary')) {
+        console.error("This looks like a Prisma engine resolution error. Check PRISMA_QUERY_ENGINE_LIBRARY environment variable.");
+      }
       prisma = null;
     }
   }

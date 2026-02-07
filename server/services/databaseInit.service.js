@@ -10,7 +10,19 @@ let prisma = null;
 
 async function getPrismaClient() {
     if (!prisma) {
-        prisma = new PrismaClient();
+        const dbUrl = process.env.DATABASE_URL;
+        console.log("Initializing PrismaClient in DatabaseInitService...");
+        console.log("Current DATABASE_URL:", dbUrl);
+
+        const options = {};
+        if (dbUrl) {
+            options.datasources = {
+                db: {
+                    url: dbUrl
+                }
+            };
+        }
+        prisma = new PrismaClient(options);
     }
     return prisma;
 }

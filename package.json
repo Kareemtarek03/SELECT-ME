@@ -95,9 +95,7 @@
       "**/node_modules/canvas/**",
       "**/node_modules/@prisma/engines/**",
       "**/node_modules/xlsx/**",
-      "**/server/Newmodules/**",
-      "server/Newmodules/axial/AxialPDF/PDF/**",
-      "server/Newmodules/centrifugal/CentrifugalPDF/assets/**"
+      "server/**"
     ],
     "win": {
       "target": [
