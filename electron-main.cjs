@@ -46,45 +46,55 @@ if (!isDev) {
     const dbExists = fs.existsSync(dbPath);
     console.log("Database exists:", dbExists);
 
-    // If the database file doesn't exist, we'll create it and run migrations
-    // If it exists, try to copy from template as fallback (for seeded data)
+    // If the database file doesn't exist, try to copy from bundled template
     if (!dbExists) {
         try {
-            // In production, the original dev.db is in the prisma folder
-            // Prioritize process.resourcesPath as it's now in extraResources
-            const resourcesDbPath = path.join(process.resourcesPath, "prisma", "dev.db");
-            const appPath = app.getAppPath();
-            const asarDbPath = path.join(appPath, "prisma", "dev.db");
+            // In production, the original dev.db is in the prisma folder (from extraResources)
+            // Check multiple possible locations
+            const possiblePaths = [
+                path.join(process.resourcesPath, "prisma", "dev.db"),  // extraResources location
+                path.join(app.getAppPath(), "prisma", "dev.db"),          // ASAR location
+                path.join(process.resourcesPath, "app.asar.unpacked", "prisma", "dev.db"), // Unpacked location
+            ];
 
             console.log("=== Database Discovery ===");
-            console.log("Looking for template DB in Resources:", resourcesDbPath, "Exists:", fs.existsSync(resourcesDbPath));
-            console.log("Looking for template DB in App (ASAR):", asarDbPath, "Exists:", fs.existsSync(asarDbPath));
-
+            console.log("Resources path:", process.resourcesPath);
+            console.log("App path:", app.getAppPath());
+            
             let templateDbPath = null;
-            if (fs.existsSync(resourcesDbPath)) {
-                templateDbPath = resourcesDbPath;
-            } else if (fs.existsSync(asarDbPath)) {
-                templateDbPath = asarDbPath;
+            for (const possiblePath of possiblePaths) {
+                console.log(`Checking: ${possiblePath} - Exists: ${fs.existsSync(possiblePath)}`);
+                if (fs.existsSync(possiblePath)) {
+                    const stats = fs.statSync(possiblePath);
+                    console.log(`  Size: ${(stats.size / 1024).toFixed(2)} KB`);
+                    if (stats.size > 0) {
+                        templateDbPath = possiblePath;
+                        break;
+                    }
+                }
             }
 
             if (templateDbPath) {
-                console.log("Using template database from:", templateDbPath);
+                console.log("✅ Found template database at:", templateDbPath);
                 try {
                     fs.copyFileSync(templateDbPath, dbPath);
-                    console.log("Successfully copied database to:", dbPath);
+                    const copiedStats = fs.statSync(dbPath);
+                    console.log(`✅ Successfully copied database to: ${dbPath} (${(copiedStats.size / 1024).toFixed(2)} KB)`);
                 } catch (e) {
-                    console.error("FAILED to copy database:", e.message);
+                    console.error("❌ FAILED to copy database:", e.message);
                     console.log("Will create new database and run migrations instead");
                     // Create empty database file - SQLite will create it when we connect
                     fs.writeFileSync(dbPath, "");
                 }
             } else {
-                console.log("Template database not found. Will create new database and run migrations.");
+                console.warn("⚠️  Template database not found in any location!");
+                console.warn("   This means the database was not included in the build.");
+                console.warn("   Will create new database and run migrations.");
                 // Create empty database file - SQLite will create it when we connect
                 fs.writeFileSync(dbPath, "");
             }
         } catch (copyErr) {
-            console.error("Database setup error:", copyErr);
+            console.error("❌ Database setup error:", copyErr);
             console.log("Will create new database and run migrations instead");
             // Create empty database file - SQLite will create it when we connect
             try {
@@ -93,6 +103,10 @@ if (!isDev) {
                 console.error("Failed to create database file:", writeErr);
             }
         }
+    } else {
+        console.log("✅ Database already exists at:", dbPath);
+        const stats = fs.statSync(dbPath);
+        console.log(`   Size: ${(stats.size / 1024).toFixed(2)} KB`);
     }
 
     // Force Prisma to use the writable database path

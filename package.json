@@ -23,8 +23,9 @@
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5001 && electron .\"",
     "electron:build": "npm run build && npx prisma generate && electron-builder",
     "electron:pack": "electron-builder --dir",
-    "dist": "npm run build && npx prisma generate && electron-builder",
-    "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && electron-builder",
+    "prebuild:db": "node scripts/prepare-db-for-build.js",
+    "dist": "npm run build && npm run prebuild:db && electron-builder",
+    "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && npm run prebuild:db && electron-builder",
     "clean": "rimraf dist client/build",
     "optimize-images": "node scripts/optimize-images.cjs"
   },
@@ -91,7 +92,8 @@
         "from": "prisma",
         "to": "prisma",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/*.md"
         ]
       }
     ],
