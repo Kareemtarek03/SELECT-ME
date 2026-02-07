@@ -1,8 +1,14 @@
+import "./server-init.js";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors";
-import dotenv from "dotenv";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const appPath = process.env.APP_PATH || path.join(__dirname, "..");
+const resourcesPath = process.env.RESOURCES_PATH || appPath;
 
 // Axial fan modules
 import axialFanDataRoutes from "./Newmodules/axial/AxialFanData/axialFanData.route.js";
@@ -16,26 +22,6 @@ import centrifugalPdfRoutes from "./Newmodules/centrifugal/CentrifugalPDF/centri
 
 // Database Initialization
 import { DatabaseInitService } from "./services/databaseInit.service.js";
-
-// Catalog module - commented out as module doesn't exist yet
-// import catalogRoutes from "./modules/Catalog/catalog.route.js";
-
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Get the app path (for packaged Electron app)
-const appPath = process.env.APP_PATH || path.join(__dirname, "..");
-const resourcesPath = process.env.RESOURCES_PATH || appPath;
-
-// Normalize SQLite path to be absolute to avoid "Unable to open database" errors on Windows
-if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:./')) {
-  const relativePath = process.env.DATABASE_URL.replace('file:./', '');
-  const absolutePath = path.resolve(appPath, relativePath).replace(/\\/g, "/");
-  process.env.DATABASE_URL = `file:${absolutePath}`;
-  console.log("Normalized DATABASE_URL to absolute:", process.env.DATABASE_URL);
-}
 
 const app = express();
 

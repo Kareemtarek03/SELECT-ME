@@ -4,7 +4,12 @@ const fs = require("fs");
 const express = require("express");
 const cors = require("cors");
 
+// Load and normalize environment variables immediately
+require("dotenv").config();
+
+const isDev = !app.isPackaged;
 console.log("Electron app starting...");
+console.log("App is packaged:", !isDev);
 
 // PDF generators will be loaded dynamically (ES modules)
 let generateAxialFanDatasheetPDF = null;
@@ -15,9 +20,14 @@ let server;
 let fanDataCache = null;
 let motorDataCache = null;
 
-// Determine if we're in development or production
-const isDev = !app.isPackaged;
-console.log("App is packaged:", !isDev);
+// Force absolute path for DATABASE_URL if it's relative (e.g., from .env)
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith("file:./")) {
+    const rootPath = isDev ? __dirname : app.getAppPath();
+    const relativePath = process.env.DATABASE_URL.replace("file:./", "");
+    const absolutePath = path.resolve(rootPath, relativePath).replace(/\\/g, "/");
+    process.env.DATABASE_URL = `file:${absolutePath}`;
+    console.log("Early DATABASE_URL normalization:", process.env.DATABASE_URL);
+}
 
 // Configure Database Path for Production
 if (!isDev) {
@@ -32,8 +42,13 @@ if (!isDev) {
         fs.mkdirSync(userDataPath, { recursive: true });
     }
 
-    // If the database file doesn't exist in userData, copy the template from resources
-    if (!fs.existsSync(dbPath)) {
+    // Check if database exists
+    const dbExists = fs.existsSync(dbPath);
+    console.log("Database exists:", dbExists);
+
+    // If the database file doesn't exist, we'll create it and run migrations
+    // If it exists, try to copy from template as fallback (for seeded data)
+    if (!dbExists) {
         try {
             // In production, the original dev.db is in the prisma folder
             // Prioritize process.resourcesPath as it's now in extraResources
@@ -59,12 +74,24 @@ if (!isDev) {
                     console.log("Successfully copied database to:", dbPath);
                 } catch (e) {
                     console.error("FAILED to copy database:", e.message);
+                    console.log("Will create new database and run migrations instead");
+                    // Create empty database file - SQLite will create it when we connect
+                    fs.writeFileSync(dbPath, "");
                 }
             } else {
-                console.error("CRITICAL: Template database NOT found in either location!");
+                console.log("Template database not found. Will create new database and run migrations.");
+                // Create empty database file - SQLite will create it when we connect
+                fs.writeFileSync(dbPath, "");
             }
         } catch (copyErr) {
             console.error("Database setup error:", copyErr);
+            console.log("Will create new database and run migrations instead");
+            // Create empty database file - SQLite will create it when we connect
+            try {
+                fs.writeFileSync(dbPath, "");
+            } catch (writeErr) {
+                console.error("Failed to create database file:", writeErr);
+            }
         }
     }
 
@@ -96,14 +123,6 @@ if (!isDev) {
         console.warn("Engine resolution failed:", engineErr.message);
     }
 } else {
-    // In development mode, normalize relative path from .env if it exists
-    if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:./')) {
-        const rootPath = __dirname;
-        const relativePath = process.env.DATABASE_URL.replace('file:./', '');
-        const absolutePath = path.resolve(rootPath, relativePath).replace(/\\/g, "/");
-        process.env.DATABASE_URL = `file:${absolutePath}`;
-        console.log("Dev Mode DATABASE_URL normalized:", process.env.DATABASE_URL);
-    }
 }
 
 function getResourcesPath() {
@@ -841,12 +860,35 @@ function startServer() {
             server = expressApp.listen(PORT, "127.0.0.1", async () => {
                 console.log(`Server running on http://127.0.0.1:${PORT}`);
 
-                // Initialize database if empty
+                // Initialize database - create schema and seed if needed
                 try {
                     // Set environment variables for the service to find data files
                     process.env.RESOURCES_PATH = resourcesPath;
                     process.env.APP_PATH = appPath;
 
+                    // First, ensure database schema is up to date by running migrations
+                    if (!isDev) {
+                        try {
+                            const migrationRunnerPath = getModulePath('server/services/migrationRunner.service.js');
+                            const { runMigrations } = await import(migrationRunnerPath);
+                            // Get the database path from the environment variable we set earlier
+                            const dbPathFromEnv = process.env.DATABASE_URL ? process.env.DATABASE_URL.replace(/^file:/, '') : null;
+                            if (dbPathFromEnv) {
+                                console.log("🔄 Ensuring database schema is up to date...");
+                                // Normalize path for Windows (convert forward slashes back if needed)
+                                const normalizedPath = dbPathFromEnv.replace(/\//g, path.sep);
+                                await runMigrations(normalizedPath);
+                            } else {
+                                console.warn("⚠️ DATABASE_URL not set, skipping migrations");
+                            }
+                        } catch (migrationErr) {
+                            console.error("⚠️ Migration runner failed (will continue with seeding):", migrationErr.message);
+                            console.error("Migration error details:", migrationErr);
+                            // Continue with seeding even if migrations fail
+                        }
+                    }
+
+                    // Then initialize and seed the database
                     const dbInitPath = getModulePath('server/services/databaseInit.service.js');
                     const { DatabaseInitService } = await import(dbInitPath);
                     await DatabaseInitService.initializeDatabase();
