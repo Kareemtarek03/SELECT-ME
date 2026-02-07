@@ -95,6 +95,15 @@ if (!isDev) {
     } catch (engineErr) {
         console.warn("Engine resolution failed:", engineErr.message);
     }
+} else {
+    // In development mode, normalize relative path from .env if it exists
+    if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:./')) {
+        const rootPath = __dirname;
+        const relativePath = process.env.DATABASE_URL.replace('file:./', '');
+        const absolutePath = path.resolve(rootPath, relativePath).replace(/\\/g, "/");
+        process.env.DATABASE_URL = `file:${absolutePath}`;
+        console.log("Dev Mode DATABASE_URL normalized:", process.env.DATABASE_URL);
+    }
 }
 
 function getResourcesPath() {

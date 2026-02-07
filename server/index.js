@@ -29,6 +29,14 @@ const __dirname = path.dirname(__filename);
 const appPath = process.env.APP_PATH || path.join(__dirname, "..");
 const resourcesPath = process.env.RESOURCES_PATH || appPath;
 
+// Normalize SQLite path to be absolute to avoid "Unable to open database" errors on Windows
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.startsWith('file:./')) {
+  const relativePath = process.env.DATABASE_URL.replace('file:./', '');
+  const absolutePath = path.resolve(appPath, relativePath).replace(/\\/g, "/");
+  process.env.DATABASE_URL = `file:${absolutePath}`;
+  console.log("Normalized DATABASE_URL to absolute:", process.env.DATABASE_URL);
+}
+
 const app = express();
 
 // CORS configuration - must be before other middleware

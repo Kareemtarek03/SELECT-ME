@@ -715,7 +715,7 @@ export async function Output({ units, input, dataSource }) {
     return sorted;
   } catch (error) {
     console.error("❌ Fan data processing failed:", error);
-    throw new Error(`Error`);
+    throw error;
   }
 }
 
