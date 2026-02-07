@@ -20,8 +20,17 @@ const router = express.Router();
  *   units: { ... }           // Units configuration (airFlow, pressure, etc.)
  * }
  */
-router.post("/datasheet", async (req, res) => {
+// Use :filename? to allow it to be part of the URL path for better browser support
+router.post("/datasheet/:filename?", async (req, res) => {
     try {
+        // Handle form submission (jsonPayload string) or standard JSON body
+        if (req.body.jsonPayload) {
+            try {
+                req.body = JSON.parse(req.body.jsonPayload);
+            } catch (e) {
+                return res.status(400).json({ error: "Invalid JSON payload" });
+            }
+        }
         const { fanData, userInput, units } = req.body;
 
         if (!fanData) {

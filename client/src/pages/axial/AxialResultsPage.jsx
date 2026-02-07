@@ -207,7 +207,7 @@ function calculateSoundPowerSpectrum(
 export default function ResultsPage() {
   const navigate = useNavigate();
   const { results: contextResults, units, input } = useFormData();
-  const [selectedFanIndex, setSelectedFanIndex] = useState(null);
+  const [selectedFanIndex, setSelectedFanIndex] = useState(0);
   const [currentGraphIndex, setCurrentGraphIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("performance"); // 'performance', 'curve', 'noise', or 'pricing'
   // Redesigned Results Page with tabbed interface
@@ -241,17 +241,25 @@ export default function ResultsPage() {
   const innerDiaOptions = [
     315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1100, 1250, 1350,
   ];
-  const configOptions = [
-    "5-5",
-    "6-3",
-    "6-6",
-    "9-3",
-    "9-9",
-    "12-6",
-    "12-12",
-    "16-8",
-    "16-16",
-  ];
+  const configOptions =
+    filterMaterial === "PF" ?
+      [
+        "3-6",
+        "6-6",
+      ] :
+      [
+        "5-5",
+        "6-3",
+        "6-6",
+        "9-3",
+        "9-9",
+        "12-6",
+        "12-12",
+        "16-8",
+        "16-16",
+      ]
+
+
   const materialOptions = ["A", "P"];
 
   // Graph types for cycling - using the recalculated arrays from backend
@@ -460,7 +468,7 @@ export default function ResultsPage() {
                       value={filterInnerDia}
                       onChange={(e) => {
                         setFilterInnerDia(e.target.value);
-                        setSelectedFanIndex(null);
+                        setSelectedFanIndex(0);
                       }}
                       style={{
                         background: "#ffffff",
@@ -481,6 +489,43 @@ export default function ResultsPage() {
                       ))}
                     </select>
                   </div>
+                  <div
+                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
+                  >
+                    <label
+                      style={{
+                        color: "#000000",
+                        fontSize: "0.9rem",
+                        fontWeight: "500",
+                      }}
+                    >
+                      Material:
+                    </label>
+                    <select
+                      value={filterMaterial}
+                      onChange={(e) => {
+                        setFilterMaterial(e.target.value);
+                        setSelectedFanIndex(0);
+                      }}
+                      style={{
+                        background: "#ffffff",
+                        color: "#000000",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "0.375rem",
+                        padding: "0.5rem 1rem",
+                        fontSize: "0.9rem",
+                        cursor: "pointer",
+                        minWidth: "100px",
+                      }}
+                    >
+                      <option value="">All</option>
+                      <option value="AM">Aluminum M</option>
+                      <option value="AG">Aluminum G</option>
+                      <option value="AV">Aluminum V</option>
+                      <option value="PV">Plastic V</option>
+                      <option value="PF">Plastic F</option>
+                    </select>
+                  </div>
 
                   {/* Configuration Filter */}
                   <div
@@ -499,7 +544,7 @@ export default function ResultsPage() {
                       value={filterConfig}
                       onChange={(e) => {
                         setFilterConfig(e.target.value);
-                        setSelectedFanIndex(null);
+                        setSelectedFanIndex(0);
                       }}
                       style={{
                         background: "#ffffff",
@@ -521,43 +566,7 @@ export default function ResultsPage() {
                     </select>
                   </div>
 
-                  <div
-                    style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}
-                  >
-                    <label
-                      style={{
-                        color: "#000000",
-                        fontSize: "0.9rem",
-                        fontWeight: "500",
-                      }}
-                    >
-                      Material:
-                    </label>
-                    <select
-                      value={filterMaterial}
-                      onChange={(e) => {
-                        setFilterMaterial(e.target.value);
-                        setSelectedFanIndex(null);
-                      }}
-                      style={{
-                        background: "#ffffff",
-                        color: "#000000",
-                        border: "1px solid #e2e8f0",
-                        borderRadius: "0.375rem",
-                        padding: "0.5rem 1rem",
-                        fontSize: "0.9rem",
-                        cursor: "pointer",
-                        minWidth: "100px",
-                      }}
-                    >
-                      <option value="">All</option>
-                      <option value="AM">Aluminum M</option>
-                      <option value="AG">Aluminum G</option>
-                      <option value="AV">Aluminum V</option>
-                      <option value="PV">Plastic V</option>
-                      <option value="PG">Plastic G</option>
-                    </select>
-                  </div>
+
 
                   {/* Results count */}
                   <span style={{ color: "#94a3b8", fontSize: "0.875rem" }}>
@@ -591,7 +600,12 @@ export default function ResultsPage() {
                         <th className="center">Total Efficiency (%)</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody style={
+                      {
+                        maxHeight: 100,
+                        overflowY: 'scroll'
+                      }
+                    }>
                       {filteredFans.map((fan, idx) => {
                         const predictions = fan.predictions || {};
                         const pressureValue =
@@ -705,40 +719,46 @@ export default function ResultsPage() {
                     <button
                       onClick={() => {
                         const fan = filteredFans[selectedFanIndex];
-                        // Open PDF in new tab
-                        fetch("/api/axial/pdf/datasheet", {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
+
+                        const payload = {
+                          fanData: fan,
+                          userInput: {
+                            ...input,
+                            RPM: input?.RPM ?? 1440,
+                            TempC: input?.TempC ?? 20,
+                            NoPhases: input?.NoPhases ?? 3,
+                            SPF: input?.SPF ?? 10,
+                            Safety: input?.Safety ?? 5,
+                            directivityFactor: input?.directivityFactor ?? 1,
+                            distanceFromSource: input?.distanceFromSource ?? 3,
                           },
-                          body: JSON.stringify({
-                            fanData: fan,
-                            userInput: {
-                              ...input,
-                              RPM: input?.RPM ?? 1440,
-                              TempC: input?.TempC ?? 20,
-                              NoPhases: input?.NoPhases ?? 3,
-                              SPF: input?.SPF ?? 10,
-                              Safety: input?.Safety ?? 5,
-                              directivityFactor: input?.directivityFactor ?? 1,
-                              distanceFromSource: input?.distanceFromSource ?? 3,
-                            },
-                            units: {
-                              ...units,
-                              power: units?.power ?? "kW",
-                              insulationClass: units?.insulationClass ?? "F",
-                            },
-                          }),
-                        })
-                          .then((response) => response.blob())
-                          .then((blob) => {
-                            const url = window.URL.createObjectURL(blob);
-                            window.open(url, "_blank");
-                          })
-                          .catch((error) => {
-                            console.error("Error generating PDF:", error);
-                            alert("Failed to generate PDF datasheet");
-                          });
+                          units: {
+                            ...units,
+                            power: units?.power ?? "kW",
+                            insulationClass: units?.insulationClass ?? "F",
+                          },
+                        };
+
+                        const fanUnitNo = input?.fanUnitNo || "EX-01";
+                        const safeName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
+
+                        // Create a hidden form to submit data to new tab
+                        // This allows the browser to respect the URL path for the filename
+                        const form = document.createElement("form");
+                        form.method = "POST";
+                        form.action = `/api/axial/pdf/datasheet/${safeName}.pdf`;
+                        form.target = "_blank";
+                        form.style.display = "none";
+
+                        const inputField = document.createElement("input");
+                        inputField.type = "hidden";
+                        inputField.name = "jsonPayload";
+                        inputField.value = JSON.stringify(payload);
+
+                        form.appendChild(inputField);
+                        document.body.appendChild(form);
+                        form.submit();
+                        document.body.removeChild(form);
                       }}
                       style={{
                         background:

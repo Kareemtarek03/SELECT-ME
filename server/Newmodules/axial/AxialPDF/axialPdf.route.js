@@ -14,8 +14,17 @@ const router = express.Router();
  *   units: { ... }      // Units configuration (airFlow, pressure, power, etc.)
  * }
  */
-router.post('/datasheet', async (req, res) => {
+// Use :filename? to allow it to be part of the URL path for better browser support
+router.post('/datasheet/:filename?', async (req, res) => {
     try {
+        // Handle form submission (jsonPayload string) or standard JSON body
+        if (req.body.jsonPayload) {
+            try {
+                req.body = JSON.parse(req.body.jsonPayload);
+            } catch (e) {
+                return res.status(400).json({ error: 'Invalid JSON payload' });
+            }
+        }
         const { fanData, userInput, units } = req.body;
 
         if (!fanData) {
@@ -29,7 +38,7 @@ router.post('/datasheet', async (req, res) => {
         // Use fanUnitNo for filename, sanitize: remove invalid characters (/ \ : * ? " < > |)
         const fanUnitNo = userInput?.fanUnitNo || 'EX-01';
         const sanitizedFanUnitNo = fanUnitNo.replace(/[/\\:*?"<>|]/g, '_');
-        const filename = `${sanitizedFanUnitNo}_Datasheet.pdf`;
+        const filename = `${sanitizedFanUnitNo}.pdf`;
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
 
@@ -65,7 +74,7 @@ router.post('/datasheet/download', async (req, res) => {
         // Use fanUnitNo for filename, sanitize: remove invalid characters (/ \ : * ? " < > |)
         const fanUnitNo = userInput?.fanUnitNo || 'EX-01';
         const sanitizedFanUnitNo = fanUnitNo.replace(/[/\\:*?"<>|]/g, '_');
-        const filename = `${sanitizedFanUnitNo}_Datasheet.pdf`;
+        const filename = `${sanitizedFanUnitNo}.pdf`;
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
 

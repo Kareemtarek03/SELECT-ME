@@ -59,3 +59,12 @@ export const NoPhases = createListCollection({
     { label: "3", value: "3" },
   ],
 });
+export const RPM = createListCollection({
+  items: [
+    { label: "720", value: "720" },
+
+    { label: "960", value: "960" },
+    { label: "1440", value: "1440" },
+    { label: "2880", value: "2880" },
+  ],
+});

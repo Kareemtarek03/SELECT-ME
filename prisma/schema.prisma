@@ -33,11 +33,11 @@ model FanData {
   impellerInnerDia Float
   desigDensity     Float
   RPM              Float
-  airFlow          String
-  totPressure      String
-  velPressure      String
-  staticPressure   String
-  fanInputPow      String
+  airFlow          String    // Changed to String for SQLite compatibility
+  totPressure      String    // Changed to String for SQLite compatibility
+  velPressure      String    // Changed to String for SQLite compatibility
+  staticPressure   String    // Changed to String for SQLite compatibility
+  fanInputPow      String    // Changed to String for SQLite compatibility
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
@@ -46,35 +46,268 @@ model FanData {
 
 model MotorData {
   id             Int       @id @default(autoincrement())
-  material       String?   // can be null
-  model          String?   // can be null
-  powerKW        Float?    // can be null
-  speedRPM       Float?    // can be null
-  NoPoles        Int?      // can be null
+  
+  // Basic Motor Info
+  material       String?   // Material (e.g., "Aluminium")
+  model          String?   // Model (e.g., "AGM 56 M 4b")
+  powerKW        Float?    // Power (kW)
+  speedRPM       Float?    // Speed (RPM)
+  NoPoles        Int?      // No of Poles
+  
+  // Flattened info or legacy JSON
   rated          String?   // can be null (JSON stored as string)
   DOL            String?   // can be null (JSON stored as string)
   starDelta      String?   // can be null (JSON stored as string)
-  powerFactor    Float?    // can be null
-  Phase          Int?      // can be null
-  frameSize      Int?      // can be null
-  shaftDia       Float?    // can be null
-  shaftLength    Float?    // can be null
-  shaftFeather   Float?    // can be null
-  IE             Int?      // can be null
-  frontBear      String?   // can be null
-  rearBear       String?   // can be null
-  noiseLvl       Int?      // can be null
-  weightKg       Float?    // can be null
   effCurve       String?   // can be null (JSON stored as string)
-  NoCapacitors   Int?      // can be null
-  NoPhases       Int?      // can be null
-  insClass       String?   // can be null
-  powerHorse     Float?    // can be null
-  netpower       Float?    // can be null
+
+  // Rated values (flattened from JSON)
+  ratedCurrentIn Float?    // Rated current-In (A)
+  ratedTorqueMn  Float?    // Rated Torque – Mn (Nm)
+  
+  // DOL values (flattened from JSON)
+  dolLockedRotorCurrent Float?  // Locked rotor Current – Ia (A) (DOL)
+  dolIaIn               Float?  // Ia / In (DOL)
+  dolLockedRotorTorque  Float?  // Locked rotor Torque – Ma (Nm) (DOL)
+  dolMaMn               Float?  // Ma / Mn (DOL)
+  
+  // Star Delta values (flattened from JSON)
+  starDeltaLockedRotorCurrent Float?  // Locked rotor Current – Ia (A) (Y / ∆ Starting)
+  starDeltaIaIn               Float?  // Ia / I-n (Y / ∆ Starting)
+  starDeltaLockedRotorTorque  Float?  // Locked rotor Torque – Ma (Nm) (Y / ∆ Starting)
+  starDeltaMaMn               Float?  // Ma / Mn (Y / ∆ Starting)
+  
+  // Electrical characteristics
+  powerFactor    Float?    // Power factor Cos φ
+  Phase          Int?      // Phase
+  frameSize      Int?      // Frame Size (mm)
+  shaftDia       Float?    // Shaft Diameter (mm)
+  shaftLength    Float?    // Shaft Length (mm)
+  shaftFeather   Float?    // Shaft Feather Key Length (mm)
+  IE             Int?      // IE
+  frontBear      String?   // front Brearing
+  rearBear       String?   // Rear Bearing
+  noiseLvl       Int?      // Noise Level (dB-A)
+  weightKg       Float?    // Weight (KG)
+  
+  // Efficiency values (flattened from JSON array)
+  efficiency50Hz   Float?  // Efficiency @ 50 Hz
+  efficiency375Hz  Float?  // Efficiency @ 37.5 Hz
+  efficiency25Hz   Float?  // Efficiency @ 25 Hz
+  
+  // Capacitor info
+  runCapacitor400V   Float?  // Run Capacitor 400 V (µF)
+  startCapacitor330V Float?  // Start Capacitor 330 V (µF)
+  NoCapacitors   Int?      // No. of Capacitors
+  NoPhases       Int?      // No. of Phases
+  insClass       String?   // Insulation Class
+  
+  // Pricing - Motor
+  b3PriceWithoutVat     Float?  // B3 Price ($) w/o VAT
+  b3PriceWithVat        Float?  // B3 Price with VAT & Factor (L.E)
+  otherPriceWithoutVat  Float?  // Other Price ($) w/o VAT
+  otherPriceWithVat     Float?  // Other Price with VAT & Factor (L.E)
+  
+  // Cable info
+  cableCurrent          Float?  // Current (A) with S.F (25%)(Cable)
+  cableSize             String? // Cable Size (mm2)(Cable)
+  cablePriceWithoutVat  Float?  // Price w/o VAT Per Meter (Cable)
+  cablePriceWithVat     Float?  // Price With VAT Per Meter (Cable)
+  
+  // Cable Lugs
+  cableLugsNo           Int?    // No.(Cable Lugs)
+  cableLugsUPWithoutVat Float?  // U.P Price w/o VAT (Cable Lugs)
+  cableLugsUPWithVat    Float?  // U.P Price with VAT (Cable Lugs)
+  cableLugsTPWithVat    Float?  // T.P Price with VAT (Cable Lugs)
+  
+  // Cable Heat Shrink
+  cableHeatShrinkNo           Float?  // No.(Cable Heat Shrink)
+  cableHeatShrinkUPWithoutVat Float?  // U.P Price w/o VAT (Cable Heat Shrink)
+  cableHeatShrinkUPWithVat    Float?  // U.P Price with VAT (Cable Heat Shrink)
+  cableHeatShrinkTPWithVat    Float?  // T.P Price with VAT (Cable Heat Shrink)
+  
+  // Flexible Connector
+  flexibleConnectorMeter        Float?  // Meter (Flexible Connector)
+  flexibleConnectorSize         String? // Size (mm) (Flexible Connector)
+  flexibleConnectorUPWithoutVat Float?  // U.P Price w/o VAT (Flexible Connector)
+  flexibleConnectorUPWithVat    Float?  // U.P Price with VAT (Flexible Connector)
+  flexibleConnectorTPWithVat    Float?  // T.P Price with VAT (Flexible Connector)
+  
+  // Gland
+  glandNo           Float?  // No. (Gland)
+  glandUPWithoutVat Float?  // U.P Price w/o VAT (Gland)
+  glandUPWithVat    Float?  // U.P Price with VAT (Gland)
+  glandTPWithVat    Float?  // T.P Price with VAT (Gland)
+  
+  // Brass Bar
+  brassBarNo           Float?  // No. (Brass Bar)
+  brassBarUPWithoutVat Float?  // U.P Price w/o VAT (Brass Bar)
+  brassBarUPWithVat    Float?  // U.P Price with VAT (Brass Bar)
+  brassBarTPWithVat    Float?  // T.P Price with VAT (Brass Bar)
+  
+  // Electrical Box
+  electricalBoxSize         String? // Size (mm) (Electrical Box)
+  electricalBoxUPWithoutVat Float?  // U.P Price w/o VAT (Electrical Box)
+  electricalBoxUPWithVat    Float?  // U.P Price with VAT (Electrical Box)
+  
+  // Total
+  totalPriceWithVat Float?  // Price With VAT Per Meter (Total)
+  
+  // Power
+  powerHorse     Float?    // Power (HP)
+  netpower       Float?    // (Legacy/Extra)
+  
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 
   @@map("motor_data")
+}
+
+// =======================
+// Pricing Module Models
+// =======================
+
+model PricingCategory {
+  id          Int            @id @default(autoincrement())
+  name        String         @unique
+  displayName String
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  items       PricingItem[]
+
+  @@map("pricing_categories")
+}
+
+model PricingItem {
+  id              Int              @id @default(autoincrement())
+  categoryId      Int
+  category        PricingCategory  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  sr              Int
+  description     String
+  unit            String
+  updatedDate     String?
+  priceWithoutVat Float?
+  priceWithVat    Float?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([categoryId])
+  @@map("pricing_items")
+}
+
+model PricingLog {
+  id          Int      @id @default(autoincrement())
+  adminId     Int
+  action      String
+  categoryId  Int?
+  itemId      Int?
+  details     String?
+  oldValue    String?
+  newValue    String?
+  createdAt   DateTime @default(now())
+
+  @@map("pricing_logs")
+}
+
+// =======================
+// Accessories Pricing Model
+// =======================
+
+model AccessoryPricing {
+  id                       Int      @id @default(autoincrement())
+  sr                       Int
+  fanModel                 String
+  fanSizeMm                Int
+  vinylStickersLe          Float?
+  namePlateLe              Float?
+  packingLe                Float?
+  labourCostLe             Float?
+  internalTransportationLe Float?
+  boltsAndNutsKg           Float?
+  priceWithVatLe           Float?   // Calculated field
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("accessory_pricing")
+}
+
+// =======================
+// Axial Impeller Pricing Models
+// =======================
+
+model AxialImpellerBlade {
+  id                     Int      @id @default(autoincrement())
+  symbol                 String
+  material               String
+  bladeType              String
+  lengthMm               Float
+  bladeWeightKg          Float
+  moldCostWithVat        Float
+  machiningCostWithVat   Float
+  transportationCost     Float
+  packingCost            Float
+  steelBallsCost         Float
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("axial_impeller_blades")
+}
+
+model AxialImpellerHub {
+  id                     Int      @id @default(autoincrement())
+  symbol                 String
+  material               String
+  hubType                String
+  sizeMm                 Float
+  hubWeightKg            Float
+  moldCostWithVat        Float
+  machiningCostWithVat   Float
+  transportationCost     Float
+  packingCost            Float
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("axial_impeller_hubs")
+}
+
+model AxialImpellerFrame {
+  id                     Int      @id @default(autoincrement())
+  material               String
+  frameSizeMm            Float
+  sizeMm                 Float
+  weightKg               Float
+  moldCostWithVat        Float
+  machiningCostWithVat   Float
+  transportationCost     Float
+  packingCost            Float
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@map("axial_impeller_frames")
+}
+
+model AxialCasingPricing {
+  id                         Int      @id @default(autoincrement())
+  model                      String   // Fan model/type
+  sizeMm                     Float    // Casing size in mm
+  casingWeightKgWithoutScrap Float    // Weight without scrap
+  scrapPercentage            Float    // Scrap percentage
+  casingCircumferenceMeter   Float?    // Circumference/Welding in meters
+  laserTimeMinutes           Float?    // Laser cutting time in minutes
+  bendingLine                Float?    // Bending line measurement
+  rolling                    Float?    // Rolling measurement
+  paintingDiameter           Float?    // Painting diameter
+  profitPercentage           Float?    // Profit percentage
+  accessory1Description      String?  // Optional accessory 1 description
+  accessory1PriceWithoutVat  Float?   // Optional accessory 1 price without VAT
+  accessory2Description      String?  // Optional accessory 2 description
+  accessory2PriceWithoutVat  Float?   // Optional accessory 2 price without VAT
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  @@unique([model, sizeMm], name: "unique_model_size")
+  @@map("axial_casing_pricing")
 }
 
 // Centrifugal Fan Data
@@ -100,7 +333,7 @@ model CentrifugalFanData {
   @@map("centrifugal_fan_data")
 }
 
-// Centrifugal Motor Data (separate from axial motors)
+// Centrifugal Motor Data
 model CentrifugalMotorData {
   id             Int       @id @default(autoincrement())
   material       String?
@@ -170,4 +403,3 @@ model PulleyStandard {
 
   @@map("pulley_standard")
 }
-

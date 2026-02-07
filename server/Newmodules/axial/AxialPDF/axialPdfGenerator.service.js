@@ -49,7 +49,7 @@ const COLORS = {
 
 // ===== UTILITY FUNCTIONS =====
 function fmt(v, d = 0) {
-  return v == null || isNaN(v) ? "—" : Number(v).toFixed(d);
+  return v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 function fmtPct(v) {
@@ -143,6 +143,7 @@ function mm(millimeters) {
 
 // ===== MAIN PDF GENERATOR =====
 export function generateFanDatasheetPDF(fanData, userInput, units) {
+  console.log(units)
   // Page setup - A4
   const doc = new PDFDocument({ size: "A4", margin: 0 });
   const W = doc.page.width;   // 595.28 points (210mm)
@@ -344,7 +345,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   doc.fontSize(10).font(getFont()).fillColor(COLORS.black)
     .text("Nominal Diameter", M + textOffsetX, y + 8);
   doc.fontSize(10).font(getFont()).fillColor(COLORS.black)
-    .text(innerDia, M + textOffsetX, y + 22);
+    .text(innerDia.split("mm")[0] + ' ' + 'mm', M + textOffsetX, y + 22);
 
   y += boxSize + boxGap;
 
@@ -446,14 +447,19 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   const standardsBoxY = perfImageBoxY + perfImageBoxH + mm(8);  // 2mm gap from performance image box
   const standardsBoxW = mm(60);       // Width for standards box
   const standardsBoxH = mm(15.968);   // 15.968 mm height
-
-  // Standards text inside the box
   const standardsTextY = standardsBoxY + mm(1);  // 3mm padding from top of box
   doc.fontSize(10).font(getFont()).fillColor(COLORS.black);
   doc.text("BS ISO 5801 : 2017", perfX + mm(0), standardsTextY);
   doc.text("AMCA 210 : 2025", perfX + mm(0), standardsTextY + mm(5));
-  doc.text("EN 12101-3 : 2015", perfX + mm(30), standardsTextY);
-  doc.text("Type B Installation", perfX + mm(30), standardsTextY + mm(5));
+  // Standards text inside the box
+  if (isSmoke) {
+    doc.text("EN 12101-3 : 2015", perfX + mm(30), standardsTextY);
+    doc.text("Type B Installation", perfX + mm(30), standardsTextY + mm(5));
+  }
+  else {
+
+    doc.text("Type B Installation", perfX + mm(30), standardsTextY);
+  }
 
   // Note: 2mm gap from bottom of standards box to data tables is ensured by TOP_TO_DATA_TABLE constant
 
@@ -553,10 +559,10 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   // Data rows - using axial data structures
   const perfRows = [
     ["- Fan Unit No. [As Per Schedule]", ":", userInput?.fanUnitNo || "EX-01"],
-    [`- Design Air Flow [${units?.airFlow || "CFM"}]`, ":", fmt(userInput?.airFlow, 0)],
-    [`- Design Static Pressure [${units?.pressure || "Pa"}]`, ":", fmt(pred.StaticPressurePred, 0)],
+    [`- Design Air Flow [${units?.airFlow || "CFM"}]`, ":", fmt(userInput?.airFlow, (userInput?.airFlow < 10) ? 2 : 0)],
+    [`- Design Static Pressure [${units?.pressure || "Pa"}]`, ":", fmt(pred.StaticPressurePred, (pred.StaticPressurePred < 10) ? 2 : 0)],
     ["- Design Fan Input Power [kW]", ":", fmt(pred.FanInputPowerPred, 2)],
-    ["- Design Motor Input Power [kW]", ":", fmt(sound.motorInputPower, 2)],
+    ["- Design Motor Input Power [kW]", ":", fmt(pred.FanInputPowerPred / motorEff, 2)],
     ["- Design Fan Static Efficiency [%]", ":", fmtPct(pred.FanStaticEfficiencyPred)],
     ["- Design Fan Total Efficiency [%]", ":", fmtPct(pred.FanTotalEfficiencyPred)],
     ["- Temperature [C°]", ":", fmt(tempC, 0)],
@@ -590,7 +596,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     ["- Impeller Type", ":", "Axial"],
     ["- Blades Symbol", ":", blades.symbol || "AM"],
     ["- Blades Material", ":", bladeMat],
-    ["- Blades Angle [degree]", ":", fmt(blades.angle, 0)],
+    ["- Blades Angle [degree]", ":", blades.angle],
     ["- Configurations (Hub-Blades)", ":", impeller.conf || "16-8"],
   ];
 
@@ -703,7 +709,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     doc.text(b, barStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
   });
   const textOffsetY_LP = (cellH - 4) / 2;  // Center 4pt text vertically in cell
-  doc.fontSize(4).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
+  doc.fontSize(5).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
   doc.fontSize(5);
 
   // dBA row
@@ -765,7 +771,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   bands.forEach((b, i) => {
     doc.text(b, rwBarStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
   });
-  doc.fontSize(4).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(1), { width: barW, align: "center" });
+  doc.fontSize(5).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(1), { width: barW, align: "center" });
 
 
   // dBA row
@@ -852,7 +858,16 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   let systemCurve = [];
   if (operatingStaticPressure && operatingAirFlow && operatingAirFlow > 0) {
     const coefficientA = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
-    systemCurve = pCurve.map((pt) => ({ x: pt.x, y: coefficientA * Math.pow(pt.x, 2) }));
+    // systemCurve = pCurve.map((pt) => ({ x: pt.x, y: coefficientA * Math.pow(pt.x, 2) }));
+
+    // Generate smooth system curve starting from 0
+    const maxFlow = pCurve.length > 0 ? pCurve[pCurve.length - 1].x : (operatingAirFlow * 1.2 || 10000);
+    const steps = 50;
+    systemCurve = [];
+    for (let i = 0; i <= steps; i++) {
+      const x = (i / steps) * maxFlow;
+      systemCurve.push({ x, y: coefficientA * Math.pow(x, 2) });
+    }
   }
 
   // Calculate ranges
@@ -865,10 +880,55 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   pwCurve.forEach((pt) => { if (pt.y > pwMax) pwMax = pt.y; });
 
   const xMin = 0;
-  const xMax = Math.ceil(dataXMax / 2000) * 2000 || 14000;
+
+  // Dynamic scaling: round up to nearest multiple of nice step
+  let xMax = 14000;
+  let xStep = 2000; // Default step
+  if (dataXMax > 0) {
+    let targetTicks = 10;
+    if (dataXMax <= 10) targetTicks = 4;
+
+    const rawStep = dataXMax / targetTicks;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
+    const normStep = rawStep / mag;
+
+    let stepMult = 10;
+    if (normStep <= 1) stepMult = 1;
+    else if (normStep <= 2) stepMult = 2;
+    else if (normStep <= 5) stepMult = 5;
+
+    xStep = stepMult * mag;
+    xMax = Math.ceil(dataXMax / xStep) * xStep;
+  }
+
   const pMin = 0;
-  // Increase pMax by 10% margin and round to nearest 50 for more precise Y-axis range
-  pMax = Math.ceil(pMax * 1.8 / 50) * 50 || 600;
+  // Dynamic scaling for pMax
+  if (pMax > 0) {
+    const pMargin = pMax * 1.05; // 5% margin
+    let targetTicks = 10;
+    // Match the tick count logic used in Start drawing loop
+    if (pMargin <= 10) targetTicks = 3;
+    else if (pMargin <= 100) targetTicks = 5;
+    else if (pMargin <= 1000) targetTicks = 6;
+    else if (pMargin <= 5000) targetTicks = 7;
+    else targetTicks = 10;
+
+    const rawStep = pMargin / targetTicks;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
+    const normStep = rawStep / mag;
+    let stepMult = 10;
+    if (normStep <= 1) stepMult = 1;
+    else if (normStep <= 2) stepMult = 2;
+    else if (normStep <= 5) stepMult = 5;
+
+    const step = stepMult * mag;
+    // Enforce min step 2 for very small numbers if needed, though adaptive logic usually handles it
+    // if (step < 2 && pMargin <= 20) step = 2; 
+
+    pMax = Math.ceil(pMargin / step) * step;
+  } else {
+    pMax = 600;
+  }
   const pwMin = 0;
   pwMax = Math.ceil(pwMax * 1.2 * 10) / 10 || 1.8;
   const effMin = 0, effMax = 100;
@@ -907,16 +967,42 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   // Pshaft axis title at top
   doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
   doc.text("Pshaft", axis2X - mm(10), graphY - mm(8), { width: mm(12), align: "center" });
-  doc.text("[kW]", axis2X - mm(9), graphY - mm(5), { width: mm(10), align: "center" });
+  doc.text(`[${units?.power}]`, axis2X - mm(9), graphY - mm(5), { width: mm(10), align: "center" });
 
   // Pshaft tick marks and labels (0.0, 0.2, 0.4... based on pwMax)
   doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
-  const pwStep = Math.ceil((pwMax - pwMin) / 10 * 5) / 5; // Round to nearest 0.2
-  const pwTicks = Math.ceil((pwMax - pwMin) / pwStep);
+  // Adaptive Pshaft axis with target ticks (3-10) based on range
+  const pwRange = pwMax - pwMin;
+  let pwTargetTicks = 10;
+
+  if (pwRange <= 1) pwTargetTicks = 4;
+  else if (pwRange <= 10) pwTargetTicks = 5;
+  else if (pwRange <= 100) pwTargetTicks = 6;
+  else pwTargetTicks = 8;
+
+  const rawPwStep = pwRange / pwTargetTicks;
+  const pwMag = Math.pow(10, Math.floor(Math.log10(rawPwStep || 1)));
+  const normPwStep = rawPwStep / pwMag;
+
+  let nicePwNorm;
+  if (normPwStep <= 1) nicePwNorm = 1;
+  else if (normPwStep <= 2) nicePwNorm = 5;
+  else if (normPwStep <= 5) nicePwNorm = 5;
+  else nicePwNorm = 10;
+
+  let pwStep = nicePwNorm * pwMag;
+
+  // Recalculate pwMax to align with step boundary if needed (ensure ticks cover range cleanly)
+  if (pwMax % pwStep !== 0) {
+    pwMax = Math.ceil(pwMax / pwStep) * pwStep;
+  }
+
+  const pwTicks = Math.round((pwMax - pwMin) / pwStep);
+
   for (let i = 0; i <= pwTicks; i++) {
     const val = pwMin + i * pwStep;
     const yPos = graphY + graphH - ((val - pwMin) / (pwMax - pwMin)) * graphH;
-    if (yPos >= graphY && yPos <= graphY + graphH) {
+    if (yPos >= graphY && yPos <= graphY + graphH + 1) { // Slight tolerance
       // Tick mark
       doc.moveTo(axis2X - tickLen, yPos).lineTo(axis2X, yPos).stroke();
       // Label
@@ -931,12 +1017,32 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   // Ps axis title at top
   doc.fontSize(8).font(getFont("bold")).fillColor("#595959");
   doc.text("Ps", axis3X - mm(9), graphY - mm(8), { width: mm(6), align: "center" });
-  doc.text("[Pa]", axis3X - mm(10), graphY - mm(5), { width: mm(8), align: "center" });
+  doc.text(`[${units?.pressure}]`, axis3X - mm(10), graphY - mm(5), { width: mm(8), align: "center" });
 
   // Ps tick marks and labels (0, 50, 100, 150... based on pMax) - use 50 Pa intervals like frontend
-  doc.fontSize(9).font(getFont("bold")).fillColor("#595959");
-  const pStep = Math.ceil((pMax - pMin) / 6 / 50) * 50; // Round to nearest 50 Pa for better granularity
+  doc.fontSize(8).font(getFont("bold")).fillColor("#595959");
+  // Adaptive 'nice step' calculation with user-defined target ticks
+  const range = pMax - pMin;
+  let targetTicks = 10;
+
+  if (range <= 100) targetTicks = 5;
+  else if (range <= 1000) targetTicks = 6;
+  else if (range <= 5000) targetTicks = 7;
+  else targetTicks = 10; // > 5000
+
+  const rawStep = range / targetTicks;
+  const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
+  const normStep = rawStep / mag;
+
+  let niceNorm;
+  if (normStep <= 1) niceNorm = 1;
+  else if (normStep <= 2) niceNorm = 2;
+  else if (normStep <= 5) niceNorm = 5;
+  else niceNorm = 10;
+
+  let pStep = niceNorm * mag;
   const pTicks = Math.ceil((pMax - pMin) / pStep);
+
   for (let i = 0; i <= pTicks; i++) {
     const val = pMin + i * pStep;
     const yPos = graphY + graphH - ((val - pMin) / (pMax - pMin)) * graphH;
@@ -944,7 +1050,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
       // Tick mark
       doc.moveTo(axis3X - tickLen, yPos).lineTo(axis3X, yPos).stroke();
       // Label
-      doc.text(fmt(val, 0), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
+      doc.text(fmt(val, val < 10 ? 1 : 0), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
     }
   }
 
@@ -952,14 +1058,16 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   // X-axis height is 0.80 in
   const xAxisY = graphY + graphH + mm(2);
   doc.fontSize(8).font(getFont("bold")).fillColor(COLORS.black);
-  for (let i = 0; i <= 7; i++) {
-    const xPos = graphX + (i / 7) * graphW;
-    const val = xMin + (i / 7) * (xMax - xMin);
+
+  const xTicks = Math.round((xMax - xMin) / xStep);
+  for (let i = 0; i <= xTicks; i++) {
+    const val = xMin + i * xStep;
+    const xPos = graphX + ((val - xMin) / (xMax - xMin)) * graphW;
     doc.text(fmt(val, 0), xPos - mm(5), xAxisY, { width: mm(10), align: "center" });
   }
   // X-axis label positioned within the 0.80 in X-axis area
   doc.fontSize(8).font(getFont("bold"))
-    .text("Q [CFM]", graphX + graphW / 2 - mm(8), xAxisY + mm(8));
+    .text(`Q [${units?.airFlow}]`, graphX + graphW / 2 - mm(8), xAxisY + mm(8));
 
   // ===== DRAW CURVES =====
   function drawCurve(curve, color, yMin, yMax, lineWidth = 2, dashed = false) {

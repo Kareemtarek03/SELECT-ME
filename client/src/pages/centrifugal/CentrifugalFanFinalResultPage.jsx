@@ -276,7 +276,7 @@ export default function CentrifugalFanFinalResultPage() {
     };
 
     return (
-        <Flex minH="100vh" bg="#f8fafc" flexDirection="column">
+        <Flex minH="100vh" bg="#f8fafc" flexDirection="column" marginTop={"2rem"}>
             <HamburgerMenu />
             <Box
                 flex={1}
@@ -321,7 +321,7 @@ export default function CentrifugalFanFinalResultPage() {
                             </div>
                         ) : (
                             <>
-                                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", marginBottom: "1.5rem" }}>
+                                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", overflowY: "scroll", maxHeight: "400px", marginBottom: "1.5rem" }}>
                                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
                                         <thead>
                                             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>

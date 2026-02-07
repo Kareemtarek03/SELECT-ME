@@ -26,6 +26,19 @@ export default function LandingPage() {
             position="relative"
             overflow="hidden"
         >
+            {/* <Box w='100vw'
+                display='flex'
+                justifyContent='flex-end' >
+                <Button
+                    margin={2}
+                    backgroundColor='transparent'
+                    color='black'
+                    textDecoration='underline'
+                    onClick={() => navigate("/admin")}
+                >
+                    Admin
+                </Button>
+            </Box> */}
             {/* Main Content */}
             <Box flex={1} display="flex" alignItems="center" justifyContent="center">
                 <VStack spacing={6} align="center">

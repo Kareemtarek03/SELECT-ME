@@ -18,6 +18,7 @@ import {
   powerUnits,
   InsulationClassUnits,
   NoPhases,
+  RPM
 } from "../../utils/units.js";
 
 export default function AxialFanSelectionPage() {
@@ -34,7 +35,7 @@ export default function AxialFanSelectionPage() {
       fanType: "AF-L",
       insulationClass: "F",
     },
-    input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 10, Safety: 5, fanUnitNo: "EX-01", directivityFactor: 1, distanceFromSource: 3 },
+    input: { RPM: 1440, TempC: 20, NoPhases: 3, SPF: 10, Safety: 15, fanUnitNo: "EX-01", directivityFactor: 1, distanceFromSource: 3 },
   };
 
   const handleInputChange = (e) => {
@@ -205,13 +206,12 @@ export default function AxialFanSelectionPage() {
                       <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">RPM</Text>
 
                     </Box>
-                    <Input
+                    <UnitSelect
                       name="RPM"
-                      type="number"
                       value={input.RPM || ""}
-                      onChange={handleInputChange}
-                      placeholder="1440"
-                      {...inputStyle}
+                      onChange={(e) => handleInputChange({ target: { name: "RPM", value: e } })}
+                      collection={RPM}
+                      placeholder={'1440'}
                     />
                   </Box>
                   <Box {...cardStyle}>
@@ -243,7 +243,7 @@ export default function AxialFanSelectionPage() {
                   </Box>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                      <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Fan Unit No.</Text>
+                      <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Custom Fan Unit No.</Text>
 
                     </Box>
                     <Input
@@ -367,7 +367,7 @@ export default function AxialFanSelectionPage() {
                   </Box>
                   <Box {...cardStyle}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                      <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">S.P.F</Text>
+                      <Text fontSize="xs" color="#64748b" textTransform="uppercase" letterSpacing="wide">Power Correction Factor</Text>
 
                     </Box>
                     <Box display="flex" alignItems="center" gap={2}>
@@ -376,7 +376,7 @@ export default function AxialFanSelectionPage() {
                         type="number"
                         value={input.Safety || ""}
                         onChange={handleInputChange}
-                        placeholder="5"
+                        placeholder="15"
                         {...inputStyle}
                         flex={1}
                       />
@@ -431,7 +431,7 @@ export default function AxialFanSelectionPage() {
                         }
                         style={{ ...selectStyle, flex: 1 }}
                       >
-                        {[1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => (
+                        {[1, 1.5, 2, 3].map((v) => (
                           <option key={v} value={v}>{v}</option>
                         ))}
                       </select>

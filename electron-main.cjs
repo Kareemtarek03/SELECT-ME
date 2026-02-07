@@ -19,6 +19,35 @@ let motorDataCache = null;
 const isDev = !app.isPackaged;
 console.log("App is packaged:", !isDev);
 
+// Configure Database Path for Production
+if (!isDev) {
+    const userDataPath = app.getPath("userData");
+    const dbPath = path.join(userDataPath, "database.db");
+
+    // Ensure the directory exists
+    if (!fs.existsSync(userDataPath)) {
+        fs.mkdirSync(userDataPath, { recursive: true });
+    }
+
+    // If the database file doesn't exist in userData, copy the template from resources
+    if (!fs.existsSync(dbPath)) {
+        try {
+            // In production, the original dev.db is in the prisma folder
+            const templateDbPath = path.join(__dirname, "prisma", "dev.db");
+            if (fs.existsSync(templateDbPath)) {
+                fs.copyFileSync(templateDbPath, dbPath);
+                console.log("Template database copied to:", dbPath);
+            }
+        } catch (copyErr) {
+            console.error("Failed to copy template database:", copyErr);
+        }
+    }
+
+    // Force Prisma to use the writable database path
+    process.env.DATABASE_URL = `file:${dbPath}`;
+    console.log("Production Database URL:", process.env.DATABASE_URL);
+}
+
 function getResourcesPath() {
     if (isDev) {
         return __dirname;
@@ -284,7 +313,7 @@ function startServer() {
                 try {
                     const { units, input } = req.body;
                     const axialService = await import(getModulePath('server/Newmodules/axial/AxialFanData/axialFanData.service.js'));
-                    const result = await axialService.Output({ units, input, dataSource: 'file' });
+                    const result = await axialService.Output({ units, input, dataSource: 'db' });
                     res.json({ message: "Success", data: result.data || result });
                 } catch (err) {
                     console.error("Axial API error:", err);
@@ -303,7 +332,7 @@ function startServer() {
                         filePath: "centrifugalFan.json",
                         units: units || {},
                         input,
-                        dataSource: "file",
+                        dataSource: "db",
                         selectedFanType: units?.centrifugalFanType || units?.fanType,
                     };
 
@@ -746,8 +775,22 @@ function startServer() {
             }
 
             const PORT = 5001;
-            server = expressApp.listen(PORT, "127.0.0.1", () => {
+            server = expressApp.listen(PORT, "127.0.0.1", async () => {
                 console.log(`Server running on http://127.0.0.1:${PORT}`);
+
+                // Initialize database if empty
+                try {
+                    // Set environment variables for the service to find data files
+                    process.env.RESOURCES_PATH = resourcesPath;
+                    process.env.APP_PATH = appPath;
+
+                    const dbInitPath = getModulePath('server/services/databaseInit.service.js');
+                    const { DatabaseInitService } = await import(dbInitPath);
+                    await DatabaseInitService.initializeDatabase();
+                } catch (dbErr) {
+                    console.error("Database auto-init failed:", dbErr);
+                }
+
                 resolve();
             });
 

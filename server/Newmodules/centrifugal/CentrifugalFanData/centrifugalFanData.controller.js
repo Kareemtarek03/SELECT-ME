@@ -56,12 +56,12 @@ export async function processFanDataController(req, res) {
     }
 
     // Use centrifugalFan.json for new calculation logic
-    const filePath = "centrifugalFan.json";
+    const filePath = "db";
     const result = await processFanDataService({
       filePath,
       units: units || {},
       input,
-      dataSource: "file",
+      dataSource: "db",
       selectedFanType: units?.centrifugalFanType || units?.fanType, // Pass selected fan type for Phase 4
     });
 

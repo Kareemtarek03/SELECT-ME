@@ -9,7 +9,7 @@
   max-width: 1400px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 1rem;
+  /* padding: 0 1rem; */
 }
 
 .results-header h1 {
@@ -72,7 +72,7 @@
 }
 
 .results-table th {
-  padding: 0.875rem 1rem;
+  /* padding: 0.875rem 1rem; */
   text-align: left;
   font-weight: 600;
   color: #475569;
@@ -110,7 +110,7 @@
 }
 
 .results-table td {
-  padding: 0.875rem 1rem;
+  padding: 0rem 0rem;
   color: #334155;
   font-size: 0.875rem;
 }
@@ -259,9 +259,10 @@
 }
 
 @media (max-width: 1024px) {
+
   .results-table th,
   .results-table td {
-    padding: 0.625rem 0.5rem;
+    /* padding: 0.625rem 0.5rem; */
     font-size: 0.75rem;
   }
 }
@@ -295,7 +296,7 @@
 
   .results-table th,
   .results-table td {
-    padding: 0.5rem 0.375rem;
+    /* padding: 0.5rem 0.375rem; */
     font-size: 0.6875rem;
   }
 
@@ -311,7 +312,7 @@
 
   .results-table th,
   .results-table td {
-    padding: 0.375rem 0.25rem;
+    /* padding: 0.375rem 0.25rem; */
     font-size: 0.625rem;
   }
 }

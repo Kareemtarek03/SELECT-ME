@@ -191,11 +191,11 @@ export async function processFanDataService(inputOptions) {
         desigDensity: r.desigDensity,
         RPM: r.RPM,
         // Prisma returns Json columns as parsed JS values
-        airFlow: r.airFlow,
-        totPressure: r.totPressure,
-        velPressure: r.velPressure,
-        staticPressure: r.staticPressure,
-        fanInputPow: r.fanInputPow,
+        airFlow: JSON.parse(r.airFlow),
+        totPressure: JSON.parse(r.totPressure),
+        velPressure: JSON.parse(r.velPressure),
+        staticPressure: JSON.parse(r.staticPressure),
+        fanInputPow: JSON.parse(r.fanInputPow),
         hubType: r.hubType,
         // keep some direct fields for compatibility
         bladesSymbol: r.bladesSymbol,

@@ -54,15 +54,20 @@ export default function CentrifugalFanSecondInputPage() {
         setMessage(null);
 
         try {
-            const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "";
+            const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
 
-            // Phase 11 - Belt Selection
+            console.log("=== Starting Phase 11-16 Processing ===");
+            console.log("Selected Fan for processing:", selectedFan);
+            console.log("Form Data:", formData);
+
+            // Step 1: Phase 11 - Belt Selection
             const phase11Payload = {
                 selectedFan: selectedFan,
                 beltType: formData.beltType,
                 motorPoles: parseInt(formData.numberOfPoles),
                 fanRPM: selectedFan.rpm,
             };
+            console.log("Phase 11 Payload:", phase11Payload);
 
             const phase11Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase11`, {
                 method: "POST",
@@ -72,11 +77,13 @@ export default function CentrifugalFanSecondInputPage() {
 
             if (!phase11Resp.ok) {
                 const errData = await phase11Resp.json();
+                console.error("Phase 11 Error:", errData);
                 throw new Error(errData.details || "Phase 11 failed");
             }
             const phase11Data = await phase11Resp.json();
+            console.log("Phase 11 Result:", phase11Data);
 
-            // Phase 12 - Pulley Validation
+            // Step 2: Phase 12 - Pulley Validation
             const phase12Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase12`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -90,13 +97,17 @@ export default function CentrifugalFanSecondInputPage() {
 
             if (!phase12Resp.ok) {
                 const errData = await phase12Resp.json();
+                console.error("Phase 12 Error:", errData);
                 throw new Error(errData.details || "Phase 12 failed");
             }
             const phase12Data = await phase12Resp.json();
+            console.log("Phase 12 Result:", phase12Data);
 
-            // Phase 13 - Motor Selection
+            // Step 3: Phase 13 - Motor Selection (for each row in Phase 12)
+            // Original index.ejs calls Phase 13 for EACH row to get motor selections
             const phase12Arrays = phase12Data.phase12?.arrays || phase12Data.phase12;
             const entryCount = phase12Arrays?.fanInputPower_new?.length || 0;
+            console.log("Phase 13 - Processing", entryCount, "entries");
 
             const motorSelections = [];
             for (let i = 0; i < entryCount; i++) {
@@ -116,14 +127,18 @@ export default function CentrifugalFanSecondInputPage() {
                         const d = await resp.json();
                         motorSelections.push(d.phase13 || null);
                     } catch (e) {
+                        console.error("Row", i, "- Phase 13 error:", e);
                         motorSelections.push(null);
                     }
                 } else {
                     motorSelections.push(null);
                 }
             }
+            console.log("Phase 13 - Motor selections count:", motorSelections.length);
 
-            // Phase 14 - Motor Pulley D1 Validation
+            // Step 4: Phase 14 - Motor Pulley D1 Validation
+            // Use Phase 12 filtered arrays (not original Phase 11 arrays) to maintain index alignment
+            // This matches the original index.ejs logic
             const phase14Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase14`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -136,11 +151,13 @@ export default function CentrifugalFanSecondInputPage() {
 
             if (!phase14Resp.ok) {
                 const errData = await phase14Resp.json();
+                console.error("Phase 14 Error:", errData);
                 throw new Error(errData.details || "Phase 14 failed");
             }
             const phase14Data = await phase14Resp.json();
+            console.log("Phase 14 Result:", phase14Data);
 
-            // Phase 15 - Belt Geometry
+            // Step 5: Phase 15 - Belt Geometry & Standardization
             const phase15Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase15`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -154,11 +171,14 @@ export default function CentrifugalFanSecondInputPage() {
 
             if (!phase15Resp.ok) {
                 const errData = await phase15Resp.json();
+                console.error("Phase 15 Error:", errData);
                 throw new Error(errData.details || "Phase 15 failed");
             }
             const phase15Data = await phase15Resp.json();
+            console.log("Phase 15 Result:", phase15Data);
 
-            // Phase 16 - Consolidated Filter Table
+            // Step 6: Phase 16 - Consolidated Filter Table
+            // Pass the nested .arrays property directly, matching original index.ejs logic
             const phase16Payload = {
                 phase11Data: phase11Data.phase11,
                 phase12Arrays: phase12Data.phase12?.arrays || phase12Data.phase12,
@@ -167,7 +187,7 @@ export default function CentrifugalFanSecondInputPage() {
                 userRPM: selectedFan.rpm,
                 maxRpmChange: parseFloat(formData.maxRpmChange),
             };
-
+            console.log("Phase 16 Payload:", phase16Payload);
             const phase16Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase16`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -176,57 +196,133 @@ export default function CentrifugalFanSecondInputPage() {
 
             if (!phase16Resp.ok) {
                 const errData = await phase16Resp.json();
+                console.error("Phase 16 Error:", errData);
                 throw new Error(errData.details || "Phase 16 failed");
             }
             const phase16Data = await phase16Resp.json();
+            console.log("Phase 16 Result:", phase16Data);
+            console.log("Phase 16 Rows:", phase16Data.phase16?.rows);
 
-            // Phase 17 - Sound Data
-            const phase17Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase17`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    selectedFan: selectedFan,
-                    distance: parseFloat(formData.distance),
-                    directivityQ: parseInt(formData.directivityQ),
-                }),
-            });
+            // Step 7: Phase 18 - Calculate for ALL Phase 16 rows
+            const phase16Rows = phase16Data.phase16?.rows || [];
+            console.log("=== Phase 18 Batch Processing ===");
+            console.log("Processing", phase16Rows.length, "Phase 16 rows for Phase 18");
 
-            if (!phase17Resp.ok) {
-                const errData = await phase17Resp.json();
-                throw new Error(errData.details || "Phase 17 failed");
+            const phase18Results = [];
+            for (let i = 0; i < phase16Rows.length; i++) {
+                const row = phase16Rows[i];
+                // Get the motor data from Phase 13 for this row
+                const phase17Motor = motorSelections?.[row.index] || motorSelections?.[i] || null;
+
+                try {
+                    const phase18Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase18`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            selectedFan: selectedFan,
+                            phase16Row: row,
+                            phase17Motor: phase17Motor,
+                            userPoles: parseInt(formData.numberOfPoles) || 4,
+                            userPhases: parseInt(formData.numberOfPhases) || 3,
+                            innerDiameter: selectedFan?.innerDiameter,
+                        }),
+                    });
+
+                    if (phase18Resp.ok) {
+                        const phase18Data = await phase18Resp.json();
+
+                        // Step 8: Phase 19 - Generate curve data for this configuration
+                        let phase19Data = null;
+                        try {
+                            // Use curveArrays (sorted from Phase 9) for Phase 19 curve generation
+                            // curveArrays contains arrays sorted by airflow ascending
+                            console.log("Phase 19 - selectedFan.curveArrays exists:", !!selectedFan?.curveArrays);
+                            console.log("Phase 19 - selectedFan.curveArrays?.airFlow first 3:", selectedFan?.curveArrays?.airFlow?.slice(0, 3));
+                            console.log("Phase 19 - selectedFan.originalFanData exists:", !!selectedFan?.originalFanData);
+
+                            const phase19Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase19`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    selectedFan: selectedFan, // Contains curveArrays (sorted) and RPM
+                                    phase18Result: phase18Data.phase18,
+                                }),
+                            });
+
+                            if (phase19Resp.ok) {
+                                const phase19Result = await phase19Resp.json();
+                                phase19Data = phase19Result.phase19;
+                            } else {
+                                console.warn(`Phase 19 failed for row ${i}`);
+                            }
+                        } catch (phase19Err) {
+                            console.error(`Phase 19 error for row ${i}:`, phase19Err);
+                        }
+
+                        // Step 9: Phase 20 - Generate noise data for this configuration
+                        let phase20Data = null;
+                        try {
+                            const phase20Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase20`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    phase18Result: phase18Data.phase18,
+                                    distance: formData.distance,        // User-selected distance in meters
+                                    directivityQ: formData.directivityQ, // User-selected directivity factor
+                                    safetyFactor: formData.spf / 100    // User-selected safety factor (convert from % to decimal)
+                                }),
+                            });
+
+                            if (phase20Resp.ok) {
+                                const phase20Result = await phase20Resp.json();
+                                phase20Data = phase20Result.phase20;
+                            } else {
+                                console.warn(`Phase 20 failed for row ${i}`);
+                            }
+                        } catch (phase20Err) {
+                            console.error(`Phase 20 error for row ${i}:`, phase20Err);
+                        }
+
+                        phase18Results.push({
+                            phase16Row: row,
+                            phase17Motor: phase17Motor,
+                            phase18: phase18Data.phase18,
+                            phase19: phase19Data, // Include curve data
+                            phase20: phase20Data, // Include noise data
+                            index: i,
+                        });
+                    } else {
+                        console.warn(`Phase 18 failed for row ${i}`);
+                        phase18Results.push(null);
+                    }
+                } catch (err) {
+                    console.error(`Phase 18 error for row ${i}:`, err);
+                    phase18Results.push(null);
+                }
             }
-            const phase17Data = await phase17Resp.json();
 
-            // Phase 18 - All Models
-            const phase18AllResp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase18-all`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    phase16Data: phase16Data.phase16,
-                    phase13Motors: motorSelections,
-                    phase17Data: phase17Data.phase17,
-                    selectedFan: selectedFan,
-                }),
-            });
+            console.log("Phase 18 Results:", phase18Results.filter(r => r !== null).length, "successful");
+            console.log("Phase 19 (Curve Data) Results:", phase18Results.filter(r => r !== null && r.phase19 !== null).length, "successful");
 
-            if (!phase18AllResp.ok) {
-                const errData = await phase18AllResp.json();
-                throw new Error(errData.details || "Phase 18 All failed");
-            }
-            const phase18AllData = await phase18AllResp.json();
-
+            // Store all phase results and navigate to final results
             setResults((prev) => ({
                 ...prev,
-                phase18All: phase18AllData.phase18All,
+                phase11: phase11Data.phase11,
+                phase12: phase12Data.phase12,
+                phase13: motorSelections,
+                phase14: phase14Data.phase14,
+                phase15: phase15Data.phase15,
+                phase16: phase16Data.phase16,
+                phase18All: phase18Results.filter(r => r !== null), // All Phase 18 results
                 secondInputData: formData,
             }));
 
             navigate("/centrifugal/final-result");
         } catch (err) {
-            console.error(err);
+            console.error("Phase processing error:", err);
             setMessage({
                 type: "error",
-                text: err.message || "Failed to process configuration.",
+                text: err.message || "Failed to process fan configuration.",
             });
         } finally {
             setLoading(false);

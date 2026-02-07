@@ -49,7 +49,7 @@ const COLORS = {
 
 // ===== UTILITY FUNCTIONS =====
 function fmt(v, d = 0) {
-    return v == null || isNaN(v) ? "—" : Number(v).toFixed(d);
+    return v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 }
 
 function fmtPct(v) {
@@ -526,9 +526,9 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     // Data rows
     const perfRows = [
         ["- Fan Unit No. [As Per Schedule]", ":", userInput?.fanUnitNo || "EX-01"],
-        ["- Design Air Flow [CFM]", ":", fmt(phase18.airFlow, 0)],
-        ["- Design Static Pressure [Pa]", ":", fmt(phase18.staticPressure, 1)],
-        ["- Design Fan Input Power  [kW]", ":", fmt(phase18.fanInputPower, 2)],
+        ["- Design Air Flow [" + (units?.airFlow || "CFM") + "]", ":", fmt(phase18.airFlow, (phase18.airFlow < 10) ? 3 : 0)],
+        ["- Design Static Pressure [" + (units?.pressure || "Pa") + "]", ":", fmt(phase18.staticPressure, (phase18.staticPressure < 10) ? 3 : 1)],
+        ["- Design Fan Input Power  [" + (units?.power || "kW") + "]", ":", fmt(phase18.fanInputPower, 2)],
         ["- Design Motor Input Power [kW]", ":", fmt(motorInputPower, 2)],
         ["- Design Fan Static Efficiency [%]", ":", fmtPct(phase18.staticEfficiency)],
         ["- Design Fan Total Efficiency [%]", ":", fmtPct(phase18.totalEfficiency)],
@@ -838,12 +838,55 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     pwCurve.forEach((pt) => { if (pt.y > pwMax) pwMax = pt.y; });
 
     const xMin = 0;
-    const xMax = Math.ceil(dataXMax / 2000) * 2000 || 14000;
+    let xMax = 14000;
+    let xStep = 2000; // Default
+    if (dataXMax > 0) {
+        let xTargetTicks = (dataXMax <= 10) ? 4 : 10;
+        const rawXStep = dataXMax / xTargetTicks;
+        const xMag = Math.pow(10, Math.floor(Math.log10(rawXStep || 1)));
+        const normXStep = rawXStep / xMag;
+        let niceXNorm = 10;
+        if (normXStep <= 1) niceXNorm = 1;
+        else if (normXStep <= 2) niceXNorm = 2;
+        else if (normXStep <= 5) niceXNorm = 5;
+        xStep = niceXNorm * xMag;
+        xMax = Math.ceil(dataXMax / xStep) * xStep;
+    }
+
     const pMin = 0;
-    // Increase pMax by 10% margin and round to nearest 50 for more precise Y-axis range
-    pMax = Math.ceil(pMax * 1.8 / 50) * 50 || 600;
+    let pMaxBound = pMax * 1.05; // 5% margin
+    let pStep = 50;
+    if (pMaxBound > 0) {
+        let pTargetTicks = (pMaxBound <= 10) ? 4 : 8;
+        const rawPStep = pMaxBound / pTargetTicks;
+        const pMag = Math.pow(10, Math.floor(Math.log10(rawPStep || 1)));
+        const normPStep = rawPStep / pMag;
+        let nicePNorm = 10;
+        if (normPStep <= 1) nicePNorm = 1;
+        else if (normPStep <= 2) nicePNorm = 2;
+        else if (normPStep <= 5) nicePNorm = 5;
+        pStep = nicePNorm * pMag;
+        pMaxBound = Math.ceil(pMaxBound / pStep) * pStep;
+    }
+    const finalPMax = pMaxBound || 600;
+
     const pwMin = 0;
-    pwMax = Math.ceil(pwMax * 1.2 * 10) / 10 || 1.8;
+    let pwMaxBound = pwMax * 1.05; // 5% margin
+    let pwStep = 0.2;
+    if (pwMaxBound > 0) {
+        let pwTargetTicks = (pwMaxBound <= 10) ? 4 : 8;
+        const rawPwStep = pwMaxBound / pwTargetTicks;
+        const pwMag = Math.pow(10, Math.floor(Math.log10(rawPwStep || 1)));
+        const normPwStep = rawPwStep / pwMag;
+        let nicePwNorm = 10;
+        if (normPwStep <= 1) nicePwNorm = 1;
+        else if (normPwStep <= 2) nicePwNorm = 2;
+        else if (normPwStep <= 5) nicePwNorm = 5;
+        pwStep = nicePwNorm * pwMag;
+        pwMaxBound = Math.ceil(pwMaxBound / pwStep) * pwStep;
+    }
+    const finalPwMax = pwMaxBound || 1.8;
+
     const effMin = 0, effMax = 100;
 
     // ===== Y-AXIS LABELS =====
@@ -884,11 +927,10 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
 
     // Pshaft tick marks and labels (0.0, 0.2, 0.4... based on pwMax)
     doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
-    const pwStep = Math.ceil((pwMax - pwMin) / 10 * 5) / 5; // Round to nearest 0.2
-    const pwTicks = Math.ceil((pwMax - pwMin) / pwStep);
+    const pwTicks = Math.round((finalPwMax - pwMin) / pwStep);
     for (let i = 0; i <= pwTicks; i++) {
         const val = pwMin + i * pwStep;
-        const yPos = graphY + graphH - ((val - pwMin) / (pwMax - pwMin)) * graphH;
+        const yPos = graphY + graphH - ((val - pwMin) / (finalPwMax - pwMin)) * graphH;
         if (yPos >= graphY && yPos <= graphY + graphH) {
             // Tick mark
             doc.moveTo(axis2X - tickLen, yPos).lineTo(axis2X, yPos).stroke();
@@ -908,11 +950,10 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
 
     // Ps tick marks and labels (0, 50, 100, 150... based on pMax) - use 50 Pa intervals like frontend
     doc.fontSize(9).font(getFont("bold")).fillColor("#595959");
-    const pStep = Math.ceil((pMax - pMin) / 6 / 50) * 50; // Round to nearest 50 Pa for better granularity
-    const pTicks = Math.ceil((pMax - pMin) / pStep);
+    const pTicks = Math.round((finalPMax - pMin) / pStep);
     for (let i = 0; i <= pTicks; i++) {
         const val = pMin + i * pStep;
-        const yPos = graphY + graphH - ((val - pMin) / (pMax - pMin)) * graphH;
+        const yPos = graphY + graphH - ((val - pMin) / (finalPMax - pMin)) * graphH;
         if (yPos >= graphY && yPos <= graphY + graphH) {
             // Tick mark
             doc.moveTo(axis3X - tickLen, yPos).lineTo(axis3X, yPos).stroke();
@@ -924,10 +965,11 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     // X-AXIS: Q [CFM]
     // X-axis height is 0.80 in
     const xAxisY = graphY + graphH + mm(2);
+    const xTicks = Math.round((xMax - xMin) / xStep);
     doc.fontSize(8).font(getFont("bold")).fillColor(COLORS.black);
-    for (let i = 0; i <= 7; i++) {
-        const xPos = graphX + (i / 7) * graphW;
-        const val = xMin + (i / 7) * (xMax - xMin);
+    for (let i = 0; i <= xTicks; i++) {
+        const val = xMin + i * xStep;
+        const xPos = graphX + ((val - xMin) / (xMax - xMin)) * graphW;
         doc.text(fmt(val, 0), xPos - mm(5), xAxisY, { width: mm(10), align: "center" });
     }
     // X-axis label positioned within the 0.80 in X-axis area
@@ -969,11 +1011,11 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
 
     // Draw curves with exact colors from reference image
     // Order: back to front for proper layering
-    drawCurve(systemCurve, COLORS.curveRed, pMin, pMax, 1);         // System curve - dashed dark green
+    drawCurve(systemCurve, COLORS.curveRed, pMin, finalPMax, 1);         // System curve - dashed dark green
     drawCurve(effTotalCurve, COLORS.curveGreen, effMin, effMax, 1, true);     // Total Efficiency - dashed dark green
     drawCurve(effStaticCurve, COLORS.curveGreen, effMin, effMax, 1);        // Static Efficiency - solid dark green (thick)
-    drawCurve(pCurve, COLORS.curveBlack, pMin, pMax, 1);                     // Static Pressure - solid navy blue (thick)
-    drawCurve(pwCurve, COLORS.curveBlue, pwMin, pwMax, 1);                   // Power - solid red (thick)
+    drawCurve(pCurve, COLORS.curveBlack, pMin, finalPMax, 1);                     // Static Pressure - solid navy blue (thick)
+    drawCurve(pwCurve, COLORS.curveBlue, pwMin, finalPwMax, 1);                   // Power - solid red (thick)
 
 
 

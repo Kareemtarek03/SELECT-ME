@@ -1,0 +1,202 @@
+[
+  {
+    "Sr.": "1",
+    "Description": "Black Steel Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "2",
+    "Description": "Black Steel Welding ",
+    "Unit": "Meter",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "3",
+    "Description": "Black Steel Rolling",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "4",
+    "Description": "Black Steel Bending Line",
+    "Unit": "Line",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "5",
+    "Description": "Black Steel Laser ",
+    "Unit": "Min",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "6",
+    "Description": "Black Steel Painting/Diameter",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "7",
+    "Description": "Black Steel Assembly Cost",
+    "Unit": "PC",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "8",
+    "Description": "Aluminum Sections Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "9",
+    "Description": "336 Aluminum Raw Material (Injection)",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "10",
+    "Description": "ADC12 Aluminum Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "9",
+    "Description": "7075 Aluminum Raw Material (Alu. Sleeve)",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "11",
+    "Description": "PAG 30% Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "12",
+    "Description": "Mold Currency change Factor",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "13",
+    "Description": "Axial Impeller Maching Factor",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "14",
+    "Description": "Mold Life time",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "15",
+    "Description": "Aluminum injection Small machine cost",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "16",
+    "Description": "Aluminum injection machine cost (AM)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "16",
+    "Description": "Aluminum injection machine cost (AV & AG)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "16",
+    "Description": "Aluminum injection machine cost (Hub 6)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "17",
+    "Description": "PAG injection Small machine cost",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "18",
+    "Description": "Electrical Cables (Sweedy Factor)",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "19",
+    "Description": "Electrical Component Factor",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "20",
+    "Description": "Electrical Motors",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "21",
+    "Description": "Bolts & Nuts",
+    "Unit": "Kg",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "22",
+    "Description": "Dollar exchange ",
+    "Unit": "EGY",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  }
+]

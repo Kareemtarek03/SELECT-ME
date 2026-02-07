@@ -1,0 +1,158 @@
+{
+  "models": [
+    {
+      "model": "AF-L",
+      "sizes": [450, 500, 560, 630, 710, 800, 900, 1000, 1100, 1250, 1350],
+      "ranges": {
+        "weightKg": { "min": 30, "max": 250 },
+        "scrapPct": { "min": 25, "max": 65 },
+        "circumference": { "min": 3.5, "max": 10.9 },
+        "laserTime": { "min": 10, "max": 40 },
+        "bendingLine": { "min": 3, "max": 12 },
+        "rolling": { "min": 2, "max": 8 },
+        "paintingDiameter": { "min": 3, "max": 12 },
+        "profitPct": { "min": 40, "max": 70 }
+      }
+    },
+    {
+      "model": "AF-S",
+      "sizes": [450, 500, 560, 630, 710, 800, 900, 1000, 1100, 1250, 1350],
+      "ranges": {
+        "weightKg": { "min": 27, "max": 200 },
+        "scrapPct": { "min": 25, "max": 60 },
+        "circumference": { "min": 3.4, "max": 10.7 },
+        "laserTime": { "min": 7, "max": 35 },
+        "bendingLine": { "min": 3, "max": 12 },
+        "rolling": { "min": 2, "max": 8 },
+        "paintingDiameter": { "min": 3, "max": 12 },
+        "profitPct": { "min": 40, "max": 70 }
+      }
+    },
+    {
+      "model": "WF",
+      "sizes": [315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000],
+      "ranges": {
+        "weightKg": { "min": 5, "max": 65 },
+        "scrapPct": { "min": 10, "max": 70 },
+        "circumference": { "min": 7.8, "max": 98.9 },
+        "laserTime": { "min": 9, "max": 24 },
+        "bendingLine": { "min": 2, "max": 10 },
+        "rolling": { "min": 1, "max": 6 },
+        "paintingDiameter": { "min": 3, "max": 10 },
+        "profitPct": { "min": 35, "max": 60 }
+      }
+    },
+    {
+      "model": "ARTF",
+      "sizes": [450, 500, 560, 630, 710, 800, 900, 1000],
+      "ranges": {
+        "weightKg": { "min": 36, "max": 102.5 },
+        "scrapPct": { "min": 25, "max": 65 },
+        "circumference": { "min": 3.7, "max": 7.4 },
+        "laserTime": { "min": 10, "max": 12 },
+        "bendingLine": { "min": 3, "max": 12 },
+        "rolling": { "min": 2, "max": 8 },
+        "paintingDiameter": { "min": 3, "max": 12 },
+        "profitPct": { "min": 40, "max": 70 }
+      }
+    },
+    {
+      "model": "SF",
+      "sizes": [450, 500, 560, 630, 710, 800, 900, 1000, 1100, 1250, 1350],
+      "ranges": {
+        "weightKg": { "min": 30, "max": 240 },
+        "scrapPct": { "min": 30, "max": 65 },
+        "circumference": { "min": 3.5, "max": 10.9 },
+        "laserTime": { "min": 10, "max": 40 },
+        "bendingLine": { "min": 3, "max": 12 },
+        "rolling": { "min": 2, "max": 8 },
+        "paintingDiameter": { "min": 3, "max": 12 },
+        "profitPct": { "min": 40, "max": 70 }
+      }
+    },
+    {
+      "model": "ABSF-C",
+      "sizes": [450, 500, 560, 630, 710, 800],
+      "ranges": {
+        "weightKg": { "min": 63, "max": 184 },
+        "scrapPct": { "min": 40, "max": 45 },
+        "circumference": { "min": 12.6, "max": 19.1 },
+        "laserTime": { "min": 30, "max": 38 },
+        "bendingLine": { "min": 6, "max": 14 },
+        "rolling": { "min": 3, "max": 9 },
+        "paintingDiameter": { "min": 6, "max": 14 },
+        "profitPct": { "min": 45, "max": 75 }
+      }
+    },
+    {
+      "model": "ABSF-S",
+      "sizes": [900, 1000, 1100, 1250],
+      "ranges": {
+        "weightKg": { "min": 141, "max": 192 },
+        "scrapPct": { "min": 44, "max": 68 },
+        "circumference": { "min": 9, "max": 11.5 },
+        "laserTime": { "min": 24, "max": 28 },
+        "bendingLine": { "min": 6, "max": 14 },
+        "rolling": { "min": 3, "max": 9 },
+        "paintingDiameter": { "min": 6, "max": 14 },
+        "profitPct": { "min": 45, "max": 75 }
+      }
+    },
+    {
+      "model": "SWF",
+      "sizes": [315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000],
+      "ranges": {
+        "weightKg": { "min": 5, "max": 65 },
+        "scrapPct": { "min": 10, "max": 70 },
+        "circumference": { "min": 7.8, "max": 98.9 },
+        "laserTime": { "min": 9, "max": 24 },
+        "bendingLine": { "min": 2, "max": 10 },
+        "rolling": { "min": 1, "max": 6 },
+        "paintingDiameter": { "min": 3, "max": 10 },
+        "profitPct": { "min": 35, "max": 60 }
+      }
+    },
+    {
+      "model": "SARTF",
+      "sizes": [450, 500, 560, 630, 710, 800, 900, 1000],
+      "ranges": {
+        "weightKg": { "min": 36, "max": 102.5 },
+        "scrapPct": { "min": 25, "max": 65 },
+        "circumference": { "min": 3.7, "max": 7.4 },
+        "laserTime": { "min": 10, "max": 12 },
+        "bendingLine": { "min": 3, "max": 12 },
+        "rolling": { "min": 2, "max": 8 },
+        "paintingDiameter": { "min": 3, "max": 12 },
+        "profitPct": { "min": 40, "max": 70 }
+      }
+    },
+    {
+      "model": "AJF-R",
+      "sizes": [450, 500, 560, 630],
+      "ranges": {
+        "weightKg": { "min": 31, "max": 48 },
+        "scrapPct": { "min": 30, "max": 34 },
+        "circumference": { "min": 3.54, "max": 4.82 },
+        "laserTime": { "min": 10, "max": 16 },
+        "bendingLine": { "min": 3, "max": 10 },
+        "rolling": { "min": 2, "max": 6 },
+        "paintingDiameter": { "min": 3, "max": 10 },
+        "profitPct": { "min": 35, "max": 60 }
+      }
+    },
+    {
+      "model": "AJF-U",
+      "sizes": [315, 355, 400, 450, 500, 560, 630],
+      "ranges": {
+        "weightKg": { "min": 30, "max": 48 },
+        "scrapPct": { "min": 30, "max": 47 },
+        "circumference": { "min": 3.54, "max": 4.82 },
+        "laserTime": { "min": 10, "max": 16 },
+        "bendingLine": { "min": 3, "max": 10 },
+        "rolling": { "min": 2, "max": 6 },
+        "paintingDiameter": { "min": 3, "max": 10 },
+        "profitPct": { "min": 35, "max": 60 }
+      }
+    }
+  ]
+}

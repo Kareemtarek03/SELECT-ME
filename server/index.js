@@ -8,10 +8,14 @@ import dotenv from "dotenv";
 import axialFanDataRoutes from "./Newmodules/axial/AxialFanData/axialFanData.route.js";
 import axialMotorDataRoutes from "./Newmodules/axial/AxialMotorData/axialMotorData.route.js";
 import axialPdfRoutes from "./Newmodules/axial/AxialPDF/axialPdf.route.js";
+import axialPricingRoutes from "./Newmodules/axial/AxialPricing/axialPricing.routes.js";
 
 // Centrifugal fan modules
 import centrifugalFanDataRoutes from "./Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js";
 import centrifugalPdfRoutes from "./Newmodules/centrifugal/CentrifugalPDF/centrifugalPdf.route.js";
+
+// Database Initialization
+import { DatabaseInitService } from "./services/databaseInit.service.js";
 
 // Catalog module - commented out as module doesn't exist yet
 // import catalogRoutes from "./modules/Catalog/catalog.route.js";
@@ -33,12 +37,14 @@ app.use(cors());
 // Handle preflight requests for all routes
 app.options('*', cors());
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Register API routes - Axial fan routes
 app.use("/api/axial/fan-data", axialFanDataRoutes);
 app.use("/api/axial/motor-data", axialMotorDataRoutes);
 app.use("/api/axial/pdf", axialPdfRoutes);
+app.use("/api/axial/pricing", axialPricingRoutes);
 
 // Register API routes - Centrifugal fan routes
 app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes);
@@ -67,4 +73,8 @@ app.use((req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, async () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  // Initialize database if empty
+  await DatabaseInitService.initializeDatabase();
+});

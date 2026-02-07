@@ -2486,56 +2486,114 @@ export function processPhase20(params) {
 // ============================================================================
 // Main Service Function: Process Fan Data through Phases 1-10
 // ============================================================================
+// Prisma client - lazy loaded only when needed (for database mode)
+let prisma = null;
+async function getPrismaClient() {
+  if (!prisma) {
+    try {
+      const { PrismaClient } = await import("@prisma/client");
+      prisma = new PrismaClient();
+    } catch (err) {
+      console.warn("Prisma client not available - database mode disabled");
+      prisma = null;
+    }
+  }
+  return prisma;
+}
+
 export async function processFanDataService(inputOptions) {
-  const { filePath, units, input, selectedFanType } = inputOptions;
+  const { filePath, units, input, selectedFanType, dataSource } = inputOptions;
 
   console.log(`\n=== processFanDataService Debug ===`);
   console.log(`selectedFanType received: ${selectedFanType}`);
   console.log(`input.airFlow: ${input?.airFlow}, input.staticPressure: ${input?.staticPressure}`);
+  console.log(`dataSource: ${dataSource}`);
 
   let rawData = [];
 
-  // Load data from centrifugalFan.json
-  let resolvedPath;
-  if (filePath && path.isAbsolute(filePath)) {
-    resolvedPath = filePath;
-  } else if (filePath) {
-    resolvedPath = path.join(__dirname, filePath);
+  if (dataSource === "db" || filePath === "db") {
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    // Only fetch data relevant to the selected fan type if possible, or all if not filtered
+    // Currently fetching all as filtering logic is complex with types
+    const rows = await prismaClient.centrifugalFanData.findMany();
+
+    rawData = rows.map((r) => ({
+      Blades: {
+        Type: r.bladesType,
+        Model: r.bladesModel,
+        minSpeedRPM: r.minSpeedRPM,
+        highSpeedRPM: r.highSpeedRPM,
+      },
+      Impeller: {
+        impellerType: r.impellerType,
+        fanShaftDiameter: r.fanShaftDiameter,
+        innerDiameter: r.innerDiameter,
+      },
+      desigDensity: r.desigDensity,
+      RPM: r.RPM,
+      airFlow: JSON.parse(r.airFlow),
+      totPressure: JSON.parse(r.totPressure),
+      velPressure: JSON.parse(r.velPressure),
+      staticPressure: JSON.parse(r.staticPressure),
+      fanInputPow: JSON.parse(r.fanInputPow),
+    }));
   } else {
-    resolvedPath = path.join(__dirname, "centrifugalFan.json");
-  }
-
-  if (!fs.existsSync(resolvedPath)) {
-    const altPath1 = path.join(__dirname, "..", "CentrifugalFanData", "centrifugalFan.json");
-    const altPath2 = path.join(process.cwd(), "CentrifugalFanData", "centrifugalFan.json");
-
-    if (fs.existsSync(altPath1)) {
-      resolvedPath = altPath1;
-    } else if (fs.existsSync(altPath2)) {
-      resolvedPath = altPath2;
+    // Load data from centrifugalFan.json
+    let resolvedPath;
+    if (filePath && path.isAbsolute(filePath)) {
+      resolvedPath = filePath;
+    } else if (filePath) {
+      resolvedPath = path.join(__dirname, filePath);
     } else {
-      throw new Error(`File not found: ${resolvedPath}`);
-    }
-  }
-
-  try {
-    const fileContent = fs.readFileSync(resolvedPath, "utf8");
-    rawData = JSON.parse(fileContent);
-
-    if (!Array.isArray(rawData)) {
-      throw new Error(`Expected array in ${resolvedPath}, got ${typeof rawData}`);
+      resolvedPath = path.join(__dirname, "centrifugalFan.json");
     }
 
-    if (rawData.length === 0) {
-      throw new Error(`No fan data found in ${resolvedPath}`);
+    if (!fs.existsSync(resolvedPath)) {
+      const altPath1 = path.join(
+        __dirname,
+        "..",
+        "CentrifugalFanData",
+        "centrifugalFan.json"
+      );
+      const altPath2 = path.join(
+        process.cwd(),
+        "CentrifugalFanData",
+        "centrifugalFan.json"
+      );
+
+      if (fs.existsSync(altPath1)) {
+        resolvedPath = altPath1;
+      } else if (fs.existsSync(altPath2)) {
+        resolvedPath = altPath2;
+      } else {
+        throw new Error(`File not found: ${resolvedPath}`);
+      }
     }
-  } catch (parseError) {
-    if (parseError.code === "ENOENT") {
-      throw new Error(`File not found: ${resolvedPath}`);
-    } else if (parseError instanceof SyntaxError) {
-      throw new Error(`Invalid JSON in ${resolvedPath}: ${parseError.message}`);
-    } else {
-      throw parseError;
+
+    try {
+      const fileContent = fs.readFileSync(resolvedPath, "utf8");
+      rawData = JSON.parse(fileContent);
+
+      if (!Array.isArray(rawData)) {
+        throw new Error(
+          `Expected array in ${resolvedPath}, got ${typeof rawData}`
+        );
+      }
+
+      if (rawData.length === 0) {
+        throw new Error(`No fan data found in ${resolvedPath}`);
+      }
+    } catch (parseError) {
+      if (parseError.code === "ENOENT") {
+        throw new Error(`File not found: ${resolvedPath}`);
+      } else if (parseError instanceof SyntaxError) {
+        throw new Error(
+          `Invalid JSON in ${resolvedPath}: ${parseError.message}`
+        );
+      } else {
+        throw parseError;
+      }
     }
   }
 
