@@ -13,7 +13,7 @@
     "start": "node server/index.js",
     "dev": "nodemon server/index.js",
     "client": "cd client && npm start",
-    "build": "cd client && npm install && npm run build",
+    "build": "cd client && npm install && npm run build && cd .. && npx prisma generate",
     "install-all": "npm install && cd client && npm install",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
@@ -21,9 +21,9 @@
     "db:setup": "npm run prisma:migrate && npm run prisma:generate && npm run prisma:seed",
     "electron": "electron .",
     "electron:dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5001 && electron .\"",
-    "electron:build": "npm run build && electron-builder",
+    "electron:build": "npm run build && npx prisma generate && electron-builder",
     "electron:pack": "electron-builder --dir",
-    "dist": "npm run build && electron-builder",
+    "dist": "npm run build && npx prisma generate && electron-builder",
     "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && electron-builder",
     "clean": "rimraf dist client/build",
     "optimize-images": "node scripts/optimize-images.cjs"
@@ -63,8 +63,6 @@
       "electron-main.cjs",
       "package.json",
       "server/**/*",
-      "prisma/**/*",
-      "!prisma/migrations/**",
       "!server/axialFan.json",
       "!**/*.md",
       "!**/*.map",
@@ -87,6 +85,14 @@
         "to": "Catologs",
         "filter": [
           "**/*.pdf"
+        ]
+      },
+      {
+        "from": "prisma",
+        "to": "prisma",
+        "filter": [
+          "**/*",
+          "!migrations/**"
         ]
       }
     ],

@@ -36,27 +36,35 @@ if (!isDev) {
     if (!fs.existsSync(dbPath)) {
         try {
             // In production, the original dev.db is in the prisma folder
-            // Use app.getAppPath() to find it inside the asar
+            // Prioritize process.resourcesPath as it's now in extraResources
+            const resourcesDbPath = path.join(process.resourcesPath, "prisma", "dev.db");
             const appPath = app.getAppPath();
-            const templateDbPath = path.join(appPath, "prisma", "dev.db");
+            const asarDbPath = path.join(appPath, "prisma", "dev.db");
 
-            console.log("Searching for template database at:", templateDbPath);
+            console.log("=== Database Discovery ===");
+            console.log("Looking for template DB in Resources:", resourcesDbPath, "Exists:", fs.existsSync(resourcesDbPath));
+            console.log("Looking for template DB in App (ASAR):", asarDbPath, "Exists:", fs.existsSync(asarDbPath));
 
-            if (fs.existsSync(templateDbPath)) {
-                // Use synchronous copy for reliability during startup
-                fs.copyFileSync(templateDbPath, dbPath);
-                console.log("Template database copied successfully to:", dbPath);
-            } else {
-                console.warn("Template database NOT found at:", templateDbPath);
-                // Fallback check in resources folder
-                const fallbackTemplatePath = path.join(process.resourcesPath, "prisma", "dev.db");
-                if (fs.existsSync(fallbackTemplatePath)) {
-                    fs.copyFileSync(fallbackTemplatePath, dbPath);
-                    console.log("Template database copied from fallback path:", dbPath);
+            let templateDbPath = null;
+            if (fs.existsSync(resourcesDbPath)) {
+                templateDbPath = resourcesDbPath;
+            } else if (fs.existsSync(asarDbPath)) {
+                templateDbPath = asarDbPath;
+            }
+
+            if (templateDbPath) {
+                console.log("Using template database from:", templateDbPath);
+                try {
+                    fs.copyFileSync(templateDbPath, dbPath);
+                    console.log("Successfully copied database to:", dbPath);
+                } catch (e) {
+                    console.error("FAILED to copy database:", e.message);
                 }
+            } else {
+                console.error("CRITICAL: Template database NOT found in either location!");
             }
         } catch (copyErr) {
-            console.error("Failed to copy template database:", copyErr);
+            console.error("Database setup error:", copyErr);
         }
     }
 
@@ -64,15 +72,15 @@ if (!isDev) {
     // Normalize path to use forward slashes for Prisma/SQLite on Windows
     const normalizedDbPath = dbPath.replace(/\\/g, "/");
     process.env.DATABASE_URL = `file:${normalizedDbPath}`;
-    console.log("Production DATABASE_URL set to:", process.env.DATABASE_URL);
+    console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
     // Prisma Engine Resolution for Packaged App
     try {
-        const resourcesPath = process.resourcesPath;
-        const unpackedPath = path.join(resourcesPath, "app.asar.unpacked");
-
+        const unpackedPath = path.join(process.resourcesPath, "app.asar.unpacked");
         // Locate engine binaries (unpacked via asarUnpack in package.json)
         const engineDir = path.join(unpackedPath, "node_modules", "@prisma", "engines");
+        console.log("Looking for Prisma engines in:", engineDir, "Exists:", fs.existsSync(engineDir));
+
         if (fs.existsSync(engineDir)) {
             const files = fs.readdirSync(engineDir);
             const engineFile = files.find(f => f.includes('query_engine') && (f.endsWith('.node') || f.endsWith('.exe') || f.endsWith('.dll.node')));
@@ -81,26 +89,20 @@ if (!isDev) {
                 const fullEnginePath = path.join(engineDir, engineFile);
                 process.env.PRISMA_QUERY_ENGINE_LIBRARY = fullEnginePath;
                 process.env.PRISMA_QUERY_ENGINE_BINARY = fullEnginePath;
-                console.log("Prisma Engine located at:", fullEnginePath);
+                console.log("PRISMA_ENGINE:", fullEnginePath);
             }
         }
     } catch (engineErr) {
-        console.warn("Failed to resolve Prisma engine path:", engineErr.message);
+        console.warn("Engine resolution failed:", engineErr.message);
     }
 }
 
 function getResourcesPath() {
-    if (isDev) {
-        return __dirname;
-    }
-    return process.resourcesPath;
+    return isDev ? __dirname : process.resourcesPath;
 }
 
 function getAppPath() {
-    if (isDev) {
-        return __dirname;
-    }
-    return app.getAppPath();
+    return isDev ? __dirname : app.getAppPath();
 }
 
 // Helper function to get the correct module path for dynamic imports
@@ -112,11 +114,14 @@ function getModulePath(relativePath) {
         // In development, use __dirname directly
         fullPath = path.join(__dirname, relativePath);
     } else {
-        // In production, ES modules are extracted to app.asar.unpacked
-        // __dirname points to app.asar, we need app.asar.unpacked
-        const asarPath = __dirname; // e.g., C:\...\resources\app.asar
-        const unpackedPath = asarPath + '.unpacked'; // e.g., C:\...\resources\app.asar.unpacked
+        // First try unpacked path (where ES modules should be if asarUnpacked)
+        const unpackedPath = path.join(process.resourcesPath, "app.asar.unpacked");
         fullPath = path.join(unpackedPath, relativePath);
+
+        if (!fs.existsSync(fullPath)) {
+            // Fallback to ASAR internal path
+            fullPath = path.join(app.getAppPath(), relativePath);
+        }
     }
     // Convert Windows backslashes to forward slashes for ES module compatibility
     const normalizedPath = fullPath.replace(/\\/g, '/');
