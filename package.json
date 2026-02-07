@@ -24,6 +24,7 @@
     "electron:build": "npm run build && npx prisma generate && electron-builder",
     "electron:pack": "electron-builder --dir",
     "prebuild:db": "node scripts/prepare-db-for-build.js",
+    "diagnose:db": "node scripts/diagnose-database.js",
     "dist": "npm run clean && npm run build && npm run prebuild:db && electron-builder",
     "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && npm run prebuild:db && electron-builder",
     "clean": "rimraf dist client/build",

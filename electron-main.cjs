@@ -124,9 +124,21 @@ if (!isDev) {
         console.warn(
           "   This means the database was not included in the build."
         );
+        console.warn("   Searched locations:");
+        possiblePaths.forEach((p) => {
+          console.warn(`     - ${p} (exists: ${fs.existsSync(p)})`);
+        });
         console.warn("   Will create new database and run migrations.");
         // Create empty database file - SQLite will create it when we connect
-        fs.writeFileSync(dbPath, "");
+        try {
+          fs.writeFileSync(dbPath, "");
+          console.log("   Created empty database file, will run migrations");
+        } catch (writeErr) {
+          console.error(
+            "   ❌ Failed to create empty database:",
+            writeErr.message
+          );
+        }
       }
     } catch (copyErr) {
       console.error("❌ Database setup error:", copyErr);
@@ -539,7 +551,7 @@ function startServer() {
           const result = await axialService.Output({
             units,
             input,
-            dataSource: "db",
+            dataSource: "file", // Temporarily using JSON instead of DB
           });
           res.json({ message: "Success", data: result.data || result });
         } catch (err) {
@@ -567,7 +579,7 @@ function startServer() {
             filePath: "centrifugalFan.json",
             units: units || {},
             input,
-            dataSource: "db",
+            dataSource: "file", // Temporarily using JSON instead of DB
             selectedFanType: units?.centrifugalFanType || units?.fanType,
           };
 

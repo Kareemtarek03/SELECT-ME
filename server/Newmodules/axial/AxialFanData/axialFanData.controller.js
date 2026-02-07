@@ -1,5 +1,8 @@
 import { processFanDataService, main, Output } from "./axialFanData.service.js";
-import { exportFanData, importFanDataFromExcel } from "./axialFanData.service.js";
+import {
+  exportFanData,
+  importFanDataFromExcel,
+} from "./axialFanData.service.js";
 import fs from "fs";
 
 // Prisma client - lazy loaded only when needed (for database mode)
@@ -20,12 +23,12 @@ async function getPrismaClient() {
 export async function processFanDataController(req, res) {
   try {
     const { units, input } = req.body;
-    const filePath = "db";
+    const filePath = "axialFan.json"; // Temporarily using JSON instead of DB
     const result = await processFanDataService({
       filePath,
       units,
       input,
-      dataSource: "db",
+      dataSource: "file", // Temporarily using JSON instead of DB
     });
 
     res.json({
@@ -43,8 +46,8 @@ export async function processFanDataController(req, res) {
 export async function NumericalEq(req, res) {
   try {
     const { units, input } = req.body;
-    const filePath = "db";
-    const result = await main({ filePath, units, input, dataSource: "db" });
+    const filePath = "axialFan.json"; // Temporarily using JSON instead of DB
+    const result = await main({ filePath, units, input, dataSource: "file" }); // Temporarily using JSON instead of DB
 
     res.json({
       message: "✅ Fan data processed successfully!",
@@ -66,7 +69,7 @@ export async function filter(req, res) {
     console.log(`units:`, JSON.stringify(units, null, 2));
     console.log(`input:`, JSON.stringify(input, null, 2));
 
-    const result = await Output({ units, input, dataSource: "db" });
+    const result = await Output({ units, input, dataSource: "file" }); // Temporarily using JSON instead of DB
 
     res.json({
       message: "✅ Fan data processed successfully!",
@@ -171,12 +174,10 @@ export async function uploadFanDataBinaryController(req, res) {
     });
   } catch (err) {
     console.error("Failed to import fan data (binary)", err);
-    res
-      .status(500)
-      .json({
-        error: "Failed to import fan data (binary)",
-        details: err.message,
-      });
+    res.status(500).json({
+      error: "Failed to import fan data (binary)",
+      details: err.message,
+    });
   }
 }
 
@@ -216,12 +217,10 @@ export async function deleteFanDataController(req, res) {
         });
       } catch (fileErr) {
         console.error("Failed to delete fan data in fallback file:", fileErr);
-        return res
-          .status(500)
-          .json({
-            error: "Failed to delete fan data",
-            details: fileErr.message,
-          });
+        return res.status(500).json({
+          error: "Failed to delete fan data",
+          details: fileErr.message,
+        });
       }
     }
   } catch (err) {

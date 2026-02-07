@@ -1,4 +1,15 @@
-import { processFanDataService, processPhase11, processPhase12, processPhase13, processPhase14, processPhase15, processPhase16, processPhase18, processPhase19, processPhase20 } from "./centrifugalFanData.service.js";
+import {
+  processFanDataService,
+  processPhase11,
+  processPhase12,
+  processPhase13,
+  processPhase14,
+  processPhase15,
+  processPhase16,
+  processPhase18,
+  processPhase19,
+  processPhase20,
+} from "./centrifugalFanData.service.js";
 // import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 
@@ -15,7 +26,7 @@ try {
 
 export async function renderFanDataForm(req, res) {
   try {
-    res.render('index');
+    res.render("index");
   } catch (error) {
     console.error("❌ Failed to render form:", error);
     res.status(500).send("Failed to render form");
@@ -31,7 +42,9 @@ export async function processFanDataController(req, res) {
     console.log(`units received:`, JSON.stringify(units, null, 2));
     console.log(`units.fanType: ${units?.fanType}`);
     console.log(`units.centrifugalFanType: ${units?.centrifugalFanType}`);
-    console.log(`Resolved selectedFanType: ${units?.centrifugalFanType || units?.fanType}`);
+    console.log(
+      `Resolved selectedFanType: ${units?.centrifugalFanType || units?.fanType}`
+    );
 
     // Validate required inputs
     if (!input) {
@@ -56,12 +69,12 @@ export async function processFanDataController(req, res) {
     }
 
     // Use centrifugalFan.json for new calculation logic
-    const filePath = "db";
+    const filePath = "centrifugalFan.json"; // Temporarily using JSON instead of DB
     const result = await processFanDataService({
       filePath,
       units: units || {},
       input,
-      dataSource: "db",
+      dataSource: "file", // Temporarily using JSON instead of DB
       selectedFanType: units?.centrifugalFanType || units?.fanType, // Pass selected fan type for Phase 4
     });
 
@@ -101,7 +114,7 @@ export async function processFanDataController(req, res) {
 export async function getOutputFile(req, res) {
   try {
     // Check if Prisma is available
-    if (typeof prisma === 'undefined') {
+    if (typeof prisma === "undefined") {
       throw new Error("Database not available - Prisma not initialized");
     }
     // Read fan data directly from the database
@@ -205,7 +218,8 @@ export async function processPhase11Controller(req, res) {
     if (!result) {
       return res.status(400).json({
         error: "Phase 11 calculation failed",
-        details: "Could not calculate belt selection arrays. Check inputs and pulley database.",
+        details:
+          "Could not calculate belt selection arrays. Check inputs and pulley database.",
       });
     }
 
@@ -224,7 +238,8 @@ export async function processPhase11Controller(req, res) {
 
 export async function processPhase12Controller(req, res) {
   try {
-    const { phase11Result, selectedFan, frictionLossesPercent, spfPercent } = req.body;
+    const { phase11Result, selectedFan, frictionLossesPercent, spfPercent } =
+      req.body;
 
     // Validate required inputs
     if (!phase11Result) {
@@ -260,7 +275,8 @@ export async function processPhase12Controller(req, res) {
     if (!result) {
       return res.status(400).json({
         error: "Phase 12 calculation failed",
-        details: "Could not validate pulley diameter or calculate power. Check inputs and fan data.",
+        details:
+          "Could not validate pulley diameter or calculate power. Check inputs and fan data.",
       });
     }
 
@@ -279,7 +295,8 @@ export async function processPhase12Controller(req, res) {
 
 export async function processPhase13Controller(req, res) {
   try {
-    const { netFanPowerKW, userPoles, userPhases, userInsulationClass } = req.body;
+    const { netFanPowerKW, userPoles, userPhases, userInsulationClass } =
+      req.body;
 
     // Validate required inputs
     if (!netFanPowerKW || netFanPowerKW <= 0) {
@@ -306,7 +323,8 @@ export async function processPhase13Controller(req, res) {
     if (!userInsulationClass) {
       return res.status(400).json({
         error: "Missing required field",
-        details: "userInsulationClass is required (F, F(Atex), H (F300), or H(F400))",
+        details:
+          "userInsulationClass is required (F, F(Atex), H (F300), or H(F400))",
       });
     }
 
@@ -395,7 +413,8 @@ export async function processPhase14Controller(req, res) {
 
 export async function processPhase15Controller(req, res) {
   try {
-    const { phase12Arrays, phase14Arrays, innerDiameter, beltSection } = req.body;
+    const { phase12Arrays, phase14Arrays, innerDiameter, beltSection } =
+      req.body;
 
     // Validate required inputs
     if (!phase12Arrays) {
@@ -457,7 +476,14 @@ export async function processPhase15Controller(req, res) {
 
 export async function processPhase16Controller(req, res) {
   try {
-    const { phase11Data, phase12Arrays, phase14Arrays, phase15Arrays, userRPM, maxRpmChange } = req.body;
+    const {
+      phase11Data,
+      phase12Arrays,
+      phase14Arrays,
+      phase15Arrays,
+      userRPM,
+      maxRpmChange,
+    } = req.body;
 
     // Validate required inputs
     if (!phase11Data) {
@@ -508,8 +534,10 @@ export async function deleteFanDataController(req, res) {
 
     try {
       // Check if Prisma is available before attempting DB operation
-      if (typeof prisma === 'undefined') {
-        throw new Error("Prisma not initialized - skipping DB delete, using file fallback");
+      if (typeof prisma === "undefined") {
+        throw new Error(
+          "Prisma not initialized - skipping DB delete, using file fallback"
+        );
       }
       // attempt to delete from DB
       await prisma.fanData.delete({ where: { id } });
@@ -521,7 +549,10 @@ export async function deleteFanDataController(req, res) {
         dbErr?.message
       );
       try {
-        const filePath = new URL("../../../axial/AxialFanData/axialFan.json", import.meta.url);
+        const filePath = new URL(
+          "../../../axial/AxialFanData/axialFan.json",
+          import.meta.url
+        );
         const p = filePath.pathname;
         let arr = JSON.parse(fs.readFileSync(p, "utf8") || "[]");
         const before = arr.length;
@@ -536,12 +567,10 @@ export async function deleteFanDataController(req, res) {
         });
       } catch (fileErr) {
         console.error("Failed to delete fan data in fallback file:", fileErr);
-        return res
-          .status(500)
-          .json({
-            error: "Failed to delete fan data",
-            details: fileErr.message,
-          });
+        return res.status(500).json({
+          error: "Failed to delete fan data",
+          details: fileErr.message,
+        });
       }
     }
   } catch (err) {
@@ -557,7 +586,14 @@ export async function deleteFanDataController(req, res) {
 // ============================================================================
 export async function processPhase18Controller(req, res) {
   try {
-    const { selectedFan, phase16Row, phase17Motor, userPoles, userPhases, innerDiameter } = req.body;
+    const {
+      selectedFan,
+      phase16Row,
+      phase17Motor,
+      userPoles,
+      userPhases,
+      innerDiameter,
+    } = req.body;
 
     // Validate required inputs
     if (!selectedFan) {
@@ -632,7 +668,8 @@ export async function processPhase19Controller(req, res) {
     if (!phase18Result) {
       return res.status(400).json({
         error: "Missing required field",
-        details: "phase18Result is required (contains fanSpeedN2 for curve scaling)",
+        details:
+          "phase18Result is required (contains fanSpeedN2 for curve scaling)",
       });
     }
 
@@ -677,7 +714,8 @@ export async function processPhase20Controller(req, res) {
     if (!phase18Result) {
       return res.status(400).json({
         error: "Missing required field",
-        details: "phase18Result is required (contains airFlow and fanInputPower)",
+        details:
+          "phase18Result is required (contains airFlow and fanInputPower)",
       });
     }
 
@@ -813,13 +851,15 @@ export async function processPhase18AllController(req, res) {
           centerDistance: row.centerDistance,
 
           // Motor data
-          motor: motor ? {
-            powerKW: motor.powerKW || motor["Power (kW)"],
-            powerHP: motor.powerHP || motor["Power (HP)"],
-            noOfPoles: motor.noOfPoles || motor["No of Poles"],
-            frame: motor.frame || motor["Frame"],
-            shaftDiameter: motor.shaftDiameter || motor["Shaft Diameter"],
-          } : null,
+          motor: motor
+            ? {
+                powerKW: motor.powerKW || motor["Power (kW)"],
+                powerHP: motor.powerHP || motor["Power (HP)"],
+                noOfPoles: motor.noOfPoles || motor["No of Poles"],
+                frame: motor.frame || motor["Frame"],
+                shaftDiameter: motor.shaftDiameter || motor["Shaft Diameter"],
+              }
+            : null,
 
           // Sound data
           soundData: phase17Data || null,
@@ -836,7 +876,7 @@ export async function processPhase18AllController(req, res) {
         selectedFan,
         results,
         totalCount: results.length,
-        validCount: results.filter(r => r.isValid).length,
+        validCount: results.filter((r) => r.isValid).length,
       },
     });
   } catch (error) {
