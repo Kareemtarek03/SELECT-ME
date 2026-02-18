@@ -235,11 +235,12 @@ async function seedPricingItems() {
     await client.pricingItem.deleteMany({});
     await client.pricingCategory.deleteMany({});
 
+    // Client/admin expects category name "axial_pricing" for GET /api/pricing/categories/name/axial_pricing
     const category = await client.pricingCategory.create({
         data: {
-            name: "general",
-            displayName: "General Pricing",
-            description: "General pricing items from PriceList.json"
+            name: "axial_pricing",
+            displayName: "Axial Pricing",
+            description: "Pricing items from PriceList.json for axial fans"
         }
     });
 
@@ -429,6 +430,32 @@ export const DatabaseInitService = {
         console.log("\n🎉 Database fully seeded!");
     },
 
+    async ensureAxialPricingCategory() {
+        const client = await getPrismaClient();
+        if (!client) return;
+        const existing = await client.pricingCategory.findUnique({
+            where: { name: "axial_pricing" },
+        });
+        if (existing) return;
+        const first = await client.pricingCategory.findFirst();
+        if (first) {
+            await client.pricingCategory.update({
+                where: { id: first.id },
+                data: { name: "axial_pricing", displayName: "Axial Pricing" },
+            });
+            console.log("✅ Updated pricing category to axial_pricing for admin API.");
+        } else {
+            await client.pricingCategory.create({
+                data: {
+                    name: "axial_pricing",
+                    displayName: "Axial Pricing",
+                    description: "Pricing items for axial fans",
+                },
+            });
+            console.log("✅ Created axial_pricing category.");
+        }
+    },
+
     async initializeDatabase() {
         const client = await getPrismaClient();
         try {
@@ -444,6 +471,7 @@ export const DatabaseInitService = {
             } else {
                 console.log(`✅ Database already populated (Axial: ${fanCount}, Centrifugal: ${centrifugalCount})`);
             }
+            await this.ensureAxialPricingCategory();
         } catch (error) {
             console.error("❌ Database initialization failed:", error);
         } finally {

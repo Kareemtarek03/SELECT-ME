@@ -17,6 +17,9 @@ import AxialFanSelectionPage from "./pages/axial/AxialFanSelectionPage";
 import AxialResultsPage from "./pages/axial/AxialResultsPage";
 import AxialGraphDetailPage from "./pages/axial/AxialGraphDetailPage";
 
+// Admin / Data page
+import AxialDataPage from "./pages/axial/AxialDataPage";
+
 // Centrifugal fan pages
 import CentrifugalFanTypesPage from "./pages/centrifugal/CentrifugalFanTypesPage";
 import CentrifugalFanSelectionPage from "./pages/centrifugal/CentrifugalFanSelectionPage";
@@ -31,6 +34,16 @@ function App() {
         <Routes>
           {/* Landing Page - Default route */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Admin - Axial Data (Fans, Motor, Pricing) */}
+          <Route
+            path="/admin"
+            element={
+              <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+                <AxialDataPage />
+              </div>
+            }
+          />
 
           {/* Fan Categories Route - No Header */}
           <Route

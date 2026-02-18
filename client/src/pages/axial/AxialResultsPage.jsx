@@ -210,6 +210,13 @@ export default function ResultsPage() {
   const [selectedFanIndex, setSelectedFanIndex] = useState(0);
   const [currentGraphIndex, setCurrentGraphIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("performance"); // 'performance', 'curve', 'noise', or 'pricing'
+  // Pricing for selected fan (impeller, casing, accessories)
+  const [impellerPricing, setImpellerPricing] = useState(null);
+  const [casingPricing, setCasingPricing] = useState(null);
+  const [accessoryPricing, setAccessoryPricing] = useState(null);
+  const [impellerPricingLoading, setImpellerPricingLoading] = useState(false);
+  const [casingPricingLoading, setCasingPricingLoading] = useState(false);
+  const [accessoryPricingLoading, setAccessoryPricingLoading] = useState(false);
   // Redesigned Results Page with tabbed interface
 
   // Curve visibility state - all curves visible by default
@@ -334,6 +341,102 @@ export default function ResultsPage() {
     filterMaterial,
     selectedFanIndex,
   ]);
+
+  // Fetch impeller, casing, and accessory pricing when selected fan changes
+  useEffect(() => {
+    const item = filteredFans[selectedFanIndex];
+    const fanType = units?.fanType || "";
+    if (!item) {
+      setImpellerPricing(null);
+      setCasingPricing(null);
+      setAccessoryPricing(null);
+      setImpellerPricingLoading(false);
+      setCasingPricingLoading(false);
+      setAccessoryPricingLoading(false);
+      return;
+    }
+    const innerDia = item.Impeller?.innerDia;
+    const bladeSymbol = item.Blades?.symbol;
+    const bladeMaterial = item.Blades?.material;
+    const hubSymbol = item.hubType;
+    const frameSizeMm = item.matchedMotor?.frameSize;
+    const numberOfBlades = item.Blades?.noBlades;
+    const impellerConf = item.Impeller?.conf;
+
+    // Impeller cost
+    if (bladeSymbol && bladeMaterial && hubSymbol != null && frameSizeMm != null && numberOfBlades != null) {
+      setImpellerPricingLoading(true);
+      setImpellerPricing(null);
+      fetch("/api/pricing/axial-impeller/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          bladeSymbol,
+          bladeMaterial,
+          hubSymbol: String(hubSymbol),
+          frameSizeMm: Number(frameSizeMm),
+          numberOfBlades: Number(numberOfBlades),
+        }),
+      })
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        .then((data) => {
+          if (data?.data?.totalCost != null) setImpellerPricing(data.data.totalCost);
+        })
+        .catch(() => setImpellerPricing(null))
+        .finally(() => setImpellerPricingLoading(false));
+    } else {
+      setImpellerPricing(null);
+      setImpellerPricingLoading(false);
+    }
+
+    // Casing cost
+    if (fanType && innerDia != null) {
+      setCasingPricingLoading(true);
+      setCasingPricing(null);
+      const model = impellerConf ? `${fanType}-${impellerConf}` : fanType;
+      fetch("/api/pricing/axial-casing/calculate-casing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model, sizeMm: Number(innerDia) }),
+      })
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        .then((result) => {
+          if (result?.totalCost != null) setCasingPricing(result.totalCost);
+        })
+        .catch(() => {
+          if (impellerConf) {
+            return fetch("/api/pricing/axial-casing/calculate-casing", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ model: fanType, sizeMm: Number(innerDia) }),
+            })
+              .then((r) => (r.ok ? r.json() : Promise.reject(r)))
+              .then((result) => {
+                if (result?.totalCost != null) setCasingPricing(result.totalCost);
+              });
+          }
+        })
+        .catch(() => setCasingPricing(null))
+        .finally(() => setCasingPricingLoading(false));
+    } else {
+      setCasingPricing(null);
+      setCasingPricingLoading(false);
+    }
+
+    // Accessory pricing
+    if (fanType && innerDia != null) {
+      setAccessoryPricingLoading(true);
+      setAccessoryPricing(null);
+      fetch(`/api/accessories-pricing/lookup/${encodeURIComponent(fanType)}/${encodeURIComponent(innerDia)}`)
+        .then((res) => (res.ok ? res.json() : Promise.reject(res)))
+        .then((data) => setAccessoryPricing(data))
+        .catch(() => setAccessoryPricing(null))
+        .finally(() => setAccessoryPricingLoading(false));
+    } else {
+      setAccessoryPricing(null);
+      setAccessoryPricingLoading(false);
+    }
+  }, [selectedFanIndex, filteredFans, units?.fanType]);
 
   const formatValue = (v) => {
     if (v === null || v === undefined) return "-";
@@ -929,6 +1032,34 @@ export default function ResultsPage() {
                     >
                       Noise Graph
                     </button>
+                    <button
+                      onClick={() => setActiveTab("pricing")}
+                      style={{
+                        background: "transparent",
+                        border: "none",
+                        padding: "0.75rem 1.25rem",
+                        color: activeTab === "pricing" ? "#1e293b" : "#94a3b8",
+                        fontSize: "0.875rem",
+                        fontWeight: activeTab === "pricing" ? "600" : "400",
+                        cursor: "pointer",
+                        borderBottom:
+                          activeTab === "pricing"
+                            ? "2px solid #1e293b"
+                            : "2px solid transparent",
+                        transition: "all 0.2s",
+                        marginBottom: "-1px",
+                      }}
+                      onMouseEnter={(e) => {
+                        if (activeTab !== "pricing")
+                          e.target.style.color = "#64748b";
+                      }}
+                      onMouseLeave={(e) => {
+                        if (activeTab !== "pricing")
+                          e.target.style.color = "#94a3b8";
+                      }}
+                    >
+                      Pricing
+                    </button>
                   </div>
 
                   {(() => {
@@ -965,6 +1096,8 @@ export default function ResultsPage() {
                       : null;
 
                     const motor = item.matchedMotor;
+                    console.log("Motor", motor);
+                    // console.log("Electrical Motor Cost", motor.otherPriceWithoutVat, motor.b3PriceWithoutVat);
                     // Motor efficiency: try efficiency50Hz first, then effCurve[0]
                     // Handle both decimal (0.936) and percentage (93.6) formats
                     let motorEff =
@@ -2741,6 +2874,383 @@ export default function ResultsPage() {
                             })()}
                           </div>
                         )}
+                        {/* Pricing Section - Only show when activeTab is 'pricing' */}
+                      {activeTab === "pricing" && (
+                        <div style={{ marginBottom: "1.5rem" }}>
+                          {(() => {
+                            // Check if motor is selected
+                            if (!motor) {
+                              return (
+                                <div
+                                  className="detail-card"
+                                  style={{
+                                    padding: "2rem",
+                                    textAlign: "center",
+                                    color: "#64748b",
+                                  }}
+                                >
+                                  <p>
+                                    No motor selected. Please select a fan to view
+                                    pricing information.
+                                  </p>
+                                </div>
+                              );
+                            }
+
+                            // Determine which column to use for Electrical Motor Cost based on fan type
+                            // WF or ARTF → Other Price with VAT & Factor (L.E)
+                            // Any other fan type → B3 Price with VAT & Factor (L.E)
+                            const fanType = units?.fanType || "";
+                            const isWFOrARTF =
+                              fanType === "WF" || fanType === "ARTF";
+
+                            // Get pricing values from the matched motor
+                            // These values are fetched exactly as stored in the database
+                            let electricalMotorCost = isWFOrARTF
+                              ? motor.otherPriceWithVat
+                              : motor.b3PriceWithVat;
+
+                            if (!electricalMotorCost){
+                              electricalMotorCost = (isWFOrARTF
+                              ? motor.otherPriceWithoutVat
+                              : motor.b3PriceWithoutVat)*1.14;
+
+                            }
+                            const electricalComponentCost = motor.totalPriceWithVat;
+
+                            // Format currency value
+                            const formatPricingValue = (value) => {
+                              if (value === null || value === undefined) return "—";
+                              const num =
+                                typeof value === "number"
+                                  ? value
+                                  : parseFloat(value);
+                              if (isNaN(num)) return "—";
+                              return num.toLocaleString(undefined, {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                              });
+                            };
+                            const impellerCost = impellerPricing;
+                            const casingCost = casingPricing;
+
+                            return (
+                              <div className="detail-card">
+                                <h4>Pricing Information</h4>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    gap: "1.5rem",
+                                    marginTop: "1rem",
+                                  }}
+                                >
+                                  {/* Electrical Motor Cost */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      padding: "1rem 1.5rem",
+                                      background: "#f8fafc",
+                                      borderRadius: "0.5rem",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <div>
+                                      <span
+                                        style={{
+                                          color: "#475569",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        Electrical Motor Cost
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: "#64748b",
+                                          fontSize: "0.75rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      >
+                                        {isWFOrARTF
+                                          ? "Other Price with VAT & Factor"
+                                          : "B3 Price with VAT & Factor"}
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        color: "#059669",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {formatPricingValue(electricalMotorCost)}{" "}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          color: "#64748b",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        L.E
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  {/* Electrical Component Cost */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      padding: "1rem 1.5rem",
+                                      background: "#f8fafc",
+                                      borderRadius: "0.5rem",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <div>
+                                      <span
+                                        style={{
+                                          color: "#475569",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        Electrical Component Cost
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: "#64748b",
+                                          fontSize: "0.75rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      >
+                                        Price With VAT Per Meter (Total)
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        color: "#2563eb",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {formatPricingValue(electricalComponentCost)}{" "}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          color: "#64748b",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        L.E
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  {/* Axial Impeller Cost */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      padding: "1rem 1.5rem",
+                                      background: "#f8fafc",
+                                      borderRadius: "0.5rem",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <div>
+                                      <span
+                                        style={{
+                                          color: "#475569",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        Axial Impeller Cost
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: "#64748b",
+                                          fontSize: "0.75rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      >
+                                        {item.Blades?.symbol &&
+                                          item.Blades?.material
+                                          ? `Blade: ${item.Blades.symbol} (${item.Blades.material
+                                          }), Hub: ${item.hubType || "—"
+                                          }, Frame: ${item.matchedMotor?.frameSize || "—"
+                                          } mm`
+                                          : "Impeller components"}
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        color: "#7c3aed",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {impellerPricingLoading
+                                        ? "Loading..."
+                                        : formatPricingValue(impellerCost)}{" "}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          color: "#64748b",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        L.E
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  {/* Axial Casing Cost */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      padding: "1rem 1.5rem",
+                                      background: "#f8fafc",
+                                      borderRadius: "0.5rem",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <div>
+                                      <span
+                                        style={{
+                                          color: "#475569",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        Axial Casing Cost
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: "#64748b",
+                                          fontSize: "0.75rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      >
+                                        {`Model: ${fanType || "—"}, Size: ${item.Impeller?.innerDia || "—"
+                                          } mm`}
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        color: "#0891b2",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {casingPricingLoading
+                                        ? "Loading..."
+                                        : formatPricingValue(casingCost)}{" "}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          color: "#64748b",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        L.E
+                                      </span>
+                                    </span>
+                                  </div>
+
+                                  {/* Other Accessories Cost */}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                      padding: "1rem 1.5rem",
+                                      background: "#f8fafc",
+                                      borderRadius: "0.5rem",
+                                      border: "1px solid #e2e8f0",
+                                    }}
+                                  >
+                                    <div>
+                                      <span
+                                        style={{
+                                          color: "#475569",
+                                          fontSize: "0.875rem",
+                                        }}
+                                      >
+                                        Other Accessories Cost
+                                      </span>
+                                      <div
+                                        style={{
+                                          color: "#64748b",
+                                          fontSize: "0.75rem",
+                                          marginTop: "0.25rem",
+                                        }}
+                                      >
+                                        Price with VAT (Fan: {fanType}, Size:{" "}
+                                        {item.Impeller?.innerDia || "—"} mm)
+                                      </div>
+                                    </div>
+                                    <span
+                                      style={{
+                                        color: "#d97706",
+                                        fontSize: "1.25rem",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {accessoryPricingLoading
+                                        ? "Loading..."
+                                        : formatPricingValue(
+                                          accessoryPricing?.priceWithVatLe
+                                        )}{" "}
+                                      <span
+                                        style={{
+                                          fontSize: "0.875rem",
+                                          color: "#64748b",
+                                          fontWeight: "normal",
+                                        }}
+                                      >
+                                        L.E
+                                      </span>
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Info note */}
+                                <div
+                                  style={{
+                                    marginTop: "1.5rem",
+                                    padding: "0.75rem 1rem",
+                                    background: "#f1f5f9",
+                                    borderRadius: "0.375rem",
+                                    borderLeft: "3px solid #3b82f6",
+                                  }}
+                                >
+                                  <p
+                                    style={{
+                                      color: "#475569",
+                                      fontSize: "0.8rem",
+                                      margin: 0,
+                                    }}
+                                  >
+                                    <strong style={{ color: "#1e293b" }}>
+                                      Note:
+                                    </strong>{" "}
+                                    Pricing values are fetched from the selected
+                                    motor ({motor.model || "N/A"}).
+                                    {isWFOrARTF
+                                      ? " Using 'Other Price' for WF/ARTF fan type."
+                                      : " Using 'B3 Price' for standard fan type."}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      )}
                       </div>
                     );
                   })()}

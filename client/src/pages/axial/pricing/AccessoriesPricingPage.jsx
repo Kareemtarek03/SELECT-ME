@@ -1,0 +1,777 @@
+import React, { useState, useEffect } from "react";
+import {
+    Box,
+    Text,
+    Heading,
+    Table,
+    Button,
+    Input,
+    Spinner,
+    Badge,
+    Stack,
+    Alert,
+} from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
+import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+
+export default function AccessoriesPricingPage() {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(true);
+    const [items, setItems] = useState([]);
+    const [editingId, setEditingId] = useState(null);
+    const [editForm, setEditForm] = useState({});
+    const [showAddForm, setShowAddForm] = useState(false);
+    const [newItem, setNewItem] = useState({
+        sr: "",
+        fanModel: "",
+        fanSizeMm: "",
+        vinylStickersLe: "",
+        namePlateLe: "",
+        packingLe: "",
+        labourCostLe: "",
+        internalTransportationLe: "",
+        boltsAndNutsKg: "",
+    });
+    const [deleteConfirm, setDeleteConfirm] = useState(null);
+    const [alert, setAlert] = useState(null);
+    const [boltsPrice, setBoltsPrice] = useState(0);
+
+    useEffect(() => {
+        fetchData();
+        fetchBoltsPrice();
+    }, []);
+
+    const getAuthHeaders = () => {
+        const token = localStorage.getItem("token");
+        return {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        };
+    };
+
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            const response = await fetch(
+                `${API_BASE_URL}/api/accessories-pricing`,
+                { headers: getAuthHeaders() }
+            );
+
+            if (response.status === 401) {
+                navigate("/login");
+                return;
+            }
+
+            if (response.status === 403) {
+                setAlert({ type: "error", message: "Access denied. Admin only." });
+                return;
+            }
+
+            if (response.ok) {
+                const data = await response.json();
+                setItems(data || []);
+            } else {
+                setAlert({ type: "error", message: "Failed to fetch accessories data" });
+            }
+        } catch (error) {
+            console.error("Fetch error:", error);
+            setAlert({ type: "error", message: "Failed to connect to server" });
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchBoltsPrice = async () => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/accessories-pricing/bolts-price`,
+                { headers: getAuthHeaders() }
+            );
+            if (response.ok) {
+                const data = await response.json();
+                setBoltsPrice(data.price || 0);
+            }
+        } catch (error) {
+            console.error("Error fetching bolts price:", error);
+        }
+    };
+
+    const handleEdit = (item) => {
+        setEditingId(item.id);
+        setEditForm({
+            sr: item.sr,
+            fanModel: item.fanModel,
+            fanSizeMm: item.fanSizeMm,
+            vinylStickersLe: item.vinylStickersLe || "",
+            namePlateLe: item.namePlateLe || "",
+            packingLe: item.packingLe || "",
+            labourCostLe: item.labourCostLe || "",
+            internalTransportationLe: item.internalTransportationLe || "",
+            boltsAndNutsKg: item.boltsAndNutsKg || "",
+        });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingId(null);
+        setEditForm({});
+    };
+
+    const handleSaveEdit = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/accessories-pricing/${id}`, {
+                method: "PATCH",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(editForm),
+            });
+
+            if (response.ok) {
+                const updatedItem = await response.json();
+                setItems(items.map((item) => (item.id === id ? updatedItem : item)));
+                setEditingId(null);
+                setEditForm({});
+                setAlert({ type: "success", message: "Item updated successfully" });
+            } else {
+                const error = await response.json();
+                setAlert({ type: "error", message: error.error || "Failed to update item" });
+            }
+        } catch (error) {
+            console.error("Update error:", error);
+            setAlert({ type: "error", message: "Failed to update item" });
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/accessories-pricing/${id}`, {
+                method: "DELETE",
+                headers: getAuthHeaders(),
+            });
+
+            if (response.ok) {
+                setItems(items.filter((item) => item.id !== id));
+                setDeleteConfirm(null);
+                setAlert({ type: "success", message: "Item deleted successfully" });
+            } else {
+                const error = await response.json();
+                setAlert({ type: "error", message: error.error || "Failed to delete item" });
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            setAlert({ type: "error", message: "Failed to delete item" });
+        }
+    };
+
+    const handleAddItem = async () => {
+        if (!newItem.sr || !newItem.fanModel || !newItem.fanSizeMm) {
+            setAlert({ type: "error", message: "Sr, Fan Model, and Fan Size are required" });
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/accessories-pricing`, {
+                method: "POST",
+                headers: getAuthHeaders(),
+                body: JSON.stringify(newItem),
+            });
+
+            if (response.ok) {
+                const createdItem = await response.json();
+                setItems([...items, createdItem].sort((a, b) => {
+                    if (a.fanModel !== b.fanModel) return a.fanModel.localeCompare(b.fanModel);
+                    return a.fanSizeMm - b.fanSizeMm;
+                }));
+                setShowAddForm(false);
+                setNewItem({
+                    sr: "",
+                    fanModel: "",
+                    fanSizeMm: "",
+                    vinylStickersLe: "",
+                    namePlateLe: "",
+                    packingLe: "",
+                    labourCostLe: "",
+                    internalTransportationLe: "",
+                    boltsAndNutsKg: "",
+                });
+                setAlert({ type: "success", message: "Item added successfully" });
+            } else {
+                const error = await response.json();
+                setAlert({ type: "error", message: error.error || "Failed to add item" });
+            }
+        } catch (error) {
+            console.error("Add error:", error);
+            setAlert({ type: "error", message: "Failed to add item" });
+        }
+    };
+
+    // Calculate preview price with VAT for display
+    const calculatePreviewPrice = (data) => {
+        const vinyl = parseFloat(data.vinylStickersLe) || 0;
+        const namePlate = parseFloat(data.namePlateLe) || 0;
+        const packing = parseFloat(data.packingLe) || 0;
+        const labour = parseFloat(data.labourCostLe) || 0;
+        const transport = parseFloat(data.internalTransportationLe) || 0;
+        const boltsKg = parseFloat(data.boltsAndNutsKg) || 0;
+
+        return (vinyl + namePlate + packing + labour + transport + (boltsKg * boltsPrice)).toFixed(2);
+    };
+
+    if (loading) {
+        return (
+            <Box
+                bg="#0f172a"
+                minH="100vh"
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                pt="100px"
+            >
+                <Spinner size="xl" color="#3b82f6" />
+            </Box>
+        );
+    }
+
+    return (
+        <Box
+            bg="#0f172a"
+            minH="100vh"
+            py={{ base: 4, md: 6 }}
+            px={{ base: 4, md: 6, lg: 8 }}
+            pt={{ base: "100px", md: "120px" }}
+        >
+            <Box maxW="1600px" w="100%" mx="auto">
+                {/* Alert */}
+                {alert && (
+                    <Box
+                        bg={alert.type === "success" ? "#10b98120" : "#ef444420"}
+                        border="1px solid"
+                        borderColor={alert.type === "success" ? "#10b981" : "#ef4444"}
+                        borderRadius="lg"
+                        p={4}
+                        mb={4}
+                        display="flex"
+                        justifyContent="space-between"
+                        alignItems="center"
+                    >
+                        <Text color={alert.type === "success" ? "#10b981" : "#ef4444"}>
+                            {alert.message}
+                        </Text>
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setAlert(null)}
+                            color={alert.type === "success" ? "#10b981" : "#ef4444"}
+                        >
+                            ✕
+                        </Button>
+                    </Box>
+                )}
+
+                {/* Header */}
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={6}
+                >
+                    <Box>
+                        <Heading
+                            as="h1"
+                            size="xl"
+                            color="#ffffff"
+                            fontWeight="bold"
+                            mb={2}
+                        >
+                            Accessories Pricing
+                        </Heading>
+                        <Text color="#94a3b8" fontSize="md">
+                            Manage accessories pricing for axial fans
+                        </Text>
+                    </Box>
+                    <Button
+                        bg="#3b82f6"
+                        color="white"
+                        _hover={{ bg: "#2563eb" }}
+                        leftIcon={<FaPlus />}
+                        onClick={() => setShowAddForm(true)}
+                    >
+                        Add Item
+                    </Button>
+                </Box>
+
+                {/* Info Box */}
+                <Box
+                    bg="#1e293b"
+                    borderRadius="lg"
+                    border="1px solid #334155"
+                    p={4}
+                    mb={6}
+                >
+                    <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
+                        <Badge bg="#3b82f620" color="#3b82f6" px={3} py={1} borderRadius="md">
+                            Accessories
+                        </Badge>
+                        <Text color="#64748b" fontSize="sm">
+                            {items.length} items
+                        </Text>
+                        <Text color="#64748b" fontSize="sm">|</Text>
+                        <Text color="#f59e0b" fontSize="sm">
+                            Bolts & Nuts Price (Sr.21): {boltsPrice.toFixed(2)} L.E/kg
+                        </Text>
+                    </Box>
+                </Box>
+
+                {/* Add Item Form */}
+                {showAddForm && (
+                    <Box
+                        bg="#1e293b"
+                        borderRadius="lg"
+                        border="1px solid #334155"
+                        p={6}
+                        mb={6}
+                    >
+                        <Heading as="h3" size="md" color="#ffffff" mb={4}>
+                            Add New Accessory Item
+                        </Heading>
+                        <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={4}>
+                            <Input
+                                placeholder="Sr."
+                                value={newItem.sr}
+                                onChange={(e) => setNewItem({ ...newItem, sr: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Fan Model"
+                                value={newItem.fanModel}
+                                onChange={(e) => setNewItem({ ...newItem, fanModel: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Fan Size (mm)"
+                                type="number"
+                                value={newItem.fanSizeMm}
+                                onChange={(e) => setNewItem({ ...newItem, fanSizeMm: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Vinyl Stickers (L.E)"
+                                type="number"
+                                value={newItem.vinylStickersLe}
+                                onChange={(e) => setNewItem({ ...newItem, vinylStickersLe: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Name Plate (L.E)"
+                                type="number"
+                                value={newItem.namePlateLe}
+                                onChange={(e) => setNewItem({ ...newItem, namePlateLe: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Packing (L.E)"
+                                type="number"
+                                value={newItem.packingLe}
+                                onChange={(e) => setNewItem({ ...newItem, packingLe: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Labour Cost (L.E)"
+                                type="number"
+                                value={newItem.labourCostLe}
+                                onChange={(e) => setNewItem({ ...newItem, labourCostLe: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Internal Transport (L.E)"
+                                type="number"
+                                value={newItem.internalTransportationLe}
+                                onChange={(e) => setNewItem({ ...newItem, internalTransportationLe: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Input
+                                placeholder="Bolts & Nuts (kg)"
+                                type="number"
+                                step="0.01"
+                                value={newItem.boltsAndNutsKg}
+                                onChange={(e) => setNewItem({ ...newItem, boltsAndNutsKg: e.target.value })}
+                                bg="#0f172a"
+                                color="#e2e8f0"
+                                border="1px solid #334155"
+                                _placeholder={{ color: "#64748b" }}
+                            />
+                            <Box>
+                                <Input
+                                    placeholder="Price with VAT"
+                                    type="text"
+                                    value={calculatePreviewPrice(newItem)}
+                                    bg="#1e293b"
+                                    color="#64748b"
+                                    border="1px solid #334155"
+                                    disabled
+                                    _disabled={{ opacity: 0.7, cursor: "not-allowed" }}
+                                />
+                                <Text fontSize="xs" color="#f59e0b" mt={1}>
+                                    Auto-calculated
+                                </Text>
+                            </Box>
+                        </Box>
+                        <Box display="flex" gap={3} mt={4}>
+                            <Button
+                                bg="#10b981"
+                                color="white"
+                                _hover={{ bg: "#059669" }}
+                                leftIcon={<FaSave />}
+                                onClick={handleAddItem}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                bg="#64748b"
+                                color="white"
+                                _hover={{ bg: "#475569" }}
+                                leftIcon={<FaTimes />}
+                                onClick={() => setShowAddForm(false)}
+                            >
+                                Cancel
+                            </Button>
+                        </Box>
+                    </Box>
+                )}
+
+                {/* Accessories Table */}
+                <Box
+                    borderWidth="1px"
+                    borderRadius="md"
+                    borderColor="#334155"
+                    bg="#1e293b"
+                    overflowX="auto"
+                >
+                    <Table.Root bg="#1e293b" w="100%">
+                        <Table.Header bg="#1e293b" color="white">
+                            <Table.Row bg="#1e293b" color="white">
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Sr.
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Fan Model
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Size (mm)
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Vinyl Stickers
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Name Plate
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Packing
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Labour Cost
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Internal Transport
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    Bolts & Nuts (kg)
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" borderRight="1px solid #475569" py={3} px={3} textAlign="center">
+                                    <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
+                                        Price with VAT
+                                        <Badge bg="#f59e0b20" color="#f59e0b" fontSize="9px" px={1} borderRadius="sm">
+                                            Auto
+                                        </Badge>
+                                    </Box>
+                                </Table.ColumnHeader>
+                                <Table.ColumnHeader color="white" py={3} px={3} textAlign="center">
+                                    Actions
+                                </Table.ColumnHeader>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body borderColor="#334155">
+                            {items.map((item, idx) => {
+                                const rowBg = idx % 2 === 0 ? "#0f172a" : "#1e293b";
+                                return (
+                                    <Table.Row
+                                        key={item.id}
+                                        bg={rowBg}
+                                        color="white"
+                                        _hover={{ bg: "#334155" }}
+                                    >
+                                        {editingId === item.id ? (
+                                            <>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        value={editForm.sr}
+                                                        onChange={(e) => setEditForm({ ...editForm, sr: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        value={editForm.fanModel}
+                                                        onChange={(e) => setEditForm({ ...editForm, fanModel: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.fanSizeMm}
+                                                        onChange={(e) => setEditForm({ ...editForm, fanSizeMm: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.vinylStickersLe}
+                                                        onChange={(e) => setEditForm({ ...editForm, vinylStickersLe: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.namePlateLe}
+                                                        onChange={(e) => setEditForm({ ...editForm, namePlateLe: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.packingLe}
+                                                        onChange={(e) => setEditForm({ ...editForm, packingLe: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.labourCostLe}
+                                                        onChange={(e) => setEditForm({ ...editForm, labourCostLe: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        value={editForm.internalTransportationLe}
+                                                        onChange={(e) => setEditForm({ ...editForm, internalTransportationLe: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="number"
+                                                        step="0.01"
+                                                        value={editForm.boltsAndNutsKg}
+                                                        onChange={(e) => setEditForm({ ...editForm, boltsAndNutsKg: e.target.value })}
+                                                        bg="#0f172a"
+                                                        color="#e2e8f0"
+                                                        border="1px solid #334155"
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" py={2} px={2}>
+                                                    <Input
+                                                        size="sm"
+                                                        type="text"
+                                                        value={calculatePreviewPrice(editForm)}
+                                                        bg="#1e293b"
+                                                        color="#64748b"
+                                                        border="1px solid #334155"
+                                                        disabled
+                                                        _disabled={{ opacity: 0.7, cursor: "not-allowed" }}
+                                                    />
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" py={2} px={2}>
+                                                    <Box display="flex" gap={2}>
+                                                        <Button
+                                                            size="xs"
+                                                            bg="#10b981"
+                                                            color="white"
+                                                            _hover={{ bg: "#059669" }}
+                                                            onClick={() => handleSaveEdit(item.id)}
+                                                        >
+                                                            <FaSave />
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            bg="#64748b"
+                                                            color="white"
+                                                            _hover={{ bg: "#475569" }}
+                                                            onClick={handleCancelEdit}
+                                                        >
+                                                            <FaTimes />
+                                                        </Button>
+                                                    </Box>
+                                                </Table.Cell>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.sr}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.fanModel}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.fanSizeMm}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.vinylStickersLe != null ? item.vinylStickersLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.namePlateLe != null ? item.namePlateLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.packingLe != null ? item.packingLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.labourCostLe != null ? item.labourCostLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.internalTransportationLe != null ? item.internalTransportationLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="white" py={2} px={3} textAlign="center">
+                                                    {item.boltsAndNutsKg != null ? item.boltsAndNutsKg.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" borderRight="1px solid #475569" color="#10b981" py={2} px={3} textAlign="center" fontWeight="bold">
+                                                    {item.priceWithVatLe != null ? item.priceWithVatLe.toFixed(2) : "-"}
+                                                </Table.Cell>
+                                                <Table.Cell borderColor="#334155" color="white" py={2} px={3} textAlign="center">
+                                                    <Box display="flex" gap={2} justifyContent="center">
+                                                        <Button
+                                                            size="xs"
+                                                            bg="#3b82f6"
+                                                            color="white"
+                                                            _hover={{ bg: "#2563eb" }}
+                                                            onClick={() => handleEdit(item)}
+                                                        >
+                                                            <FaEdit />
+                                                        </Button>
+                                                        <Button
+                                                            size="xs"
+                                                            bg="#ef4444"
+                                                            color="white"
+                                                            _hover={{ bg: "#dc2626" }}
+                                                            onClick={() => setDeleteConfirm(item.id)}
+                                                        >
+                                                            <FaTrash />
+                                                        </Button>
+                                                    </Box>
+                                                </Table.Cell>
+                                            </>
+                                        )}
+                                    </Table.Row>
+                                );
+                            })}
+                        </Table.Body>
+                    </Table.Root>
+                </Box>
+
+                {/* Delete Confirmation Modal */}
+                {deleteConfirm && (
+                    <Box
+                        position="fixed"
+                        top={0}
+                        left={0}
+                        right={0}
+                        bottom={0}
+                        bg="rgba(0, 0, 0, 0.7)"
+                        display="flex"
+                        alignItems="center"
+                        justifyContent="center"
+                        zIndex={1000}
+                    >
+                        <Box
+                            bg="#1e293b"
+                            borderRadius="lg"
+                            border="1px solid #334155"
+                            p={6}
+                            maxW="400px"
+                            w="90%"
+                        >
+                            <Heading as="h3" size="md" color="#ffffff" mb={4}>
+                                Confirm Delete
+                            </Heading>
+                            <Text color="#94a3b8" mb={6}>
+                                Are you sure you want to delete this accessory item? This action cannot be undone.
+                            </Text>
+                            <Box display="flex" gap={3} justifyContent="flex-end">
+                                <Button
+                                    bg="#64748b"
+                                    color="white"
+                                    _hover={{ bg: "#475569" }}
+                                    onClick={() => setDeleteConfirm(null)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    bg="#ef4444"
+                                    color="white"
+                                    _hover={{ bg: "#dc2626" }}
+                                    onClick={() => handleDelete(deleteConfirm)}
+                                >
+                                    Delete
+                                </Button>
+                            </Box>
+                        </Box>
+                    </Box>
+                )}
+            </Box>
+        </Box>
+    );
+}
