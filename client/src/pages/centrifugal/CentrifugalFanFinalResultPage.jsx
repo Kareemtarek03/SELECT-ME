@@ -150,9 +150,10 @@ function cubicSplineInterpolation(xArray, yArray, numSamples = 300) {
     return result;
 }
 
-// Generate exactly N intervals (N+1 tick marks including 0) with nice round step values
+// Generate nice round tick values that tightly fit the data
+// Returns { ticks: number[], max: number, step: number }
 function generateNiceTicks(dataMax, numIntervals = 10) {
-    if (!dataMax || dataMax <= 0) return { ticks: [0], max: 0, step: 0 };
+    if (!dataMax || dataMax <= 0) return { ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i), max: numIntervals, step: 1 };
     const margin = dataMax * 1.05;
     const rawStep = margin / numIntervals;
     const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
@@ -166,8 +167,9 @@ function generateNiceTicks(dataMax, numIntervals = 10) {
     else if (norm <= 5) nice = 5;
     else nice = 10;
     const step = nice * mag;
-    const axisMax = Math.ceil(margin / step) * step;
-    const count = Math.round(axisMax / step);
+    // Use ceil to find minimum intervals that cover the data (tight fit)
+    const count = Math.ceil(margin / step);
+    const axisMax = step * count;
     const ticks = [];
     for (let i = 0; i <= count; i++) {
         ticks.push(parseFloat((i * step).toFixed(8)));
@@ -182,6 +184,74 @@ function calculateDensity(tempC) {
     if (isNaN(temp)) return null;
     return 1.293 * (273.15 / (273.15 + temp));
 }
+
+// Custom Tooltip Component that always shows all curve values
+const CustomTooltip = ({ active, payload, label, units }) => {
+    if (!active || !payload || !payload.length) return null;
+
+    const dataPoint = payload[0]?.payload;
+    if (!dataPoint) return null;
+
+    const labels = {
+        staticPressureNew: "Static Pressure",
+        fanInputPowerNew: "Fan Input Power",
+        staticEfficiencyNew: "Static Efficiency",
+        totalEfficiencyNew: "Total Efficiency",
+        systemCurve: "System Curve",
+    };
+
+    const unitMap = {
+        staticPressureNew: units?.pressure || "Pa",
+        fanInputPowerNew: units?.power || "kW",
+        staticEfficiencyNew: "%",
+        totalEfficiencyNew: "%",
+        systemCurve: units?.pressure || "Pa",
+    };
+
+    const curves = [
+        { key: "staticPressureNew", color: "#000000" },
+        { key: "fanInputPowerNew", color: "#002060" },
+        { key: "staticEfficiencyNew", color: "#385723" },
+        { key: "totalEfficiencyNew", color: "#385723" },
+        { key: "systemCurve", color: "#FF0000" },
+    ];
+
+    return (
+        <div style={{
+            backgroundColor: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "8px",
+            padding: "8px 12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+        }}>
+            <div style={{ color: "#1e293b", fontWeight: "600", marginBottom: "6px", fontSize: "13px" }}>
+                Airflow: {Math.round(label).toLocaleString()} {units?.airFlow || "m³/h"}
+            </div>
+            {curves.map((curve) => {
+                const value = dataPoint[curve.key];
+                if (value == null || value === undefined) return null;
+
+                let decimals = curve.key === "fanInputPowerNew" ? 3 : 1;
+
+                return (
+                    <div key={curve.key} style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "16px",
+                        fontSize: "12px",
+                        marginTop: "4px",
+                        color: "#000000"
+                    }}>
+                        <span style={{ color: curve.color, fontWeight: "500" }}>{labels[curve.key]}:</span>
+                        <span style={{ fontWeight: "600" }}>
+                            {value.toFixed(decimals)} {unitMap[curve.key]}
+                        </span>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
 
 export default function CentrifugalFanFinalResultPage() {
     const navigate = useNavigate();
@@ -340,9 +410,10 @@ export default function CentrifugalFanFinalResultPage() {
                 throw new Error(errorData.error || "Failed to generate PDF");
             }
 
-            // Get the PDF blob and open in new tab
+            // Open the PDF in a new tab
             const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
+            const file = new Blob([blob], { type: "application/pdf" });
+            const url = window.URL.createObjectURL(file);
             window.open(url, "_blank");
         } catch (error) {
             console.error("Error generating PDF:", error);
@@ -486,16 +557,21 @@ export default function CentrifugalFanFinalResultPage() {
                             </div>
                         ) : (
                             <>
-                                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", overflowY: "scroll", maxHeight: "400px", marginBottom: "1.5rem" }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+                                    <span style={{ fontSize: "0.95rem", fontWeight: "600", color: "#1e293b" }}>
+                                        Matched Fans: <span style={{ color: "#3b82f6" }}>{phase18All.length}</span>
+                                    </span>
+                                </div>
+                                <div style={{ background: "white", borderRadius: "12px", border: "1px solid #e2e8f0", overflow: "hidden", overflowY: "auto", maxHeight: "250px", marginBottom: "1.5rem" }}>
                                     <table style={{ width: "100%", borderCollapse: "collapse" }}>
-                                        <thead>
+                                        <thead style={{ position: "sticky", top: 0, backgroundColor: "#ffffff", zIndex: 10 }}>
                                             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "left", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", minWidth: "280px" }}>Fan Model</th>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Airflow ({units?.airFlow || "CFM"})</th>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Static Pressure ({units?.pressure || "Pa"})</th>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Fan Input Power ({units?.power || "kW"})</th>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Static Efficiency (%)</th>
-                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Total Efficiency (%)</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "left", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", minWidth: "280px", backgroundColor: "#ffffff" }}>Fan Model</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: "#ffffff" }}>Airflow ({units?.airFlow || "CFM"})</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: "#ffffff" }}>Static Pressure ({units?.pressure || "Pa"})</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: "#ffffff" }}>Fan Input Power ({units?.power || "kW"})</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: "#ffffff" }}>Static Efficiency (%)</th>
+                                                <th style={{ padding: "1rem 1.25rem", textAlign: "center", fontSize: "0.75rem", fontWeight: "500", color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", backgroundColor: "#ffffff" }}>Total Efficiency (%)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -783,83 +859,26 @@ export default function CentrifugalFanFinalResultPage() {
                                                     borderRadius: "8px",
                                                 }}>
                                                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                                                        <input type="checkbox" checked={curveVisibility.staticPressure} onChange={() => toggleCurveVisibility("staticPressure")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#3b82f6" }} />
-                                                        <span style={{ color: "#3b82f6", fontWeight: "500" }}>Static Pressure</span>
+                                                        <input type="checkbox" checked={curveVisibility.staticPressure} onChange={() => toggleCurveVisibility("staticPressure")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#000000" }} />
+                                                        <span style={{ color: "#000000", fontWeight: "500" }}>Static Pressure</span>
                                                     </label>
                                                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                                                        <input type="checkbox" checked={curveVisibility.fanInputPower} onChange={() => toggleCurveVisibility("fanInputPower")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#10b981" }} />
-                                                        <span style={{ color: "#10b981", fontWeight: "500" }}>Fan Input Power</span>
+                                                        <input type="checkbox" checked={curveVisibility.fanInputPower} onChange={() => toggleCurveVisibility("fanInputPower")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#002060" }} />
+                                                        <span style={{ color: "#002060", fontWeight: "500" }}>Fan Input Power</span>
                                                     </label>
                                                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                                                        <input type="checkbox" checked={curveVisibility.staticEfficiency} onChange={() => toggleCurveVisibility("staticEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#8b5cf6" }} />
-                                                        <span style={{ color: "#8b5cf6", fontWeight: "500" }}>Static Efficiency</span>
+                                                        <input type="checkbox" checked={curveVisibility.staticEfficiency} onChange={() => toggleCurveVisibility("staticEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
+                                                        <span style={{ color: "#385723", fontWeight: "500" }}>Static Efficiency</span>
                                                     </label>
                                                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                                                        <input type="checkbox" checked={curveVisibility.totalEfficiency} onChange={() => toggleCurveVisibility("totalEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#ec4899" }} />
-                                                        <span style={{ color: "#ec4899", fontWeight: "500" }}>Total Efficiency</span>
+                                                        <input type="checkbox" checked={curveVisibility.totalEfficiency} onChange={() => toggleCurveVisibility("totalEfficiency")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#385723" }} />
+                                                        <span style={{ color: "#385723", fontWeight: "500" }}>Total Efficiency</span>
                                                     </label>
                                                     <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.8rem" }}>
-                                                        <input type="checkbox" checked={curveVisibility.systemCurve} onChange={() => toggleCurveVisibility("systemCurve")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#ef4444" }} />
-                                                        <span style={{ color: "#ef4444", fontWeight: "500" }}>System Curve</span>
+                                                        <input type="checkbox" checked={curveVisibility.systemCurve} onChange={() => toggleCurveVisibility("systemCurve")} style={{ cursor: "pointer", width: "14px", height: "14px", accentColor: "#FF0000" }} />
+                                                        <span style={{ color: "#FF0000", fontWeight: "500" }}>System Curve</span>
                                                     </label>
                                                 </div>
-
-                                                {/* Locked Point Info Panel */}
-                                                {isLocked && selectedChartPoint && (
-                                                    <div style={{
-                                                        display: "flex",
-                                                        alignItems: "center",
-                                                        justifyContent: "space-between",
-                                                        padding: "0.75rem 1rem",
-                                                        marginBottom: "0.75rem",
-                                                        backgroundColor: "#f1f5f9",
-                                                        border: "2px solid #fbbf24",
-                                                        borderRadius: "8px",
-                                                        boxShadow: "0 4px 16px rgba(251,191,36,0.2)",
-                                                    }}>
-                                                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                                            <span style={{ color: "#b45309", fontWeight: "700", fontSize: "0.9rem" }}>
-                                                                Point — Q: {Math.round(selectedChartPoint.x).toLocaleString()} {units?.airFlow || "m³/h"}
-                                                            </span>
-                                                        </div>
-                                                        <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-                                                            {selectedChartPoint.staticPressure != null && (
-                                                                <span style={{ color: "#3b82f6", fontSize: "0.85rem" }}>
-                                                                    <strong>Pst:</strong> {selectedChartPoint.staticPressure.toFixed(1)} {units?.pressure || "Pa"}
-                                                                </span>
-                                                            )}
-                                                            {selectedChartPoint.fanInputPower != null && (
-                                                                <span style={{ color: "#10b981", fontSize: "0.85rem" }}>
-                                                                    <strong>Psh:</strong> {selectedChartPoint.fanInputPower.toFixed(2)} {units?.power || "kW"}
-                                                                </span>
-                                                            )}
-                                                            {selectedChartPoint.staticEfficiency != null && (
-                                                                <span style={{ color: "#8b5cf6", fontSize: "0.85rem" }}>
-                                                                    <strong>ηst:</strong> {selectedChartPoint.staticEfficiency.toFixed(1)}%
-                                                                </span>
-                                                            )}
-                                                            {selectedChartPoint.totalEfficiency != null && (
-                                                                <span style={{ color: "#ec4899", fontSize: "0.85rem" }}>
-                                                                    <strong>ηtot:</strong> {selectedChartPoint.totalEfficiency.toFixed(1)}%
-                                                                </span>
-                                                            )}
-                                                            <button
-                                                                onClick={() => { setIsLocked(false); setSelectedChartPoint(null); }}
-                                                                style={{
-                                                                    background: "#e2e8f0",
-                                                                    border: "1px solid #cbd5e1",
-                                                                    borderRadius: "4px",
-                                                                    color: "#475569",
-                                                                    padding: "0.25rem 0.5rem",
-                                                                    cursor: "pointer",
-                                                                    fontSize: "0.8rem",
-                                                                }}
-                                                            >
-                                                                ✕ Clear
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                )}
 
                                                 {/* Chart Container */}
                                                 <div style={{ background: "#f8fafc", borderRadius: "12px", border: "1px solid #e2e8f0", padding: "1rem" }}>
@@ -1060,7 +1079,21 @@ export default function CentrifugalFanFinalResultPage() {
 
                                                             return (
                                                                 <ResponsiveContainer width="100%" height="100%">
-                                                                    <LineChart data={chartData} margin={{ top: 20, right: 90, left: 30, bottom: 50 }}>
+                                                                    <LineChart data={chartData} margin={{ top: 20, right: 90, left: 20, bottom: 50 }}
+                                                                        onClick={(e) => {
+                                                                            if (!e || !e.activePayload || !e.activePayload.length) return;
+                                                                            const pt = e.activePayload[0]?.payload;
+                                                                            if (!pt) return;
+                                                                            setSelectedChartPoint({
+                                                                                x: pt.x,
+                                                                                staticPressure: pt.staticPressureNew,
+                                                                                fanInputPower: pt.fanInputPowerNew,
+                                                                                staticEfficiency: pt.staticEfficiencyNew,
+                                                                                totalEfficiency: pt.totalEfficiencyNew,
+                                                                            });
+                                                                            setIsLocked(true);
+                                                                        }}
+                                                                    >
                                                                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                                                                         <XAxis
                                                                             dataKey="x"
@@ -1078,10 +1111,10 @@ export default function CentrifugalFanFinalResultPage() {
                                                                             orientation="left"
                                                                             domain={[0, pressureDomain]}
                                                                             ticks={pressureTicks}
-                                                                            stroke="#3b82f6"
-                                                                            tick={{ fill: "#3b82f6", fontSize: 12 }}
+                                                                            stroke="#000000"
+                                                                            tick={{ fill: "#000000", fontSize: 12 }}
                                                                             tickFormatter={(value) => Math.round(value)}
-                                                                            label={{ value: `Pressure (${units?.pressure || "Pa"})`, angle: -90, position: "insideLeft", fill: "#3b82f6", fontSize: 13, fontWeight: "bold", dx: -15 }}
+                                                                            label={{ value: `Pressure (${units?.pressure || "Pa"})`, angle: -90, position: "insideLeft", fill: "#000000", fontSize: 13, fontWeight: "bold", dx: -15 }}
                                                                         />
                                                                         {/* Right Y-axis for Efficiency (0-100%, 11 ticks) */}
                                                                         <YAxis
@@ -1089,9 +1122,9 @@ export default function CentrifugalFanFinalResultPage() {
                                                                             orientation="right"
                                                                             domain={[0, 100]}
                                                                             ticks={efficiencyTicks}
-                                                                            stroke="#8b5cf6"
-                                                                            tick={{ fill: "#8b5cf6", fontSize: 12 }}
-                                                                            label={{ value: "Efficiency (%)", angle: 90, position: "insideRight", fill: "#8b5cf6", fontSize: 13, fontWeight: "bold", dx: -12 }}
+                                                                            stroke="#385723"
+                                                                            tick={{ fill: "#385723", fontSize: 12 }}
+                                                                            label={{ value: "Efficiency (%)", angle: 90, position: "insideRight", fill: "#385723", fontSize: 13, fontWeight: "bold", dx: -12 }}
                                                                         />
                                                                         {/* Far right Y-axis for Power - 11 ticks */}
                                                                         <YAxis
@@ -1099,26 +1132,12 @@ export default function CentrifugalFanFinalResultPage() {
                                                                             orientation="right"
                                                                             domain={[0, powerDomain]}
                                                                             ticks={powerTicks}
-                                                                            stroke="#10b981"
-                                                                            tick={{ fill: "#10b981", fontSize: 12 }}
+                                                                            stroke="#002060"
+                                                                            tick={{ fill: "#002060", fontSize: 12 }}
                                                                             tickFormatter={(value) => value.toFixed(1)}
-                                                                            label={{ value: `Power (${units?.power || "kW"})`, angle: 90, position: "insideRight", fill: "#10b981", fontSize: 13, fontWeight: "bold", dx: 0 }}
+                                                                            label={{ value: `Power (${units?.power || "kW"})`, angle: 90, position: "insideRight", fill: "#002060", fontSize: 13, fontWeight: "bold", dx: 0 }}
                                                                         />
-                                                                        <Tooltip
-                                                                            contentStyle={{ backgroundColor: "#1e293b", border: "1px solid #334155", borderRadius: "8px" }}
-                                                                            labelStyle={{ color: "#e2e8f0" }}
-                                                                            labelFormatter={(value) => `Airflow: ${Math.round(value).toLocaleString()} ${units?.airFlow || "m³/h"}`}
-                                                                            formatter={(value, name) => {
-                                                                                if (value == null) return ["-", name];
-                                                                                if (name === "Static Pressure" || name === "System Curve")
-                                                                                    return [`${value.toFixed(1)} ${units?.pressure || "Pa"}`, name];
-                                                                                if (name === "Fan Input Power")
-                                                                                    return [`${value.toFixed(3)} ${units?.power || "kW"}`, name];
-                                                                                if (name === "Static Efficiency" || name === "Total Efficiency")
-                                                                                    return [`${value.toFixed(1)}%`, name];
-                                                                                return [value.toFixed(2), name];
-                                                                            }}
-                                                                        />
+                                                                        <Tooltip content={<CustomTooltip units={units} />} />
 
                                                                         {/* Static Pressure Line */}
                                                                         {curveVisibility.staticPressure && (
@@ -1126,7 +1145,7 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                 yAxisId="pressure"
                                                                                 type="basis"
                                                                                 dataKey="staticPressureNew"
-                                                                                stroke="#3b82f6"
+                                                                                stroke="#000000"
                                                                                 strokeWidth={2.5}
                                                                                 dot={false}
                                                                                 activeDot={false}
@@ -1142,7 +1161,7 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                 yAxisId="power"
                                                                                 type="basis"
                                                                                 dataKey="fanInputPowerNew"
-                                                                                stroke="#10b981"
+                                                                                stroke="#002060"
                                                                                 strokeWidth={2.5}
                                                                                 dot={false}
                                                                                 activeDot={false}
@@ -1158,7 +1177,7 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                 yAxisId="efficiency"
                                                                                 type="basis"
                                                                                 dataKey="staticEfficiencyNew"
-                                                                                stroke="#8b5cf6"
+                                                                                stroke="#385723"
                                                                                 strokeWidth={2.5}
                                                                                 dot={false}
                                                                                 activeDot={false}
@@ -1174,7 +1193,7 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                 yAxisId="efficiency"
                                                                                 type="basis"
                                                                                 dataKey="totalEfficiencyNew"
-                                                                                stroke="#ec4899"
+                                                                                stroke="#385723"
                                                                                 strokeWidth={2.5}
                                                                                 strokeDasharray="8 4"
                                                                                 dot={false}
@@ -1191,9 +1210,8 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                 yAxisId="pressure"
                                                                                 type="basis"
                                                                                 dataKey="systemCurve"
-                                                                                stroke="#ef4444"
-                                                                                strokeWidth={2}
-                                                                                strokeDasharray="8 4"
+                                                                                stroke="#FF0000"
+                                                                                strokeWidth={2.5}
                                                                                 dot={false}
                                                                                 activeDot={false}
                                                                                 style={{ pointerEvents: "none" }}
@@ -1251,8 +1269,8 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                         x={opAirflow}
                                                                                         y={closestPoint.staticPressureNew}
                                                                                         yAxisId="pressure"
-                                                                                        r={7}
-                                                                                        fill="#3b82f6"
+                                                                                        r={3.5}
+                                                                                        fill="#000000"
                                                                                         stroke={isLocked ? selectedStroke : normalStroke}
                                                                                         strokeWidth={isLocked ? 3 : 2}
                                                                                         style={dotStyle}
@@ -1269,8 +1287,8 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                         x={opAirflow}
                                                                                         y={closestPoint.fanInputPowerNew}
                                                                                         yAxisId="power"
-                                                                                        r={7}
-                                                                                        fill="#10b981"
+                                                                                        r={3.5}
+                                                                                        fill="#002060"
                                                                                         stroke={isLocked ? selectedStroke : normalStroke}
                                                                                         strokeWidth={isLocked ? 3 : 2}
                                                                                         style={dotStyle}
@@ -1287,8 +1305,8 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                         x={opAirflow}
                                                                                         y={closestPoint.staticEfficiencyNew}
                                                                                         yAxisId="efficiency"
-                                                                                        r={7}
-                                                                                        fill="#8b5cf6"
+                                                                                        r={3.5}
+                                                                                        fill="#385723"
                                                                                         stroke={isLocked ? selectedStroke : normalStroke}
                                                                                         strokeWidth={isLocked ? 3 : 2}
                                                                                         style={dotStyle}
@@ -1305,8 +1323,8 @@ export default function CentrifugalFanFinalResultPage() {
                                                                                         x={opAirflow}
                                                                                         y={closestPoint.totalEfficiencyNew}
                                                                                         yAxisId="efficiency"
-                                                                                        r={7}
-                                                                                        fill="#ec4899"
+                                                                                        r={3.5}
+                                                                                        fill="#385723"
                                                                                         stroke={isLocked ? selectedStroke : normalStroke}
                                                                                         strokeWidth={isLocked ? 3 : 2}
                                                                                         style={dotStyle}

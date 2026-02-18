@@ -45,10 +45,7 @@ router.post("/datasheet", async (req, res) => {
         const doc = generateCentrifugalFanDatasheetPDF(fanData, userInput, units);
 
         // Set response headers for PDF
-        // Use fanUnitNo for filename, sanitize: remove invalid characters
-        const fanUnitNo = userInput?.fanUnitNo || 'EX-01';
-        const sanitizedFanUnitNo = fanUnitNo.replace(/[/\\:*?"<>|]/g, '_');
-        const filename = `${sanitizedFanUnitNo}_Datasheet.pdf`;
+        const filename = `Datasheet.pdf`;
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `inline; filename="${filename}"`);
@@ -86,10 +83,7 @@ router.post("/datasheet/download", async (req, res) => {
         const doc = generateCentrifugalFanDatasheetPDF(fanData, userInput, units);
 
         // Set response headers for download
-        // Use fanUnitNo for filename, sanitize: remove invalid characters
-        const fanUnitNo = userInput?.fanUnitNo || 'EX-01';
-        const sanitizedFanUnitNo = fanUnitNo.replace(/[/\\:*?"<>|]/g, '_');
-        const filename = `${sanitizedFanUnitNo}_Datasheet.pdf`;
+        const filename = `Datasheet.pdf`;
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
