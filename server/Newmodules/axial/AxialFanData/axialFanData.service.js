@@ -187,12 +187,18 @@ export async function processFanDataService(inputOptions) {
     if (fanType && fanTypeToDbColumn[fanType]) {
       const dbColumn = fanTypeToDbColumn[fanType];
       whereClause[dbColumn] = 1;
+      console.log(`[FanFilter] Filtering DB by ${dbColumn}=1 for fanType="${fanType}"`);
+    } else if (fanType) {
+      console.warn(`[FanFilter] ⚠️ fanType="${fanType}" not found in fanTypeToDbColumn map — no type filter applied`);
+    } else {
+      console.warn(`[FanFilter] ⚠️ No fanType provided — returning all fans unfiltered`);
     }
 
     // read from Prisma FanData table and map DB rows to the expected nested shape
     const prismaClient = await getPrismaClient();
     if (!prismaClient) throw new Error("Database not available");
     const rows = await prismaClient.fanData.findMany({ where: whereClause });
+    console.log(`[FanFilter] DB query returned ${rows.length} rows`);
     rawData = rows
       .map((r) => ({
         // map flattened DB fields to the nested structure the rest of the service expects
@@ -245,6 +251,16 @@ export async function processFanDataService(inputOptions) {
         ? filePath
         : path.join(__dirname, filePath || "axialFan.json");
     rawData = JSON.parse(fs.readFileSync(resolvedPath, "utf8"));
+
+    // Apply fan type filtering for JSON file source as well
+    if (fanType && fanTypeToDbColumn[fanType]) {
+      const dbColumn = fanTypeToDbColumn[fanType];
+      const beforeCount = rawData.length;
+      rawData = rawData.filter((fan) => fan[dbColumn] === 1);
+      console.log(`[FanFilter] JSON file: filtered ${beforeCount} → ${rawData.length} fans by ${dbColumn}=1`);
+    } else if (fanType) {
+      console.warn(`[FanFilter] ⚠️ JSON file: fanType="${fanType}" not in map — no filter applied`);
+    }
   }
 
   const convertedData = rawData.map((fan) => convertFanUnits(fan, units));
@@ -719,6 +735,10 @@ export async function Output({ units, input, dataSource }) {
   }
 }
 
+// Helper for safe array access
+const arrAt = (arr, i) =>
+  Array.isArray(arr) && arr.length > i ? arr[i] : null;
+
 // --- Export / Import helpers for FanData (xlsx)
 export async function exportFanData(res) {
   // try DB first, fallback to file
@@ -729,6 +749,18 @@ export async function exportFanData(res) {
     const rows = await prismaClient.fanData.findMany();
     data = rows.map((r) => ({
       Id: r.id,
+      No: r.No ?? null,
+      Model: r.Model ?? null,
+      "AF-S": r.AFS ?? null,
+      "AF-L": r.AFL ?? null,
+      WF: r.WF ?? null,
+      ARTF: r.ARTF ?? null,
+      SF: r.SF ?? null,
+      "ABSF-C": r.ABSFC ?? null,
+      "ABSF-S": r.ABSFS ?? null,
+      SABF: r.SABF ?? null,
+      SARTF: r.SARTF ?? null,
+      AJF: r.AJF ?? null,
       "Blade Symbol": r.bladesSymbol,
       "Blade Material": r.bladesMaterial,
       "No Blades": r.noBlades,
@@ -738,56 +770,56 @@ export async function exportFanData(res) {
       "Impeller Configuration": r.impellerConf,
       "Designated Density": r.desigDensity,
       "Rotational Speed": r.RPM,
-      "Air Flow 1": r.airFlow[0],
-      "Air Flow 2": r.airFlow[1],
-      "Air Flow 3": r.airFlow[2],
-      "Air Flow 4": r.airFlow[3],
-      "Air Flow 5": r.airFlow[4],
-      "Air Flow 6": r.airFlow[5],
-      "Air Flow 7": r.airFlow[6],
-      "Air Flow 8": r.airFlow[7],
-      "Air Flow 9": r.airFlow[8],
-      "Air Flow 10": r.airFlow[9],
-      "Total Pressure 1": r.totPressure[0],
-      "Total Pressure 2": r.totPressure[1],
-      "Total Pressure 3": r.totPressure[2],
-      "Total Pressure 4": r.totPressure[3],
-      "Total Pressure 5": r.totPressure[4],
-      "Total Pressure 6": r.totPressure[5],
-      "Total Pressure 7": r.totPressure[6],
-      "Total Pressure 8": r.totPressure[7],
-      "Total Pressure 9": r.totPressure[8],
-      "Total Pressure 10": r.totPressure[9],
-      "Velocity Pressure 1": r.velPressure[0],
-      "Velocity Pressure 2": r.velPressure[1],
-      "Velocity Pressure 3": r.velPressure[2],
-      "Velocity Pressure 4": r.velPressure[3],
-      "Velocity Pressure 5": r.velPressure[4],
-      "Velocity Pressure 6": r.velPressure[5],
-      "Velocity Pressure 7": r.velPressure[6],
-      "Velocity Pressure 8": r.velPressure[7],
-      "Velocity Pressure 9": r.velPressure[8],
-      "Velocity Pressure 10": r.velPressure[9],
-      "Static Pressure 1": r.staticPressure[0],
-      "Static Pressure 2": r.staticPressure[1],
-      "Static Pressure 3": r.staticPressure[2],
-      "Static Pressure 4": r.staticPressure[3],
-      "Static Pressure 5": r.staticPressure[4],
-      "Static Pressure 6": r.staticPressure[5],
-      "Static Pressure 7": r.staticPressure[6],
-      "Static Pressure 8": r.staticPressure[7],
-      "Static Pressure 9": r.staticPressure[8],
-      "Static Pressure 10": r.staticPressure[9],
-      "Fan Input Power 1": r.fanInputPow[0],
-      "Fan Input Power 2": r.fanInputPow[1],
-      "Fan Input Power 3": r.fanInputPow[2],
-      "Fan Input Power 4": r.fanInputPow[3],
-      "Fan Input Power 5": r.fanInputPow[4],
-      "Fan Input Power 6": r.fanInputPow[5],
-      "Fan Input Power 7": r.fanInputPow[6],
-      "Fan Input Power 8": r.fanInputPow[7],
-      "Fan Input Power 9": r.fanInputPow[8],
-      "Fan Input Power 10": r.fanInputPow[9],
+      "Air Flow 1": arrAt(r.airFlow, 0),
+      "Air Flow 2": arrAt(r.airFlow, 1),
+      "Air Flow 3": arrAt(r.airFlow, 2),
+      "Air Flow 4": arrAt(r.airFlow, 3),
+      "Air Flow 5": arrAt(r.airFlow, 4),
+      "Air Flow 6": arrAt(r.airFlow, 5),
+      "Air Flow 7": arrAt(r.airFlow, 6),
+      "Air Flow 8": arrAt(r.airFlow, 7),
+      "Air Flow 9": arrAt(r.airFlow, 8),
+      "Air Flow 10": arrAt(r.airFlow, 9),
+      "Total Pressure 1": arrAt(r.totPressure, 0),
+      "Total Pressure 2": arrAt(r.totPressure, 1),
+      "Total Pressure 3": arrAt(r.totPressure, 2),
+      "Total Pressure 4": arrAt(r.totPressure, 3),
+      "Total Pressure 5": arrAt(r.totPressure, 4),
+      "Total Pressure 6": arrAt(r.totPressure, 5),
+      "Total Pressure 7": arrAt(r.totPressure, 6),
+      "Total Pressure 8": arrAt(r.totPressure, 7),
+      "Total Pressure 9": arrAt(r.totPressure, 8),
+      "Total Pressure 10": arrAt(r.totPressure, 9),
+      "Velocity Pressure 1": arrAt(r.velPressure, 0),
+      "Velocity Pressure 2": arrAt(r.velPressure, 1),
+      "Velocity Pressure 3": arrAt(r.velPressure, 2),
+      "Velocity Pressure 4": arrAt(r.velPressure, 3),
+      "Velocity Pressure 5": arrAt(r.velPressure, 4),
+      "Velocity Pressure 6": arrAt(r.velPressure, 5),
+      "Velocity Pressure 7": arrAt(r.velPressure, 6),
+      "Velocity Pressure 8": arrAt(r.velPressure, 7),
+      "Velocity Pressure 9": arrAt(r.velPressure, 8),
+      "Velocity Pressure 10": arrAt(r.velPressure, 9),
+      "Static Pressure 1": arrAt(r.staticPressure, 0),
+      "Static Pressure 2": arrAt(r.staticPressure, 1),
+      "Static Pressure 3": arrAt(r.staticPressure, 2),
+      "Static Pressure 4": arrAt(r.staticPressure, 3),
+      "Static Pressure 5": arrAt(r.staticPressure, 4),
+      "Static Pressure 6": arrAt(r.staticPressure, 5),
+      "Static Pressure 7": arrAt(r.staticPressure, 6),
+      "Static Pressure 8": arrAt(r.staticPressure, 7),
+      "Static Pressure 9": arrAt(r.staticPressure, 8),
+      "Static Pressure 10": arrAt(r.staticPressure, 9),
+      "Fan Input Power 1": arrAt(r.fanInputPow, 0),
+      "Fan Input Power 2": arrAt(r.fanInputPow, 1),
+      "Fan Input Power 3": arrAt(r.fanInputPow, 2),
+      "Fan Input Power 4": arrAt(r.fanInputPow, 3),
+      "Fan Input Power 5": arrAt(r.fanInputPow, 4),
+      "Fan Input Power 6": arrAt(r.fanInputPow, 5),
+      "Fan Input Power 7": arrAt(r.fanInputPow, 6),
+      "Fan Input Power 8": arrAt(r.fanInputPow, 7),
+      "Fan Input Power 9": arrAt(r.fanInputPow, 8),
+      "Fan Input Power 10": arrAt(r.fanInputPow, 9),
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
     }));

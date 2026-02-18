@@ -29,9 +29,9 @@ export default function CentrifugalFanSelectionPage() {
             airFlow: "CFM",
             pressure: "Pa",
             power: "kW",
-            insulationClass: "F",
+            fanType: null,
         },
-        input: { RPM: 1440, TempC: 20, fanUnitNo: "EX-01", SPF: 10, frictionLosses: 15, directivityFactor: 1, distanceFromSource: 3, beltType: "SPA", motorPoles: 4, maxRPMChange: 50 },
+        input: { TempC: 20, fanUnitNo: "EX-01" },
     };
 
     const handleInputChange = (e) => {
@@ -69,13 +69,13 @@ export default function CentrifugalFanSelectionPage() {
                 fanType: units.centrifugalFanType,
             },
             input: {
-                RPM: parseFloat(input.RPM) || DEFAULTS.input.RPM,
                 TempC: parseFloat(input.TempC) || DEFAULTS.input.TempC,
                 airFlow: parseFloat(input.airFlow),
                 staticPressure: parseFloat(input.staticPressure),
                 fanUnitNo: input.fanUnitNo || DEFAULTS.input.fanUnitNo,
             },
         };
+        console.log("Submitting centrifugal payload:", payload);
 
         try {
             const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "";
@@ -108,7 +108,6 @@ export default function CentrifugalFanSelectionPage() {
 
     const handleClearAll = () => {
         setInput({
-            RPM: DEFAULTS.input.RPM,
             TempC: DEFAULTS.input.TempC,
             airFlow: "",
             staticPressure: "",
@@ -198,21 +197,7 @@ export default function CentrifugalFanSelectionPage() {
                                 <Box {...sectionTitleStyle}>
                                     <Text fontSize="md" fontWeight="semibold" color="#1e293b">⚙️ Basic Parameters</Text>
                                 </Box>
-                                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(4, 1fr)" }} gap={4}>
-                                    <Box>
-                                        <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                                            <Text {...labelStyle}>RPM</Text>
-                                            <Text color="#94a3b8" fontSize="sm">⟳</Text>
-                                        </Box>
-                                        <Input
-                                            name="RPM"
-                                            type="number"
-                                            value={input.RPM || ""}
-                                            onChange={handleInputChange}
-                                            placeholder="1440"
-                                            {...inputStyle}
-                                        />
-                                    </Box>
+                                <Grid templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }} gap={4}>
                                     <Box>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                                             <Text {...labelStyle}>Temperature</Text>

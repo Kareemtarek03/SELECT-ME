@@ -56,7 +56,8 @@
   background: #ffffff;
   border-radius: 0.5rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
+  overflow: auto;
+  max-height: 500px;
   border: 1px solid #e2e8f0;
   margin-bottom: 1rem;
 }
@@ -69,6 +70,9 @@
 .results-table thead {
   background: #f8fafc;
   border-bottom: 2px solid #e2e8f0;
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .results-table th {
@@ -79,6 +83,7 @@
   font-size: 0.8125rem;
   text-transform: none;
   letter-spacing: 0;
+  background: #f8fafc;
 }
 
 .results-table th.center {

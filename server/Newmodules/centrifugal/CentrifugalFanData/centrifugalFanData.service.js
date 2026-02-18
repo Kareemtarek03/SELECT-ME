@@ -68,8 +68,8 @@ function applyUnitConversions(rawData, units = {}) {
     arr.map((v) => (typeof v === "number" && !isNaN(v) ? v * factor : null));
 
   const airFlowUnit = units.airFlow || "m³/s";
-  const pressureUnit = units.staticPressure || "Pa";
-  const powerUnit = units.fanInputPower || "kW";
+  const pressureUnit = units.pressure || units.staticPressure || "Pa";
+  const powerUnit = units.power || units.fanInputPower || "kW";
 
   const airFlowConversionFactor = airFlowConverters[airFlowUnit] || 1;
   const pressureConversionFactor = pressureConverters[pressureUnit] || 1;
@@ -299,6 +299,50 @@ function calculatePhase4(
 }
 
 // ============================================================================
+// Static Pressure Tolerance Lookup Table
+// ============================================================================
+// Returns the tolerance percentage based on static pressure in Pa.
+// The table maps pressure ranges to percentage tolerances:
+//   25 Pa -> 50%, 50 Pa -> 35%, 100 Pa -> 25%, ... 600+ Pa -> 5%
+function getStaticPressureTolerancePct(staticPressurePa) {
+  const table = [
+    { pa: 25, pct: 50.0 },
+    { pa: 50, pct: 35.0 },
+    { pa: 100, pct: 25.0 },
+    { pa: 150, pct: 20.0 },
+    { pa: 200, pct: 17.5 },
+    { pa: 250, pct: 15.0 },
+    { pa: 300, pct: 12.5 },
+    { pa: 350, pct: 10.0 },
+    { pa: 400, pct: 10.0 },
+    { pa: 450, pct: 7.5 },
+    { pa: 500, pct: 7.5 },
+    { pa: 550, pct: 7.5 },
+    { pa: 600, pct: 5.0 },
+  ];
+  const sp = Math.abs(staticPressurePa);
+  // If below the lowest threshold, use the highest tolerance
+  if (sp <= table[0].pa) return table[0].pct;
+  // Walk through the table; return the percentage for the first bracket that covers sp
+  for (let i = 0; i < table.length; i++) {
+    if (sp <= table[i].pa) return table[i].pct;
+  }
+  // Above 600 Pa -> 5%
+  return 5.0;
+}
+
+// Pressure unit converters (Pa -> user unit multipliers)
+// Used to convert user-unit pressure back to Pa for tolerance lookup
+const pressureToleranceConverters = {
+  Pa: 1,
+  kPa: 0.001,
+  bar: 1e-5,
+  psi: 0.000145038,
+  Psi: 0.000145038,
+  "in.wg": 0.004018647,
+};
+
+// ============================================================================
 // PHASE 5: Find Matching RPM using Linear Interpolation
 // ============================================================================
 // Port of VBA InterpolateInMemory function
@@ -342,7 +386,8 @@ function interpolateInMemory(Xmins, Ymins, nPts, xSel, ratio) {
 // fanData = { rawFan, phase2Converted } - raw fan metadata + Phase 2 converted curve data
 // selX = user air flow input (in user units, e.g., CFM)
 // selY = user static pressure input (in user units, e.g., Pa)
-function calculatePhase5(fanData, selX, selY) {
+// pressureUnit = the unit of selY (e.g., 'Pa', 'in.wg', 'kPa', 'psi', 'bar')
+function calculatePhase5(fanData, selX, selY, pressureUnit) {
   const { rawFan, phase2Converted } = fanData;
 
   if (!rawFan || !phase2Converted) {
@@ -409,6 +454,13 @@ function calculatePhase5(fanData, selX, selY) {
   const rpmStart = Math.round(minRPM);
   const rpmEnd = Math.round(maxRPM) + 50;
 
+  // Dynamic tolerance: convert selY to Pa, then look up percentage from table
+  const convFactor = pressureToleranceConverters[pressureUnit] || 1;
+  const selY_Pa = convFactor !== 0 ? selY / convFactor : selY;
+  const tolerancePct = getStaticPressureTolerancePct(selY_Pa);
+  const tolFraction = tolerancePct / 100;
+  console.log(`Phase 5 tolerance: selY=${selY} ${pressureUnit || 'Pa'}, selY_Pa=${selY_Pa.toFixed(1)}, tolerancePct=${tolerancePct}%`);
+
   for (let rpm = rpmStart; rpm <= rpmEnd; rpm++) {
     // ratio = rpm / minRPM (matches VBA)
     const ratio = rpm / minRPM;
@@ -418,9 +470,8 @@ function calculatePhase5(fanData, selX, selY) {
     const predY = interpolateInMemory(Xmins, Ymins, nPts, selX, ratio);
 
     if (predY !== null) {
-      // Match condition: |predY - SelY| <= 0.02 * |SelY|
-      // VBA: If Abs(predY - SelY) <= 0.02 * Abs(SelY) Then
-      if (Math.abs(predY - selY) <= 0.02 * Math.abs(selY)) {
+      // Match condition: |predY - SelY| <= tolFraction * |SelY|
+      if (Math.abs(predY - selY) <= tolFraction * Math.abs(selY)) {
         matchingRPM = rpm;
         break;
       }
@@ -2623,9 +2674,7 @@ export async function processFanDataService(inputOptions) {
     throw new Error("Invalid or missing input.TempC");
   }
 
-  if (!input.RPM || typeof input.RPM !== "number" || isNaN(input.RPM)) {
-    throw new Error("Invalid or missing input.RPM");
-  }
+  // Note: RPM validation removed - RPM is calculated dynamically per fan, not required as input
 
   // Calculate input density from temperature
   const inputDensity = calcDensity(input.TempC);
@@ -2764,10 +2813,12 @@ export async function processFanDataService(inputOptions) {
 
       if (matchingIndices.length > 0) {
         // Calculate Phase 5 for each matching fan using Phase 2 converted data
+        // Pass pressure unit for dynamic tolerance calculation
+        const pressureUnit = units.pressure || units.staticPressure || "Pa";
         phase5Result = matchingIndices.map((idx) => {
           const rawFan = rawData[idx];
           const phase2Converted = results[idx].phase2.converted;
-          const p5Result = calculatePhase5({ rawFan, phase2Converted }, selX, selY);
+          const p5Result = calculatePhase5({ rawFan, phase2Converted }, selX, selY, pressureUnit);
           // Store the index for Phase 6 lookup
           return { ...p5Result, fanIndex: idx };
         });

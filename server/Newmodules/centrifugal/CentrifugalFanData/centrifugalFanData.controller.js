@@ -61,12 +61,7 @@ export async function processFanDataController(req, res) {
       });
     }
 
-    if (input.RPM === undefined || input.RPM === null) {
-      return res.status(400).json({
-        error: "Missing required field",
-        details: "input.RPM is required",
-      });
-    }
+    // RPM is not required from user input - it is determined by Phase 5 matching
 
     // Use centrifugalFan.json for new calculation logic
     const filePath = "centrifugalFan.json"; // Temporarily using JSON instead of DB
@@ -853,12 +848,12 @@ export async function processPhase18AllController(req, res) {
           // Motor data
           motor: motor
             ? {
-                powerKW: motor.powerKW || motor["Power (kW)"],
-                powerHP: motor.powerHP || motor["Power (HP)"],
-                noOfPoles: motor.noOfPoles || motor["No of Poles"],
-                frame: motor.frame || motor["Frame"],
-                shaftDiameter: motor.shaftDiameter || motor["Shaft Diameter"],
-              }
+              powerKW: motor.powerKW || motor["Power (kW)"],
+              powerHP: motor.powerHP || motor["Power (HP)"],
+              noOfPoles: motor.noOfPoles || motor["No of Poles"],
+              frame: motor.frame || motor["Frame"],
+              shaftDiameter: motor.shaftDiameter || motor["Shaft Diameter"],
+            }
             : null,
 
           // Sound data
