@@ -3,7 +3,6 @@ import {
   exportFanData,
   importFanDataFromExcel,
 } from "./axialFanData.service.js";
-import fs from "fs";
 
 // Prisma client - lazy loaded only when needed (for database mode)
 let prisma = null;
@@ -23,12 +22,11 @@ async function getPrismaClient() {
 export async function processFanDataController(req, res) {
   try {
     const { units, input } = req.body;
-    const filePath = "axialFan.json"; // Temporarily using JSON instead of DB
     const result = await processFanDataService({
-      filePath,
+      filePath: "db",
       units,
       input,
-      dataSource: "file", // Temporarily using JSON instead of DB
+      dataSource: "db",
     });
 
     res.json({
@@ -46,8 +44,7 @@ export async function processFanDataController(req, res) {
 export async function NumericalEq(req, res) {
   try {
     const { units, input } = req.body;
-    const filePath = "axialFan.json"; // Temporarily using JSON instead of DB
-    const result = await main({ filePath, units, input, dataSource: "file" }); // Temporarily using JSON instead of DB
+    const result = await main({ filePath: "db", units, input, dataSource: "db" });
 
     res.json({
       message: "✅ Fan data processed successfully!",
@@ -69,7 +66,7 @@ export async function filter(req, res) {
     console.log(`units:`, JSON.stringify(units, null, 2));
     console.log(`input:`, JSON.stringify(input, null, 2));
 
-    const result = await Output({ units, input, dataSource: "file" }); // Temporarily using JSON instead of DB
+    const result = await Output({ units, input, dataSource: "db" });
 
     res.json({
       message: "✅ Fan data processed successfully!",
@@ -189,44 +186,19 @@ export async function deleteFanDataController(req, res) {
       return res.status(400).json({ error: "Invalid id" });
     }
 
-    try {
-      // attempt to delete from DB
-      const prismaClient = await getPrismaClient();
-      if (!prismaClient) throw new Error("Database not available");
-      await prismaClient.fanData.delete({ where: { id } });
-      return res.json({ message: `Deleted fan data with id=${id}` });
-    } catch (dbErr) {
-      // If DB delete fails (not found or DB not available), try file fallback
-      console.warn(
-        "DB delete failed, attempting file fallback:",
-        dbErr?.message
-      );
-      try {
-        const filePath = new URL("./axialFan.json", import.meta.url);
-        const p = filePath.pathname;
-        let arr = JSON.parse(fs.readFileSync(p, "utf8") || "[]");
-        const before = arr.length;
-        arr = arr.filter((x) => Number(x.id) !== id && Number(x.Id) !== id);
-        const after = arr.length;
-        if (after === before) {
-          return res.status(404).json({ error: "Not found" });
-        }
-        fs.writeFileSync(p, JSON.stringify(arr, null, 2), "utf8");
-        return res.json({
-          message: `Deleted fan data with id=${id} (file fallback)`,
-        });
-      } catch (fileErr) {
-        console.error("Failed to delete fan data in fallback file:", fileErr);
-        return res.status(500).json({
-          error: "Failed to delete fan data",
-          details: fileErr.message,
-        });
-      }
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) {
+      return res.status(503).json({ error: "Database not available" });
     }
+    await prismaClient.fanData.delete({ where: { id } });
+    return res.json({ message: `Deleted fan data with id=${id}` });
   } catch (err) {
+    if (err?.code === "P2025") {
+      return res.status(404).json({ error: "Not found", details: "No fan data with that id" });
+    }
     console.error("Error in deleteFanDataController:", err);
     res
       .status(500)
-      .json({ error: "Failed to delete fan data", details: err.message });
+      .json({ error: "Failed to delete fan data", details: err?.message });
   }
 }

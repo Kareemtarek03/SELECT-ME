@@ -23,34 +23,35 @@ export default function DeleteConfirmModal({
       zIndex="1000"
     >
       <Box
-        bg="var(--bg-card)"
+        bg="#ffffff"
         p={6}
         borderRadius="lg"
         maxW="400px"
         borderWidth="1px"
-        borderColor="var(--border-color)"
+        borderColor="#e2e8f0"
+        boxShadow="0 4px 12px rgba(0,0,0,0.15)"
       >
-        <Box fontSize="lg" fontWeight="bold" color="var(--text-primary)" mb={4}>
+        <Box fontSize="lg" fontWeight="bold" color="#1e293b" mb={4}>
           Confirm Delete
         </Box>
-        <Box color="var(--text-muted)" mb={6}>
+        <Box color="#64748b" mb={6}>
           Are you sure you want to delete this {itemName}? This action cannot be
           undone.
         </Box>
         <Box display="flex" gap={3} justifyContent="flex-end">
           <Button
-            bg="var(--text-muted-2)"
-            color="var(--text-primary)"
+            bg="#e2e8f0"
+            color="#1e293b"
             onClick={onClose}
-            _hover={{ bg: "var(--border-color)" }}
+            _hover={{ bg: "#cbd5e1" }}
           >
             Cancel
           </Button>
           <Button
-            bg="var(--error)"
+            bg="#dc2626"
             color="white"
             onClick={onConfirm}
-            _hover={{ bg: "var(--error)" }}
+            _hover={{ bg: "#b91c1c" }}
           >
             Delete
           </Button>

@@ -263,6 +263,39 @@ export const PricingItemsController = {
             res.status(500).json({ error: "Failed to fetch pricing logs" });
         }
     },
+
+    async exportTemplate(req, res) {
+        try {
+            const categoryName = req.query.categoryName || "axial_pricing";
+            const buffer = await PricingItemsService.exportTemplate(categoryName);
+            const filename = `PricingItems-${categoryName}-template.xlsx`;
+            res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+            res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            res.send(buffer);
+        } catch (error) {
+            console.error("Export template error:", error);
+            res.status(500).json({ error: error.message || "Failed to export template" });
+        }
+    },
+
+    async importTemplate(req, res) {
+        try {
+            const { fileBase64, filename, categoryName = "axial_pricing" } = req.body;
+            if (!fileBase64) {
+                return res.status(400).json({ error: "fileBase64 is required" });
+            }
+            const buffer = Buffer.from(fileBase64, "base64");
+            const result = await PricingItemsService.importFromExcel(buffer, categoryName);
+            res.json({
+                message: `Import complete: ${result.updated} item(s) updated.`,
+                updated: result.updated,
+                errors: result.errors,
+            });
+        } catch (error) {
+            console.error("Import template error:", error);
+            res.status(500).json({ error: error.message || "Failed to import template" });
+        }
+    },
 };
 
 export default PricingItemsController;

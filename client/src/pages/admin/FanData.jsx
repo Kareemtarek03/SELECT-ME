@@ -207,8 +207,8 @@ export default function FanDataPage() {
   const pageRows = rows.slice(start, end);
 
   return (
-    <Box p={4} bg="var(--bg-page)" color="var(--text-primary)">
-      <Heading mb={4} fontSize={"4xl"} textAlign={"center"}>
+    <Box p={4} bg="#f8fafc" color="#1e293b">
+      <Heading mb={4} fontSize={"4xl"} textAlign={"center"} color="#1e293b">
         Fan Data
       </Heading>
 
@@ -216,11 +216,9 @@ export default function FanDataPage() {
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
-            bg="var(--accent)"
-            _hover={{
-              bg: "#2563eb",
-              boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-            }}
+            bg="#3b82f6"
+            color="white"
+            _hover={{ bg: "#2563eb" }}
             onClick={fetchData}
             isDisabled={loading}
           >
@@ -232,19 +230,18 @@ export default function FanDataPage() {
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
-            bg="var(--success)"
-            _hover={{ bg: "#059669" }}
+            bg="#059669"
+            color="white"
+            _hover={{ bg: "#047857" }}
             onClick={downloadFanTemplate}
           >
             Download Template
           </Button>
           <Button
             size="sm"
-            bg="var(--accent)"
-            _hover={{
-              bg: "#2563eb",
-              boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-            }}
+            bg="#3b82f6"
+            color="white"
+            _hover={{ bg: "#2563eb" }}
             onClick={() =>
               document.getElementById("fandata-file-input")?.click()
             }
@@ -303,12 +300,10 @@ export default function FanDataPage() {
 
           <Button
             size="sm"
-            bg="var(--accent)"
+            bg="#3b82f6"
+            color="white"
             isLoading={downloading}
-            _hover={{
-              bg: "#2563eb",
-              boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-            }}
+            _hover={{ bg: "#2563eb" }}
             onClick={async () => {
               try {
                 setDownloading(true);
@@ -414,8 +409,8 @@ export default function FanDataPage() {
             boxShadow="0 1px 3px rgba(0,0,0,0.08)"
           >
             <Table.Root bg="transparent" w={"max-content"}>
-              <Table.Header bg="#f1f5f9" color="var(--text-primary)">
-                <Table.Row bg="#f1f5f9" color="var(--text-primary)">
+              <Table.Header bg="#f1f5f9" color="#1e293b">
+                <Table.Row bg="#f1f5f9" color="#1e293b">
                   <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
                     Actions
                   </Table.ColumnHeader>
@@ -476,9 +471,9 @@ export default function FanDataPage() {
                 </Table.Row>
               </Table.Header>
 
-              <Table.Body borderColor="var(--border-color)">
+              <Table.Body borderColor="#e2e8f0">
                 {pageRows.map((r, idx) => {
-                  const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
+                  const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
                   // Show row if it has an Id (or at least one series value when we have series columns)
                   const hasId = r.Id != null && r.Id !== "";
                   const hasSeriesData =
@@ -491,10 +486,11 @@ export default function FanDataPage() {
                   return (
                     <Table.Row
                       bg={rowBg}
-                      color="var(--text-primary)"
+                      color="#1e293b"
                       key={`${r.Id}-${idx}`}
+                      _hover={{ bg: "#f1f5f9" }}
                     >
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {(() => {
                           const fanId = r.Id ?? null;
                           if (!fanId) return "-";
@@ -502,7 +498,9 @@ export default function FanDataPage() {
                           return (
                             <Button
                               size="xs"
-                              colorScheme="red"
+                              bg="#1e293b"
+                              color="white"
+                              _hover={{ bg: "#0f172a" }}
                               isLoading={isDeleting}
                               onClick={() => {
                                 setSelectedFan({ id: fanId, row: r });
@@ -514,39 +512,39 @@ export default function FanDataPage() {
                           );
                         })()}
                       </Table.Cell>
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {formatValue(r.Id)}
                       </Table.Cell>
-                      <Table.Cell borderBottomColor="var(--border-color)">
+                      <Table.Cell borderBottomColor="#e2e8f0">
                         {formatValue(r.desigDensity)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid var(--border-color)"
-                        borderBottomColor="var(--border-color)"
+                        borderRight="1px solid #e2e8f0"
+                        borderBottomColor="#e2e8f0"
                       >
                         {formatValue(r.RPM)}
                       </Table.Cell>
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {formatValue(r.Blades.symbol)}
                       </Table.Cell>
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {formatValue(r.Blades.material)}
                       </Table.Cell>
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {formatValue(r.Blades.angle)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid var(--border-color)"
-                        borderBottomColor="var(--border-color)"
+                        borderRight="1px solid #e2e8f0"
+                        borderBottomColor="#e2e8f0"
                       >
                         {formatValue(r.Blades.noBlades)}
                       </Table.Cell>
-                      <Table.Cell borderColor="var(--border-color)">
+                      <Table.Cell borderColor="#e2e8f0">
                         {formatValue(r.Impeller.innerDia)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid var(--border-color)"
-                        borderBottomColor="var(--border-color)"
+                        borderRight="1px solid #e2e8f0"
+                        borderBottomColor="#e2e8f0"
                       >
                         {formatValue(r.Impeller.conf)}
                       </Table.Cell>
@@ -555,8 +553,8 @@ export default function FanDataPage() {
                         const end = col.endsWith("10");
                         return (
                           <Table.Cell
-                            borderRight={end ? "1px solid var(--border-color)" : "none"}
-                            borderBottomColor="var(--border-color)"
+                            borderRight={end ? "1px solid #e2e8f0" : "none"}
+                            borderBottomColor="#e2e8f0"
                             key={col}
                           >
                             {formatValue(r[col])}
@@ -575,18 +573,22 @@ export default function FanDataPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               isDisabled={page === 0}
-              bg="var(--accent)"
+              bg="#3b82f6"
+              color="white"
+              _hover={{ bg: "#2563eb" }}
             >
               Prev
             </Button>
-            <Text fontSize="sm">
+            <Text fontSize="sm" color="#1e293b">
               Page {page + 1} of {totalPages}
             </Text>
             <Button
               size="sm"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               isDisabled={page >= totalPages - 1}
-              bg="var(--accent)"
+              bg="#3b82f6"
+              color="white"
+              _hover={{ bg: "#2563eb" }}
             >
               Next
             </Button>
@@ -597,33 +599,35 @@ export default function FanDataPage() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)">
+            <Dialog.Content bg="#ffffff" color="#1e293b" border="1px solid #e2e8f0" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
               <Dialog.Header>
-                <Dialog.Title>Delete Fan Data</Dialog.Title>
+                <Dialog.Title color="#1e293b">Delete Fan Data</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 {selectedFan ? (
-                  <Text>
+                  <Text color="#64748b">
                     Are you sure you want to delete fan ID{" "}
                     <strong>{selectedFan.id}</strong>? This cannot be undone.
                   </Text>
                 ) : (
-                  <Text>No fan selected.</Text>
+                  <Text color="#64748b">No fan selected.</Text>
                 )}
               </Dialog.Body>
               <Dialog.Footer>
                 <Dialog.ActionTrigger asChild>
                   <Button
-                    variant="solid"
-                    color="var(--text-primary)"
-                    bg="var(--bg-elevated)"
+                    bg="#e2e8f0"
+                    color="#1e293b"
+                    _hover={{ bg: "#cbd5e1" }}
                     onClick={() => setOpenDialog(false)}
                   >
                     Cancel
                   </Button>
                 </Dialog.ActionTrigger>
                 <Button
-                  colorScheme="red"
+                  bg="#1e293b"
+                  color="white"
+                  _hover={{ bg: "#0f172a" }}
                   onClick={() => handleDelete(selectedFan?.id)}
                   isLoading={
                     selectedFan && deletingIds.includes(selectedFan.id)
@@ -635,8 +639,8 @@ export default function FanDataPage() {
               <Dialog.CloseTrigger asChild>
                 <CloseButton
                   size="sm"
-                  color="var(--text-primary)"
-                  _hover={{ bg: "var(--bg-elevated)" }}
+                  color="#1e293b"
+                  _hover={{ bg: "#f1f5f9" }}
                   onClick={() => setOpenDialog(false)}
                 />
               </Dialog.CloseTrigger>

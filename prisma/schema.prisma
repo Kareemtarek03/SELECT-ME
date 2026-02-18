@@ -368,39 +368,47 @@ model CentrifugalMotorData {
   @@map("centrifugal_motor_data")
 }
 
-// Pulley Database
+// Pulley Database (from pully database.json)
 model PulleyData {
-  id            Int       @id @default(autoincrement())
-  beltSection   String?
-  minPD         Float?
-  maxPD         Float?
-  grooves       Int?
-  data          String    // JSON stored as string for complex pulley data
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id             Int      @id @default(autoincrement())
+  no             Int?     // No (row number from JSON)
+  beltType       String?  // Belt Type (SPZ, SPA, SPB, SPC)
+  grooves        Int?     // No. of Grooves
+  pitchDiameter  Float?   // Pitch Diameter (mm)
+  bushNo         String?  // Bush No.
+  minBore        Int?     // Min Bore (mm)
+  maxBore        Int?     // Max Bore (mm)
+  widthF         Float?   // F (Width) (mm)
+  condition      String?  // Conditation (e.g. TRUE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("pulley_data")
 }
 
-// Belt Length Standards
+// Belt Length per Standard (from Belt Length per Standard.json)
 model BeltLengthStandard {
-  id            Int       @id @default(autoincrement())
-  beltSection   String?
-  lengths       String    // JSON array of standard lengths
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id       Int     @id @default(autoincrement())
+  spz      Float?  // Standard length SPZ (mm)
+  spa      Float?  // Standard length SPA (mm)
+  spb      Float?  // Standard length SPB (mm)
+  spc      Float?  // Standard length SPC (mm)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("belt_length_standard")
 }
 
-// Pulley Standards
+// Pulley Standards (from Pulleys Standard .json)
 model PulleyStandard {
-  id            Int       @id @default(autoincrement())
-  beltSection   String?
-  minPD         Float?
-  maxPD         Float?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id       Int     @id @default(autoincrement())
+  no       Int?    // No (row index)
+  spz      Float?  // Pitch diameter SPZ (mm)
+  spa      Float?  // Pitch diameter SPA (mm)
+  spb      Float?  // Pitch diameter SPB (mm)
+  spc      Float?  // Pitch diameter SPC (mm)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("pulley_standard")
 }

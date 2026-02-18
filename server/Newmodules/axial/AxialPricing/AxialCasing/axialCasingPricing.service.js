@@ -96,7 +96,6 @@ export const AxialCasingPricingService = {
       );
 
       let totalCost = 0;
-      let totalCostWithVat = 0;
       try {
         totalCost = calculateTotalCost(casing, pricingItems);
 
@@ -111,11 +110,13 @@ export const AxialCasingPricingService = {
         console.error("Error calculating total cost:", error);
       }
 
-      return {
-        ...casing,
-        weightWithScrap,
-        totalCost,
-      };
+      const totalCostWithVat = totalCost * 1.14;
+      // Return plain object with numbers so JSON serialization is reliable
+      const row = { ...casing };
+      row.weightWithScrap = Number(weightWithScrap);
+      row.totalCost = Number(totalCost);
+      row.totalCostWithVat = Number(totalCostWithVat);
+      return row;
     });
   },
 

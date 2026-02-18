@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import xlsx from "xlsx";
 import * as pricingUtils from "../shared/pricingUtils.js";
 import {
     recalculateAllMotorPrices,
@@ -340,6 +341,78 @@ export const PricingItemsService = {
                 pages: Math.ceil(total / parseInt(limit)),
             },
         };
+    },
+
+    /**
+     * Export pricing items as Excel template (all details; user edits mainly prices)
+     * @param {string} categoryName - e.g. "axial_pricing"
+     * @returns {Buffer} - xlsx file buffer
+     */
+    async exportTemplate(categoryName = "axial_pricing") {
+        const category = await this.getCategoryByName(categoryName);
+        if (!category || !category.items || category.items.length === 0) {
+            throw new Error(`Category "${categoryName}" not found or has no items`);
+        }
+        const rows = category.items.map((item) => ({
+            id: item.id,
+            sr: item.sr,
+            description: item.description,
+            unit: item.unit,
+            updatedDate: item.updatedDate || "",
+            priceWithoutVat: item.priceWithoutVat,
+            priceWithVat: item.priceWithVat,
+        }));
+        const ws = xlsx.utils.json_to_sheet(rows);
+        const wb = xlsx.utils.book_new();
+        xlsx.utils.book_append_sheet(wb, ws, "PricingItems");
+        return xlsx.write(wb, { type: "buffer", bookType: "xlsx" });
+    },
+
+    /**
+     * Import pricing items from Excel (match by id or sr, update prices)
+     * @param {Buffer} buffer - xlsx file buffer
+     * @param {string} categoryName - e.g. "axial_pricing"
+     * @returns {{ updated: number, errors: string[] }}
+     */
+    async importFromExcel(buffer, categoryName = "axial_pricing") {
+        const category = await this.getCategoryByName(categoryName);
+        if (!category) throw new Error(`Category "${categoryName}" not found`);
+        const workbook = xlsx.read(buffer, { type: "buffer" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = xlsx.utils.sheet_to_json(sheet, { defval: null });
+        if (!rows || rows.length === 0) return { updated: 0, errors: ["Sheet is empty"] };
+        const errors = [];
+        let updated = 0;
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+            const id = row.id != null ? parseInt(row.id) : null;
+            const sr = row.sr != null ? parseInt(row.sr) : null;
+            if (id == null && sr == null) continue;
+            const item = id != null
+                ? category.items.find((it) => it.id === id)
+                : category.items.find((it) => it.sr === sr);
+            if (!item) {
+                errors.push(`Row ${i + 2}: no item with id=${id ?? "?"} or sr=${sr ?? "?"}`);
+                continue;
+            }
+            const updateData = {};
+            if (row.priceWithoutVat !== undefined && row.priceWithoutVat !== null && row.priceWithoutVat !== "") {
+                const v = parseFloat(row.priceWithoutVat);
+                if (!Number.isNaN(v)) updateData.priceWithoutVat = v;
+            }
+            if (row.priceWithVat !== undefined && row.priceWithVat !== null && row.priceWithVat !== "") {
+                const v = parseFloat(row.priceWithVat);
+                if (!Number.isNaN(v)) updateData.priceWithVat = v;
+            }
+            if (Object.keys(updateData).length === 0) continue;
+            try {
+                await this.updateItem(item.id, updateData);
+                updated++;
+            } catch (err) {
+                errors.push(`Row ${i + 2} (id=${item.id}): ${err.message}`);
+            }
+        }
+        return { updated, errors };
     },
 };
 

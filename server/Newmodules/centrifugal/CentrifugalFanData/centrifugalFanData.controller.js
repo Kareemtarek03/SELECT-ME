@@ -10,8 +10,6 @@ import {
   processPhase19,
   processPhase20,
 } from "./centrifugalFanData.service.js";
-// import { PrismaClient } from "@prisma/client";
-import fs from "fs";
 
 // Initialize prisma as undefined to prevent ReferenceError
 let prisma;
@@ -63,13 +61,12 @@ export async function processFanDataController(req, res) {
 
     // RPM is not required from user input - it is determined by Phase 5 matching
 
-    // Use centrifugalFan.json for new calculation logic
-    const filePath = "centrifugalFan.json"; // Temporarily using JSON instead of DB
+    // Use database for centrifugal fan data (fallback to JSON if DB unavailable)
     const result = await processFanDataService({
-      filePath,
+      filePath: "db",
       units: units || {},
       input,
-      dataSource: "file", // Temporarily using JSON instead of DB
+      dataSource: "db",
       selectedFanType: units?.centrifugalFanType || units?.fanType, // Pass selected fan type for Phase 4
     });
 
@@ -105,46 +102,112 @@ export async function processFanDataController(req, res) {
     res.status(500).json(errorResponse);
   }
 }
-// Legacy functions removed - main() and Output() no longer exported from service
+// List centrifugal fan data (for admin and processFanDataService)
 export async function getOutputFile(req, res) {
   try {
-    // Check if Prisma is available
-    if (typeof prisma === "undefined") {
-      throw new Error("Database not available - Prisma not initialized");
+    const { getPrismaClient } = await import("./centrifugalFanData.service.js");
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) {
+      return res.status(503).json({ error: "Database not available" });
     }
-    // Read fan data directly from the database
-    const rows = await prisma.fanData.findMany();
-    const data = rows
-      .map((r) => ({
-        Id: r.id,
-        Blades: {
-          symbol: r.bladesSymbol,
-          material: r.bladesMaterial,
-          noBlades: r.noBlades,
-          angle: r.bladesAngle,
-        },
-        Impeller: {
-          innerDia: r.impellerInnerDia,
-          conf: r.impellerConf,
-        },
-        desigDensity: r.desigDensity,
-        RPM: r.RPM,
-        airFlow: r.airFlow,
-        totPressure: r.totPressure,
-        velPressure: r.velPressure,
-        staticPressure: r.staticPressure,
-        fanInputPow: r.fanInputPow,
-        createdAt: r.createdAt,
-        updatedAt: r.updatedAt,
-      }))
-      .sort((a, b) => (a.Id || 0) - (b.Id || 0)); // sort by Id if available
-
-    res.json({ message: "✅ Output data (from DB)", data });
+    const rows = await prismaClient.centrifugalFanData.findMany({
+      orderBy: { id: "asc" },
+    });
+    const data = rows.map((r) => ({
+      id: r.id,
+      bladesType: r.bladesType,
+      bladesModel: r.bladesModel,
+      minSpeedRPM: r.minSpeedRPM,
+      highSpeedRPM: r.highSpeedRPM,
+      impellerType: r.impellerType,
+      fanShaftDiameter: r.fanShaftDiameter,
+      innerDiameter: r.innerDiameter,
+      desigDensity: r.desigDensity,
+      RPM: r.RPM,
+      airFlow: r.airFlow,
+      totPressure: r.totPressure,
+      velPressure: r.velPressure,
+      staticPressure: r.staticPressure,
+      fanInputPow: r.fanInputPow,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+    res.json({ message: "✅ Centrifugal fan data (from DB)", data });
   } catch (err) {
-    console.error("Failed to read output file", err);
+    console.error("Failed to read centrifugal fan data", err);
     res
       .status(500)
-      .json({ error: "Failed to read output file", details: err.message });
+      .json({ error: "Failed to read fan data", details: err.message });
+  }
+}
+
+// Create centrifugal fan (admin CRUD)
+export async function createCentrifugalFanController(req, res) {
+  try {
+    const body = req.body || {};
+    const { getPrismaClient } = await import("./centrifugalFanData.service.js");
+    const prisma = await getPrismaClient();
+    if (!prisma) return res.status(503).json({ error: "Database not available" });
+    const airFlow = typeof body.airFlow === "string" ? body.airFlow : JSON.stringify(body.airFlow || []);
+    const totPressure = typeof body.totPressure === "string" ? body.totPressure : JSON.stringify(body.totPressure || []);
+    const velPressure = typeof body.velPressure === "string" ? body.velPressure : JSON.stringify(body.velPressure || []);
+    const staticPressure = typeof body.staticPressure === "string" ? body.staticPressure : JSON.stringify(body.staticPressure || []);
+    const fanInputPow = typeof body.fanInputPow === "string" ? body.fanInputPow : JSON.stringify(body.fanInputPow || []);
+    const created = await prisma.centrifugalFanData.create({
+      data: {
+        bladesType: body.bladesType ?? null,
+        bladesModel: body.bladesModel ?? null,
+        minSpeedRPM: body.minSpeedRPM != null ? Number(body.minSpeedRPM) : null,
+        highSpeedRPM: body.highSpeedRPM != null ? Number(body.highSpeedRPM) : null,
+        impellerType: body.impellerType ?? null,
+        fanShaftDiameter: body.fanShaftDiameter != null ? Number(body.fanShaftDiameter) : null,
+        innerDiameter: body.innerDiameter != null ? Number(body.innerDiameter) : null,
+        desigDensity: body.desigDensity != null ? Number(body.desigDensity) : null,
+        RPM: body.RPM != null ? Number(body.RPM) : null,
+        airFlow,
+        totPressure,
+        velPressure,
+        staticPressure,
+        fanInputPow,
+      },
+    });
+    return res.status(201).json(created);
+  } catch (e) {
+    console.error("createCentrifugalFanController", e);
+    return res.status(500).json({ error: e.message || "Create failed" });
+  }
+}
+
+// Update centrifugal fan (admin CRUD)
+export async function updateCentrifugalFanController(req, res) {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+    const body = req.body || {};
+    const { getPrismaClient } = await import("./centrifugalFanData.service.js");
+    const prisma = await getPrismaClient();
+    if (!prisma) return res.status(503).json({ error: "Database not available" });
+    const data = {};
+    if (body.bladesType !== undefined) data.bladesType = body.bladesType;
+    if (body.bladesModel !== undefined) data.bladesModel = body.bladesModel;
+    if (body.minSpeedRPM !== undefined) data.minSpeedRPM = body.minSpeedRPM == null ? null : Number(body.minSpeedRPM);
+    if (body.highSpeedRPM !== undefined) data.highSpeedRPM = body.highSpeedRPM == null ? null : Number(body.highSpeedRPM);
+    if (body.impellerType !== undefined) data.impellerType = body.impellerType;
+    if (body.fanShaftDiameter !== undefined) data.fanShaftDiameter = body.fanShaftDiameter == null ? null : Number(body.fanShaftDiameter);
+    if (body.innerDiameter !== undefined) data.innerDiameter = body.innerDiameter == null ? null : Number(body.innerDiameter);
+    if (body.desigDensity !== undefined) data.desigDensity = body.desigDensity == null ? null : Number(body.desigDensity);
+    if (body.RPM !== undefined) data.RPM = body.RPM == null ? null : Number(body.RPM);
+    if (body.airFlow !== undefined) data.airFlow = typeof body.airFlow === "string" ? body.airFlow : JSON.stringify(body.airFlow);
+    if (body.totPressure !== undefined) data.totPressure = typeof body.totPressure === "string" ? body.totPressure : JSON.stringify(body.totPressure);
+    if (body.velPressure !== undefined) data.velPressure = typeof body.velPressure === "string" ? body.velPressure : JSON.stringify(body.velPressure);
+    if (body.staticPressure !== undefined) data.staticPressure = typeof body.staticPressure === "string" ? body.staticPressure : JSON.stringify(body.staticPressure);
+    if (body.fanInputPow !== undefined) data.fanInputPow = typeof body.fanInputPow === "string" ? body.fanInputPow : JSON.stringify(body.fanInputPow);
+    const updated = await prisma.centrifugalFanData.update({ where: { id }, data });
+    return res.json(updated);
+  } catch (e) {
+    if (e?.code === "P2025") return res.status(404).json({ error: "Not found" });
+    console.error("updateCentrifugalFanController", e);
+    return res.status(500).json({ error: e.message || "Update failed" });
   }
 }
 
@@ -203,7 +266,7 @@ export async function processPhase11Controller(req, res) {
     }
 
     // Process Phase 11
-    const result = processPhase11({
+    const result = await processPhase11({
       selectedFan,
       beltType,
       motorPoles: motorPolesNum,
@@ -215,6 +278,12 @@ export async function processPhase11Controller(req, res) {
         error: "Phase 11 calculation failed",
         details:
           "Could not calculate belt selection arrays. Check inputs and pulley database.",
+      });
+    }
+    if (result.error) {
+      return res.status(400).json({
+        error: result.error,
+        details: result.details || "Check inputs and pulley database.",
       });
     }
 
@@ -260,7 +329,7 @@ export async function processPhase12Controller(req, res) {
     }
 
     // Process Phase 12
-    const result = processPhase12({
+    const result = await processPhase12({
       phase11Result,
       selectedFan,
       frictionLossesPercent: parseFloat(frictionLossesPercent) || 0,
@@ -324,7 +393,7 @@ export async function processPhase13Controller(req, res) {
     }
 
     // Process Phase 13
-    const result = processPhase13({
+    const result = await processPhase13({
       netFanPowerKW: parseFloat(netFanPowerKW),
       userPoles: parseInt(userPoles),
       userPhases: parseInt(userPhases),
@@ -379,7 +448,7 @@ export async function processPhase14Controller(req, res) {
     }
 
     // Process Phase 14
-    const result = processPhase14({
+    const result = await processPhase14({
       phase11Arrays,
       phase13Motors,
       beltType,
@@ -441,7 +510,7 @@ export async function processPhase15Controller(req, res) {
     }
 
     // Process Phase 15
-    const result = processPhase15({
+    const result = await processPhase15({
       phase12Arrays,
       phase14Arrays,
       innerDiameter,
@@ -527,52 +596,21 @@ export async function deleteFanDataController(req, res) {
       return res.status(400).json({ error: "Invalid id" });
     }
 
-    try {
-      // Check if Prisma is available before attempting DB operation
-      if (typeof prisma === "undefined") {
-        throw new Error(
-          "Prisma not initialized - skipping DB delete, using file fallback"
-        );
-      }
-      // attempt to delete from DB
-      await prisma.fanData.delete({ where: { id } });
-      return res.json({ message: `Deleted fan data with id=${id}` });
-    } catch (dbErr) {
-      // If DB delete fails (not found or DB not available), try file fallback
-      console.warn(
-        "DB delete failed, attempting file fallback:",
-        dbErr?.message
-      );
-      try {
-        const filePath = new URL(
-          "../../../axial/AxialFanData/axialFan.json",
-          import.meta.url
-        );
-        const p = filePath.pathname;
-        let arr = JSON.parse(fs.readFileSync(p, "utf8") || "[]");
-        const before = arr.length;
-        arr = arr.filter((x) => Number(x.id) !== id && Number(x.Id) !== id);
-        const after = arr.length;
-        if (after === before) {
-          return res.status(404).json({ error: "Not found" });
-        }
-        fs.writeFileSync(p, JSON.stringify(arr, null, 2), "utf8");
-        return res.json({
-          message: `Deleted fan data with id=${id} (file fallback)`,
-        });
-      } catch (fileErr) {
-        console.error("Failed to delete fan data in fallback file:", fileErr);
-        return res.status(500).json({
-          error: "Failed to delete fan data",
-          details: fileErr.message,
-        });
-      }
+    const { getPrismaClient } = await import("./centrifugalFanData.service.js");
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) {
+      return res.status(503).json({ error: "Database not available" });
     }
+    await prismaClient.centrifugalFanData.delete({ where: { id } });
+    return res.json({ message: `Deleted centrifugal fan data with id=${id}` });
   } catch (err) {
+    if (err?.code === "P2025") {
+      return res.status(404).json({ error: "Not found", details: "No centrifugal fan data with that id" });
+    }
     console.error("Error in deleteFanDataController:", err);
     res
       .status(500)
-      .json({ error: "Failed to delete fan data", details: err.message });
+      .json({ error: "Failed to delete fan data", details: err?.message });
   }
 }
 

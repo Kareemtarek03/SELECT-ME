@@ -370,52 +370,176 @@ async function seedCentrifugalData() {
         });
     }
 
-    const motors = JSON.parse(fs.readFileSync(motorPath, "utf-8"));
-    for (const motor of motors) {
-        await client.centrifugalMotorData.create({
-            data: {
-                material: motor.Material || motor.material,
-                model: motor.Model || motor.model,
-                powerKW: parseFloat_(motor["Power (kW)"] || motor.powerKW),
-                speedRPM: parseFloat_(motor["Speed (RPM)"] || motor.speedRPM),
-                NoPoles: parseInt_(motor["No of Poles"] || motor.NoPoles),
-                powerFactor: parseFloat_(motor["Power factor Cos φ"] || motor.powerFactor),
-                Phase: parseInt_(motor.Phase),
-                frameSize: parseInt_(motor["Frame Size (mm)"] || motor.frameSize),
-                shaftDia: parseFloat_(motor["Shaft Diameter (mm)"] || motor.shaftDia),
-                shaftLength: parseFloat_(motor["Shaft Length (mm)"] || motor.shaftLength),
-                shaftFeather: parseFloat_(motor["Shaft Feather Key Length (mm)"] || motor.shaftFeather),
-                IE: parseInt_(motor.IE),
-                frontBear: motor["front Brearing"] || motor.frontBear,
-                rearBear: motor["Rear Bearing"] || motor.rearBear || "",
-                noiseLvl: parseInt_(motor["Noise Level (dB-A)"] || motor.noiseLvl),
-                weightKg: parseFloat_(motor["Weight (KG)"] || motor.weightKg),
-                insClass: motor["Insulation Class"] || motor.insClass,
-            },
-        });
+    if (fs.existsSync(pulleyPath)) {
+        const pulleyDb = JSON.parse(fs.readFileSync(pulleyPath, "utf-8"));
+        if (Array.isArray(pulleyDb)) {
+            for (const entry of pulleyDb) {
+                await client.pulleyData.create({
+                    data: {
+                        no: parseInt_(entry["No"]),
+                        beltType: entry["Belt Type"] || null,
+                        grooves: parseInt_(entry["No. of Grooves"]),
+                        pitchDiameter: parseFloat_(entry["Pitch Diameter"]),
+                        bushNo: entry["Bush No."] || null,
+                        minBore: parseInt_(entry["Min Bore"]),
+                        maxBore: parseInt_(entry["Max Bore"]),
+                        widthF: parseFloat_(entry["F (Width)"]),
+                        condition: entry["Conditation"] || null,
+                    },
+                });
+            }
+            console.log(`   PulleyData: ${pulleyDb.length} rows`);
+        }
+    } else {
+        console.warn(`⚠️ Pulley database not found: ${pulleyPath}`);
     }
 
-    const pulleyDb = JSON.parse(fs.readFileSync(pulleyPath, "utf-8"));
-    for (const [beltSection, data] of Object.entries(pulleyDb)) {
-        await client.pulleyData.create({
-            data: { beltSection, data: JSON.stringify(data) },
-        });
+    if (fs.existsSync(beltPath)) {
+        const beltLengths = JSON.parse(fs.readFileSync(beltPath, "utf-8"));
+        if (Array.isArray(beltLengths)) {
+            for (const entry of beltLengths) {
+                await client.beltLengthStandard.create({
+                    data: {
+                        spz: parseFloat_(entry.SPZ),
+                        spa: parseFloat_(entry.SPA),
+                        spb: parseFloat_(entry.SPB),
+                        spc: parseFloat_(entry.SPC),
+                    },
+                });
+            }
+            console.log(`   BeltLengthStandard: ${beltLengths.length} rows`);
+        }
+    } else {
+        console.warn(`⚠️ Belt Length per Standard not found: ${beltPath}`);
     }
 
-    const beltLengths = JSON.parse(fs.readFileSync(beltPath, "utf-8"));
-    for (const [beltSection, lengths] of Object.entries(beltLengths)) {
-        await client.beltLengthStandard.create({
-            data: { beltSection, lengths: JSON.stringify(lengths) },
-        });
+    if (fs.existsSync(pulleyStdPath)) {
+        const pulleyStandards = JSON.parse(fs.readFileSync(pulleyStdPath, "utf-8"));
+        if (Array.isArray(pulleyStandards)) {
+            for (const entry of pulleyStandards) {
+                await client.pulleyStandard.create({
+                    data: {
+                        no: parseInt_(entry.No),
+                        spz: parseFloat_(entry.SPZ),
+                        spa: parseFloat_(entry.SPA),
+                        spb: parseFloat_(entry.SPB),
+                        spc: parseFloat_(entry.SPC),
+                    },
+                });
+            }
+            console.log(`   PulleyStandard: ${pulleyStandards.length} rows`);
+        }
+    } else {
+        console.warn(`⚠️ Pulleys Standard not found: ${pulleyStdPath}`);
     }
 
-    const pulleyStandards = JSON.parse(fs.readFileSync(pulleyStdPath, "utf-8"));
-    for (const [beltSection, data] of Object.entries(pulleyStandards)) {
-        await client.pulleyStandard.create({
-            data: { beltSection, minPD: data.minPD, maxPD: data.maxPD },
-        });
+    if (fs.existsSync(motorPath)) {
+        const motors = JSON.parse(fs.readFileSync(motorPath, "utf-8"));
+        if (Array.isArray(motors)) {
+            for (const motor of motors) {
+                await client.centrifugalMotorData.create({
+                    data: {
+                        material: motor.Material || motor.material,
+                        model: motor.Model || motor.model,
+                        powerKW: parseFloat_(motor["Power (kW)"] || motor.powerKW),
+                        speedRPM: parseFloat_(motor["Speed (RPM)"] || motor.speedRPM),
+                        NoPoles: parseInt_(motor["No of Poles"] || motor.NoPoles),
+                        powerFactor: parseFloat_(motor["Power factor Cos φ"] || motor.powerFactor),
+                        Phase: parseInt_(motor.Phase),
+                        frameSize: parseInt_(motor["Frame Size (mm)"] || motor.frameSize),
+                        shaftDia: parseFloat_(motor["Shaft Diameter (mm)"] || motor.shaftDia),
+                        shaftLength: parseFloat_(motor["Shaft Length (mm)"] || motor.shaftLength),
+                        shaftFeather: parseFloat_(motor["Shaft Feather Key Length (mm)"] || motor.shaftFeather),
+                        IE: parseInt_(motor.IE),
+                        frontBear: motor["front Brearing"] || motor.frontBear,
+                        rearBear: motor["Rear Bearing"] || motor.rearBear || "",
+                        noiseLvl: parseInt_(motor["Noise Level (dB-A)"] || motor.noiseLvl),
+                        weightKg: parseFloat_(motor["Weight (KG)"] || motor.weightKg),
+                        insClass: motor["Insulation Class"] || motor.insClass,
+                    },
+                });
+            }
+            console.log(`   CentrifugalMotorData: ${motors.length} rows`);
+        }
+    } else {
+        console.warn(`⚠️ Centrifugal MotorData not found: ${motorPath}`);
     }
+
     console.log("✅ Centrifugal data seeded!");
+}
+
+/** Seed only pulley / belt reference tables if they are empty (e.g. after migration). Does not touch fan or motor data. */
+async function ensureCentrifugalReferenceData() {
+    const client = await getPrismaClient();
+    const pulleyCount = await client.pulleyData.count();
+    const beltCount = await client.beltLengthStandard.count();
+    const pulleyStdCount = await client.pulleyStandard.count();
+    if (pulleyCount > 0 && beltCount > 0 && pulleyStdCount > 0) return;
+
+    const basePath = path.join(BASE_PATH, "server/Newmodules/centrifugal/CentrifugalFanData/");
+    const pulleyPath = path.join(basePath, "pully database.json");
+    const beltPath = path.join(basePath, "Belt Length per Standard.json");
+    const pulleyStdPath = path.join(basePath, "Pulleys Standard .json");
+
+    if (pulleyCount === 0 && fs.existsSync(pulleyPath)) {
+        console.log("🔄 Seeding pulley_data (was empty)...");
+        const pulleyDb = JSON.parse(fs.readFileSync(pulleyPath, "utf-8"));
+        if (Array.isArray(pulleyDb)) {
+            for (const entry of pulleyDb) {
+                await client.pulleyData.create({
+                    data: {
+                        no: parseInt_(entry["No"]),
+                        beltType: entry["Belt Type"] || null,
+                        grooves: parseInt_(entry["No. of Grooves"]),
+                        pitchDiameter: parseFloat_(entry["Pitch Diameter"]),
+                        bushNo: entry["Bush No."] || null,
+                        minBore: parseInt_(entry["Min Bore"]),
+                        maxBore: parseInt_(entry["Max Bore"]),
+                        widthF: parseFloat_(entry["F (Width)"]),
+                        condition: entry["Conditation"] || null,
+                    },
+                });
+            }
+            console.log(`   PulleyData: ${pulleyDb.length} rows`);
+        }
+    }
+
+    if (beltCount === 0 && fs.existsSync(beltPath)) {
+        console.log("🔄 Seeding belt_length_standard (was empty)...");
+        const beltLengths = JSON.parse(fs.readFileSync(beltPath, "utf-8"));
+        if (Array.isArray(beltLengths)) {
+            for (const entry of beltLengths) {
+                await client.beltLengthStandard.create({
+                    data: {
+                        spz: parseFloat_(entry.SPZ),
+                        spa: parseFloat_(entry.SPA),
+                        spb: parseFloat_(entry.SPB),
+                        spc: parseFloat_(entry.SPC),
+                    },
+                });
+            }
+            console.log(`   BeltLengthStandard: ${beltLengths.length} rows`);
+        }
+    }
+
+    if (pulleyStdCount === 0 && fs.existsSync(pulleyStdPath)) {
+        console.log("🔄 Seeding pulley_standard (was empty)...");
+        const pulleyStandards = JSON.parse(fs.readFileSync(pulleyStdPath, "utf-8"));
+        if (Array.isArray(pulleyStandards)) {
+            for (const entry of pulleyStandards) {
+                await client.pulleyStandard.create({
+                    data: {
+                        no: parseInt_(entry.No),
+                        spz: parseFloat_(entry.SPZ),
+                        spa: parseFloat_(entry.SPA),
+                        spb: parseFloat_(entry.SPB),
+                        spc: parseFloat_(entry.SPC),
+                    },
+                });
+            }
+            console.log(`   PulleyStandard: ${pulleyStandards.length} rows`);
+        }
+    }
 }
 
 export const DatabaseInitService = {
@@ -471,6 +595,7 @@ export const DatabaseInitService = {
             } else {
                 console.log(`✅ Database already populated (Axial: ${fanCount}, Centrifugal: ${centrifugalCount})`);
             }
+            await ensureCentrifugalReferenceData();
             await this.ensureAxialPricingCategory();
         } catch (error) {
             console.error("❌ Database initialization failed:", error);

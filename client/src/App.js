@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 import { FormProvider } from "./context/FormContext";
 import GraphDetailPage from "./pages/GraphDetailPage";
@@ -17,9 +18,10 @@ import AxialFanSelectionPage from "./pages/axial/AxialFanSelectionPage";
 import AxialResultsPage from "./pages/axial/AxialResultsPage";
 import AxialGraphDetailPage from "./pages/axial/AxialGraphDetailPage";
 
-// Admin / Data page
+// Admin pages
 import AxialDataPage from "./pages/axial/AxialDataPage";
-
+import CommonDataPage from "./pages/admin/CommonDataPage";
+import CentrifugalDataPage from "./pages/admin/CentrifugalDataPage";
 // Centrifugal fan pages
 import CentrifugalFanTypesPage from "./pages/centrifugal/CentrifugalFanTypesPage";
 import CentrifugalFanSelectionPage from "./pages/centrifugal/CentrifugalFanSelectionPage";
@@ -35,12 +37,29 @@ function App() {
           {/* Landing Page - Default route */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* Admin - Axial Data (Fans, Motor, Pricing) */}
+          {/* Admin - /admin redirects to axial; direct routes below */}
+          <Route path="/admin" element={<Navigate to="/admin/axial" replace />} />
           <Route
-            path="/admin"
+            path="/admin/axial"
             element={
               <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
                 <AxialDataPage />
+              </div>
+            }
+          />
+          <Route
+            path="/admin/common"
+            element={
+              <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+                <CommonDataPage />
+              </div>
+            }
+          />
+          <Route
+            path="/admin/centrifugal"
+            element={
+              <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+                <CentrifugalDataPage />
               </div>
             }
           />

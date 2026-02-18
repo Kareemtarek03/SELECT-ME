@@ -7,11 +7,11 @@ export default function PricingTableWrapper({ title, onAdd, children }) {
     <Box>
       <Box mb={4}>
         <Button
-          bg="var(--accent)"
+          bg="#3b82f6"
           color="white"
           onClick={onAdd}
           leftIcon={<FaPlus />}
-          _hover={{ bg: "var(--accent-hover)" }}
+          _hover={{ bg: "#2563eb" }}
         >
           Add {title}
         </Button>

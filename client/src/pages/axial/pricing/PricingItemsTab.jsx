@@ -140,6 +140,64 @@ export default function PricingItemsTab() {
         }
     };
 
+    const handleDownloadTemplate = async () => {
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/pricing/items/template/download?categoryName=axial_pricing`,
+                { headers: getAuthHeaders() }
+            );
+            if (!response.ok) throw new Error("Download failed");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "PricingItems-axial_pricing-template.xlsx";
+            a.click();
+            window.URL.revokeObjectURL(url);
+            setAlert({ type: "success", message: "Template downloaded" });
+        } catch (e) {
+            setAlert({ type: "error", message: e.message || "Failed to download template" });
+        }
+    };
+
+    const handleImportTemplate = async (e) => {
+        const file = e?.target?.files?.[0];
+        if (!file) return;
+        try {
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const base64 = reader.result?.split(",")?.[1];
+                if (!base64) {
+                    setAlert({ type: "error", message: "Could not read file" });
+                    return;
+                }
+                const response = await fetch(`${API_BASE_URL}/api/pricing/items/import`, {
+                    method: "POST",
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        fileBase64: base64,
+                        filename: file.name,
+                        categoryName: "axial_pricing",
+                    }),
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    setAlert({
+                        type: "success",
+                        message: data.message || `${data.updated} item(s) updated`,
+                    });
+                    fetchPricingData();
+                } else {
+                    setAlert({ type: "error", message: data.error || "Import failed" });
+                }
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            setAlert({ type: "error", message: err.message || "Import failed" });
+        }
+        e.target.value = "";
+    };
+
     const handleAddItem = async () => {
         if (!newItem.sr || !newItem.description || !newItem.unit) {
             setAlert({ type: "error", message: "Sr, Description, and Unit are required" });
@@ -234,33 +292,61 @@ export default function PricingItemsTab() {
                             <Badge bg="#3b82f620" color="#3b82f6" px={3} py={1} borderRadius="md">
                                 {category.displayName}
                             </Badge>
-                            <Text color="var(--text-muted-2)" fontSize="sm">
+                            <Text color="#64748b" fontSize="sm">
                                 {items.length} items
                             </Text>
                         </>
                     )}
                 </Box>
-                <Button
-                    bg="var(--accent)"
-                    color="white"
-                    _hover={{ bg: "var(--accent-hover)" }}
-                    leftIcon={<FaPlus />}
-                    onClick={() => setShowAddForm(true)}
-                >
-                    Add Item
-                </Button>
+                <Box display="flex" gap={2} alignItems="center">
+                    <Button
+                        bg="#3b82f6"
+                        color="white"
+                        _hover={{ bg: "#2563eb" }}
+                        leftIcon={<FaPlus />}
+                        onClick={() => setShowAddForm(true)}
+                    >
+                        Add Item
+                    </Button>
+                    <Button
+                        size="sm"
+                        bg="#059669"
+                        color="white"
+                        _hover={{ bg: "#047857" }}
+                        onClick={handleDownloadTemplate}
+                    >
+                        Download Template
+                    </Button>
+                    <Button
+                        size="sm"
+                        as="label"
+                        bg="#0ea5e9"
+                        color="white"
+                        _hover={{ bg: "#0284c7" }}
+                        sx={{ cursor: "pointer" }}
+                    >
+                        Import Template
+                        <input
+                            type="file"
+                            accept=".xlsx,.xls"
+                            hidden
+                            onChange={handleImportTemplate}
+                        />
+                    </Button>
+                </Box>
             </Box>
 
             {/* Add Item Form */}
             {showAddForm && (
                 <Box
-                    bg="var(--bg-card)"
+                    bg="#ffffff"
                     borderRadius="lg"
-                    border="1px solid var(--border-color)"
+                    border="1px solid #e2e8f0"
                     p={6}
                     mb={6}
+                    boxShadow="0 1px 3px rgba(0,0,0,0.08)"
                 >
-                    <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
+                    <Heading as="h3" size="md" color="#1e293b" mb={4}>
                         Add New Pricing Item
                     </Heading>
                     <Box display="grid" gridTemplateColumns="repeat(6, 1fr)" gap={4}>
@@ -268,65 +354,65 @@ export default function PricingItemsTab() {
                             placeholder="Sr."
                             value={newItem.sr}
                             onChange={(e) => setNewItem({ ...newItem, sr: e.target.value })}
-                            bg="var(--bg-page)"
-                            color="var(--text-primary)"
-                            border="1px solid var(--border-color)"
-                            _placeholder={{ color: "var(--text-muted-2)" }}
+                            bg="#f8fafc"
+                            color="#1e293b"
+                            border="1px solid #e2e8f0"
+                            _placeholder={{ color: "#64748b" }}
                         />
                         <Input
                             placeholder="Description"
                             value={newItem.description}
                             onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
-                            bg="var(--bg-page)"
-                            color="var(--text-primary)"
-                            border="1px solid var(--border-color)"
-                            _placeholder={{ color: "var(--text-muted-2)" }}
+                            bg="#f8fafc"
+                            color="#1e293b"
+                            border="1px solid #e2e8f0"
+                            _placeholder={{ color: "#64748b" }}
                             gridColumn="span 2"
                         />
                         <Input
                             placeholder="Unit"
                             value={newItem.unit}
                             onChange={(e) => setNewItem({ ...newItem, unit: e.target.value })}
-                            bg="var(--bg-page)"
-                            color="var(--text-primary)"
-                            border="1px solid var(--border-color)"
-                            _placeholder={{ color: "var(--text-muted-2)" }}
+                            bg="#f8fafc"
+                            color="#1e293b"
+                            border="1px solid #e2e8f0"
+                            _placeholder={{ color: "#64748b" }}
                         />
                         <Input
                             placeholder="Price w/o VAT"
                             type="number"
                             value={newItem.priceWithoutVat}
                             onChange={(e) => setNewItem({ ...newItem, priceWithoutVat: e.target.value })}
-                            bg="var(--bg-page)"
-                            color="var(--text-primary)"
-                            border="1px solid var(--border-color)"
-                            _placeholder={{ color: "var(--text-muted-2)" }}
+                            bg="#f8fafc"
+                            color="#1e293b"
+                            border="1px solid #e2e8f0"
+                            _placeholder={{ color: "#64748b" }}
                         />
                         <Input
                             placeholder="Price with VAT"
                             type="number"
                             value={newItem.priceWithVat}
                             onChange={(e) => setNewItem({ ...newItem, priceWithVat: e.target.value })}
-                            bg="var(--bg-page)"
-                            color="var(--text-primary)"
-                            border="1px solid var(--border-color)"
-                            _placeholder={{ color: "var(--text-muted-2)" }}
+                            bg="#f8fafc"
+                            color="#1e293b"
+                            border="1px solid #e2e8f0"
+                            _placeholder={{ color: "#64748b" }}
                         />
                     </Box>
                     <Box display="flex" gap={3} mt={4}>
                         <Button
-                            bg="var(--success)"
+                            bg="#059669"
                             color="white"
-                            _hover={{ bg: "var(--success-hover)" }}
+                            _hover={{ bg: "#047857" }}
                             leftIcon={<FaSave />}
                             onClick={handleAddItem}
                         >
                             Save
                         </Button>
                         <Button
-                            bg="var(--text-muted-2)"
-                            color="white"
-                            _hover={{ bg: "var(--border-color)" }}
+                            bg="#e2e8f0"
+                            color="#1e293b"
+                            _hover={{ bg: "#cbd5e1" }}
                             leftIcon={<FaTimes />}
                             onClick={() => setShowAddForm(false)}
                         >
@@ -338,128 +424,130 @@ export default function PricingItemsTab() {
 
             {/* Pricing Table */}
             <Box
+                className="admin-table-container"
                 borderWidth="1px"
-                borderRadius="md"
-                borderColor="var(--border-color)"
-                bg="var(--bg-card)"
+                borderRadius="lg"
+                borderColor="#e2e8f0"
+                bg="#ffffff"
                 overflow="hidden"
+                boxShadow="0 1px 3px rgba(0,0,0,0.08)"
             >
-                <Table.Root bg="var(--bg-card)" w="100%">
-                    <Table.Header bg="var(--bg-card)" color="var(--text-primary)">
-                        <Table.Row bg="var(--bg-card)" color="var(--text-primary)">
-                            <Table.ColumnHeader color="var(--text-primary)" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                <Table.Root bg="transparent" w="100%">
+                    <Table.Header bg="#f1f5f9" color="#1e293b">
+                        <Table.Row bg="#f1f5f9" color="#1e293b">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Sr.
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="white" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Description
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="white" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Unit
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="white" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Updated Date
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="white" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Price w/o VAT
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="white" borderRight="1px solid var(--border-color)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Price with VAT
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="var(--text-primary)" py={3} px={4} textAlign="center">
+                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1" py={3} px={4} textAlign="center">
                                 Actions
                             </Table.ColumnHeader>
                         </Table.Row>
                     </Table.Header>
-                    <Table.Body borderColor="var(--border-color)">
+                    <Table.Body borderColor="#e2e8f0">
                         {items.map((item, idx) => {
-                            const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
+                            const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
                             return (
                                 <Table.Row
                                     key={item.id}
                                     bg={rowBg}
-                                    color="var(--text-primary)"
-                                    _hover={{ bg: "var(--bg-elevated)" }}
+                                    color="#1e293b"
+                                    _hover={{ bg: "#f1f5f9" }}
                                 >
                                     {editingId === item.id ? (
                                         <>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.sr}
                                                     onChange={(e) => setEditForm({ ...editForm, sr: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.description}
                                                     onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.unit}
                                                     onChange={(e) => setEditForm({ ...editForm, unit: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.updatedDate}
                                                     onChange={(e) => setEditForm({ ...editForm, updatedDate: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.priceWithoutVat}
                                                     onChange={(e) => setEditForm({ ...editForm, priceWithoutVat: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={3} px={4}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.priceWithVat}
                                                     onChange={(e) => setEditForm({ ...editForm, priceWithVat: e.target.value })}
-                                                    bg="var(--bg-page)"
-                                                    color="var(--text-primary)"
-                                                    border="1px solid var(--border-color)"
+                                                    bg="#f8fafc"
+                                                    color="#1e293b"
+                                                    border="1px solid #e2e8f0"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" py={3} px={4}>
+                                            <Table.Cell borderColor="#e2e8f0" py={3} px={4}>
                                                 <Box display="flex" gap={2}>
                                                     <Button
                                                         size="xs"
-                                                        bg="var(--success)"
+                                                        bg="#059669"
                                                         color="white"
-                                                        _hover={{ bg: "var(--success-hover)" }}
+                                                        _hover={{ bg: "#047857" }}
                                                         onClick={() => handleSaveEdit(item.id)}
                                                     >
                                                         <FaSave />
                                                     </Button>
                                                     <Button
                                                         size="xs"
-                                                        bg="var(--text-muted-2)"
-                                                        color="white"
-                                                        _hover={{ bg: "var(--border-color)" }}
+                                                        bg="#e2e8f0"
+                                                        color="#1e293b"
+                                                        _hover={{ bg: "#cbd5e1" }}
                                                         onClick={handleCancelEdit}
                                                     >
                                                         <FaTimes />
@@ -469,40 +557,40 @@ export default function PricingItemsTab() {
                                         </>
                                     ) : (
                                         <>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.sr}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.description}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.unit}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.updatedDate || "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.priceWithoutVat != null ? item.priceWithoutVat.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 {item.priceWithVat != null ? item.priceWithVat.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
+                                            <Table.Cell borderColor="#e2e8f0" color="#1e293b" py={3} px={4} textAlign="center">
                                                 <Box display="flex" gap={2} justifyContent="center">
                                                     <Button
                                                         size="xs"
-                                                        bg="var(--accent)"
+                                                        bg="#3b82f6"
                                                         color="white"
-                                                        _hover={{ bg: "var(--accent-hover)" }}
+                                                        _hover={{ bg: "#2563eb" }}
                                                         onClick={() => handleEdit(item)}
                                                     >
                                                         <FaEdit />
                                                     </Button>
                                                     <Button
                                                         size="xs"
-                                                        bg="var(--error)"
+                                                        bg="#dc2626"
                                                         color="white"
-                                                        _hover={{ bg: "var(--error)" }}
+                                                        _hover={{ bg: "#b91c1c" }}
                                                         onClick={() => setDeleteConfirm(item.id)}
                                                     >
                                                         <FaTrash />
@@ -526,39 +614,40 @@ export default function PricingItemsTab() {
                     left={0}
                     right={0}
                     bottom={0}
-                    bg="rgba(0, 0, 0, 0.7)"
+                    bg="rgba(0, 0, 0, 0.5)"
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
                     zIndex={1000}
                 >
                     <Box
-                        bg="var(--bg-card)"
+                        bg="#ffffff"
                         borderRadius="lg"
-                        border="1px solid var(--border-color)"
+                        border="1px solid #e2e8f0"
                         p={6}
                         maxW="400px"
                         w="90%"
+                        boxShadow="0 4px 12px rgba(0,0,0,0.15)"
                     >
-                        <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
+                        <Heading as="h3" size="md" color="#1e293b" mb={4}>
                             Confirm Delete
                         </Heading>
-                        <Text color="var(--text-muted)" mb={6}>
+                        <Text color="#64748b" mb={6}>
                             Are you sure you want to delete this pricing item? This action cannot be undone.
                         </Text>
                         <Box display="flex" gap={3} justifyContent="flex-end">
                             <Button
-                                bg="var(--text-muted-2)"
-                                color="white"
-                                _hover={{ bg: "var(--border-color)" }}
+                                bg="#e2e8f0"
+                                color="#1e293b"
+                                _hover={{ bg: "#cbd5e1" }}
                                 onClick={() => setDeleteConfirm(null)}
                             >
                                 Cancel
                             </Button>
                             <Button
-                                bg="var(--error)"
+                                bg="#dc2626"
                                 color="white"
-                                _hover={{ bg: "var(--error)" }}
+                                _hover={{ bg: "#b91c1c" }}
                                 onClick={() => handleDelete(deleteConfirm)}
                             >
                                 Delete

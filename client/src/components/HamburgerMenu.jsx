@@ -9,7 +9,9 @@ export default function HamburgerMenu() {
         { label: "Home", path: "/fan-categories", icon: "🏠" },
         { label: "Axial Catalog", path: "/catalogs", icon: "📄" },
         { label: "Unit Converter", path: "/unit-converter", icon: "⚙️" },
-        { label: "Admin", path: "/admin", icon: "🔧" },
+        { label: "Axial Data", path: "/admin/axial", icon: "📋" },
+        { label: "Common Data", path: "/admin/common", icon: "⚙️" },
+        { label: "Centrifugal Data", path: "/admin/centrifugal", icon: "💨" },
     ];
 
     return (

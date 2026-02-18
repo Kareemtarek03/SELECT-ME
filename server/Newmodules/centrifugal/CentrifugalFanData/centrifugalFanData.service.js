@@ -1,4 +1,3 @@
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -1041,7 +1040,7 @@ function calculatePhase10(phase9Results, phase5Results, phase8Results, rawDataMa
 // ============================================================================
 // Triggered when user selects a fan from Phase 10 and specifies belt type + motor poles
 // Calculates pulley arrays for the selected belt type
-function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
+async function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   if (!selectedFan || !beltType || !motorPoles || !fanRPM) {
     return null;
   }
@@ -1063,27 +1062,19 @@ function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   // N2 = Fan RPM from Phase 5 (matching RPM)
   const N2 = fanRPM;
 
-  // Load pulley database
-  const pulleyDbPath = path.join(__dirname, "pully database.json");
-  const pulleyStandardPath = path.join(__dirname, "Pulleys Standard .json");
-
-  if (!fs.existsSync(pulleyDbPath)) {
-    console.warn(`Pulley database not found: ${pulleyDbPath}`);
-    return null;
+  // Load pulley database from DB
+  const pulleyDb = await loadPulleyDataFromDb();
+  if (!pulleyDb) {
+    return {
+      error: "Pulley database unavailable",
+      details: "Database connection or pulley_data table not available. Check server logs.",
+    };
   }
-
-  if (!fs.existsSync(pulleyStandardPath)) {
-    console.warn(`Pulleys Standard not found: ${pulleyStandardPath}`);
-    return null;
-  }
-
-  let pulleyDb, pulleyStandard;
-  try {
-    pulleyDb = JSON.parse(fs.readFileSync(pulleyDbPath, "utf8"));
-    pulleyStandard = JSON.parse(fs.readFileSync(pulleyStandardPath, "utf8"));
-  } catch (err) {
-    console.warn(`Error reading pulley files: ${err.message}`);
-    return null;
+  if (pulleyDb.length === 0) {
+    return {
+      error: "Pulley database is empty",
+      details: "The pulley_data table has no rows. Run the database seed to load pulley data from JSON (e.g. run seed from server or restart server so auto-seed can run).",
+    };
   }
 
   // Filter pulley database entries by belt type
@@ -1092,8 +1083,11 @@ function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   );
 
   if (filteredPulleys.length === 0) {
-    console.warn(`No pulley entries found for belt type: ${beltType}`);
-    return null;
+    const types = [...new Set(pulleyDb.map((e) => e["Belt Type"]).filter(Boolean))];
+    return {
+      error: "No pulleys for this belt type",
+      details: `No pulley entries found for belt type "${beltType}". Valid types in database: ${types.length ? types.join(", ") : "none"}.`,
+    };
   }
 
   // Fixed standard pitch diameter sizes from Units sheet
@@ -1197,9 +1191,9 @@ function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
 }
 
 // Exported function for Phase 11 endpoint
-export function processPhase11(params) {
+export async function processPhase11(params) {
   const { selectedFan, beltType, motorPoles, fanRPM } = params;
-  return calculatePhase11(selectedFan, beltType, motorPoles, fanRPM);
+  return await calculatePhase11(selectedFan, beltType, motorPoles, fanRPM);
 }
 
 // ============================================================================
@@ -1207,7 +1201,7 @@ export function processPhase11(params) {
 // ============================================================================
 // Validates fan pulley diameter against fan shaft diameter
 // Recalculates fan input power considering RPM correction, friction losses, and SPF
-function calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent) {
+async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent) {
   if (!phase11Result || !phase11Result.arrays || !selectedFan) {
     return null;
   }
@@ -1226,21 +1220,16 @@ function calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spf
   const frictionLosses = frictionLossesPercent || 0;
   const spf = spfPercent || 0;
 
-  // Load centrifugal fan data to get fanShaftDiameter
-  const fanDataPath = path.join(__dirname, "centrifugalFan.json");
-  const pulleyDbPath = path.join(__dirname, "pully database.json");
+  // Load centrifugal fan data and pulley database from DB
+  const fanData = await loadCentrifugalFanDataFromDb();
+  const pulleyDb = await loadPulleyDataFromDb();
 
-  if (!fs.existsSync(fanDataPath) || !fs.existsSync(pulleyDbPath)) {
-    console.warn("Phase 12: Required JSON files not found");
+  if (!fanData || fanData.length === 0) {
+    console.warn("Phase 12: Centrifugal fan data not found (DB)");
     return null;
   }
-
-  let fanData, pulleyDb;
-  try {
-    fanData = JSON.parse(fs.readFileSync(fanDataPath, "utf8"));
-    pulleyDb = JSON.parse(fs.readFileSync(pulleyDbPath, "utf8"));
-  } catch (err) {
-    console.warn(`Phase 12: Error reading JSON files: ${err.message}`);
+  if (!pulleyDb || pulleyDb.length === 0) {
+    console.warn("Phase 12: Pulley database not found (DB)");
     return null;
   }
 
@@ -1410,9 +1399,9 @@ function calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spf
 }
 
 // Exported function for Phase 12 endpoint
-export function processPhase12(params) {
+export async function processPhase12(params) {
   const { phase11Result, selectedFan, frictionLossesPercent, spfPercent } = params;
-  return calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent);
+  return await calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent);
 }
 
 // ============================================================================
@@ -1440,7 +1429,7 @@ function roundUpToStandardPower(powerKW) {
 // 5. ZH = Motor Power = (YY / ZG) × (1 + Service Factor 10%)
 // 6. ZI = Round ZH up to standard kW values
 // 7. ZK = Motor Model (lookup from Motor Eff sheet for ZI + constraints)
-function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass, safetyFactor = 0.15, serviceFactor = 0.10) {
+async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass, safetyFactor = 0.15, serviceFactor = 0.10) {
   if (!netFanPowerKW || netFanPowerKW <= 0) {
     return { error: "Invalid net fan power", details: "netFanPowerKW must be a positive number" };
   }
@@ -1449,17 +1438,10 @@ function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationCl
     return { error: "Missing required parameters", details: "userPoles, userPhases, and userInsulationClass are required" };
   }
 
-  // Load motor data
-  const motorDataPath = path.join(__dirname, "MotorData.json");
-  if (!fs.existsSync(motorDataPath)) {
-    return { error: "Motor data file not found", details: motorDataPath };
-  }
-
-  let motorData;
-  try {
-    motorData = JSON.parse(fs.readFileSync(motorDataPath, "utf8"));
-  } catch (err) {
-    return { error: "Error reading motor data", details: err.message };
+  // Load motor data from DB
+  const motorData = await loadCentrifugalMotorDataFromDb();
+  if (!motorData || motorData.length === 0) {
+    return { error: "Motor data not found or empty (DB)", details: "CentrifugalMotorData table is empty" };
   }
 
   // Step 1: Calculate Motor Output Power Required (YY in Excel)
@@ -1554,6 +1536,7 @@ function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationCl
     }
 
     const motor = sortedByPower[0];
+    console.log("🔍 motor:", motor);
     const efficiency50Hz = parseFloat(motor["Efficiency @ 50 Hz"]) || 0;
     return {
       noOfPoles: parseInt(motor["No of Poles"]) || null,
@@ -1601,9 +1584,9 @@ function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationCl
 }
 
 // Exported function for Phase 13 endpoint
-export function processPhase13(params) {
+export async function processPhase13(params) {
   const { netFanPowerKW, userPoles, userPhases, userInsulationClass } = params;
-  return calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass);
+  return await calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass);
 }
 
 // ============================================================================
@@ -1612,22 +1595,15 @@ export function processPhase13(params) {
 // Validates whether motor pulley D1 is compatible with selected motor based on:
 // - Shaft diameter vs pulley bore limits (Min Bore <= Shaft <= Max Bore)
 // - Feather key length vs pulley F width (F Width <= Key Length)
-function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
+async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
   if (!phase11Arrays || !phase13Motors || !beltType) {
     return { error: "Missing required parameters for Phase 14" };
   }
 
-  // Load pulley database
-  const pulleyDbPath = path.join(__dirname, "pully database.json");
-  if (!fs.existsSync(pulleyDbPath)) {
-    return { error: "Pulley database file not found" };
-  }
-
-  let pulleyData;
-  try {
-    pulleyData = JSON.parse(fs.readFileSync(pulleyDbPath, "utf8"));
-  } catch (err) {
-    return { error: "Error reading pulley database", details: err.message };
+  // Load pulley database from DB
+  const pulleyData = await loadPulleyDataFromDb();
+  if (!pulleyData || pulleyData.length === 0) {
+    return { error: "Pulley database not found or empty (DB)" };
   }
 
   // Filter pulleys by belt type
@@ -1723,9 +1699,9 @@ function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
 }
 
 // Exported function for Phase 14 endpoint
-export function processPhase14(params) {
+export async function processPhase14(params) {
   const { phase11Arrays, phase13Motors, beltType } = params;
-  return calculatePhase14(phase11Arrays, phase13Motors, beltType);
+  return await calculatePhase14(phase11Arrays, phase13Motors, beltType);
 }
 
 // ============================================================================
@@ -1733,22 +1709,15 @@ export function processPhase14(params) {
 // ============================================================================
 // Calculates Belt Length, Belt Length per Standard, and Center Distance
 // Inputs: D1 (from Phase 14), D2 (from Phase 12), Inner Diameter, Belt Section
-function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection) {
+async function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection) {
   if (!phase12Arrays || !phase14Arrays || !innerDiameter || !beltSection) {
     return { error: "Missing required parameters for Phase 15" };
   }
 
-  // Load Belt Length per Standard JSON
-  const beltStandardPath = path.join(__dirname, "Belt Length per Standard.json");
-  if (!fs.existsSync(beltStandardPath)) {
-    return { error: "Belt Length per Standard file not found" };
-  }
-
-  let beltStandardData;
-  try {
-    beltStandardData = JSON.parse(fs.readFileSync(beltStandardPath, "utf8"));
-  } catch (err) {
-    return { error: "Error reading Belt Length per Standard file", details: err.message };
+  // Load Belt Length per Standard from DB
+  const beltStandardData = await loadBeltLengthStandardFromDb();
+  if (!beltStandardData || beltStandardData.length === 0) {
+    return { error: "Belt Length per Standard not found or empty (DB)" };
   }
 
   // Extract standard belt lengths for the selected belt section
@@ -1865,9 +1834,9 @@ function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSecti
 }
 
 // Exported function for Phase 15 endpoint
-export function processPhase15(params) {
+export async function processPhase15(params) {
   const { phase12Arrays, phase14Arrays, innerDiameter, beltSection } = params;
-  return calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection);
+  return await calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection);
 }
 
 // ============================================================================
@@ -1989,8 +1958,17 @@ function calculatePhase18(params) {
   const centerDistance = phase16Row.centerDistance || null;  // Center Distance (mm)
 
   // Extract Phase 17 motor data
-  // Motor object uses: powerHP, powerKW, noOfPoles, noOfPhases, etc.
-  const motorPowerHP = parseFloat(phase17Motor.powerHP) || parseFloat(phase17Motor["Power (HP)"]) || null;
+  // Motor object may use: powerHP, "Power (HP)" (JSON/Excel), powerHorse (DB/Prisma), or derive from powerKW
+  const _hp = parseFloat(phase17Motor.powerHP);
+  const _hp2 = parseFloat(phase17Motor["Power (HP)"]);
+  const _hp3 = parseFloat(phase17Motor.powerHorse);
+  let motorPowerHP = (Number.isFinite(_hp) ? _hp : Number.isFinite(_hp2) ? _hp2 : Number.isFinite(_hp3) ? _hp3 : null);
+  if (motorPowerHP == null) {
+    const powerKW = parseFloat(phase17Motor.powerKW) || parseFloat(phase17Motor["Power (kW)"]) || null;
+    if (Number.isFinite(powerKW) && powerKW > 0) {
+      motorPowerHP = powerKW / 0.7457;  // 1 HP = 0.7457 kW
+    }
+  }
   const motorPoles = parseInt(phase17Motor.noOfPoles) || parseInt(phase17Motor["No of Poles"]) || userPoles || null;
 
   // Calculate speed ratio
@@ -2079,11 +2057,32 @@ function calculatePhase18(params) {
   // Format: FanModel-PolesPhaseType-MotorHP [BeltType/Grooves-D2/D1]
   // Example: SCF-SIB-B-800-4T-3 [Type - A/2-630/280]
   // ZB = "T" if phases=3, "M" if phases=1
+  // Use explicit != null / !== '' so that 0 (e.g. motorPowerHP, noOfGrooves, D2, D1) is still valid
   const phaseCode = (userPhases === 3) ? "T" : "M";
+  const hasFanModel = fanModel != null && fanModel !== "";
+  const hasMotorPoles = motorPoles != null;
+  const hasMotorPower = motorPowerHPOutput != null;
+  const hasBeltType = beltTypeFormatted != null && beltTypeFormatted !== "";
+  const hasGrooves = noOfGrooves != null;
+  const hasD2 = D2 != null;
+  const hasD1 = D1 != null;
   let fanModelFormatted = null;
-  if (fanModel && motorPoles && motorPowerHPOutput && beltTypeFormatted && noOfGrooves && D2 && D1) {
+  if (hasFanModel && hasMotorPoles && hasMotorPower && hasBeltType && hasGrooves && hasD2 && hasD1) {
     fanModelFormatted = `${fanModel}-${motorPoles}${phaseCode}-${motorPowerHPOutput} [${beltTypeFormatted}/${noOfGrooves}-${D2}/${D1}]`;
   }
+
+  // When fanModelFormatted is null, list which values are missing (for debugging)
+  const fanModelFormattedMissing = fanModelFormatted
+    ? null
+    : [].concat(
+        hasFanModel ? [] : ["fanModel"],
+        hasMotorPoles ? [] : ["motorPoles"],
+        hasMotorPower ? [] : ["motorPowerHP"],
+        hasBeltType ? [] : ["beltType"],
+        hasGrooves ? [] : ["noOfGrooves"],
+        hasD2 ? [] : ["D2"],
+        hasD1 ? [] : ["D1"]
+      );
 
   // Return Phase 18 results
   return {
@@ -2123,6 +2122,8 @@ function calculatePhase18(params) {
     innerDiameter: innerDiameterOutput,
     // ABA - Fan Model (formatted)
     fanModelFormatted: fanModelFormatted,
+    // When fanModelFormatted is null, which keys were missing (for debugging)
+    fanModelFormattedMissing: fanModelFormattedMissing,
     // Additional metadata
     speedRatio: speedRatio !== null ? Math.round(speedRatio * 10000) / 10000 : null,
     originalSpeed: originalSpeed,
@@ -2539,7 +2540,7 @@ export function processPhase20(params) {
 // ============================================================================
 // Prisma client - lazy loaded only when needed (for database mode)
 let prisma = null;
-async function getPrismaClient() {
+export async function getPrismaClient() {
   if (!prisma) {
     try {
       const { PrismaClient } = await import("@prisma/client");
@@ -2573,6 +2574,90 @@ async function getPrismaClient() {
   return prisma;
 }
 
+// Load centrifugal reference data from DB (same shape as JSON for drop-in use)
+async function loadPulleyDataFromDb() {
+  const prisma = await getPrismaClient();
+  if (!prisma) return null;
+  const rows = await prisma.pulleyData.findMany({ orderBy: { id: "asc" } });
+  return rows.map((r) => ({
+    "No": r.no != null ? String(r.no) : "",
+    "Belt Type": r.beltType ?? "",
+    "No. of Grooves": r.grooves != null ? String(r.grooves) : "",
+    "Pitch Diameter": r.pitchDiameter != null ? String(r.pitchDiameter) : "",
+    "Bush No.": r.bushNo ?? "",
+    "Min Bore": r.minBore != null ? String(r.minBore) : "",
+    "Max Bore": r.maxBore != null ? String(r.maxBore) : "",
+    "F (Width)": r.widthF != null ? String(r.widthF) : "",
+    "Conditation": r.condition ?? "",
+  }));
+}
+
+async function loadBeltLengthStandardFromDb() {
+  const prisma = await getPrismaClient();
+  if (!prisma) return null;
+  const rows = await prisma.beltLengthStandard.findMany({ orderBy: { id: "asc" } });
+  return rows.map((r) => ({
+    SPZ: r.spz != null ? String(r.spz) : undefined,
+    SPA: r.spa != null ? String(r.spa) : undefined,
+    SPB: r.spb != null ? String(r.spb) : undefined,
+    SPC: r.spc != null ? String(r.spc) : undefined,
+  }));
+}
+
+async function loadCentrifugalMotorDataFromDb() {
+  const prisma = await getPrismaClient();
+  if (!prisma) return null;
+  const rows = await prisma.MotorData.findMany();
+  return rows.map((r) => {
+    let efficiency50Hz = 0.85;
+    if (r.effCurve) {
+      try {
+        const arr = typeof r.effCurve === "string" ? JSON.parse(r.effCurve) : r.effCurve;
+        if (Array.isArray(arr) && arr.length > 0) efficiency50Hz = Number(arr[0]) || 0.85;
+      } catch (_) {}
+    }
+    return {
+      "No of Poles": r.NoPoles,
+      "No. of Phases": r.NoPhases ?? r.Phase,
+      "Insulation Class": r.insClass ?? "",
+      "Power (kW)": r.powerKW,
+      "Efficiency @ 50 Hz": efficiency50Hz,
+      "Power (HP)": r.powerHorse,
+      "Shaft Feather Key Length (mm)": r.shaftFeather,
+      "Shaft Diameter (mm)": r.shaftDia,
+      "Model": r.model,
+      "No. of Capacitors": r.NoCapacitors,
+      "IE": r.IE,
+    };
+  });
+}
+
+async function loadCentrifugalFanDataFromDb() {
+  const prisma = await getPrismaClient();
+  if (!prisma) return null;
+  const rows = await prisma.centrifugalFanData.findMany();
+  return rows.map((r) => ({
+    Blades: {
+      Type: r.bladesType,
+      Model: r.bladesModel,
+      minSpeedRPM: r.minSpeedRPM,
+      highSpeedRPM: r.highSpeedRPM,
+    },
+    Impeller: {
+      impellerType: r.impellerType,
+      fanShaftDiameter: r.fanShaftDiameter,
+      innerDiameter: r.innerDiameter,
+    },
+    desigDensity: r.desigDensity,
+    RPM: r.RPM,
+    airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
+    totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
+    velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
+    staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
+    fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+  }));
+}
+
 export async function processFanDataService(inputOptions) {
   const { filePath, units, input, selectedFanType, dataSource } = inputOptions;
 
@@ -2581,92 +2666,32 @@ export async function processFanDataService(inputOptions) {
   console.log(`input.airFlow: ${input?.airFlow}, input.staticPressure: ${input?.staticPressure}`);
   console.log(`dataSource: ${dataSource}`);
 
-  let rawData = [];
-
-  if (dataSource === "db" || filePath === "db") {
-    const prismaClient = await getPrismaClient();
-    if (!prismaClient) throw new Error("Database not available");
-    // Only fetch data relevant to the selected fan type if possible, or all if not filtered
-    // Currently fetching all as filtering logic is complex with types
-    const rows = await prismaClient.centrifugalFanData.findMany();
-
-    rawData = rows.map((r) => ({
-      Blades: {
-        Type: r.bladesType,
-        Model: r.bladesModel,
-        minSpeedRPM: r.minSpeedRPM,
-        highSpeedRPM: r.highSpeedRPM,
-      },
-      Impeller: {
-        impellerType: r.impellerType,
-        fanShaftDiameter: r.fanShaftDiameter,
-        innerDiameter: r.innerDiameter,
-      },
-      desigDensity: r.desigDensity,
-      RPM: r.RPM,
-      airFlow: JSON.parse(r.airFlow),
-      totPressure: JSON.parse(r.totPressure),
-      velPressure: JSON.parse(r.velPressure),
-      staticPressure: JSON.parse(r.staticPressure),
-      fanInputPow: JSON.parse(r.fanInputPow),
-    }));
-  } else {
-    // Load data from centrifugalFan.json
-    let resolvedPath;
-    if (filePath && path.isAbsolute(filePath)) {
-      resolvedPath = filePath;
-    } else if (filePath) {
-      resolvedPath = path.join(__dirname, filePath);
-    } else {
-      resolvedPath = path.join(__dirname, "centrifugalFan.json");
-    }
-
-    if (!fs.existsSync(resolvedPath)) {
-      const altPath1 = path.join(
-        __dirname,
-        "..",
-        "CentrifugalFanData",
-        "centrifugalFan.json"
-      );
-      const altPath2 = path.join(
-        process.cwd(),
-        "CentrifugalFanData",
-        "centrifugalFan.json"
-      );
-
-      if (fs.existsSync(altPath1)) {
-        resolvedPath = altPath1;
-      } else if (fs.existsSync(altPath2)) {
-        resolvedPath = altPath2;
-      } else {
-        throw new Error(`File not found: ${resolvedPath}`);
-      }
-    }
-
-    try {
-      const fileContent = fs.readFileSync(resolvedPath, "utf8");
-      rawData = JSON.parse(fileContent);
-
-      if (!Array.isArray(rawData)) {
-        throw new Error(
-          `Expected array in ${resolvedPath}, got ${typeof rawData}`
-        );
-      }
-
-      if (rawData.length === 0) {
-        throw new Error(`No fan data found in ${resolvedPath}`);
-      }
-    } catch (parseError) {
-      if (parseError.code === "ENOENT") {
-        throw new Error(`File not found: ${resolvedPath}`);
-      } else if (parseError instanceof SyntaxError) {
-        throw new Error(
-          `Invalid JSON in ${resolvedPath}: ${parseError.message}`
-        );
-      } else {
-        throw parseError;
-      }
-    }
+  // Load centrifugal fan data from DB only
+  const prismaClient = await getPrismaClient();
+  if (!prismaClient) throw new Error("Database not available");
+  const rows = await prismaClient.centrifugalFanData.findMany();
+  const rawData = rows.map((r) => ({
+    Blades: {
+      Type: r.bladesType,
+      Model: r.bladesModel,
+      minSpeedRPM: r.minSpeedRPM,
+      highSpeedRPM: r.highSpeedRPM,
+    },
+    Impeller: {
+      impellerType: r.impellerType,
+      fanShaftDiameter: r.fanShaftDiameter,
+      innerDiameter: r.innerDiameter,
+    },
+    desigDensity: r.desigDensity,
+    RPM: r.RPM,
+    airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
+    totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
+    velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
+    staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
+    fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+  }));
+  if (rawData.length === 0) {
+    throw new Error("No centrifugal fan data found in database");
   }
 
   // Validate input

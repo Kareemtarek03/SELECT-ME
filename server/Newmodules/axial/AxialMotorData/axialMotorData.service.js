@@ -1,4 +1,3 @@
-import fs from "fs";
 import xlsx from "xlsx";
 import {
   calculateMotorPrices,
@@ -6,8 +5,6 @@ import {
   CALCULATED_DB_FIELDS,
   parsePrice,
 } from "./axialMotorPricing.service.js";
-
-const MOTOR_FILE = "./MotorData.json";
 
 // Prisma client - lazy loaded only when needed (for database mode)
 let prisma = null;
@@ -270,13 +267,7 @@ export async function readMotorFile() {
       .map(mapDbRowToJsonFormat)
       .sort((a, b) => a.id - b.id);
   } catch (err) {
-    // fallback to reading the file if DB not configured/available
-    try {
-      const raw = fs.readFileSync(MOTOR_FILE, "utf8");
-      return JSON.parse(raw);
-    } catch (e) {
-      return [];
-    }
+    throw new Error("Failed to read motor data from database: " + (err?.message || String(err)));
   }
 }
 
@@ -441,28 +432,12 @@ export async function deleteMotorById(id) {
     const deleted = await prismaClient.motorData.delete({ where: { id: numId } });
     return { id: deleted.id };
   } catch (err) {
-    // fallback to file-based deletion
-    try {
-      const raw = fs.readFileSync(MOTOR_FILE, "utf8");
-      const arr = JSON.parse(raw || "[]");
-      const idx = arr.findIndex((m) => {
-        if (m == null) return false;
-        // support id or Id
-        return Number(m.id ?? m.Id) === numId;
-      });
-      if (idx === -1) {
-        const notFound = new Error("Not found");
-        notFound.code = "NOT_FOUND";
-        throw notFound;
-      }
-      arr.splice(idx, 1);
-      fs.writeFileSync(MOTOR_FILE, JSON.stringify(arr, null, 2), "utf8");
-      return { id: numId };
-    } catch (e) {
-      // propagate not found specially
-      if (e && e.code === "NOT_FOUND") throw e;
-      throw new Error("Failed to delete motor: " + e.message);
+    if (err?.code === "P2025") {
+      const notFound = new Error("Motor not found");
+      notFound.code = "NOT_FOUND";
+      throw notFound;
     }
+    throw new Error("Failed to delete motor: " + (err?.message || String(err)));
   }
 }
 
@@ -863,42 +838,6 @@ export async function updateMotorDataFromExcel(
     // return the full updated set from DB
     return await readMotorFile();
   } catch (err) {
-    // fallback to file-based merge if DB operations fail
-    const existing = (function () {
-      try {
-        const raw = fs.readFileSync(MOTOR_FILE, "utf8");
-        return JSON.parse(raw);
-      } catch (e) {
-        return [];
-      }
-    })();
-
-    const map = new Map();
-    existing.forEach((m) => {
-      const key = (m.model ?? m.Model ?? "") + "";
-      map.set(key.toLowerCase(), { ...m });
-    });
-
-    json.forEach((rec) => {
-      const key = (rec.model ?? rec.Model ?? "") + "";
-      const k = key.toLowerCase();
-      if (map.has(k)) {
-        const base = map.get(k);
-        // merge: overwrite only when value is not null/undefined/empty-string
-        Object.keys(rec).forEach((field) => {
-          const v = rec[field];
-          if (v !== null && v !== undefined && v !== "") {
-            base[field] = v;
-          }
-        });
-        map.set(k, base);
-      } else {
-        map.set(k, { ...rec });
-      }
-    });
-
-    const merged = Array.from(map.values());
-    fs.writeFileSync(MOTOR_FILE, JSON.stringify(merged, null, 2), "utf8");
-    return merged;
+    throw new Error("Failed to import motor data: " + (err?.message || String(err)));
   }
 }

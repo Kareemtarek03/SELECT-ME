@@ -245,21 +245,47 @@ export async function processFanDataService(inputOptions) {
       }))
       .sort((a, b) => a.Id - b.Id);
   } else {
-    // Resolve file path relative to server directory
-    const resolvedPath =
-      filePath && path.isAbsolute(filePath)
-        ? filePath
-        : path.join(__dirname, filePath || "axialFan.json");
-    rawData = JSON.parse(fs.readFileSync(resolvedPath, "utf8"));
-
-    // Apply fan type filtering for JSON file source as well
+    // Use DB only (no JSON fallback)
+    const prismaClient = await getPrismaClient();
+    if (!prismaClient) throw new Error("Database not available");
+    const rows = await prismaClient.fanData.findMany();
+    rawData = rows
+      .map((r) => ({
+        Id: r.id,
+        No: r.No,
+        Model: r.Model,
+        AFS: r.AFS,
+        AFL: r.AFL,
+        WF: r.WF,
+        ARTF: r.ARTF,
+        SF: r.SF,
+        ABSFC: r.ABSFC,
+        ABSFS: r.ABSFS,
+        SABF: r.SABF,
+        SARTF: r.SARTF,
+        AJF: r.AJF,
+        Blades: {
+          symbol: r.bladesSymbol,
+          material: r.bladesMaterial,
+          noBlades: r.noBlades,
+          angle: r.bladesAngle,
+        },
+        hubType: r.hubType,
+        Impeller: { conf: r.impellerConf, innerDia: r.impellerInnerDia },
+        desigDensity: r.desigDensity,
+        RPM: r.RPM,
+        airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
+        totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
+        velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
+        staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
+        fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+      }))
+      .sort((a, b) => (a.Id - b.Id));
     if (fanType && fanTypeToDbColumn[fanType]) {
       const dbColumn = fanTypeToDbColumn[fanType];
       const beforeCount = rawData.length;
       rawData = rawData.filter((fan) => fan[dbColumn] === 1);
-      console.log(`[FanFilter] JSON file: filtered ${beforeCount} → ${rawData.length} fans by ${dbColumn}=1`);
-    } else if (fanType) {
-      console.warn(`[FanFilter] ⚠️ JSON file: fanType="${fanType}" not in map — no filter applied`);
+      console.log(`[FanFilter] DB: filtered ${beforeCount} → ${rawData.length} fans by ${dbColumn}=1`);
     }
   }
 
@@ -506,7 +532,7 @@ export async function Output({ units, input, dataSource }) {
     const candidates = Array.isArray(result.result)
       ? result.result
       : result.recalculatedData;
-
+    console.log("🔍 candidates:", candidates);
     const staticRefRaw =
       input && (input.staticPressure ?? input.StaticPressure);
     const staticRef =
@@ -538,18 +564,18 @@ export async function Output({ units, input, dataSource }) {
         };
         const currentUnit = units?.pressure || units?.staticPressure || "Pa";
         const factor = pressureFactors[currentUnit] || 1;
-        const testSp = sp / factor;
-
-        const staticPressureVariance =
-          testSp < 38 ? 50 :
-            testSp <= 75 ? 35 :
-              testSp <= 125 ? 25 :
-                testSp <= 175 ? 20 :
-                  testSp <= 225 ? 17.5 :
-                    testSp <= 275 ? 15 :
-                      testSp <= 325 ? 12.5 :
-                        testSp <= 425 ? 10 :
-                          testSp <= 575 ? 7.5 : 5; // Adaptive variance for static pressure tolerance
+        // const testSp = sp / factor;
+        const staticPressureVariance= 25;
+        // const staticPressureVariance =
+        //   testSp < 38 ? 50 :
+        //     testSp <= 75 ? 35 :
+        //       testSp <= 125 ? 25 :
+        //         testSp <= 175 ? 20 :
+        //           testSp <= 225 ? 17.5 :
+        //             testSp <= 275 ? 15 :
+        //               testSp <= 325 ? 12.5 :
+        //                 testSp <= 425 ? 10 :
+        //                   testSp <= 575 ? 7.5 : 5; // Adaptive variance for static pressure tolerance
         const l = 1 - staticPressureVariance / 100;
         const u = 1 + staticPressureVariance / 100;
         const lower = staticRef * l;
@@ -625,19 +651,7 @@ export async function Output({ units, input, dataSource }) {
         };
       });
     } catch (err) {
-      try {
-        const motorDataPath = path.join(
-          __dirname,
-          "..",
-          "AxialMotorData",
-          "MotorData.json"
-        );
-        const motorsRaw = fs.readFileSync(motorDataPath, "utf8");
-        motors = JSON.parse(motorsRaw);
-      } catch (err2) {
-        // if file missing or parse error, continue without matching
-        motors = [];
-      }
+      motors = [];
     }
     const attachClosestMotor = (fan) => {
       // determine fan power to match against motor.netpower
@@ -824,15 +838,7 @@ export async function exportFanData(res) {
       updatedAt: r.updatedAt,
     }));
   } catch (e) {
-    try {
-      const raw = fs.readFileSync(
-        path.join(__dirname, "axialFan.json"),
-        "utf8"
-      );
-      data = JSON.parse(raw || "[]");
-    } catch (e2) {
-      data = [];
-    }
+    throw new Error("Failed to export fan data from database: " + (e?.message || String(e)));
   }
 
   const filename = "FanData-export.xlsx";
@@ -1093,15 +1099,6 @@ export async function importFanDataFromExcel(
     const prismaClientFinal = await getPrismaClient();
     return await prismaClientFinal.fanData.findMany();
   } catch (err) {
-    // fallback to file write
-    try {
-      const filePath = path.join(__dirname, "axialFan.json");
-      const existing = JSON.parse(fs.readFileSync(filePath, "utf8") || "[]");
-      const merged = existing.concat(records);
-      fs.writeFileSync(filePath, JSON.stringify(merged, null, 2), "utf8");
-      return merged;
-    } catch (e) {
-      throw new Error("Failed to import fan data: " + e.message);
-    }
+    throw new Error("Failed to import fan data: " + (err?.message || String(err)));
   }
 }

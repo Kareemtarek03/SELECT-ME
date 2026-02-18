@@ -213,7 +213,7 @@ export default function CentrifugalFanSecondInputPage() {
                 const row = phase16Rows[i];
                 // Get the motor data from Phase 13 for this row
                 const phase17Motor = motorSelections?.[row.index] || motorSelections?.[i] || null;
-
+                console.log("🔍 phase17Motor:", phase17Motor);
                 try {
                     const phase18Resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/phase18`, {
                         method: "POST",

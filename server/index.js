@@ -23,6 +23,7 @@ import { accessoriesRoutes } from "./Newmodules/axial/AxialPricing/index.js";
 
 // Centrifugal fan modules
 import centrifugalFanDataRoutes from "./Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js";
+import centrifugalDataAdminRoutes from "./Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.route.js";
 import centrifugalPdfRoutes from "./Newmodules/centrifugal/CentrifugalPDF/centrifugalPdf.route.js";
 
 // Database Initialization
@@ -58,6 +59,7 @@ app.use("/api/accessories-pricing", accessoriesRoutes);
 
 // Register API routes - Centrifugal fan routes
 app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes);
+app.use("/api/centrifugal/data", centrifugalDataAdminRoutes);
 app.use("/api/centrifugal/pdf", centrifugalPdfRoutes);
 
 // Catalog routes - commented out as module doesn't exist yet

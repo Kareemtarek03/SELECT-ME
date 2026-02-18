@@ -26,16 +26,35 @@ export default function LandingPage() {
             position="relative"
             overflow="hidden"
         >
-            <Box w="100vw" display="flex" justifyContent="flex-end">
+            <Box w="100vw" display="flex" justifyContent="flex-end" alignItems="center" gap={2} margin={2}>
                 <Button
-                    margin={2}
-                    backgroundColor="transparent"
+                    variant="ghost"
+                    size="sm"
                     color="#475569"
-                    textDecoration="underline"
                     _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin")}
+                    onClick={() => navigate("/admin/axial")}
                 >
-                    Admin
+                    Axial Data
+                </Button>
+                <Text color="#cbd5e1">|</Text>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    color="#475569"
+                    _hover={{ color: "#1e293b" }}
+                    onClick={() => navigate("/admin/common")}
+                >
+                    Common Data
+                </Button>
+                <Text color="#cbd5e1">|</Text>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    color="#475569"
+                    _hover={{ color: "#1e293b" }}
+                    onClick={() => navigate("/admin/centrifugal")}
+                >
+                    Centrifugal Data
                 </Button>
             </Box>
             {/* Main Content */}

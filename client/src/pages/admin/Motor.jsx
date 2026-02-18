@@ -337,8 +337,8 @@ export default function MotorPage() {
   };
 
   return (
-    <Box p={4} bg="var(--bg-page)" color="var(--text-primary)">
-      <Heading mb={4} fontSize={"4xl"} textAlign={"center"}>
+    <Box p={4} bg="#f8fafc" color="#1e293b">
+      <Heading mb={4} fontSize={"4xl"} textAlign={"center"} color="#1e293b">
         Motor Data
       </Heading>
 
@@ -346,19 +346,18 @@ export default function MotorPage() {
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
-            bg="var(--success)"
-            _hover={{ bg: "#059669" }}
+            bg="#059669"
+            color="white"
+            _hover={{ bg: "#047857" }}
             onClick={handleAddNew}
           >
             + Add Item
           </Button>
           <Button
             size="sm"
-            bg="var(--accent)"
-            _hover={{
-              bg: "#2563eb",
-              boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-            }}
+            bg="#3b82f6"
+            color="white"
+            _hover={{ bg: "#2563eb" }}
             onClick={fetchData}
             isDisabled={loading}
           >
@@ -370,19 +369,18 @@ export default function MotorPage() {
           <Box mb={4} display="flex" gap={2} alignItems="center">
             <Button
               size="sm"
-              bg="var(--success)"
-              _hover={{ bg: "#059669" }}
+              bg="#059669"
+              color="white"
+              _hover={{ bg: "#047857" }}
               onClick={downloadMotorTemplate}
             >
               Download Template
             </Button>
             <Button
               size="sm"
-              bg="var(--accent)"
-              _hover={{
-                bg: "#2563eb",
-                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-              }}
+              bg="#3b82f6"
+              color="white"
+              _hover={{ bg: "#2563eb" }}
               onClick={() =>
                 fileInputRef.current && fileInputRef.current.click()
               }
@@ -451,12 +449,10 @@ export default function MotorPage() {
           <Box mb={4} display="flex" gap={2} alignItems="center">
             <Button
               size="sm"
-              bg="var(--accent)"
+              bg="#3b82f6"
+              color="white"
               isLoading={downloading}
-              _hover={{
-                bg: "#2563eb",
-                boxShadow: "0 4px 12px rgba(59, 130, 246, 0.3)",
-              }}
+              _hover={{ bg: "#2563eb" }}
               onClick={async () => {
                 try {
                   setDownloading(true);
@@ -541,8 +537,8 @@ export default function MotorPage() {
           boxShadow="0 1px 3px rgba(0,0,0,0.08)"
           >
           <Table.Root bg="transparent" w={"max-content"}>
-            <Table.Header bg="#f1f5f9" color="var(--text-primary)">
-              <Table.Row bg="#f1f5f9" color="var(--text-primary)">
+            <Table.Header bg="#f1f5f9" color="#1e293b">
+              <Table.Row bg="#f1f5f9" color="#1e293b">
                 <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1" textAlign="center" verticalAlign="middle">Actions</Table.ColumnHeader>
 
                 {columns.map((col) => (
@@ -561,26 +557,28 @@ export default function MotorPage() {
               </Table.Row>
             </Table.Header>
 
-            <Table.Body borderColor="var(--border-color)">
+            <Table.Body borderColor="#e2e8f0">
               {motors.map((m, idx) => {
-                const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
+                const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
 
                 return (
-                  <Table.Row key={`c-${m.id}`} color="var(--text-primary)" bg={rowBg}>
-                    <Table.Cell borderColor="var(--border-color)" textAlign="center" verticalAlign="middle">
+                  <Table.Row key={`c-${m.id}`} color="#1e293b" bg={rowBg} _hover={{ bg: "#f1f5f9" }}>
+                    <Table.Cell borderColor="#e2e8f0" textAlign="center" verticalAlign="middle">
                       <Box display="flex" gap={1} justifyContent="center">
                         <Button
                           size="xs"
-                          bg="var(--accent)"
+                          bg="#3b82f6"
                           color="white"
-                          _hover={{ bg: "var(--accent-hover)" }}
+                          _hover={{ bg: "#2563eb" }}
                           onClick={() => handleEdit(m)}
                         >
                           Edit
                         </Button>
                         <Button
                           size="xs"
-                          colorScheme="red"
+                          bg="#1e293b"
+                          color="white"
+                          _hover={{ bg: "#0f172a" }}
                           isLoading={deletingIds.includes(m.id)}
                           onClick={() => {
                             setSelectedMotor(m);
@@ -598,13 +596,13 @@ export default function MotorPage() {
 
                       return (
                         <Table.Cell
-                          borderColor="var(--border-color)"
+                          borderColor="#e2e8f0"
                           key={`r-${col.key}-${m.id}`}
-                          color={isCalculated ? "var(--success)" : "var(--text-primary)"}
+                          color={isCalculated ? "#059669" : "#1e293b"}
                           fontWeight={isCalculated ? "medium" : "normal"}
                           textAlign="center"
                           verticalAlign="middle"
-                          borderRight={hasSeparatorAfter(col.key) ? "1px solid var(--border-color)" : undefined}
+                          borderRight={hasSeparatorAfter(col.key) ? "1px solid #e2e8f0" : undefined}
                         >
                           {isCalculated ? formatCurrency(val) : formatValue(val)}
                         </Table.Cell>
@@ -624,34 +622,37 @@ export default function MotorPage() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)">
+            <Dialog.Content bg="#ffffff" color="#1e293b" border="1px solid #e2e8f0" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
               <Dialog.Header>
-                <Dialog.Title>Delete Motor</Dialog.Title>
+                <Dialog.Title color="#1e293b">Delete Motor</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 {selectedMotor ? (
-                  <Text>
+                  <Text color="#64748b">
                     Are you sure you want to delete motor ID{" "}
                     <strong>{selectedMotor.id}</strong>? This action cannot be
                     undone.
                   </Text>
                 ) : (
-                  <Text>No motor selected.</Text>
+                  <Text color="#64748b">No motor selected.</Text>
                 )}
               </Dialog.Body>
               <Dialog.Footer>
                 <Dialog.ActionTrigger asChild>
                   <Button
                     variant="solid"
-                    color="var(--text-primary)"
-                    bg="var(--bg-elevated)"
+                    bg="#e2e8f0"
+                    color="#1e293b"
+                    _hover={{ bg: "#cbd5e1" }}
                     onClick={() => setOpenDialog(false)}
                   >
                     Cancel
                   </Button>
                 </Dialog.ActionTrigger>
                 <Button
-                  colorScheme="red"
+                  bg="#1e293b"
+                  color="white"
+                  _hover={{ bg: "#0f172a" }}
                   onClick={() => handleDelete(selectedMotor?.id)}
                   isLoading={deletingIds.includes(selectedMotor?.id)}
                 >
@@ -661,8 +662,8 @@ export default function MotorPage() {
               <Dialog.CloseTrigger asChild>
                 <CloseButton
                   size="sm"
-                  color="var(--text-primary)"
-                  _hover={{ bg: "var(--bg-elevated)" }}
+                  color="#1e293b"
+                  _hover={{ bg: "#f1f5f9" }}
                   onClick={() => {
                     setOpenDialog(false);
                   }}
@@ -678,9 +679,9 @@ export default function MotorPage() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" maxW="90vw" maxH="90vh">
+            <Dialog.Content bg="#ffffff" color="#1e293b" maxW="90vw" maxH="90vh" border="1px solid #e2e8f0" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
               <Dialog.Header>
-                <Dialog.Title>
+                <Dialog.Title color="#1e293b">
                   {editingMotor ? `Edit Motor (ID: ${editingMotor.id})` : "Add New Motor"}
                 </Dialog.Title>
               </Dialog.Header>
@@ -691,10 +692,10 @@ export default function MotorPage() {
                       const isCalculated = isCalculatedField(col);
                       return (
                         <Box key={col}>
-                          <Text fontSize="sm" mb={1} color={isCalculated ? "var(--success)" : "var(--text-muted)"}>
+                          <Text fontSize="sm" mb={1} color={isCalculated ? "#059669" : "#64748b"}>
                             {col}
                             {isCalculated && (
-                              <Text as="span" fontSize="xs" ml={2} color="var(--success)">
+                              <Text as="span" fontSize="xs" ml={2} color="#059669">
                                 (Auto-calculated)
                               </Text>
                             )}
@@ -703,12 +704,12 @@ export default function MotorPage() {
                             <Box
                               px={3}
                               py={2}
-                              bg="var(--bg-card)"
+                              bg="#f8fafc"
                               borderWidth="1px"
-                              borderColor="var(--border-color)"
+                              borderColor="#e2e8f0"
                               borderRadius="md"
                               fontSize="sm"
-                              color="var(--success)"
+                              color="#059669"
                             >
                               {editingMotor
                                 ? formatCurrency(editingMotor[col])
@@ -717,8 +718,10 @@ export default function MotorPage() {
                           ) : (
                             <Input
                               size="sm"
-                              bg="var(--bg-page)"
-                              borderColor="var(--border-color)"
+                              bg="#f8fafc"
+                              color="#1e293b"
+                              borderColor="#e2e8f0"
+                              _placeholder={{ color: "#64748b" }}
                               value={formData[col] ?? ""}
                               onChange={(e) => handleFormChange(col, e.target.value)}
                               placeholder={col}
@@ -732,9 +735,9 @@ export default function MotorPage() {
               </Dialog.Body>
               <Dialog.Footer>
                 <Button
-                  variant="solid"
-                  color="var(--text-primary)"
-                  bg="var(--bg-elevated)"
+                  bg="#e2e8f0"
+                  color="#1e293b"
+                  _hover={{ bg: "#cbd5e1" }}
                   onClick={() => {
                     setEditModalOpen(false);
                     setEditingMotor(null);
@@ -744,9 +747,9 @@ export default function MotorPage() {
                   Cancel
                 </Button>
                 <Button
-                  bg="var(--success)"
+                  bg="#059669"
                   color="white"
-                  _hover={{ bg: "#059669" }}
+                  _hover={{ bg: "#047857" }}
                   onClick={handleSave}
                   isLoading={saving}
                   ml={2}
@@ -757,8 +760,8 @@ export default function MotorPage() {
               <Dialog.CloseTrigger asChild>
                 <CloseButton
                   size="sm"
-                  color="var(--text-primary)"
-                  _hover={{ bg: "var(--bg-elevated)" }}
+                  color="#1e293b"
+                  _hover={{ bg: "#f1f5f9" }}
                   onClick={() => {
                     setEditModalOpen(false);
                     setEditingMotor(null);

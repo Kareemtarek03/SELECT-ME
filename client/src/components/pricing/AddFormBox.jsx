@@ -17,13 +17,14 @@ export default function AddFormBox({
 
   return (
     <Box
-      bg="var(--bg-card)"
+      bg="#ffffff"
       borderRadius="lg"
-      border="1px solid var(--border-color)"
+      border="1px solid #e2e8f0"
       p={6}
       mb={4}
+      boxShadow="0 1px 3px rgba(0,0,0,0.08)"
     >
-      <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
+      <Heading as="h3" size="md" color="#1e293b" mb={4}>
         {title}
       </Heading>
       <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={4}>
@@ -31,18 +32,18 @@ export default function AddFormBox({
       </Box>
       <Box display="flex" gap={3} mt={4}>
         <Button
-          bg="var(--success)"
+          bg="#059669"
           color="white"
-          _hover={{ bg: "var(--success-hover)" }}
+          _hover={{ bg: "#047857" }}
           leftIcon={<FaSave />}
           onClick={onSave}
         >
           Save
         </Button>
         <Button
-          bg="var(--text-muted-2)"
-          color="var(--text-primary)"
-          _hover={{ bg: "var(--border-color)" }}
+          bg="#e2e8f0"
+          color="#1e293b"
+          _hover={{ bg: "#cbd5e1" }}
           leftIcon={<FaTimes />}
           onClick={onCancel}
         >

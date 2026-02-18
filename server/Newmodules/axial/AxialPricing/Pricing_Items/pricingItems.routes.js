@@ -28,6 +28,8 @@ router.delete("/categories/:id", authenticateToken, isAdmin, PricingItemsControl
 // ========================
 
 router.get("/categories/:categoryId/items", authenticateToken, isAdmin, PricingItemsController.getItemsByCategory);
+router.get("/items/template/download", authenticateToken, isAdmin, PricingItemsController.exportTemplate);
+router.post("/items/import", authenticateToken, isAdmin, PricingItemsController.importTemplate);
 router.get("/items/:id", authenticateToken, isAdmin, PricingItemsController.getItemById);
 router.post("/items", authenticateToken, isAdmin, PricingItemsController.createItem);
 router.patch("/items/:id", authenticateToken, isAdmin, (req, res, next) => {

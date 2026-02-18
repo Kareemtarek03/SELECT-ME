@@ -12,10 +12,10 @@ import {
 import { EditModeButtons, ViewModeButtons } from "./pricing/ActionButtons";
 
 const inputProps = {
-  bg: "var(--bg-page)",
-  color: "var(--text-primary)",
-  border: "1px solid var(--border-color)",
-  _placeholder: { color: "var(--text-muted-2)" },
+  bg: "#f8fafc",
+  color: "#1e293b",
+  border: "1px solid #e2e8f0",
+  _placeholder: { color: "#64748b" },
 };
 
 const INITIAL_FORM = {
@@ -84,6 +84,15 @@ export default function CasingPricingTable({
     setAlert,
     "Casing"
   );
+  const formatNumber = (price) => {
+    if (price === null || price === undefined) return "—";
+    const num = typeof price === "number" ? price : parseFloat(price);
+    if (isNaN(num)) return "—";
+    return num.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  };
 
   return (
     <>
@@ -116,9 +125,9 @@ export default function CasingPricingTable({
         title="Casing"
         onAdd={() => setShowAddForm(!showAddForm)}
       >
-        <Table.Root bg="var(--bg-card)" w="100%">
-          <Table.Header bg="var(--bg-card)" color="var(--text-primary)">
-            <Table.Row bg="var(--bg-card)" color="var(--text-primary)">
+        <Table.Root bg="#ffffff" w="100%">
+          <Table.Header bg="#f1f5f9" color="#1e293b">
+            <Table.Row bg="#f1f5f9" color="#1e293b">
               {HEADERS.map((header, idx) => (
                 <HeaderCell key={header} isLast={idx === HEADERS.length - 1}>
                   {header}
@@ -126,15 +135,15 @@ export default function CasingPricingTable({
               ))}
             </Table.Row>
           </Table.Header>
-          <Table.Body borderColor="var(--border-color)">
+          <Table.Body borderColor="#e2e8f0">
             {casings.map((item, idx) => {
-              const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
+              const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
               return (
                 <Table.Row
                   key={item.id}
                   bg={rowBg}
-                  color="var(--text-primary)"
-                  _hover={{ bg: "var(--bg-elevated)" }}
+                  color="#1e293b"
+                  _hover={{ bg: "#f1f5f9" }}
                 >
                   {editingId === item.id ? (
                     <>
@@ -286,30 +295,30 @@ export default function CasingPricingTable({
                   ) : (
                     <>
                       <TableCell>{item.model}</TableCell>
-                      <TableCell>{item.sizeMm}</TableCell>
-                      <TableCell>{item.casingWeightKgWithoutScrap}</TableCell>
-                      <TableCell>{item.scrapPercentage}</TableCell>
+                      <TableCell>{formatNumber(item.sizeMm)}</TableCell>
+                      <TableCell>{formatNumber(item.casingWeightKgWithoutScrap)}</TableCell>
+                      <TableCell>{formatNumber(item.scrapPercentage)}</TableCell>
                       <TableCell>
                         {item.weightWithScrap
                           ? item.weightWithScrap.toFixed(3)
                           : "-"}
                       </TableCell>
-                      <TableCell>{item.casingCircumferenceMeter}</TableCell>
-                      <TableCell>{item.laserTimeMinutes}</TableCell>
-                      <TableCell>{item.bendingLine}</TableCell>
-                      <TableCell>{item.rolling}</TableCell>
-                      <TableCell>{item.paintingDiameter}</TableCell>
-                      <TableCell>{item.profitPercentage}</TableCell>
+                      <TableCell>{formatNumber(item.casingCircumferenceMeter)}</TableCell>
+                      <TableCell>{formatNumber(item.laserTimeMinutes)}</TableCell>
+                      <TableCell>{formatNumber(item.bendingLine)}</TableCell>
+                      <TableCell>{formatNumber(item.rolling)}</TableCell>
+                      <TableCell>{formatNumber(item.paintingDiameter)}</TableCell>
+                      <TableCell>{formatNumber(item.profitPercentage)}</TableCell>
                       <TableCell>{item.accessory1Description || "-"}</TableCell>
                       <TableCell>
-                        {item.accessory1PriceWithoutVat || "-"}
+                        {formatNumber(item.accessory1PriceWithoutVat) || "-"}
                       </TableCell>
                       <TableCell>{item.accessory2Description || "-"}</TableCell>
                       <TableCell>
-                        {item.accessory2PriceWithoutVat || "-"}
+                        {formatNumber(item.accessory2PriceWithoutVat) || "-"}
                       </TableCell>
                       <TableCell>
-                        {item.totalCost ? item.totalCost.toFixed(2) : "-"}
+                        {formatNumber(item.totalCostWithVat ?? item.totalCost)}
                       </TableCell>
                       <TableCell isLast>
                         <ViewModeButtons

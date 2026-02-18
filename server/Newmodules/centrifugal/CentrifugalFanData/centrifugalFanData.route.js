@@ -3,6 +3,8 @@ import {
   processFanDataController,
   getOutputFile,
   deleteFanDataController,
+  createCentrifugalFanController,
+  updateCentrifugalFanController,
   renderFanDataForm,
   processPhase11Controller,
   processPhase12Controller,
@@ -25,10 +27,16 @@ router.get("/form", renderFanDataForm);
 // POST /api/fan-data/process - Main endpoint for Phase 1-6 calculations
 router.post("/process", processFanDataController);
 
-// GET /api/fan-data - Get output file from database
+// GET /api/fan-data - List centrifugal fan data (admin)
 router.get("/fan-data", getOutputFile);
 
-// DELETE /api/fan-data/:id - Delete fan data by ID
+// POST /fan-data - Create centrifugal fan (admin CRUD)
+router.post("/fan-data", createCentrifugalFanController);
+
+// PUT /:id - Update centrifugal fan (admin CRUD)
+router.put("/:id", updateCentrifugalFanController);
+
+// DELETE /:id - Delete fan data by ID
 router.delete("/:id", deleteFanDataController);
 
 // POST /api/fan-data/phase11 - Phase 11 belt selection calculations

@@ -8,15 +8,15 @@ import AccessoriesTab from "./AccessoriesTab";
 import ImpellerPricingTab from "./ImpellerPricingTab";
 import CasingPricingTab from "./CasingPricingTab";
 
-export default function AxialPricingTabsPage() {
-  const [activeTab, setActiveTab] = useState("pricing-items");
-
+export default function AxialPricingTabsPage({ hidePricingItemsTab = false }) {
   const tabs = [
     { id: "pricing-items", name: "Pricing Items", icon: FaList },
     { id: "accessories", name: "Accessories", icon: FaTools },
     { id: "impeller", name: "Impeller Pricing", icon: FaCog },
     { id: "casing", name: "Casing Pricing", icon: FaCube },
-  ];
+  ].filter((t) => !(hidePricingItemsTab && t.id === "pricing-items"));
+  const defaultTab = hidePricingItemsTab ? "accessories" : "pricing-items";
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   return (
     <Box
@@ -50,14 +50,14 @@ export default function AxialPricingTabsPage() {
               <Button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                bg={isActive ? "#3b82f6" : "#ffffff"}
+                bg={isActive ? "#1e293b" : "#ffffff"}
                 color={isActive ? "white" : "#475569"}
                 border="1px solid"
-                borderColor={isActive ? "#3b82f6" : "#e2e8f0"}
+                borderColor={isActive ? "#1e293b" : "#e2e8f0"}
                 _hover={{
-                  bg: isActive ? "#2563eb" : "#f1f5f9",
+                  bg: isActive ? "#0f172a" : "#f1f5f9",
                   color: isActive ? "white" : "#1e293b",
-                  borderColor: isActive ? "#2563eb" : "#cbd5e1",
+                  borderColor: isActive ? "#0f172a" : "#cbd5e1",
                 }}
                 px={6}
                 py={5}
@@ -77,7 +77,7 @@ export default function AxialPricingTabsPage() {
 
         {/* Tab Content */}
         <Box>
-          {activeTab === "pricing-items" && <PricingItemsTab />}
+          {!hidePricingItemsTab && activeTab === "pricing-items" && <PricingItemsTab />}
           {activeTab === "accessories" && <AccessoriesTab />}
           {activeTab === "impeller" && <ImpellerPricingTab />}
           {activeTab === "casing" && <CasingPricingTab />}
