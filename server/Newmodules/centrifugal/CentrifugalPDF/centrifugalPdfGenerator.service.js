@@ -49,7 +49,23 @@ const COLORS = {
 
 // ===== UTILITY FUNCTIONS =====
 function fmt(v, d = 0) {
-    return v == null || isNaN(v) ? "—" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+    return v == null || isNaN(v) ? "—" : Number(v).toFixed(d);
+}
+
+// Format number with thousand separators (locale-aware)
+function fmtThousands(v, d = 0) {
+    if (v == null || isNaN(v)) return "—";
+    return Number(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+// Determine decimal precision based on unit combination
+function getPrecision(airFlowUnit, pressureUnit) {
+    const isMixedUnits = (airFlowUnit === 'm³/s' || airFlowUnit === 'm^3/s') && pressureUnit === 'in.wg';
+    return {
+        airFlow: isMixedUnits ? 3 : 0,
+        pressure: isMixedUnits ? 4 : 1,
+        power: 2,
+    };
 }
 
 function fmtPct(v) {
@@ -131,9 +147,77 @@ function linearInterpolation(xArray, yArray, mult = 1, numSamples = 100) {
     return result;
 }
 
-// Get curve points using linear interpolation
+// Cubic spline interpolation (aligned with frontend fan-curve tab behavior)
+function cubicSplineInterpolation(xArray, yArray, mult = 1, numSamples = 800) {
+    if (!xArray || !yArray || xArray.length < 2 || yArray.length < 2) return [];
+
+    const validPairs = [];
+    for (let i = 0; i < xArray.length; i++) {
+        if (xArray[i] != null && yArray[i] != null && !isNaN(xArray[i]) && !isNaN(yArray[i])) {
+            validPairs.push({ x: Number(xArray[i]), y: Number(yArray[i]) * mult });
+        }
+    }
+
+    if (validPairs.length < 2) return validPairs;
+    validPairs.sort((a, b) => a.x - b.x);
+
+    const xs = validPairs.map((p) => p.x);
+    const ys = validPairs.map((p) => p.y);
+    const n = xs.length;
+
+    if (n === 2) return linearInterpolation(xs, ys, 1, numSamples);
+
+    const h = [];
+    for (let i = 0; i < n - 1; i++) h.push(xs[i + 1] - xs[i]);
+
+    const alpha = [0];
+    for (let i = 1; i < n - 1; i++) {
+        alpha.push((3 / h[i]) * (ys[i + 1] - ys[i]) - (3 / h[i - 1]) * (ys[i] - ys[i - 1]));
+    }
+
+    const l = new Array(n).fill(1);
+    const mu = new Array(n).fill(0);
+    const z = new Array(n).fill(0);
+    for (let i = 1; i < n - 1; i++) {
+        l[i] = 2 * (xs[i + 1] - xs[i - 1]) - h[i - 1] * mu[i - 1];
+        mu[i] = h[i] / l[i];
+        z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+    }
+
+    const b = new Array(n).fill(0);
+    const c = new Array(n).fill(0);
+    const d = new Array(n).fill(0);
+    for (let j = n - 2; j >= 0; j--) {
+        c[j] = z[j] - mu[j] * c[j + 1];
+        b[j] = (ys[j + 1] - ys[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+        d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+    }
+
+    const xMin = xs[0];
+    const xMax = xs[n - 1];
+    const step = (xMax - xMin) / (numSamples - 1);
+    const result = [];
+
+    for (let i = 0; i < numSamples; i++) {
+        const x = xMin + i * step;
+        let seg = n - 2;
+        for (let j = 0; j < n - 1; j++) {
+            if (x <= xs[j + 1]) {
+                seg = j;
+                break;
+            }
+        }
+        const dx = x - xs[seg];
+        const y = ys[seg] + b[seg] * dx + c[seg] * dx * dx + d[seg] * dx * dx * dx;
+        result.push({ x: parseFloat(x.toFixed(4)), y: parseFloat(y.toFixed(4)) });
+    }
+
+    return result;
+}
+
+// Get curve points using same interpolation mode as fan curve tab
 function getCurvePoints(xArr, yArr, mult = 1) {
-    return linearInterpolation(xArr, yArr, mult, 80);
+    return cubicSplineInterpolation(xArr, yArr, mult, 800);
 }
 
 // Convert mm to points (1mm = 2.83465 points)
@@ -837,55 +921,68 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     });
     pwCurve.forEach((pt) => { if (pt.y > pwMax) pwMax = pt.y; });
 
-    const xMin = 0;
-    let xMax = 14000;
-    let xStep = 2000; // Default
-    if (dataXMax > 0) {
-        let xTargetTicks = (dataXMax <= 10) ? 4 : 10;
-        const rawXStep = dataXMax / xTargetTicks;
-        const xMag = Math.pow(10, Math.floor(Math.log10(rawXStep || 1)));
-        const normXStep = rawXStep / xMag;
-        let niceXNorm = 10;
-        if (normXStep <= 1) niceXNorm = 1;
-        else if (normXStep <= 2) niceXNorm = 2;
-        else if (normXStep <= 5) niceXNorm = 5;
-        xStep = niceXNorm * xMag;
-        xMax = Math.ceil(dataXMax / xStep) * xStep;
+    // ===== Shared nice-tick algorithm (must match frontend generateNiceTicks) =====
+    function generateNiceTicks(dataMax, numIntervals = 10) {
+        // Safety: handle NaN, undefined, null, zero, or negative
+        if (dataMax == null || isNaN(dataMax) || dataMax <= 0) {
+            return { ticks: [0], max: 1, step: 0.1, decimals: 1 };
+        }
+        const margin = dataMax * 1.05;
+        const rawStep = margin / numIntervals;
+        const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+        const norm = rawStep / mag;
+        let nice;
+        if (norm <= 1) nice = 1;
+        else if (norm <= 1.5) nice = 1.5;
+        else if (norm <= 2) nice = 2;
+        else if (norm <= 2.5) nice = 2.5;
+        else if (norm <= 3) nice = 3;
+        else if (norm <= 5) nice = 5;
+        else nice = 10;
+        const step = nice * mag;
+        const axisMax = Math.ceil(margin / step) * step;
+        const count = Math.round(axisMax / step);
+        const ticks = [];
+        for (let i = 0; i <= count; i++) {
+            ticks.push(parseFloat((i * step).toFixed(8)));
+        }
+        // Calculate appropriate decimal places based on step size
+        let decimals = 0;
+        if (step < 0.01) decimals = 3;
+        else if (step < 0.1) decimals = 2;
+        else if (step < 1) decimals = 1;
+        else decimals = 0;
+        return { ticks, max: ticks[ticks.length - 1] || axisMax, step, decimals };
     }
+
+    const xMin = 0;
+    // X-axis: exactly 10 intervals (matching frontend)
+    const xTickResult = generateNiceTicks(dataXMax || 14000, 10);
+    const xMax = xTickResult.max;
+    const xStep = xTickResult.step;
+    const xTicksPdf = xTickResult.ticks;
 
     const pMin = 0;
-    let pMaxBound = pMax * 1.05; // 5% margin
-    let pStep = 50;
-    if (pMaxBound > 0) {
-        let pTargetTicks = (pMaxBound <= 10) ? 4 : 8;
-        const rawPStep = pMaxBound / pTargetTicks;
-        const pMag = Math.pow(10, Math.floor(Math.log10(rawPStep || 1)));
-        const normPStep = rawPStep / pMag;
-        let nicePNorm = 10;
-        if (normPStep <= 1) nicePNorm = 1;
-        else if (normPStep <= 2) nicePNorm = 2;
-        else if (normPStep <= 5) nicePNorm = 5;
-        pStep = nicePNorm * pMag;
-        pMaxBound = Math.ceil(pMaxBound / pStep) * pStep;
+    // Include system curve peak in pMax
+    if (operatingStaticPressure && operatingAirFlow && operatingAirFlow > 0) {
+        const coeffA = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
+        const maxSysP = coeffA * Math.pow(dataXMax, 2);
+        if (maxSysP > pMax) pMax = maxSysP;
     }
-    const finalPMax = pMaxBound || 600;
+    if (operatingStaticPressure && operatingStaticPressure > pMax) pMax = operatingStaticPressure;
+    // Ps Y-axis: exactly 10 intervals
+    const pTickResult = generateNiceTicks(pMax || 600, 10);
+    const finalPMax = pTickResult.max;
+    const pStep = pTickResult.step;
+    const pTicksPdf = pTickResult.ticks;
 
     const pwMin = 0;
-    let pwMaxBound = pwMax * 1.05; // 5% margin
-    let pwStep = 0.2;
-    if (pwMaxBound > 0) {
-        let pwTargetTicks = (pwMaxBound <= 10) ? 4 : 8;
-        const rawPwStep = pwMaxBound / pwTargetTicks;
-        const pwMag = Math.pow(10, Math.floor(Math.log10(rawPwStep || 1)));
-        const normPwStep = rawPwStep / pwMag;
-        let nicePwNorm = 10;
-        if (normPwStep <= 1) nicePwNorm = 1;
-        else if (normPwStep <= 2) nicePwNorm = 2;
-        else if (normPwStep <= 5) nicePwNorm = 5;
-        pwStep = nicePwNorm * pwMag;
-        pwMaxBound = Math.ceil(pwMaxBound / pwStep) * pwStep;
-    }
-    const finalPwMax = pwMaxBound || 1.8;
+    // Pshaft Y-axis: exactly 10 intervals
+    const pwDataMax = pwMax * 1.2 || 1.8;
+    const pwTickResult = generateNiceTicks(pwDataMax, 10);
+    const finalPwMax = pwTickResult.max;
+    const pwStep = pwTickResult.step;
+    const pwTicksPdf = pwTickResult.ticks;
 
     const effMin = 0, effMax = 100;
 

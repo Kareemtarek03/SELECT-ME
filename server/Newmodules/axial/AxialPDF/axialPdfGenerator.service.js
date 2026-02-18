@@ -39,11 +39,11 @@ const COLORS = {
   gray: "#808080",             // Gray for notes text
   lightGray: "#E0E0E0",        // Light gray for borders
   gridGreen: "#90EE90",        // Light green for graph grid
-  // Curve colors - EXACT from reference image
-  curveGreen: "#006400",       // Dark green for efficiency curves (η)
-  curveRed: "#FF0000",         // Bright red for power curve (Pshaft)
-  curveBlue: "#002060",        // Dark navy blue for pressure curve (Ps)
-  curveBlack: "#595959",
+  // Curve colors - aligned with fan curve tab
+  curveGreen: "#385723",       // Efficiency curves (η)
+  curveRed: "#FF0000",         // System curve
+  curveBlue: "#002060",        // Fan input power
+  curveBlack: "#000000",       // Static pressure
 
 };
 
@@ -131,9 +131,77 @@ function linearInterpolation(xArray, yArray, mult = 1, numSamples = 100) {
   return result;
 }
 
-// Get curve points using linear interpolation
+// Cubic spline interpolation (aligned with frontend fan-curve tab behavior)
+function cubicSplineInterpolation(xArray, yArray, mult = 1, numSamples = 800) {
+  if (!xArray || !yArray || xArray.length < 2 || yArray.length < 2) return [];
+
+  const validPairs = [];
+  for (let i = 0; i < xArray.length; i++) {
+    if (xArray[i] != null && yArray[i] != null && !isNaN(xArray[i]) && !isNaN(yArray[i])) {
+      validPairs.push({ x: Number(xArray[i]), y: Number(yArray[i]) * mult });
+    }
+  }
+
+  if (validPairs.length < 2) return validPairs;
+  validPairs.sort((a, b) => a.x - b.x);
+
+  const xs = validPairs.map((p) => p.x);
+  const ys = validPairs.map((p) => p.y);
+  const n = xs.length;
+
+  if (n === 2) return linearInterpolation(xs, ys, 1, numSamples);
+
+  const h = [];
+  for (let i = 0; i < n - 1; i++) h.push(xs[i + 1] - xs[i]);
+
+  const alpha = [0];
+  for (let i = 1; i < n - 1; i++) {
+    alpha.push((3 / h[i]) * (ys[i + 1] - ys[i]) - (3 / h[i - 1]) * (ys[i] - ys[i - 1]));
+  }
+
+  const l = new Array(n).fill(1);
+  const mu = new Array(n).fill(0);
+  const z = new Array(n).fill(0);
+  for (let i = 1; i < n - 1; i++) {
+    l[i] = 2 * (xs[i + 1] - xs[i - 1]) - h[i - 1] * mu[i - 1];
+    mu[i] = h[i] / l[i];
+    z[i] = (alpha[i] - h[i - 1] * z[i - 1]) / l[i];
+  }
+
+  const b = new Array(n).fill(0);
+  const c = new Array(n).fill(0);
+  const d = new Array(n).fill(0);
+  for (let j = n - 2; j >= 0; j--) {
+    c[j] = z[j] - mu[j] * c[j + 1];
+    b[j] = (ys[j + 1] - ys[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+    d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
+  }
+
+  const xMin = xs[0];
+  const xMax = xs[n - 1];
+  const step = (xMax - xMin) / (numSamples - 1);
+  const result = [];
+
+  for (let i = 0; i < numSamples; i++) {
+    const x = xMin + i * step;
+    let seg = n - 2;
+    for (let j = 0; j < n - 1; j++) {
+      if (x <= xs[j + 1]) {
+        seg = j;
+        break;
+      }
+    }
+    const dx = x - xs[seg];
+    const y = ys[seg] + b[seg] * dx + c[seg] * dx * dx + d[seg] * dx * dx * dx;
+    result.push({ x: parseFloat(x.toFixed(4)), y: parseFloat(y.toFixed(4)) });
+  }
+
+  return result;
+}
+
+// Get curve points using same interpolation mode as fan curve tab
 function getCurvePoints(xArr, yArr, mult = 1) {
-  return linearInterpolation(xArr, yArr, mult, 80);
+  return cubicSplineInterpolation(xArr, yArr, mult, 800);
 }
 
 // Convert mm to points (1mm = 2.83465 points)
@@ -879,58 +947,64 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   });
   pwCurve.forEach((pt) => { if (pt.y > pwMax) pwMax = pt.y; });
 
-  const xMin = 0;
-
-  // Dynamic scaling: round up to nearest multiple of nice step
-  let xMax = 14000;
-  let xStep = 2000; // Default step
-  if (dataXMax > 0) {
-    let targetTicks = 10;
-    if (dataXMax <= 10) targetTicks = 4;
-
-    const rawStep = dataXMax / targetTicks;
-    const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
-    const normStep = rawStep / mag;
-
-    let stepMult = 10;
-    if (normStep <= 1) stepMult = 1;
-    else if (normStep <= 2) stepMult = 2;
-    else if (normStep <= 5) stepMult = 5;
-
-    xStep = stepMult * mag;
-    xMax = Math.ceil(dataXMax / xStep) * xStep;
+  // ===== Shared nice-tick algorithm (must match frontend generateNiceTicks) =====
+  function generateNiceTicks(dataMax, numIntervals = 10) {
+    if (dataMax == null || isNaN(dataMax) || dataMax <= 0) {
+      return { ticks: [0], max: 1, step: 0.1, decimals: 1 };
+    }
+    const margin = dataMax * 1.05;
+    const rawStep = margin / numIntervals;
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+    const norm = rawStep / mag;
+    let nice;
+    if (norm <= 1) nice = 1;
+    else if (norm <= 1.5) nice = 1.5;
+    else if (norm <= 2) nice = 2;
+    else if (norm <= 2.5) nice = 2.5;
+    else if (norm <= 3) nice = 3;
+    else if (norm <= 5) nice = 5;
+    else nice = 10;
+    const step = nice * mag;
+    const axisMax = Math.ceil(margin / step) * step;
+    const count = Math.round(axisMax / step);
+    const ticks = [];
+    for (let i = 0; i <= count; i++) {
+      ticks.push(parseFloat((i * step).toFixed(8)));
+    }
+    let decimals = 0;
+    if (step < 0.01) decimals = 3;
+    else if (step < 0.1) decimals = 2;
+    else if (step < 1) decimals = 1;
+    else decimals = 0;
+    return { ticks, max: ticks[ticks.length - 1] || axisMax, step, decimals };
   }
+
+  const xMin = 0;
+  // X-axis: exactly 10 intervals (matching frontend)
+  const xTickResult = generateNiceTicks(dataXMax || 14000, 10);
+  const xMax = xTickResult.max;
+  const xStep = xTickResult.step;
 
   const pMin = 0;
-  // Dynamic scaling for pMax
-  if (pMax > 0) {
-    const pMargin = pMax * 1.05; // 5% margin
-    let targetTicks = 10;
-    // Match the tick count logic used in Start drawing loop
-    if (pMargin <= 10) targetTicks = 3;
-    else if (pMargin <= 100) targetTicks = 5;
-    else if (pMargin <= 1000) targetTicks = 6;
-    else if (pMargin <= 5000) targetTicks = 7;
-    else targetTicks = 10;
-
-    const rawStep = pMargin / targetTicks;
-    const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
-    const normStep = rawStep / mag;
-    let stepMult = 10;
-    if (normStep <= 1) stepMult = 1;
-    else if (normStep <= 2) stepMult = 2;
-    else if (normStep <= 5) stepMult = 5;
-
-    const step = stepMult * mag;
-    // Enforce min step 2 for very small numbers if needed, though adaptive logic usually handles it
-    // if (step < 2 && pMargin <= 20) step = 2; 
-
-    pMax = Math.ceil(pMargin / step) * step;
-  } else {
-    pMax = 600;
+  // Include system curve peak in pMax
+  if (operatingStaticPressure && operatingAirFlow && operatingAirFlow > 0) {
+    const coeffA = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
+    const maxSysP = coeffA * Math.pow(dataXMax, 2);
+    if (maxSysP > pMax) pMax = maxSysP;
   }
+  if (operatingStaticPressure && operatingStaticPressure > pMax) pMax = operatingStaticPressure;
+  // Ps Y-axis: exactly 10 intervals
+  const pTickResult = generateNiceTicks(pMax || 600, 10);
+  const finalPMax = pTickResult.max;
+  const pStep = pTickResult.step;
+
   const pwMin = 0;
-  pwMax = Math.ceil(pwMax * 1.2 * 10) / 10 || 1.8;
+  // Pshaft Y-axis: exactly 10 intervals
+  const pwDataMax = pwMax * 1.2 || 1.8;
+  const pwTickResult = generateNiceTicks(pwDataMax, 10);
+  const finalPwMax = pwTickResult.max;
+  const pwStep = pwTickResult.step;
+
   const effMin = 0, effMax = 100;
 
   // ===== Y-AXIS LABELS =====
@@ -969,44 +1043,17 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   doc.text("Pshaft", axis2X - mm(10), graphY - mm(8), { width: mm(12), align: "center" });
   doc.text(`[${units?.power}]`, axis2X - mm(9), graphY - mm(5), { width: mm(10), align: "center" });
 
-  // Pshaft tick marks and labels (0.0, 0.2, 0.4... based on pwMax)
+  // Pshaft tick marks and labels using generateNiceTicks result
   doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
-  // Adaptive Pshaft axis with target ticks (3-10) based on range
-  const pwRange = pwMax - pwMin;
-  let pwTargetTicks = 10;
-
-  if (pwRange <= 1) pwTargetTicks = 4;
-  else if (pwRange <= 10) pwTargetTicks = 5;
-  else if (pwRange <= 100) pwTargetTicks = 6;
-  else pwTargetTicks = 8;
-
-  const rawPwStep = pwRange / pwTargetTicks;
-  const pwMag = Math.pow(10, Math.floor(Math.log10(rawPwStep || 1)));
-  const normPwStep = rawPwStep / pwMag;
-
-  let nicePwNorm;
-  if (normPwStep <= 1) nicePwNorm = 1;
-  else if (normPwStep <= 2) nicePwNorm = 5;
-  else if (normPwStep <= 5) nicePwNorm = 5;
-  else nicePwNorm = 10;
-
-  let pwStep = nicePwNorm * pwMag;
-
-  // Recalculate pwMax to align with step boundary if needed (ensure ticks cover range cleanly)
-  if (pwMax % pwStep !== 0) {
-    pwMax = Math.ceil(pwMax / pwStep) * pwStep;
-  }
-
-  const pwTicks = Math.round((pwMax - pwMin) / pwStep);
-
+  const pwTicks = Math.round((finalPwMax - pwMin) / pwStep);
   for (let i = 0; i <= pwTicks; i++) {
     const val = pwMin + i * pwStep;
-    const yPos = graphY + graphH - ((val - pwMin) / (pwMax - pwMin)) * graphH;
-    if (yPos >= graphY && yPos <= graphY + graphH + 1) { // Slight tolerance
+    const yPos = graphY + graphH - ((val - pwMin) / (finalPwMax - pwMin)) * graphH;
+    if (yPos >= graphY && yPos <= graphY + graphH + 1) {
       // Tick mark
       doc.moveTo(axis2X - tickLen, yPos).lineTo(axis2X, yPos).stroke();
       // Label
-      doc.text(fmt(val, 1), axis2X - mm(12), yPos - mm(1.5), { width: mm(8), align: "right" });
+      doc.text(fmt(val, pwTickResult.decimals), axis2X - mm(12), yPos - mm(1.5), { width: mm(8), align: "right" });
     }
   }
 
@@ -1019,38 +1066,17 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   doc.text("Ps", axis3X - mm(9), graphY - mm(8), { width: mm(6), align: "center" });
   doc.text(`[${units?.pressure}]`, axis3X - mm(10), graphY - mm(5), { width: mm(8), align: "center" });
 
-  // Ps tick marks and labels (0, 50, 100, 150... based on pMax) - use 50 Pa intervals like frontend
+  // Ps tick marks and labels using generateNiceTicks result
   doc.fontSize(8).font(getFont("bold")).fillColor("#595959");
-  // Adaptive 'nice step' calculation with user-defined target ticks
-  const range = pMax - pMin;
-  let targetTicks = 10;
-
-  if (range <= 100) targetTicks = 5;
-  else if (range <= 1000) targetTicks = 6;
-  else if (range <= 5000) targetTicks = 7;
-  else targetTicks = 10; // > 5000
-
-  const rawStep = range / targetTicks;
-  const mag = Math.pow(10, Math.floor(Math.log10(rawStep || 1)));
-  const normStep = rawStep / mag;
-
-  let niceNorm;
-  if (normStep <= 1) niceNorm = 1;
-  else if (normStep <= 2) niceNorm = 2;
-  else if (normStep <= 5) niceNorm = 5;
-  else niceNorm = 10;
-
-  let pStep = niceNorm * mag;
-  const pTicks = Math.ceil((pMax - pMin) / pStep);
-
+  const pTicks = Math.round((finalPMax - pMin) / pStep);
   for (let i = 0; i <= pTicks; i++) {
     const val = pMin + i * pStep;
-    const yPos = graphY + graphH - ((val - pMin) / (pMax - pMin)) * graphH;
+    const yPos = graphY + graphH - ((val - pMin) / (finalPMax - pMin)) * graphH;
     if (yPos >= graphY && yPos <= graphY + graphH) {
       // Tick mark
       doc.moveTo(axis3X - tickLen, yPos).lineTo(axis3X, yPos).stroke();
       // Label
-      doc.text(fmt(val, val < 10 ? 1 : 0), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
+      doc.text(fmt(val, pTickResult.decimals), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
     }
   }
 

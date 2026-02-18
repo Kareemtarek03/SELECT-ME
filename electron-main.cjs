@@ -455,13 +455,10 @@ function processFanData(units, input) {
       }
 
       // Build FanModel
-      const FanModel = `${fanType || ""}-${fan.impellerInnerDia || ""}-${
-        fan.noBlades || ""
-      }\\${fan.bladesAngle || ""}\\${fan.bladesMaterial || ""}${
-        fan.bladesSymbol || ""
-      }-${noPoles}${input.NoPhases == 3 ? "T" : "M"}${
-        matchedMotor ? `-${matchedMotor.powerHorse || ""}` : ""
-      }`;
+      const FanModel = `${fanType || ""}-${fan.impellerInnerDia || ""}-${fan.noBlades || ""
+        }\\${fan.bladesAngle || ""}\\${fan.bladesMaterial || ""}${fan.bladesSymbol || ""
+        }-${noPoles}${input.NoPhases == 3 ? "T" : "M"}${matchedMotor ? `-${matchedMotor.powerHorse || ""}` : ""
+        }`;
 
       results.push({
         Id: fan.id,
@@ -720,6 +717,33 @@ function startServer() {
         }
       });
 
+      // Phase 18 - Final output table (individual row)
+      expressApp.post("/api/centrifugal/fan-data/phase18", async (req, res) => {
+        try {
+          const { selectedFan, phase16Row, phase17Motor, userPoles, userPhases, innerDiameter } = req.body;
+          const centrifugalService = await import(
+            getModulePath(
+              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+            )
+          );
+          const result = centrifugalService.processPhase18({
+            selectedFan,
+            phase16Row,
+            phase17Motor,
+            userPoles: userPoles || 4,
+            userPhases: userPhases || 3,
+            innerDiameter,
+          });
+          res.json({
+            message: "✅ Phase 18 calculated successfully!",
+            phase18: result,
+          });
+        } catch (err) {
+          console.error("Phase 18 error:", err);
+          res.status(500).json({ error: err.message, details: err.message });
+        }
+      });
+
       // Phase 17 - Sound data calculation (uses Phase 20 logic)
       expressApp.post("/api/centrifugal/fan-data/phase17", async (req, res) => {
         try {
@@ -781,6 +805,31 @@ function startServer() {
         }
       });
 
+      // Phase 20 - Noise data calculation (LW(A) and LP(A))
+      expressApp.post("/api/centrifugal/fan-data/phase20", async (req, res) => {
+        try {
+          const { phase18Result, distance, directivityQ, safetyFactor } = req.body;
+          const centrifugalService = await import(
+            getModulePath(
+              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+            )
+          );
+          const result = centrifugalService.processPhase20({
+            phase18Result,
+            distance: distance ? parseFloat(distance) : 3,
+            directivityQ: directivityQ ? parseFloat(directivityQ) : 1,
+            safetyFactor: safetyFactor ? parseFloat(safetyFactor) : 0.1,
+          });
+          res.json({
+            message: "✅ Phase 20 noise data calculated!",
+            phase20: result,
+          });
+        } catch (err) {
+          console.error("Phase 20 error:", err);
+          res.status(500).json({ error: err.message, details: err.message });
+        }
+      });
+
       expressApp.post(
         "/api/centrifugal/fan-data/phase18-all",
         async (req, res) => {
@@ -813,25 +862,25 @@ function startServer() {
                 // efficiency50Hz, insulationClass, shaftDiameterMM, shaftKeyLengthMM
                 const phase17Motor = motor
                   ? {
-                      model: motor.model || "",
-                      powerKW: motor.powerKW,
-                      powerHP: motor.powerHP,
-                      noOfPoles: motor.noOfPoles,
-                      noOfPhases: motor.noOfPhases || 3,
-                      shaftDiameterMM: motor.shaftDiameterMM,
-                      shaftKeyLengthMM: motor.shaftKeyLengthMM,
-                      efficiency50Hz: motor.efficiency50Hz,
-                      insulationClass: motor.insulationClass || "F",
-                      ie: motor.ie,
-                      capacitors: motor.capacitors,
-                      // Calculated values from Phase 13
-                      motorOutputPowerRequired: motor.motorOutputPowerRequired,
-                      standardOutputPower: motor.standardOutputPower,
-                      motorEfficiencyUsed: motor.motorEfficiencyUsed,
-                      motorInputPowerRequired: motor.motorInputPowerRequired,
-                      standardMotorPower: motor.standardMotorPower,
-                      netFanPowerRequired: motor.netFanPowerRequired,
-                    }
+                    model: motor.model || "",
+                    powerKW: motor.powerKW,
+                    powerHP: motor.powerHP,
+                    noOfPoles: motor.noOfPoles,
+                    noOfPhases: motor.noOfPhases || 3,
+                    shaftDiameterMM: motor.shaftDiameterMM,
+                    shaftKeyLengthMM: motor.shaftKeyLengthMM,
+                    efficiency50Hz: motor.efficiency50Hz,
+                    insulationClass: motor.insulationClass || "F",
+                    ie: motor.ie,
+                    capacitors: motor.capacitors,
+                    // Calculated values from Phase 13
+                    motorOutputPowerRequired: motor.motorOutputPowerRequired,
+                    standardOutputPower: motor.standardOutputPower,
+                    motorEfficiencyUsed: motor.motorEfficiencyUsed,
+                    motorInputPowerRequired: motor.motorInputPowerRequired,
+                    standardMotorPower: motor.standardMotorPower,
+                    netFanPowerRequired: motor.netFanPowerRequired,
+                  }
                   : null;
 
                 // Call Phase 18 service - THIS IS CRITICAL
