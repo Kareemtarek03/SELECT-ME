@@ -7,11 +7,11 @@ export default function PricingTableWrapper({ title, onAdd, children }) {
     <Box>
       <Box mb={4}>
         <Button
-          bg="#3b82f6"
+          bg="var(--btn-secondary)"
           color="white"
           onClick={onAdd}
           leftIcon={<FaPlus />}
-          _hover={{ bg: "#2563eb" }}
+          _hover={{ bg: "var(--btn-secondary-hover)" }}
         >
           Add {title}
         </Button>
@@ -21,8 +21,8 @@ export default function PricingTableWrapper({ title, onAdd, children }) {
         className="admin-table-container"
         borderWidth="1px"
         borderRadius="lg"
-        borderColor="#e2e8f0"
-        bg="#ffffff"
+        borderColor="var(--border-color)"
+        bg="var(--bg-card)"
         overflow="auto"
         maxH="600px"
         boxShadow="0 1px 3px rgba(0,0,0,0.08)"

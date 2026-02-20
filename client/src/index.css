@@ -9,8 +9,20 @@
   --accent: #3b82f6;
   --accent-hover: #2563eb;
   --success: #059669;
+  --error: #dc2626;
+  --text-muted-2: #94a3b8;
   --table-header-bg: #f1f5f9;
   --table-header-border: #cbd5e1;
+  /* Data pages: unified button colors */
+  --btn-primary: #059669;
+  --btn-primary-hover: #047857;
+  --btn-secondary: #3b82f6;
+  --btn-secondary-hover: #2563eb;
+  --btn-danger: #1e293b;
+  --btn-danger-hover: #313945;
+  /* Badge: light tint background so text is visible */
+  --badge-primary-bg: #05966920;
+  --badge-secondary-bg: #3b82f620;
 }
 
 /* Admin / pricing tables: clear header and row borders */

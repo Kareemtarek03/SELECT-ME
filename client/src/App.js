@@ -11,6 +11,7 @@ import FanCategories from "./pages/FanCategories";
 import UnitConverter from "./pages/UnitConverter";
 import LandingPage from "./pages/LandingPage";
 import CatalogPage from "./pages/CatalogPage";
+import "./index.css";
 
 // Axial fan pages
 import AxialFanTypesPage from "./pages/axial/AxialFanTypesPage";
@@ -38,7 +39,10 @@ function App() {
           <Route path="/" element={<LandingPage />} />
 
           {/* Admin - /admin redirects to axial; direct routes below */}
-          <Route path="/admin" element={<Navigate to="/admin/axial" replace />} />
+          <Route
+            path="/admin"
+            element={<Navigate to="/admin/axial" replace />}
+          />
           <Route
             path="/admin/axial"
             element={

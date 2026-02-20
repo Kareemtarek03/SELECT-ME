@@ -12,10 +12,10 @@ import {
 import { EditModeButtons, ViewModeButtons } from "./pricing/ActionButtons";
 
 const inputProps = {
-  bg: "#f8fafc",
-  color: "#1e293b",
-  border: "1px solid #e2e8f0",
-  _placeholder: { color: "#64748b" },
+  bg: "var(--bg-page)",
+  color: "var(--text-primary)",
+  border: "1px solid var(--border-color)",
+  _placeholder: { color: "var(--text-muted)" },
 };
 
 const INITIAL_FORM = {
@@ -125,9 +125,9 @@ export default function CasingPricingTable({
         title="Casing"
         onAdd={() => setShowAddForm(!showAddForm)}
       >
-        <Table.Root bg="#ffffff" w="100%">
-          <Table.Header bg="#f1f5f9" color="#1e293b">
-            <Table.Row bg="#f1f5f9" color="#1e293b">
+        <Table.Root bg="var(--bg-card)" w="100%">
+          <Table.Header bg="var(--table-header-bg)" color="var(--text-primary)">
+            <Table.Row bg="var(--table-header-bg)" color="var(--text-primary)">
               {HEADERS.map((header, idx) => (
                 <HeaderCell key={header} isLast={idx === HEADERS.length - 1}>
                   {header}
@@ -135,15 +135,15 @@ export default function CasingPricingTable({
               ))}
             </Table.Row>
           </Table.Header>
-          <Table.Body borderColor="#e2e8f0">
+          <Table.Body borderColor="var(--border-color)">
             {casings.map((item, idx) => {
-              const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
+              const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
               return (
                 <Table.Row
                   key={item.id}
                   bg={rowBg}
-                  color="#1e293b"
-                  _hover={{ bg: "#f1f5f9" }}
+                  color="var(--text-primary)"
+                  _hover={{ bg: "var(--bg-elevated)" }}
                 >
                   {editingId === item.id ? (
                     <>

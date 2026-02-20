@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { DatabaseInitService } from "../server/services/databaseInit.service.js";
 import { PrismaClient } from "@prisma/client";
 

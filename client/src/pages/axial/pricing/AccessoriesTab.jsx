@@ -223,7 +223,7 @@ export default function AccessoriesTab() {
                 justifyContent="center"
                 py={20}
             >
-                <Spinner size="xl" color="#3b82f6" />
+                <Spinner size="xl" color="var(--btn-secondary)" />
             </Box>
         );
     }
@@ -265,21 +265,21 @@ export default function AccessoriesTab() {
                 mb={4}
             >
                 <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
-                    <Badge bg="#3b82f620" color="#3b82f6" px={3} py={1} borderRadius="md">
+                    <Badge bg="var(--badge-secondary-bg)" color="var(--btn-secondary)" px={3} py={1} borderRadius="md">
                         Accessories
                     </Badge>
-                    <Text color="#64748b" fontSize="sm">
+                    <Text color="var(--text-muted)" fontSize="sm">
                         {items.length} items
                     </Text>
-                    <Text color="#64748b" fontSize="sm">|</Text>
+                    <Text color="var(--text-muted)" fontSize="sm">|</Text>
                     <Text color="#f59e0b" fontSize="sm">
                         Bolts & Nuts Price (Sr.24): {boltsPrice.toFixed(2)} L.E/kg
                     </Text>
                 </Box>
                 <Button
-                    bg="#3b82f6"
+                    bg="var(--btn-secondary)"
                     color="white"
-                    _hover={{ bg: "#2563eb" }}
+                    _hover={{ bg: "var(--btn-secondary-hover)" }}
                     leftIcon={<FaPlus />}
                     onClick={() => setShowAddForm(true)}
                 >
@@ -290,13 +290,13 @@ export default function AccessoriesTab() {
             {/* Add Item Form */}
             {showAddForm && (
                 <Box
-                    bg="#ffffff"
+                    bg="var(--bg-card)"
                     borderRadius="lg"
-                    border="1px solid #e2e8f0"
+                    border="1px solid var(--border-color)"
                     p={6}
                     mb={6}
                 >
-                    <Heading as="h3" size="md" color="#1e293b" mb={4}>
+                    <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
                         Add New Accessory Item
                     </Heading>
                     <Box display="grid" gridTemplateColumns="repeat(5, 1fr)" gap={4}>
@@ -304,79 +304,79 @@ export default function AccessoriesTab() {
                             placeholder="Sr."
                             value={newItem.sr}
                             onChange={(e) => setNewItem({ ...newItem, sr: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Fan Model"
                             value={newItem.fanModel}
                             onChange={(e) => setNewItem({ ...newItem, fanModel: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Fan Size (mm)"
                             type="number"
                             value={newItem.fanSizeMm}
                             onChange={(e) => setNewItem({ ...newItem, fanSizeMm: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Vinyl Stickers (L.E)"
                             type="number"
                             value={newItem.vinylStickersLe}
                             onChange={(e) => setNewItem({ ...newItem, vinylStickersLe: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Name Plate (L.E)"
                             type="number"
                             value={newItem.namePlateLe}
                             onChange={(e) => setNewItem({ ...newItem, namePlateLe: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Packing (L.E)"
                             type="number"
                             value={newItem.packingLe}
                             onChange={(e) => setNewItem({ ...newItem, packingLe: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Labour Cost (L.E)"
                             type="number"
                             value={newItem.labourCostLe}
                             onChange={(e) => setNewItem({ ...newItem, labourCostLe: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Internal Transport (L.E)"
                             type="number"
                             value={newItem.internalTransportationLe}
                             onChange={(e) => setNewItem({ ...newItem, internalTransportationLe: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Input
                             placeholder="Bolts & Nuts (kg)"
@@ -384,19 +384,19 @@ export default function AccessoriesTab() {
                             step="0.01"
                             value={newItem.boltsAndNutsKg}
                             onChange={(e) => setNewItem({ ...newItem, boltsAndNutsKg: e.target.value })}
-                            bg="#f8fafc"
-                            color="#1e293b"
-                            border="1px solid #e2e8f0"
-                            _placeholder={{ color: "#64748b" }}
+                            bg="var(--bg-page)"
+                            color="var(--text-primary)"
+                            border="1px solid var(--border-color)"
+                            _placeholder={{ color: "var(--text-muted)" }}
                         />
                         <Box>
                             <Input
                                 placeholder="Price with VAT"
                                 type="text"
                                 value={calculatePreviewPrice(newItem)}
-                                bg="#ffffff"
-                                color="#64748b"
-                                border="1px solid #e2e8f0"
+                                bg="var(--bg-card)"
+                                color="var(--text-muted)"
+                                border="1px solid var(--border-color)"
                                 disabled
                                 _disabled={{ opacity: 0.7, cursor: "not-allowed" }}
                             />
@@ -407,18 +407,19 @@ export default function AccessoriesTab() {
                     </Box>
                     <Box display="flex" gap={3} mt={4}>
                         <Button
-                            bg="#059669"
+                            bg="var(--btn-primary)"
                             color="white"
-                            _hover={{ bg: "#047857" }}
+                            _hover={{ bg: "var(--btn-primary-hover)" }}
                             leftIcon={<FaSave />}
                             onClick={handleAddItem}
                         >
                             Save
                         </Button>
                         <Button
-                            bg="#e2e8f0"
-                            color="#1e293b"
-                            _hover={{ bg: "#e2e8f0" }}
+                            variant="outline"
+                            borderColor="var(--border-color)"
+                            color="var(--text-primary)"
+                            _hover={{ bg: "var(--bg-elevated)" }}
                             leftIcon={<FaTimes />}
                             onClick={() => setShowAddForm(false)}
                         >
@@ -433,42 +434,42 @@ export default function AccessoriesTab() {
                 className="admin-table-container"
                 borderWidth="1px"
                 borderRadius="lg"
-                borderColor="#e2e8f0"
-                bg="#ffffff"
+                borderColor="var(--border-color)"
+                bg="var(--bg-card)"
                 overflowX="auto"
                 boxShadow="0 1px 3px rgba(0,0,0,0.08)"
             >
                 <Table.Root bg="transparent" w="100%">
-                    <Table.Header bg="#f1f5f9" color="#1e293b">
-                        <Table.Row bg="#f1f5f9" color="#1e293b">
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                    <Table.Header bg="var(--table-header-bg)" color="var(--text-primary)">
+                        <Table.Row bg="var(--table-header-bg)" color="var(--text-primary)">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Sr.
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Fan Model
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Size (mm)
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Vinyl Stickers
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Name Plate
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Packing
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Labour Cost
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Internal Transport
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Bolts & Nuts (kg)
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderRight="1px solid #e2e8f0" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderRight="1px solid var(--border-color)" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                                     Price with VAT
                                     <Badge bg="#f59e0b20" color="#d97706" fontSize="9px" px={1} borderRadius="sm">
@@ -476,149 +477,150 @@ export default function AccessoriesTab() {
                                     </Badge>
                                 </Box>
                             </Table.ColumnHeader>
-                            <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1" py={3} px={3} textAlign="center">
+                            <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)" py={3} px={3} textAlign="center">
                                 Actions
                             </Table.ColumnHeader>
                         </Table.Row>
                     </Table.Header>
-                    <Table.Body borderColor="#e2e8f0">
+                    <Table.Body borderColor="var(--border-color)">
                         {items.map((item, idx) => {
-                            const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
+                            const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
                             return (
                                 <Table.Row
                                     key={item.id}
                                     bg={rowBg}
-                                    color="#1e293b"
-                                    _hover={{ bg: "#f1f5f9" }}
+                                    color="var(--text-primary)"
+                                    _hover={{ bg: "var(--bg-elevated)" }}
                                 >
                                     {editingId === item.id ? (
                                         <>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.sr}
                                                     onChange={(e) => setEditForm({ ...editForm, sr: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     value={editForm.fanModel}
                                                     onChange={(e) => setEditForm({ ...editForm, fanModel: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.fanSizeMm}
                                                     onChange={(e) => setEditForm({ ...editForm, fanSizeMm: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.vinylStickersLe}
                                                     onChange={(e) => setEditForm({ ...editForm, vinylStickersLe: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.namePlateLe}
                                                     onChange={(e) => setEditForm({ ...editForm, namePlateLe: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.packingLe}
                                                     onChange={(e) => setEditForm({ ...editForm, packingLe: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.labourCostLe}
                                                     onChange={(e) => setEditForm({ ...editForm, labourCostLe: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     value={editForm.internalTransportationLe}
                                                     onChange={(e) => setEditForm({ ...editForm, internalTransportationLe: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="number"
                                                     step="0.01"
                                                     value={editForm.boltsAndNutsKg}
                                                     onChange={(e) => setEditForm({ ...editForm, boltsAndNutsKg: e.target.value })}
-                                                    bg="#f8fafc"
-                                                    color="#1e293b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-page)"
+                                                    color="var(--text-primary)"
+                                                    border="1px solid var(--border-color)"
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={2} px={2}>
                                                 <Input
                                                     size="sm"
                                                     type="text"
                                                     value={calculatePreviewPrice(editForm)}
-                                                    bg="#ffffff"
-                                                    color="#64748b"
-                                                    border="1px solid #e2e8f0"
+                                                    bg="var(--bg-card)"
+                                                    color="var(--text-muted)"
+                                                    border="1px solid var(--border-color)"
                                                     disabled
                                                     _disabled={{ opacity: 0.7, cursor: "not-allowed" }}
                                                 />
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" py={2} px={2}>
+                                            <Table.Cell borderColor="var(--border-color)" py={2} px={2}>
                                                 <Box display="flex" gap={2}>
                                                     <Button
                                                         size="xs"
-                                                        bg="#059669"
+                                                        bg="var(--btn-primary)"
                                                         color="white"
-                                                        _hover={{ bg: "#047857" }}
+                                                        _hover={{ bg: "var(--btn-primary-hover)" }}
                                                         onClick={() => handleSaveEdit(item.id)}
                                                     >
                                                         <FaSave />
                                                     </Button>
                                                     <Button
                                                         size="xs"
-                                                        bg="#e2e8f0"
-                                                        color="#1e293b"
-                                                        _hover={{ bg: "#e2e8f0" }}
+                                                        variant="outline"
+                                                        borderColor="var(--border-color)"
+                                                        color="var(--text-primary)"
+                                                        _hover={{ bg: "var(--bg-elevated)" }}
                                                         onClick={handleCancelEdit}
                                                     >
                                                         <FaTimes />
@@ -628,52 +630,52 @@ export default function AccessoriesTab() {
                                         </>
                                     ) : (
                                         <>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.sr}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.fanModel}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.fanSizeMm}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.vinylStickersLe != null ? item.vinylStickersLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.namePlateLe != null ? item.namePlateLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.packingLe != null ? item.packingLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.labourCostLe != null ? item.labourCostLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.internalTransportationLe != null ? item.internalTransportationLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 {item.boltsAndNutsKg != null ? item.boltsAndNutsKg.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" borderRight="1px solid #e2e8f0" color="#059669" py={2} px={3} textAlign="center" fontWeight="bold">
+                                            <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--success)" py={2} px={3} textAlign="center" fontWeight="bold">
                                                 {item.priceWithVatLe != null ? item.priceWithVatLe.toFixed(2) : "-"}
                                             </Table.Cell>
-                                            <Table.Cell borderColor="#e2e8f0" color="#1e293b" py={2} px={3} textAlign="center">
+                                            <Table.Cell borderColor="var(--border-color)" color="var(--text-primary)" py={2} px={3} textAlign="center">
                                                 <Box display="flex" gap={2} justifyContent="center">
                                                     <Button
                                                         size="xs"
-                                                        bg="#3b82f6"
+                                                        bg="var(--btn-secondary)"
                                                         color="white"
-                                                        _hover={{ bg: "#2563eb" }}
+                                                        _hover={{ bg: "var(--btn-secondary-hover)" }}
                                                         onClick={() => handleEdit(item)}
                                                     >
                                                         <FaEdit />
                                                     </Button>
                                                     <Button
                                                         size="xs"
-                                                        bg="#dc2626"
+                                                        bg="var(--btn-danger)"
                                                         color="white"
-                                                        _hover={{ bg: "#b91c1c" }}
+                                                        _hover={{ bg: "var(--btn-danger-hover)" }}
                                                         onClick={() => setDeleteConfirm(item.id)}
                                                     >
                                                         <FaTrash />
@@ -704,32 +706,33 @@ export default function AccessoriesTab() {
                     zIndex={1000}
                 >
                     <Box
-                        bg="#ffffff"
+                        bg="var(--bg-card)"
                         borderRadius="lg"
-                        border="1px solid #e2e8f0"
+                        border="1px solid var(--border-color)"
                         p={6}
                         maxW="400px"
                         w="90%"
                     >
-                        <Heading as="h3" size="md" color="#1e293b" mb={4}>
+                        <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
                             Confirm Delete
                         </Heading>
-                        <Text color="#64748b" mb={6}>
+                        <Text color="var(--text-muted)" mb={6}>
                             Are you sure you want to delete this accessory item? This action cannot be undone.
                         </Text>
                         <Box display="flex" gap={3} justifyContent="flex-end">
                             <Button
-                                bg="#e2e8f0"
-                                color="#1e293b"
-                                _hover={{ bg: "#e2e8f0" }}
+                                variant="outline"
+                                borderColor="var(--border-color)"
+                                color="var(--text-primary)"
+                                _hover={{ bg: "var(--bg-elevated)" }}
                                 onClick={() => setDeleteConfirm(null)}
                             >
                                 Cancel
                             </Button>
                             <Button
-                                bg="#dc2626"
+                                bg="var(--btn-danger)"
                                 color="white"
-                                _hover={{ bg: "#b91c1c" }}
+                                _hover={{ bg: "var(--btn-danger-hover)" }}
                                 onClick={() => handleDelete(deleteConfirm)}
                             >
                                 Delete

@@ -207,18 +207,18 @@ export default function FanDataPage() {
   const pageRows = rows.slice(start, end);
 
   return (
-    <Box p={4} bg="#f8fafc" color="#1e293b">
-      <Heading mb={4} fontSize={"4xl"} textAlign={"center"} color="#1e293b">
+    <Box p={4} bg="var(--bg-page)" color="var(--text-primary)">
+      <Heading mb={4} fontSize={"2xl"} fontWeight="bold" color="var(--text-primary)">
         Fan Data
       </Heading>
 
-      <Stack direction={"row"} justifyContent={"space-between"}>
+      <Stack direction={"row"} justifyContent={"space-between"} flexWrap="wrap" gap={4}>
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
-            bg="#3b82f6"
+            bg="var(--btn-secondary)"
             color="white"
-            _hover={{ bg: "#2563eb" }}
+            _hover={{ bg: "var(--btn-secondary-hover)" }}
             onClick={fetchData}
             isDisabled={loading}
           >
@@ -230,18 +230,18 @@ export default function FanDataPage() {
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
-            bg="#059669"
+            bg="var(--btn-primary)"
             color="white"
-            _hover={{ bg: "#047857" }}
+            _hover={{ bg: "var(--btn-primary-hover)" }}
             onClick={downloadFanTemplate}
           >
             Download Template
           </Button>
           <Button
             size="sm"
-            bg="#3b82f6"
+            bg="var(--btn-secondary)"
             color="white"
-            _hover={{ bg: "#2563eb" }}
+            _hover={{ bg: "var(--btn-secondary-hover)" }}
             onClick={() =>
               document.getElementById("fandata-file-input")?.click()
             }
@@ -300,10 +300,10 @@ export default function FanDataPage() {
 
           <Button
             size="sm"
-            bg="#3b82f6"
+            bg="var(--btn-secondary)"
             color="white"
             isLoading={downloading}
-            _hover={{ bg: "#2563eb" }}
+            _hover={{ bg: "var(--btn-secondary-hover)" }}
             onClick={async () => {
               try {
                 setDownloading(true);
@@ -404,53 +404,53 @@ export default function FanDataPage() {
             overflowX="auto"
             borderWidth="1px"
             borderRadius="lg"
-            borderColor="#e2e8f0"
-            bg="#ffffff"
+            borderColor="var(--border-color)"
+            bg="var(--bg-card)"
             boxShadow="0 1px 3px rgba(0,0,0,0.08)"
           >
             <Table.Root bg="transparent" w={"max-content"}>
-              <Table.Header bg="#f1f5f9" color="#1e293b">
-                <Table.Row bg="#f1f5f9" color="#1e293b">
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+              <Table.Header bg="var(--table-header-bg)" color="var(--text-primary)">
+                <Table.Row bg="var(--table-header-bg)" color="var(--text-primary)">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Actions
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">Id</Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">Id</Table.ColumnHeader>
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Designated Density
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
-                    borderRight="1px solid #e2e8f0"
-                    color="#1e293b"
+                    borderRight="1px solid var(--border-color)"
+                    color="var(--text-primary)"
                     fontWeight="600"
-                    borderBottom="2px solid #cbd5e1"
+                    borderBottom="2px solid var(--table-header-border)"
                   >
                     Speed (RPM)
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Blade Symbol
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Blade Material
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Blade Angle
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
-                    borderRight="1px solid #e2e8f0"
-                    color="#1e293b"
+                    borderRight="1px solid var(--border-color)"
+                    color="var(--text-primary)"
                     fontWeight="600"
-                    borderBottom="2px solid #cbd5e1"
+                    borderBottom="2px solid var(--table-header-border)"
                   >
                     Number of Blades
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="#1e293b" fontWeight="600" borderBottom="2px solid #cbd5e1">
+                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Impeller Inner Diameter
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
-                    borderRight="1px solid #e2e8f0"
-                    color="#1e293b"
+                    borderRight="1px solid var(--border-color)"
+                    color="var(--text-primary)"
                     fontWeight="600"
-                    borderBottom="2px solid #cbd5e1"
+                    borderBottom="2px solid var(--table-header-border)"
                   >
                     Impeller Configuration
                   </Table.ColumnHeader>
@@ -458,10 +458,10 @@ export default function FanDataPage() {
                     const end = col.endsWith("10");
                     return (
                       <Table.ColumnHeader
-                        borderRight={end ? "1px solid #e2e8f0" : "none"}
-                        color="#1e293b"
+                        borderRight={end ? "1px solid var(--border-color)" : "none"}
+                        color="var(--text-primary)"
                         fontWeight="600"
-                        borderBottom="2px solid #cbd5e1"
+                        borderBottom="2px solid var(--table-header-border)"
                         key={col}
                       >
                         {col}
@@ -471,9 +471,9 @@ export default function FanDataPage() {
                 </Table.Row>
               </Table.Header>
 
-              <Table.Body borderColor="#e2e8f0">
+              <Table.Body borderColor="var(--border-color)">
                 {pageRows.map((r, idx) => {
-                  const rowBg = idx % 2 === 0 ? "#f8fafc" : "#ffffff";
+                  const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
                   // Show row if it has an Id (or at least one series value when we have series columns)
                   const hasId = r.Id != null && r.Id !== "";
                   const hasSeriesData =
@@ -486,11 +486,11 @@ export default function FanDataPage() {
                   return (
                     <Table.Row
                       bg={rowBg}
-                      color="#1e293b"
+                      color="var(--text-primary)"
                       key={`${r.Id}-${idx}`}
-                      _hover={{ bg: "#f1f5f9" }}
+                      _hover={{ bg: "var(--bg-elevated)" }}
                     >
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {(() => {
                           const fanId = r.Id ?? null;
                           if (!fanId) return "-";
@@ -498,9 +498,9 @@ export default function FanDataPage() {
                           return (
                             <Button
                               size="xs"
-                              bg="#1e293b"
+                              bg="var(--btn-danger)"
                               color="white"
-                              _hover={{ bg: "#0f172a" }}
+                              _hover={{ bg: "var(--btn-danger-hover)" }}
                               isLoading={isDeleting}
                               onClick={() => {
                                 setSelectedFan({ id: fanId, row: r });
@@ -512,39 +512,39 @@ export default function FanDataPage() {
                           );
                         })()}
                       </Table.Cell>
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {formatValue(r.Id)}
                       </Table.Cell>
-                      <Table.Cell borderBottomColor="#e2e8f0">
+                      <Table.Cell borderBottomColor="var(--border-color)">
                         {formatValue(r.desigDensity)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid #e2e8f0"
-                        borderBottomColor="#e2e8f0"
+                        borderRight="1px solid var(--border-color)"
+                        borderBottomColor="var(--border-color)"
                       >
                         {formatValue(r.RPM)}
                       </Table.Cell>
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {formatValue(r.Blades.symbol)}
                       </Table.Cell>
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {formatValue(r.Blades.material)}
                       </Table.Cell>
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {formatValue(r.Blades.angle)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid #e2e8f0"
-                        borderBottomColor="#e2e8f0"
+                        borderRight="1px solid var(--border-color)"
+                        borderBottomColor="var(--border-color)"
                       >
                         {formatValue(r.Blades.noBlades)}
                       </Table.Cell>
-                      <Table.Cell borderColor="#e2e8f0">
+                      <Table.Cell borderColor="var(--border-color)">
                         {formatValue(r.Impeller.innerDia)}
                       </Table.Cell>
                       <Table.Cell
-                        borderRight="1px solid #e2e8f0"
-                        borderBottomColor="#e2e8f0"
+                        borderRight="1px solid var(--border-color)"
+                        borderBottomColor="var(--border-color)"
                       >
                         {formatValue(r.Impeller.conf)}
                       </Table.Cell>
@@ -553,8 +553,8 @@ export default function FanDataPage() {
                         const end = col.endsWith("10");
                         return (
                           <Table.Cell
-                            borderRight={end ? "1px solid #e2e8f0" : "none"}
-                            borderBottomColor="#e2e8f0"
+                            borderRight={end ? "1px solid var(--border-color)" : "none"}
+                            borderBottomColor="var(--border-color)"
                             key={col}
                           >
                             {formatValue(r[col])}
@@ -573,22 +573,22 @@ export default function FanDataPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               isDisabled={page === 0}
-              bg="#3b82f6"
+              bg="var(--btn-secondary)"
               color="white"
-              _hover={{ bg: "#2563eb" }}
+              _hover={{ bg: "var(--btn-secondary-hover)" }}
             >
               Prev
             </Button>
-            <Text fontSize="sm" color="#1e293b">
+            <Text fontSize="sm" color="var(--text-primary)">
               Page {page + 1} of {totalPages}
             </Text>
             <Button
               size="sm"
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               isDisabled={page >= totalPages - 1}
-              bg="#3b82f6"
+              bg="var(--btn-secondary)"
               color="white"
-              _hover={{ bg: "#2563eb" }}
+              _hover={{ bg: "var(--btn-secondary-hover)" }}
             >
               Next
             </Button>
@@ -599,9 +599,9 @@ export default function FanDataPage() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="#ffffff" color="#1e293b" border="1px solid #e2e8f0" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
+            <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
               <Dialog.Header>
-                <Dialog.Title color="#1e293b">Delete Fan Data</Dialog.Title>
+                <Dialog.Title color="var(--text-primary)">Delete Fan Data</Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 {selectedFan ? (
@@ -616,18 +616,19 @@ export default function FanDataPage() {
               <Dialog.Footer>
                 <Dialog.ActionTrigger asChild>
                   <Button
-                    bg="#e2e8f0"
-                    color="#1e293b"
-                    _hover={{ bg: "#cbd5e1" }}
+                    variant="outline"
+                    borderColor="var(--border-color)"
+                    color="var(--text-primary)"
+                    _hover={{ bg: "var(--bg-elevated)" }}
                     onClick={() => setOpenDialog(false)}
                   >
                     Cancel
                   </Button>
                 </Dialog.ActionTrigger>
                 <Button
-                  bg="#1e293b"
+                  bg="var(--btn-danger)"
                   color="white"
-                  _hover={{ bg: "#0f172a" }}
+                  _hover={{ bg: "var(--btn-danger-hover)" }}
                   onClick={() => handleDelete(selectedFan?.id)}
                   isLoading={
                     selectedFan && deletingIds.includes(selectedFan.id)
@@ -639,8 +640,8 @@ export default function FanDataPage() {
               <Dialog.CloseTrigger asChild>
                 <CloseButton
                   size="sm"
-                  color="#1e293b"
-                  _hover={{ bg: "#f1f5f9" }}
+                  color="var(--text-primary)"
+                  _hover={{ bg: "var(--bg-elevated)" }}
                   onClick={() => setOpenDialog(false)}
                 />
               </Dialog.CloseTrigger>

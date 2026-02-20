@@ -7,19 +7,20 @@ export function EditModeButtons({ onSave, onCancel }) {
     <Box display="flex" gap={2}>
       <Button
         size="xs"
-        bg="#059669"
+        bg="var(--btn-primary)"
         color="white"
         onClick={onSave}
-        _hover={{ bg: "#047857" }}
+        _hover={{ bg: "var(--btn-primary-hover)" }}
       >
         <FaSave />
       </Button>
       <Button
         size="xs"
-        bg="#e2e8f0"
-        color="#1e293b"
+        variant="outline"
+        borderColor="var(--border-color)"
+        color="var(--text-primary)"
         onClick={onCancel}
-        _hover={{ bg: "#cbd5e1" }}
+        _hover={{ bg: "var(--bg-elevated)" }}
       >
         <FaTimes />
       </Button>
@@ -32,19 +33,19 @@ export function ViewModeButtons({ onEdit, onDelete }) {
     <Box display="flex" gap={2}>
       <Button
         size="xs"
-        bg="#3b82f6"
+        bg="var(--btn-secondary)"
         color="white"
         onClick={onEdit}
-        _hover={{ bg: "#2563eb" }}
+        _hover={{ bg: "var(--btn-secondary-hover)" }}
       >
         <FaEdit />
       </Button>
       <Button
         size="xs"
-        bg="#dc2626"
+        bg="var(--btn-danger)"
         color="white"
         onClick={onDelete}
-        _hover={{ bg: "#b91c1c" }}
+        _hover={{ bg: "var(--btn-danger-hover)" }}
       >
         <FaTrash />
       </Button>

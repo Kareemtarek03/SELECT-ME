@@ -191,7 +191,7 @@ export default function AxialPricingPage() {
                 justifyContent="center"
                 
             >
-                <Spinner size="xl" color="var(--accent)" />
+                <Spinner size="xl" color="var(--btn-secondary)" />
             </Box>
         );
     }
@@ -252,9 +252,9 @@ export default function AxialPricingPage() {
                         </Text>
                     </Box>
                     <Button
-                        bg="var(--accent)"
-                        color="var(--text-primary)"
-                        _hover={{ bg: "var(--accent-hover)" }}
+                        bg="var(--btn-primary)"
+                        color="white"
+                        _hover={{ bg: "var(--btn-primary-hover)" }}
                         leftIcon={<FaPlus />}
                         onClick={() => setShowAddForm(true)}
                     >
@@ -272,7 +272,7 @@ export default function AxialPricingPage() {
                         mb={6}
                     >
                         <Box display="flex" alignItems="center" gap={3}>
-                            <Badge bg="var(--accent)" color="var(--accent)" px={3} py={1} borderRadius="md">
+                            <Badge bg="var(--badge-secondary-bg)" color="var(--btn-secondary)" px={3} py={1} borderRadius="md">
                                 {category.displayName}
                             </Badge>
                             <Text color="var(--text-muted-2)" fontSize="sm">
@@ -346,18 +346,19 @@ export default function AxialPricingPage() {
                         </Box>
                         <Box display="flex" gap={3} mt={4}>
                             <Button
-                                bg="var(--success)"
-                                color="var(--text-primary)"
-                                _hover={{ bg: "var(--success-hover)" }}
+                                bg="var(--btn-primary)"
+                                color="white"
+                                _hover={{ bg: "var(--btn-primary-hover)" }}
                                 leftIcon={<FaSave />}
                                 onClick={handleAddItem}
                             >
                                 Save
                             </Button>
                             <Button
-                                bg="var(--text-muted-2)"
+                                variant="outline"
+                                borderColor="var(--border-color)"
                                 color="var(--text-primary)"
-                                _hover={{ bg: "var(--border-color)" }}
+                                _hover={{ bg: "var(--bg-elevated)" }}
                                 leftIcon={<FaTimes />}
                                 onClick={() => setShowAddForm(false)}
                             >
@@ -479,18 +480,19 @@ export default function AxialPricingPage() {
                                                     <Box display="flex" gap={2}>
                                                         <Button
                                                             size="xs"
-                                                            bg="var(--success)"
-                                                            color="var(--text-primary)"
-                                                            _hover={{ bg: "var(--success-hover)" }}
+                                                            bg="var(--btn-primary)"
+                                                            color="white"
+                                                            _hover={{ bg: "var(--btn-primary-hover)" }}
                                                             onClick={() => handleSaveEdit(item.id)}
                                                         >
                                                             <FaSave />
                                                         </Button>
                                                         <Button
                                                             size="xs"
-                                                            bg="var(--text-muted-2)"
+                                                            variant="outline"
+                                                            borderColor="var(--border-color)"
                                                             color="var(--text-primary)"
-                                                            _hover={{ bg: "var(--border-color)" }}
+                                                            _hover={{ bg: "var(--bg-elevated)" }}
                                                             onClick={handleCancelEdit}
                                                         >
                                                             <FaTimes />
@@ -522,18 +524,18 @@ export default function AxialPricingPage() {
                                                     <Box display="flex" gap={2}>
                                                         <Button
                                                             size="xs"
-                                                            bg="var(--accent)"
-                                                            color="var(--text-primary)"
-                                                            _hover={{ bg: "var(--accent-hover)" }}
+                                                            bg="var(--btn-secondary)"
+                                                            color="white"
+                                                            _hover={{ bg: "var(--btn-secondary-hover)" }}
                                                             onClick={() => handleEdit(item)}
                                                         >
                                                             <FaEdit />
                                                         </Button>
                                                         <Button
                                                             size="xs"
-                                                            bg="var(--error)"
-                                                            color="var(--text-primary)"
-                                                            _hover={{ bg: "var(--error)" }}
+                                                            bg="var(--btn-danger)"
+                                                            color="white"
+                                                            _hover={{ bg: "var(--btn-danger-hover)" }}
                                                             onClick={() => setDeleteConfirm(item.id)}
                                                         >
                                                             <FaTrash />
@@ -579,17 +581,18 @@ export default function AxialPricingPage() {
                             </Text>
                             <Box display="flex" gap={3} justifyContent="flex-end">
                                 <Button
-                                    bg="var(--text-muted-2)"
+                                    variant="outline"
+                                    borderColor="var(--border-color)"
                                     color="var(--text-primary)"
-                                    _hover={{ bg: "var(--border-color)" }}
+                                    _hover={{ bg: "var(--bg-elevated)" }}
                                     onClick={() => setDeleteConfirm(null)}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
-                                    bg="var(--error)"
-                                    color="var(--text-primary)"
-                                    _hover={{ bg: "var(--error)" }}
+                                    bg="var(--btn-danger)"
+                                    color="white"
+                                    _hover={{ bg: "var(--btn-danger-hover)" }}
                                     onClick={() => handleDelete(deleteConfirm)}
                                 >
                                     Delete

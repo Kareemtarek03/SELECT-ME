@@ -9,10 +9,10 @@ export function TableCell({
 }) {
   return (
     <Table.Cell
-      borderColor="#e2e8f0"
-      borderRight={isLast ? "none" : "1px solid #e2e8f0"}
-      borderBottom="1px solid #e2e8f0"
-      color="#1e293b"
+      borderColor="var(--border-color)"
+      borderRight={isLast ? "none" : "1px solid var(--border-color)"}
+      borderBottom="1px solid var(--border-color)"
+      color="var(--text-primary)"
       py={3}
       px={4}
       textAlign={textAlign}
@@ -36,9 +36,9 @@ export function EditableCell({
 }) {
   return (
     <Table.Cell
-      borderColor="#e2e8f0"
-      borderRight={isLast ? "none" : "1px solid #e2e8f0"}
-      borderBottom="1px solid #e2e8f0"
+      borderColor="var(--border-color)"
+      borderRight={isLast ? "none" : "1px solid var(--border-color)"}
+      borderBottom="1px solid var(--border-color)"
       py={3}
       px={4}
       minW="100px"
@@ -49,9 +49,9 @@ export function EditableCell({
         type={type}
         value={value}
         onChange={onChange}
-        bg="#f8fafc"
-        color="#1e293b"
-        border="1px solid #e2e8f0"
+        bg="var(--bg-page)"
+        color="var(--text-primary)"
+        border="1px solid var(--border-color)"
       />
     </Table.Cell>
   );
@@ -60,11 +60,11 @@ export function EditableCell({
 export function HeaderCell({ children, isLast = false }) {
   return (
     <Table.ColumnHeader
-      bg="#f1f5f9"
-      color="#1e293b"
+      bg="var(--table-header-bg)"
+      color="var(--text-primary)"
       fontWeight="600"
-      borderRight={isLast ? "none" : "1px solid #e2e8f0"}
-      borderBottom="2px solid #cbd5e1"
+      borderRight={isLast ? "none" : "1px solid var(--border-color)"}
+      borderBottom="2px solid var(--table-header-border)"
       py={3}
       whiteSpace="nowrap"
       minW="100px"

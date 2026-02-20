@@ -1126,6 +1126,34 @@ function startServer() {
         }
       });
 
+      // Centrifugal Data Admin routes (pulleys, belt-standards, pulley-standards, casing pricing CRUD)
+      // Must match server/index.js: app.use("/api/centrifugal/data", centrifugalDataAdminRoutes)
+      try {
+        const centrifugalDataAdminModule = await import(
+          getModulePath(
+            "server/Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.route.js"
+          )
+        );
+        expressApp.use("/api/centrifugal/data", centrifugalDataAdminModule.default);
+        console.log("✅ Centrifugal data admin routes mounted at /api/centrifugal/data");
+      } catch (err) {
+        console.warn("⚠️ Could not mount centrifugal data admin routes:", err.message);
+      }
+
+      // Centrifugal Fan Data CRUD routes (GET/POST fan-data, PUT/DELETE :id for admin page)
+      // Must match server/index.js: app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes)
+      try {
+        const centrifugalFanDataModule = await import(
+          getModulePath(
+            "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js"
+          )
+        );
+        expressApp.use("/api/centrifugal/fan-data", centrifugalFanDataModule.default);
+        console.log("✅ Centrifugal fan data routes mounted at /api/centrifugal/fan-data");
+      } catch (err) {
+        console.warn("⚠️ Could not mount centrifugal fan data routes:", err.message);
+      }
+
       // Catalog API Routes - List available catalog PDFs
       expressApp.get("/api/catalogs", (req, res) => {
         try {
