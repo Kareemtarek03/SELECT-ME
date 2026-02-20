@@ -542,12 +542,12 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     } catch (e) { console.error("Failed to load fan image:", e.message); }
 
     // Certification icons below fan image - 2mm gap from fan image
-    const certIconsY = fanImgY + fanImgH + mm(2);  // 2mm gap from fan image
-    const certIconsX = fanImgX + mm(8);            // shift row 1mm to the right
+    const certIconsY = fanImgY + fanImgH + mm(0.5);  // 2mm gap from fan image
+    const certIconsX = fanImgX + mm(-5);            // shift row 1mm to the right
 
     // Icon 1: AMCA - 9.502mm × 10.201mm
-    const amcaW = mm(9.502);
-    const amcaH = mm(10.201);
+    const amcaW = mm(9);
+    const amcaH = mm(9);
     try {
         const amcaPath = path.join(__dirname, "assets", "Data Sheet Image Path", "AMCA.png");
         if (fs.existsSync(amcaPath)) {
@@ -556,8 +556,8 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     } catch (e) { console.error("Failed to load AMCA icon:", e.message); }
 
     // Icon 2: ISO - 10.421mm × 9.037mm
-    const isoW = mm(10.421);
-    const isoH = mm(9.037);
+    const isoW = mm(9);
+    const isoH = mm(9);
     const isoX = certIconsX + amcaW + mm(2);  // 2mm gap from AMCA
     try {
         const isoPath = path.join(__dirname, "assets", "Data Sheet Image Path", "ISO.png");
@@ -567,8 +567,8 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     } catch (e) { console.error("Failed to load ISO icon:", e.message); }
 
     // Icon 3: EOS - 8.835mm × 9.037mm
-    const eosW = mm(8.835);
-    const eosH = mm(9.037);
+    const eosW = mm(9);
+    const eosH = mm(9);
     const eosX = isoX + isoW + mm(2);  // 2mm gap between icons
     try {
         const eosPath = path.join(__dirname, "assets", "Data Sheet Image Path", "EOS.png");
@@ -903,13 +903,19 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     const effStaticCurve = getCurvePoints(airflow, effStatic, 100);
     const effTotalCurve = getCurvePoints(airflow, effTotal, 100);
 
-    // System Curve
+    // System Curve - generate from 0 to match frontend behavior
     const operatingAirFlow = phase18.airFlow;
     const operatingStaticPressure = phase18.staticPressure;
     let systemCurve = [];
     if (operatingStaticPressure && operatingAirFlow && operatingAirFlow > 0) {
         const coefficientA = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
-        systemCurve = pCurve.map((pt) => ({ x: pt.x, y: coefficientA * Math.pow(pt.x, 2) }));
+        const maxFlow = pCurve.length > 0 ? pCurve[pCurve.length - 1].x : (operatingAirFlow * 1.2 || 10000);
+        const steps = 50;
+        systemCurve = [];
+        for (let i = 0; i <= steps; i++) {
+            const x = (i / steps) * maxFlow;
+            systemCurve.push({ x, y: coefficientA * Math.pow(x, 2) });
+        }
     }
 
     // Calculate ranges
@@ -925,7 +931,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     function generateNiceTicks(dataMax, numIntervals = 10) {
         // Safety: handle NaN, undefined, null, zero, or negative
         if (dataMax == null || isNaN(dataMax) || dataMax <= 0) {
-            return { ticks: [0], max: 1, step: 0.1, decimals: 1 };
+            return { ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i), max: numIntervals, step: 1, decimals: 0 };
         }
         const margin = dataMax * 1.05;
         const rawStep = margin / numIntervals;
@@ -940,8 +946,9 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
         else if (norm <= 5) nice = 5;
         else nice = 10;
         const step = nice * mag;
-        const axisMax = Math.ceil(margin / step) * step;
-        const count = Math.round(axisMax / step);
+        // Use ceil to find minimum intervals that cover the data (tight fit, matching frontend)
+        const count = Math.ceil(margin / step);
+        const axisMax = step * count;
         const ticks = [];
         for (let i = 0; i <= count; i++) {
             ticks.push(parseFloat((i * step).toFixed(8)));
@@ -1020,7 +1027,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     // Pshaft axis title at top
     doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
     doc.text("Pshaft", axis2X - mm(10), graphY - mm(8), { width: mm(12), align: "center" });
-    doc.text("[kW]", axis2X - mm(9), graphY - mm(5), { width: mm(10), align: "center" });
+    doc.text(`[${units?.power || 'kW'}]`, axis2X - mm(9), graphY - mm(5), { width: mm(10), align: "center" });
 
     // Pshaft tick marks and labels (0.0, 0.2, 0.4... based on pwMax)
     doc.fontSize(8).font(getFont("bold")).fillColor("#002060");
@@ -1032,7 +1039,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
             // Tick mark
             doc.moveTo(axis2X - tickLen, yPos).lineTo(axis2X, yPos).stroke();
             // Label
-            doc.text(fmt(val, 1), axis2X - mm(12), yPos - mm(1.5), { width: mm(8), align: "right" });
+            doc.text(fmt(val, pwTickResult.decimals), axis2X - mm(12), yPos - mm(1.5), { width: mm(8), align: "right" });
         }
     }
 
@@ -1043,7 +1050,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     // Ps axis title at top
     doc.fontSize(8).font(getFont("bold")).fillColor("#595959");
     doc.text("Ps", axis3X - mm(9), graphY - mm(8), { width: mm(6), align: "center" });
-    doc.text("[Pa]", axis3X - mm(10), graphY - mm(5), { width: mm(8), align: "center" });
+    doc.text(`[${units?.pressure || 'Pa'}]`, axis3X - mm(10), graphY - mm(5), { width: mm(8), align: "center" });
 
     // Ps tick marks and labels (0, 50, 100, 150... based on pMax) - use 50 Pa intervals like frontend
     doc.fontSize(9).font(getFont("bold")).fillColor("#595959");
@@ -1055,7 +1062,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
             // Tick mark
             doc.moveTo(axis3X - tickLen, yPos).lineTo(axis3X, yPos).stroke();
             // Label
-            doc.text(fmt(val, 0), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
+            doc.text(fmt(val, pTickResult.decimals), axis3X - mm(10), yPos - mm(1.5), { width: mm(8), align: "center" });
         }
     }
 
@@ -1071,7 +1078,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     }
     // X-axis label positioned within the 0.80 in X-axis area
     doc.fontSize(8).font(getFont("bold"))
-        .text("Q [CFM]", graphX + graphW / 2 - mm(8), xAxisY + mm(8));
+        .text(`Q [${units?.airFlow || 'CFM'}]`, graphX + graphW / 2 - mm(8), xAxisY + mm(8));
 
     // ===== DRAW CURVES =====
     function drawCurve(curve, color, yMin, yMax, lineWidth = 2, dashed = false) {
@@ -1108,13 +1115,44 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
 
     // Draw curves with exact colors from reference image
     // Order: back to front for proper layering
-    drawCurve(systemCurve, COLORS.curveRed, pMin, finalPMax, 1);         // System curve - dashed dark green
+    drawCurve(systemCurve, COLORS.curveRed, pMin, finalPMax, 1);         // System curve
     drawCurve(effTotalCurve, COLORS.curveGreen, effMin, effMax, 1, true);     // Total Efficiency - dashed dark green
     drawCurve(effStaticCurve, COLORS.curveGreen, effMin, effMax, 1);        // Static Efficiency - solid dark green (thick)
     drawCurve(pCurve, COLORS.curveBlack, pMin, finalPMax, 1);                     // Static Pressure - solid navy blue (thick)
-    drawCurve(pwCurve, COLORS.curveBlue, pwMin, finalPwMax, 1);                   // Power - solid red (thick)
+    drawCurve(pwCurve, COLORS.curveBlue, pwMin, finalPwMax, 1);                   // Power - solid blue (thick)
 
+    // ===== INTERSECTION MARKERS at operating point (matching fan curve tab) =====
+    function drawIntersectionDot(xVal, yVal, yMin, yMax, color, radius = 3) {
+        if (xVal == null || yVal == null || isNaN(xVal) || isNaN(yVal)) return;
+        const px = graphX + ((xVal - xMin) / (xMax - xMin)) * graphW;
+        const py = graphY + graphH - ((yVal - yMin) / (yMax - yMin)) * graphH;
+        if (px >= graphX && px <= graphX + graphW && py >= graphY && py <= graphY + graphH) {
+            doc.circle(px, py, radius).fillAndStroke(color, COLORS.white);
+        }
+    }
 
+    if (operatingAirFlow && operatingAirFlow > 0) {
+        // Static Pressure intersection
+        if (operatingStaticPressure != null) {
+            drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveBlack);
+        }
+        // Fan Input Power intersection
+        if (phase18.fanInputPower != null) {
+            drawIntersectionDot(operatingAirFlow, phase18.fanInputPower, pwMin, finalPwMax, COLORS.curveBlue);
+        }
+        // Static Efficiency intersection
+        if (phase18.staticEfficiency != null) {
+            drawIntersectionDot(operatingAirFlow, phase18.staticEfficiency * 100, effMin, effMax, COLORS.curveGreen);
+        }
+        // Total Efficiency intersection
+        if (phase18.totalEfficiency != null) {
+            drawIntersectionDot(operatingAirFlow, phase18.totalEfficiency * 100, effMin, effMax, COLORS.curveGreen);
+        }
+        // System Curve intersection (same point as static pressure at operating airflow)
+        if (operatingStaticPressure != null) {
+            drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveRed);
+        }
+    }
 
     return doc;
 }
