@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,6 +31,17 @@ import CentrifugalFanSecondInputPage from "./pages/centrifugal/CentrifugalFanSec
 import CentrifugalFanFinalResultPage from "./pages/centrifugal/CentrifugalFanFinalResultPage";
 
 function App() {
+  // Global double-click handler: select all text in any input field on double-click
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.target.tagName === "INPUT" && (e.target.type === "text" || e.target.type === "number")) {
+        e.target.select();
+      }
+    };
+    document.addEventListener("dblclick", handler);
+    return () => document.removeEventListener("dblclick", handler);
+  }, []);
+
   return (
     <FormProvider>
       <Router>

@@ -101,10 +101,10 @@ function linearInterpolation(xArray, yArray, numSamples = 100) {
   return result;
 }
 
-// Generate exactly N intervals (N+1 tick marks including 0) with nice round step values
+// Generate nice round tick values that tightly fit the data
 // Returns { ticks: number[], max: number, step: number }
 function generateNiceTicks(dataMax, numIntervals = 10) {
-  if (!dataMax || dataMax <= 0) return { ticks: [0], max: 0, step: 0 };
+  if (!dataMax || dataMax <= 0) return { ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i), max: numIntervals, step: 1 };
   const margin = dataMax * 1.05;
   const rawStep = margin / numIntervals;
   // Find the order of magnitude
@@ -120,9 +120,9 @@ function generateNiceTicks(dataMax, numIntervals = 10) {
   else if (norm <= 5) nice = 5;
   else nice = 10;
   const step = nice * mag;
-  const axisMax = Math.ceil(margin / step) * step;
-  // Recompute actual number of intervals to cover axisMax
-  const count = Math.round(axisMax / step);
+  // Use ceil to find minimum intervals that cover the data (tight fit)
+  const count = Math.ceil(margin / step);
+  const axisMax = step * count;
   const ticks = [];
   for (let i = 0; i <= count; i++) {
     ticks.push(parseFloat((i * step).toFixed(8)));
@@ -294,6 +294,80 @@ function calculateSoundPowerSpectrum(
     spectrum: lwSpectrumData,
   };
 }
+
+// Custom Tooltip Component that always shows all curve values
+const CustomTooltip = ({ active, payload, label, units }) => {
+  if (!active || !payload || !payload.length) return null;
+
+  // Get the data point from payload
+  const dataPoint = payload[0]?.payload;
+  if (!dataPoint) return null;
+
+  const labels = {
+    StaticPressureNew: "Pst",
+    FanInputPowerNew: "Psh",
+    FanStaticEfficiency: "ηst",
+    FanTotalEfficiency: "ηtot",
+    SystemCurve: "System",
+  };
+
+  const unitMap = {
+    StaticPressureNew: units?.pressure || "Pa",
+    FanInputPowerNew: units?.power || "kW",
+    FanStaticEfficiency: "%",
+    FanTotalEfficiency: "%",
+    SystemCurve: units?.pressure || "Pa",
+  };
+
+  // Always show all curves in order
+  const curves = [
+    { key: "StaticPressureNew", color: "#000000" },
+    { key: "FanInputPowerNew", color: "#002060" },
+    { key: "FanStaticEfficiency", color: "#385723" },
+    { key: "FanTotalEfficiency", color: "#385723" },
+    { key: "SystemCurve", color: "#FF0000" },
+  ];
+
+  return (
+    <div style={{
+      backgroundColor: "#ffffff",
+      border: "1px solid #e2e8f0",
+      borderRadius: "8px",
+      padding: "8px 12px",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+    }}>
+      <div style={{ color: "#1e293b", fontWeight: "600", marginBottom: "6px", fontSize: "13px" }}>
+        Q: {Number(label).toLocaleString()} {units?.airFlow || "CFM"}
+      </div>
+      {curves.map((curve) => {
+        const value = dataPoint[curve.key];
+        if (value == null || value === undefined) return null;
+
+        let decimals = 2;
+        if (curve.key === "StaticPressureNew" || curve.key === "FanStaticEfficiency" ||
+          curve.key === "FanTotalEfficiency" || curve.key === "SystemCurve") {
+          decimals = 1;
+        }
+
+        return (
+          <div key={curve.key} style={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: "16px",
+            fontSize: "12px",
+            marginTop: "4px",
+            color: "#000000"
+          }}>
+            <span style={{ color: curve.color, fontWeight: "500" }}>{labels[curve.key]}:</span>
+            <span style={{ fontWeight: "600" }}>
+              {value.toFixed(decimals)} {unitMap[curve.key]}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 export default function ResultsPage() {
   const navigate = useNavigate();
@@ -979,7 +1053,8 @@ export default function ResultsPage() {
                           })
                             .then((response) => response.blob())
                             .then((blob) => {
-                              const url = window.URL.createObjectURL(blob);
+                              const file = new Blob([blob], { type: "application/pdf" });
+                              const url = window.URL.createObjectURL(file);
                               window.open(url, "_blank");
                             })
                             .catch((error) => {
@@ -1580,50 +1655,6 @@ export default function ResultsPage() {
                                 ))}
                               </div>
 
-                              {/* Locked Point Info Panel */}
-                              {isLocked && selectedChartPoint && (
-                                <div style={{
-                                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                                  padding: "0.75rem 1rem", marginBottom: "0.75rem", backgroundColor: "#fef3c7",
-                                  border: "2px solid #f59e0b", borderRadius: "8px", boxShadow: "0 4px 16px rgba(245,158,11,0.2)",
-                                }}>
-                                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                    <span style={{ color: "#b45309", fontWeight: "700", fontSize: "0.9rem" }}>
-                                      Point — Q: {Math.round(selectedChartPoint.x).toLocaleString()} {units?.airFlow || "CFM"}
-                                    </span>
-                                  </div>
-                                  <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-                                    {selectedChartPoint.StaticPressureNew != null && (
-                                      <span style={{ color: "#000000", fontSize: "0.85rem" }}>
-                                        <strong>Pst:</strong> {selectedChartPoint.StaticPressureNew.toFixed(1)} {units?.pressure || "Pa"}
-                                      </span>
-                                    )}
-                                    {selectedChartPoint.FanInputPowerNew != null && (
-                                      <span style={{ color: "#002060", fontSize: "0.85rem" }}>
-                                        <strong>Psh:</strong> {selectedChartPoint.FanInputPowerNew.toFixed(2)} {units?.power || "kW"}
-                                      </span>
-                                    )}
-                                    {selectedChartPoint.FanStaticEfficiency != null && (
-                                      <span style={{ color: "#385723", fontSize: "0.85rem" }}>
-                                        <strong>ηst:</strong> {selectedChartPoint.FanStaticEfficiency.toFixed(1)}%
-                                      </span>
-                                    )}
-                                    {selectedChartPoint.FanTotalEfficiency != null && (
-                                      <span style={{ color: "#385723", fontSize: "0.85rem" }}>
-                                        <strong>ηtot:</strong> {selectedChartPoint.FanTotalEfficiency.toFixed(1)}%
-                                      </span>
-                                    )}
-                                    <button onClick={() => { setIsLocked(false); setSelectedChartPoint(null); }}
-                                      style={{
-                                        background: "#f1f5f9", border: "1px solid #cbd5e1", borderRadius: "4px",
-                                        color: "#1e293b", padding: "0.25rem 0.5rem", cursor: "pointer", fontSize: "0.8rem",
-                                      }}>
-                                      ✕ Clear
-                                    </button>
-                                  </div>
-                                </div>
-                              )}
-
                               {/* Chart Container */}
                               <div
                                 style={{
@@ -1847,8 +1878,21 @@ export default function ResultsPage() {
                                           margin={{
                                             top: 20,
                                             right: 120,
-                                            left: 60,
+                                            left: 30,
                                             bottom: 50,
+                                          }}
+                                          onClick={(e) => {
+                                            if (!e || !e.activePayload || !e.activePayload.length) return;
+                                            const pt = e.activePayload[0]?.payload;
+                                            if (!pt) return;
+                                            setSelectedChartPoint({
+                                              x: pt.x,
+                                              StaticPressureNew: pt.StaticPressureNew,
+                                              FanInputPowerNew: pt.FanInputPowerNew,
+                                              FanStaticEfficiency: pt.FanStaticEfficiency,
+                                              FanTotalEfficiency: pt.FanTotalEfficiency,
+                                            });
+                                            setIsLocked(true);
                                           }}
                                         >
                                           <CartesianGrid
@@ -1971,65 +2015,7 @@ export default function ResultsPage() {
                                             }}
                                           />
                                           {!isLocked && (
-                                            <Tooltip
-                                              contentStyle={{
-                                                backgroundColor: "#ffffff",
-                                                border: "1px solid #e2e8f0",
-                                                borderRadius: "8px",
-                                                color: "#000000",
-                                                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-                                              }}
-                                              labelStyle={{ color: "#1e293b", fontWeight: "600" }}
-                                              itemSorter={(item) => {
-                                                const order = {
-                                                  StaticPressureNew: 1,
-                                                  FanInputPowerNew: 2,
-                                                  FanStaticEfficiency: 3,
-                                                  FanTotalEfficiency: 4,
-                                                };
-                                                return order[item.dataKey] || 100;
-                                              }}
-                                              formatter={(value, name) => {
-                                                const labels = {
-                                                  StaticPressureNew: "Pst",
-                                                  FanInputPowerNew: "Psh",
-                                                  FanStaticEfficiency: "ηst",
-                                                  FanTotalEfficiency: "ηtot",
-                                                };
-                                                const unit = {
-                                                  StaticPressureNew:
-                                                    units?.pressure || "Pa",
-                                                  FanInputPowerNew:
-                                                    units?.power || "kW",
-                                                  FanStaticEfficiency: "%",
-                                                  FanTotalEfficiency: "%",
-                                                };
-
-                                                let decimals = 2;
-                                                if (
-                                                  name === "StaticPressureNew" ||
-                                                  name === "FanStaticEfficiency" ||
-                                                  name === "FanTotalEfficiency"
-                                                ) {
-                                                  decimals = 1;
-                                                }
-                                                if (name === "SystemCurve")
-                                                  return null;
-                                                return [
-                                                  `${value
-                                                    ? value.toFixed(decimals)
-                                                    : "0.00"
-                                                  } ${unit[name] || ""}`,
-                                                  labels[name] || name,
-                                                ];
-                                              }}
-                                              labelFormatter={(label) =>
-                                                `Q: ${Number(
-                                                  label,
-                                                ).toLocaleString()} ${units?.airFlow || "CFM"
-                                                }`
-                                              }
-                                            />
+                                            <Tooltip content={<CustomTooltip units={units} />} />
                                           )}
                                           {/* Static Pressure */}
                                           {curveVisibility.StaticPressureNew && (

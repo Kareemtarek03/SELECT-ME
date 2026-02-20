@@ -558,12 +558,12 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   } catch (e) { console.error("Failed to load fan image:", e.message); }
 
   // Certification icons below fan image - 2mm gap from fan image
-  const certIconsY = fanImgY + fanImgH + mm(2);  // 2mm gap from fan image
-  const certIconsX = fanImgX + mm(8);            // shift row 1mm to the right
+  const certIconsY = fanImgY + fanImgH + mm(0.5);  // 2mm gap from fan image
+  const certIconsX = fanImgX + mm(-5);            // shift row 1mm to the right
 
   // Icon 1: AMCA - 9.502mm × 10.201mm
-  const amcaW = mm(9.502);
-  const amcaH = mm(10.201);
+  const amcaW = mm(9);
+  const amcaH = mm(9);
 
   try {
     const amcaPath = path.join(__dirname, "PDF", "assets", "AMCA.png");
@@ -573,8 +573,8 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   } catch (e) { console.error("Failed to load AMCA icon:", e.message); }
 
   // Icon 2: ISO - 10.421mm × 9.037mm
-  const isoW = mm(10.421);
-  const isoH = mm(9.037);
+  const isoW = mm(9);
+  const isoH = mm(9);
   const isoX = certIconsX + amcaW + mm(2);  // 2mm gap from AMCA
   try {
     const isoPath = path.join(__dirname, "PDF", "assets", "ISO.png");
@@ -584,8 +584,8 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   } catch (e) { console.error("Failed to load ISO icon:", e.message); }
 
   // Icon 3: EOS - 8.835mm × 9.037mm
-  const eosW = mm(8.835);
-  const eosH = mm(9.037);
+  const eosW = mm(9);
+  const eosH = mm(9);
   const eosX = isoX + isoW + mm(2);  // 2mm gap between icons
   try {
     const eosPath = path.join(__dirname, "PDF", "assets", "EOS.png");
@@ -660,11 +660,16 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     .strokeColor(COLORS.black).lineWidth(0.5).stroke();
   rightY += mm(7);
 
+  // Format blade angle with decimal precision (e.g., 37.5 instead of 38)
+  const formattedBladeAngle = blades.angle != null
+    ? parseFloat(blades.angle).toFixed(1)
+    : "—";
+
   const fanRows = [
     ["- Impeller Type", ":", "Axial"],
     ["- Blades Symbol", ":", blades.symbol || "AM"],
     ["- Blades Material", ":", bladeMat],
-    ["- Blades Angle [degree]", ":", blades.angle],
+    ["- Blades Angle [degree]", ":", formattedBladeAngle],
     ["- Configurations (Hub-Blades)", ":", impeller.conf || "16-8"],
   ];
 
@@ -950,7 +955,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   // ===== Shared nice-tick algorithm (must match frontend generateNiceTicks) =====
   function generateNiceTicks(dataMax, numIntervals = 10) {
     if (dataMax == null || isNaN(dataMax) || dataMax <= 0) {
-      return { ticks: [0], max: 1, step: 0.1, decimals: 1 };
+      return { ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i), max: numIntervals, step: 1, decimals: 0 };
     }
     const margin = dataMax * 1.05;
     const rawStep = margin / numIntervals;
@@ -965,8 +970,9 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     else if (norm <= 5) nice = 5;
     else nice = 10;
     const step = nice * mag;
-    const axisMax = Math.ceil(margin / step) * step;
-    const count = Math.round(axisMax / step);
+    // Use ceil to find minimum intervals that cover the data (tight fit, matching frontend)
+    const count = Math.ceil(margin / step);
+    const axisMax = step * count;
     const ticks = [];
     for (let i = 0; i <= count; i++) {
       ticks.push(parseFloat((i * step).toFixed(8)));
@@ -1130,13 +1136,44 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
 
   // Draw curves with exact colors from reference image
   // Order: back to front for proper layering
-  drawCurve(systemCurve, COLORS.curveRed, pMin, pMax, 1);         // System curve - dashed dark green
+  drawCurve(systemCurve, COLORS.curveRed, pMin, finalPMax, 1);         // System curve
   drawCurve(effTotalCurve, COLORS.curveGreen, effMin, effMax, 1, true);     // Total Efficiency - dashed dark green
   drawCurve(effStaticCurve, COLORS.curveGreen, effMin, effMax, 1);        // Static Efficiency - solid dark green (thick)
-  drawCurve(pCurve, COLORS.curveBlack, pMin, pMax, 1);                     // Static Pressure - solid navy blue (thick)
-  drawCurve(pwCurve, COLORS.curveBlue, pwMin, pwMax, 1);                   // Power - solid red (thick)
+  drawCurve(pCurve, COLORS.curveBlack, pMin, finalPMax, 1);                     // Static Pressure - solid black (thick)
+  drawCurve(pwCurve, COLORS.curveBlue, pwMin, finalPwMax, 1);                   // Power - solid blue (thick)
 
+  // ===== INTERSECTION MARKERS at operating point (matching fan curve tab) =====
+  function drawIntersectionDot(xVal, yVal, yMin, yMax, color, radius = 3) {
+    if (xVal == null || yVal == null || isNaN(xVal) || isNaN(yVal)) return;
+    const px = graphX + ((xVal - xMin) / (xMax - xMin)) * graphW;
+    const py = graphY + graphH - ((yVal - yMin) / (yMax - yMin)) * graphH;
+    if (px >= graphX && px <= graphX + graphW && py >= graphY && py <= graphY + graphH) {
+      doc.circle(px, py, radius).fillAndStroke(color, COLORS.white);
+    }
+  }
 
+  if (operatingAirFlow && operatingAirFlow > 0) {
+    // Static Pressure intersection
+    if (operatingStaticPressure != null) {
+      drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveBlack);
+    }
+    // Fan Input Power intersection
+    if (pred.FanInputPowerPred != null) {
+      drawIntersectionDot(operatingAirFlow, pred.FanInputPowerPred, pwMin, finalPwMax, COLORS.curveBlue);
+    }
+    // Static Efficiency intersection
+    if (pred.FanStaticEfficiencyPred != null) {
+      drawIntersectionDot(operatingAirFlow, pred.FanStaticEfficiencyPred * 100, effMin, effMax, COLORS.curveGreen);
+    }
+    // Total Efficiency intersection
+    if (pred.FanTotalEfficiencyPred != null) {
+      drawIntersectionDot(operatingAirFlow, pred.FanTotalEfficiencyPred * 100, effMin, effMax, COLORS.curveGreen);
+    }
+    // System Curve intersection (same point as static pressure at operating airflow)
+    if (operatingStaticPressure != null) {
+      drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveRed);
+    }
+  }
 
   return doc;
 }
