@@ -393,7 +393,6 @@ model CentrifugalCasingPricing {
   beltCover                     CentrifugalCasingBeltCover?
   motorBase                     CentrifugalCasingMotorBase?
   accessories                   CentrifugalCasingAccessories?
-
   @@map("centrifugal_casing_pricing")
 }
 

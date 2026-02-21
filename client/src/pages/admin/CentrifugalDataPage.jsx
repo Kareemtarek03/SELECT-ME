@@ -14,7 +14,7 @@ import {
   CloseButton,
   Input,
 } from "@chakra-ui/react";
-import { FaDatabase, FaCog, FaList, FaFan, FaBox } from "react-icons/fa";
+import { FaDatabase, FaCog, FaList, FaFan, FaBox, FaSave, FaTimes } from "react-icons/fa";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
@@ -967,7 +967,7 @@ function GenericCrudTab({
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
-              {columns.map((c) => (
+              {formFields.map((c) => (
                 <Table.ColumnHeader key={c.key}>{c.label}</Table.ColumnHeader>
               ))}
             </Table.Row>
@@ -1017,7 +1017,7 @@ function GenericCrudTab({
                     </Button>
                   </Stack>
                 </Table.Cell>
-                {columns.map((c) => (
+                {formFields.map((c) => (
                   <Table.Cell key={c.key}>{getCellVal(row, c.key)}</Table.Cell>
                 ))}
               </Table.Row>
