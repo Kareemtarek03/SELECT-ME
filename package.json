@@ -1,6 +1,6 @@
 {
   "name": "mechatronics-fan-selection",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Mechatronics Fan Selection Desktop Application",
   "main": "electron-main.cjs",
   "author": "Kareem Tarek",
@@ -26,6 +26,7 @@
     "prebuild:db": "node scripts/prepare-db-for-build.js",
     "diagnose:db": "node scripts/diagnose-database.js",
     "dist": "npm run clean && npm run build && npm run prebuild:db && electron-builder",
+    "dist:win": "npm run clean && npm run build && npm run prebuild:db && electron-builder --win",
     "dist:prod": "cross-env GENERATE_SOURCEMAP=false npm run build && npm run prebuild:db && electron-builder",
     "clean": "rimraf dist client/build",
     "optimize-images": "node scripts/optimize-images.cjs"
@@ -96,6 +97,10 @@
           "**/*",
           "!**/*.md"
         ]
+      },
+      {
+        "from": "prisma/dev.db",
+        "to": "prisma/dev.db"
       }
     ],
     "asar": true,

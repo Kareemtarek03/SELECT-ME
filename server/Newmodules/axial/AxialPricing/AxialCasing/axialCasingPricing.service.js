@@ -8,8 +8,15 @@ const prisma = new PrismaClient();
 async function getPricingItems() {
   const items = await prisma.pricingItem.findMany({
     where: {
-      sr: {
-        in: [1, 2, 3, 4, 5, 6],
+      description: {
+        in: [
+          "Black Steel Raw Material",
+          "Black Steel Welding ",
+          "Black Steel Rolling",
+          "Black Steel Bending Line",
+          "Black Steel Laser",
+          "Black Steel Painting/Diameter",
+        ],
       },
     },
   });
@@ -40,7 +47,7 @@ function calculateCasingWeightWithScrap(weightWithoutScrap, scrapPercentage) {
 function calculateTotalCost(casing, pricingItems) {
   const weightWithScrap = calculateCasingWeightWithScrap(
     casing.casingWeightKgWithoutScrap,
-    casing.scrapPercentage
+    casing.scrapPercentage,
   );
 
   const SR1 = pricingItems.SR1 || 0;
@@ -92,7 +99,7 @@ export const AxialCasingPricingService = {
     return casings.map((casing) => {
       const weightWithScrap = calculateCasingWeightWithScrap(
         casing.casingWeightKgWithoutScrap,
-        casing.scrapPercentage
+        casing.scrapPercentage,
       );
 
       let totalCost = 0;
@@ -241,17 +248,15 @@ export const AxialCasingPricingService = {
 
     if (!casing) {
       throw new Error(
-        `Casing not found for model: ${model} and size: ${sizeMm}`
+        `Casing not found for model: ${model} and size: ${sizeMm}`,
       );
     }
 
     const pricingItems = await getPricingItems();
-    console.log("Pricing Items:", pricingItems);
     const weightWithScrap = calculateCasingWeightWithScrap(
       casing.casingWeightKgWithoutScrap,
-      casing.scrapPercentage
+      casing.scrapPercentage,
     );
-    console.log("Weight with Scrap:", weightWithScrap);
 
     let totalCost = 0;
     try {

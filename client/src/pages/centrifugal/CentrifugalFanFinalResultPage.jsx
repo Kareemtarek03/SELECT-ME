@@ -258,7 +258,9 @@ export default function CentrifugalFanFinalResultPage() {
     const { results: contextResults, units, input } = useFormData();
     const [selectedRowIndex, setSelectedRowIndex] = useState(null);
     const [phase18Data, setPhase18Data] = useState(null);
-    const [activeTab, setActiveTab] = useState("performance"); // 'performance', 'curve', 'noise'
+    const [activeTab, setActiveTab] = useState("performance"); // 'performance', 'curve', 'noise', 'pricing'
+    const [casingPriceResult, setCasingPriceResult] = useState(null);
+    const [casingPriceLoading, setCasingPriceLoading] = useState(false);
 
     // Curve visibility state - all curves visible by default (must be before any returns)
     const [curveVisibility, setCurveVisibility] = useState({
@@ -328,6 +330,36 @@ export default function CentrifugalFanFinalResultPage() {
         });
     };
 
+    const fetchCasingPrice = async (innerDiameter) => {
+        if (innerDiameter == null) {
+            setCasingPriceResult(null);
+            setCasingPriceLoading(false);
+            return;
+        }
+        setCasingPriceLoading(true);
+        setCasingPriceResult(null);
+        try {
+            const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+            const type = "SISW Centrifugal Fan - Belt";
+            const r = await fetch(`${apiBaseUrl}/api/centrifugal/data/casing-price`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ type, size: innerDiameter }),
+            });
+            if (!r.ok) {
+                const err = await r.json().catch(() => ({}));
+                throw new Error(err.error || "Calculate price failed");
+            }
+            const data = await r.json();
+            setCasingPriceResult(data);
+        } catch (err) {
+            console.error("Calculate price error:", err);
+            setCasingPriceResult({ error: err.message });
+        } finally {
+            setCasingPriceLoading(false);
+        }
+    };
+
     // Auto-select first fan on page load (must be before any early returns per React hooks rules)
     useEffect(() => {
         if (!autoSelectedRef.current && phase18All && phase18All.length > 0) {
@@ -335,6 +367,12 @@ export default function CentrifugalFanFinalResultPage() {
             handleRowSelect(phase18All[0], 0);
         }
     }, [phase18All]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // Auto-fetch casing price when selected fan changes
+    useEffect(() => {
+        const innerDiameter = phase18Data?.phase18?.innerDiameter;
+        fetchCasingPrice(innerDiameter);
+    }, [phase18Data?.phase18?.innerDiameter]); // eslint-disable-line react-hooks/exhaustive-deps
 
     if (!contextResults || !phase18All) {
         return (
@@ -707,6 +745,29 @@ export default function CentrifugalFanFinalResultPage() {
                                                 }}
                                             >
                                                 Noise Graph
+                                            </button>
+                                            <button
+                                                onClick={() => setActiveTab("pricing")}
+                                                style={{
+                                                    background: "transparent",
+                                                    border: "none",
+                                                    padding: "0.75rem 1.25rem",
+                                                    color: activeTab === "pricing" ? "#3b82f6" : "#64748b",
+                                                    fontSize: "0.875rem",
+                                                    fontWeight: activeTab === "pricing" ? "600" : "500",
+                                                    cursor: "pointer",
+                                                    borderBottom: activeTab === "pricing" ? "2px solid #3b82f6" : "2px solid transparent",
+                                                    transition: "all 0.2s",
+                                                    marginBottom: "-1px",
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    if (activeTab !== "pricing") e.target.style.color = "#1e293b";
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    if (activeTab !== "pricing") e.target.style.color = "#64748b";
+                                                }}
+                                            >
+                                                Pricing
                                             </button>
                                         </div>
 
@@ -1538,6 +1599,82 @@ export default function CentrifugalFanFinalResultPage() {
                                                     <div className="detail-card" style={{ padding: "2rem", textAlign: "center", color: "#94a3b8" }}>
                                                         <p>Unable to calculate noise data. Missing fan input power or static pressure values.</p>
                                                     </div>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        {/* Pricing Tab - Auto-loaded, full breakdown */}
+                                        {activeTab === "pricing" && (
+                                            <div style={{
+                                                background: "#f8fafc",
+                                                borderRadius: "12px",
+                                                border: "1px solid #e2e8f0",
+                                                padding: "1.5rem"
+                                            }}>
+                                                <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                    <span style={{ color: "#3b82f6" }}>💰</span> Casing Price Breakdown
+                                                </h4>
+                                                {casingPriceLoading ? (
+                                                    <Flex align="center" gap={2} py={6}>
+                                                        <Spinner size="sm" color="#3b82f6" />
+                                                        <Text color="#64748b" fontSize="sm">Loading pricing...</Text>
+                                                    </Flex>
+                                                ) : casingPriceResult?.error ? (
+                                                    <Text color="#dc2626" fontSize="sm" py={4}>{casingPriceResult.error}</Text>
+                                                ) : casingPriceResult ? (
+                                                    <Box>
+                                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 2rem", marginBottom: "1rem" }}>
+                                                            {[
+                                                                { key: "volute", label: "Volute" },
+                                                                { key: "voluteWithoutScrap", label: "Volute (w/o Scrap)" },
+                                                                { key: "frame", label: "Frame" },
+                                                                { key: "frameWithoutScrap", label: "Frame (w/o Scrap)" },
+                                                                { key: "impeller", label: "Impeller" },
+                                                                { key: "impellerWithoutScrap", label: "Impeller (w/o Scrap)" },
+                                                                { key: "funnels", label: "Funnels" },
+                                                                { key: "sleeveShaft", label: "Sleeve & Shaft" },
+                                                                { key: "matchingFlange", label: "Matching Flange" },
+                                                                { key: "bearingAssembly", label: "Bearing Assembly" },
+                                                                { key: "fanBase", label: "Fan Base" },
+                                                                { key: "fanBaseWithoutScrap", label: "Fan Base (w/o Scrap)" },
+                                                                { key: "beltCover", label: "Belt Cover" },
+                                                                { key: "beltCoverWithoutScrap", label: "Belt Cover (w/o Scrap)" },
+                                                                { key: "motorBase", label: "Motor Base" },
+                                                                { key: "motorBaseWithoutScrap", label: "Motor Base (w/o Scrap)" },
+                                                                { key: "accessories", label: "Accessories" },
+                                                            ].map(({ key, label }) => {
+                                                                const val = casingPriceResult[key];
+                                                                return (
+                                                                    <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #e2e8f0", alignItems: "center" }}>
+                                                                        <span style={{ color: "#64748b", fontSize: "0.8125rem" }}>{label}</span>
+                                                                        <span style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>
+                                                                            {val != null ? `${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E` : "—"}
+                                                                        </span>
+                                                                    </div>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "2px solid #e2e8f0" }}>
+                                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", marginBottom: "0.25rem" }}>
+                                                                <span style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600" }}>Total Fan Price (with VAT)</span>
+                                                                <span style={{ color: "#3b82f6", fontSize: "1rem", fontWeight: "700" }}>
+                                                                    {casingPriceResult.totalFanPriceWithVat != null
+                                                                        ? `${Number(casingPriceResult.totalFanPriceWithVat).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E`
+                                                                        : "—"}
+                                                                </span>
+                                                            </div>
+                                                            {casingPriceResult.totalFanPriceWithVatScrapRecycle != null && (
+                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0" }}>
+                                                                    <span style={{ color: "#64748b", fontSize: "0.875rem" }}>With Scrap Recycle</span>
+                                                                    <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: "600" }}>
+                                                                        {Number(casingPriceResult.totalFanPriceWithVatScrapRecycle).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E
+                                                                    </span>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </Box>
+                                                ) : (
+                                                    <Text color="#94a3b8" fontSize="sm" py={4}>No pricing data available for this fan.</Text>
                                                 )}
                                             </div>
                                         )}

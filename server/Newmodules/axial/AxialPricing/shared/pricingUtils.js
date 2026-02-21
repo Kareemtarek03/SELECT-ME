@@ -13,11 +13,11 @@ export const BOLTS_AND_NUTS_DESCRIPTION = "Bolts & Nuts";
  * @returns {number|null} - Parsed number or null
  */
 export const parsePrice = (value) => {
-    if (value === null || value === undefined || value === "") return null;
-    if (typeof value === "number") return value;
-    const cleaned = String(value).replace(/[\s,]/g, "");
-    const parsed = parseFloat(cleaned);
-    return isNaN(parsed) ? null : parsed;
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "number") return value;
+  const cleaned = String(value).replace(/[\s,]/g, "");
+  const parsed = parseFloat(cleaned);
+  return isNaN(parsed) ? null : parsed;
 };
 
 /**
@@ -25,14 +25,13 @@ export const parsePrice = (value) => {
  * @returns {Promise<number>} - The price with VAT or 0 if not found
  */
 export const getBoltsAndNutsPrice = async () => {
-    // Must match BOTH sr = 24 AND description = 'Bolts & Nuts'
-    const item = await prisma.pricingItem.findFirst({
-        where: {
-            sr: BOLTS_AND_NUTS_SR,
-            description: BOLTS_AND_NUTS_DESCRIPTION,
-        },
-    });
-    return item?.priceWithVat || 0;
+  // Must match BOTH sr = 24 AND description = 'Bolts & Nuts'
+  const item = await prisma.pricingItem.findFirst({
+    where: {
+      description: BOLTS_AND_NUTS_DESCRIPTION,
+    },
+  });
+  return item?.priceWithVat || 0;
 };
 
 /**
@@ -41,25 +40,25 @@ export const getBoltsAndNutsPrice = async () => {
  * @returns {Promise<number>} - Calculated price with VAT
  */
 export const calculateAccessoryPriceWithVat = async (data) => {
-    const boltsAndNutsPrice = await getBoltsAndNutsPrice();
+  const boltsAndNutsPrice = await getBoltsAndNutsPrice();
 
-    const vinylStickers = parsePrice(data.vinylStickersLe) || 0;
-    const namePlate = parsePrice(data.namePlateLe) || 0;
-    const packing = parsePrice(data.packingLe) || 0;
-    const labourCost = parsePrice(data.labourCostLe) || 0;
-    const internalTransportation = parsePrice(data.internalTransportationLe) || 0;
-    const boltsAndNutsKg = parsePrice(data.boltsAndNutsKg) || 0;
+  const vinylStickers = parsePrice(data.vinylStickersLe) || 0;
+  const namePlate = parsePrice(data.namePlateLe) || 0;
+  const packing = parsePrice(data.packingLe) || 0;
+  const labourCost = parsePrice(data.labourCostLe) || 0;
+  const internalTransportation = parsePrice(data.internalTransportationLe) || 0;
+  const boltsAndNutsKg = parsePrice(data.boltsAndNutsKg) || 0;
 
-    // Formula: sum of costs + (bolts_kg * bolts_price_with_vat)
-    const priceWithVat =
-        vinylStickers +
-        namePlate +
-        packing +
-        labourCost +
-        internalTransportation +
-        (boltsAndNutsKg * boltsAndNutsPrice);
+  // Formula: sum of costs + (bolts_kg * bolts_price_with_vat)
+  const priceWithVat =
+    vinylStickers +
+    namePlate +
+    packing +
+    labourCost +
+    internalTransportation +
+    boltsAndNutsKg * boltsAndNutsPrice;
 
-    return Math.round(priceWithVat * 100) / 100;
+  return Math.round(priceWithVat * 100) / 100;
 };
 
 /**
@@ -68,7 +67,7 @@ export const calculateAccessoryPriceWithVat = async (data) => {
  * @returns {boolean} - True if it's the Bolts & Nuts item
  */
 export const isBoltsAndNutsItem = (item) => {
-    return item.sr === BOLTS_AND_NUTS_SR;
+  return item.sr === BOLTS_AND_NUTS_SR;
 };
 
 /**
@@ -78,66 +77,74 @@ export const isBoltsAndNutsItem = (item) => {
  * @returns {Promise<Array>} - Updated accessories
  */
 export const recalculateAllAccessoriesPrices = async (newBoltsPrice = null) => {
-    console.log(`\n${"=".repeat(60)}`);
-    console.log(`🔄 RECALCULATING ALL ACCESSORY PRICES`);
-    console.log(`${"=".repeat(60)}`);
+  console.log(`\n${"=".repeat(60)}`);
+  console.log(`🔄 RECALCULATING ALL ACCESSORY PRICES`);
+  console.log(`${"=".repeat(60)}`);
 
-    // Get the current Bolts & Nuts price from DB (fresh query)
-    const boltsPrice = newBoltsPrice !== null ? newBoltsPrice : await getBoltsAndNutsPrice();
-    console.log(`📊 Using Bolts & Nuts price (Sr=24): ${boltsPrice}`);
+  // Get the current Bolts & Nuts price from DB (fresh query)
+  const boltsPrice =
+    newBoltsPrice !== null ? newBoltsPrice : await getBoltsAndNutsPrice();
+  console.log(`📊 Using Bolts & Nuts price (Sr=24): ${boltsPrice}`);
 
-    const accessories = await prisma.accessoryPricing.findMany();
+  const accessories = await prisma.accessoryPricing.findMany();
 
-    if (accessories.length === 0) {
-        console.log(`⚠️ No accessories found in database to recalculate`);
-        return [];
-    }
+  if (accessories.length === 0) {
+    console.log(`⚠️ No accessories found in database to recalculate`);
+    return [];
+  }
 
-    console.log(`📊 Found ${accessories.length} accessories to recalculate...`);
+  console.log(`📊 Found ${accessories.length} accessories to recalculate...`);
 
-    const results = [];
+  const results = [];
 
-    for (const accessory of accessories) {
-        const oldPrice = accessory.priceWithVatLe;
+  for (const accessory of accessories) {
+    const oldPrice = accessory.priceWithVatLe;
 
-        // Calculate new price using the bolts price
-        const vinylStickers = parsePrice(accessory.vinylStickersLe) || 0;
-        const namePlate = parsePrice(accessory.namePlateLe) || 0;
-        const packing = parsePrice(accessory.packingLe) || 0;
-        const labourCost = parsePrice(accessory.labourCostLe) || 0;
-        const internalTransportation = parsePrice(accessory.internalTransportationLe) || 0;
-        const boltsAndNutsKg = parsePrice(accessory.boltsAndNutsKg) || 0;
+    // Calculate new price using the bolts price
+    const vinylStickers = parsePrice(accessory.vinylStickersLe) || 0;
+    const namePlate = parsePrice(accessory.namePlateLe) || 0;
+    const packing = parsePrice(accessory.packingLe) || 0;
+    const labourCost = parsePrice(accessory.labourCostLe) || 0;
+    const internalTransportation =
+      parsePrice(accessory.internalTransportationLe) || 0;
+    const boltsAndNutsKg = parsePrice(accessory.boltsAndNutsKg) || 0;
 
-        const newPrice = Math.round((
-            vinylStickers +
-            namePlate +
-            packing +
-            labourCost +
-            internalTransportation +
-            (boltsAndNutsKg * boltsPrice)
-        ) * 100) / 100;
+    const newPrice =
+      Math.round(
+        (vinylStickers +
+          namePlate +
+          packing +
+          labourCost +
+          internalTransportation +
+          boltsAndNutsKg * boltsPrice) *
+          100,
+      ) / 100;
 
-        const updated = await prisma.accessoryPricing.update({
-            where: { id: accessory.id },
-            data: { priceWithVatLe: newPrice },
-        });
+    const updated = await prisma.accessoryPricing.update({
+      where: { id: accessory.id },
+      data: { priceWithVatLe: newPrice },
+    });
 
-        console.log(`   ✓ ${accessory.fanModel} ${accessory.fanSizeMm}mm: ${oldPrice} → ${newPrice} (boltsKg=${boltsAndNutsKg})`);
-        results.push(updated);
-    }
+    console.log(
+      `   ✓ ${accessory.fanModel} ${accessory.fanSizeMm}mm: ${oldPrice} → ${newPrice} (boltsKg=${boltsAndNutsKg})`,
+    );
+    results.push(updated);
+  }
 
-    console.log(`${"=".repeat(60)}`);
-    console.log(`✅ Successfully recalculated ${results.length} accessory prices`);
-    console.log(`${"=".repeat(60)}\n`);
-    return results;
+  console.log(`${"=".repeat(60)}`);
+  console.log(
+    `✅ Successfully recalculated ${results.length} accessory prices`,
+  );
+  console.log(`${"=".repeat(60)}\n`);
+  return results;
 };
 
 export default {
-    BOLTS_AND_NUTS_SR,
-    BOLTS_AND_NUTS_DESCRIPTION,
-    parsePrice,
-    getBoltsAndNutsPrice,
-    calculateAccessoryPriceWithVat,
-    isBoltsAndNutsItem,
-    recalculateAllAccessoriesPrices,
+  BOLTS_AND_NUTS_SR,
+  BOLTS_AND_NUTS_DESCRIPTION,
+  parsePrice,
+  getBoltsAndNutsPrice,
+  calculateAccessoryPriceWithVat,
+  isBoltsAndNutsItem,
+  recalculateAllAccessoriesPrices,
 };

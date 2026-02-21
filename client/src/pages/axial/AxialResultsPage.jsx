@@ -104,7 +104,12 @@ function linearInterpolation(xArray, yArray, numSamples = 100) {
 // Generate nice round tick values that tightly fit the data
 // Returns { ticks: number[], max: number, step: number }
 function generateNiceTicks(dataMax, numIntervals = 10) {
-  if (!dataMax || dataMax <= 0) return { ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i), max: numIntervals, step: 1 };
+  if (!dataMax || dataMax <= 0)
+    return {
+      ticks: Array.from({ length: numIntervals + 1 }, (_, i) => i),
+      max: numIntervals,
+      step: 1,
+    };
   const margin = dataMax * 1.05;
   const rawStep = margin / numIntervals;
   // Find the order of magnitude
@@ -146,7 +151,7 @@ function cubicSplineInterpolation(xArray, yArray, numSamples = 300) {
   for (let i = 1; i < n - 1; i++) {
     alpha.push(
       (3 / h[i]) * (yArray[i + 1] - yArray[i]) -
-      (3 / h[i - 1]) * (yArray[i] - yArray[i - 1])
+        (3 / h[i - 1]) * (yArray[i] - yArray[i - 1]),
     );
   }
 
@@ -166,7 +171,8 @@ function cubicSplineInterpolation(xArray, yArray, numSamples = 300) {
 
   for (let j = n - 2; j >= 0; j--) {
     c[j] = z[j] - mu[j] * c[j + 1];
-    b[j] = (yArray[j + 1] - yArray[j]) / h[j] - h[j] * (c[j + 1] + 2 * c[j]) / 3;
+    b[j] =
+      (yArray[j + 1] - yArray[j]) / h[j] - (h[j] * (c[j + 1] + 2 * c[j])) / 3;
     d[j] = (c[j + 1] - c[j]) / (3 * h[j]);
   }
 
@@ -181,10 +187,14 @@ function cubicSplineInterpolation(xArray, yArray, numSamples = 300) {
     // Find the right interval
     let seg = n - 2;
     for (let j = 0; j < n - 1; j++) {
-      if (x <= xArray[j + 1]) { seg = j; break; }
+      if (x <= xArray[j + 1]) {
+        seg = j;
+        break;
+      }
     }
     const dx = x - xArray[seg];
-    const y = yArray[seg] + b[seg] * dx + c[seg] * dx * dx + d[seg] * dx * dx * dx;
+    const y =
+      yArray[seg] + b[seg] * dx + c[seg] * dx * dx + d[seg] * dx * dx * dx;
     result.push({ x: parseFloat(x.toFixed(4)), y: parseFloat(y.toFixed(4)) });
   }
 
@@ -329,14 +339,23 @@ const CustomTooltip = ({ active, payload, label, units }) => {
   ];
 
   return (
-    <div style={{
-      backgroundColor: "#ffffff",
-      border: "1px solid #e2e8f0",
-      borderRadius: "8px",
-      padding: "8px 12px",
-      boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-    }}>
-      <div style={{ color: "#1e293b", fontWeight: "600", marginBottom: "6px", fontSize: "13px" }}>
+    <div
+      style={{
+        backgroundColor: "#ffffff",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        padding: "8px 12px",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+      }}
+    >
+      <div
+        style={{
+          color: "#1e293b",
+          fontWeight: "600",
+          marginBottom: "6px",
+          fontSize: "13px",
+        }}
+      >
         Q: {Number(label).toLocaleString()} {units?.airFlow || "CFM"}
       </div>
       {curves.map((curve) => {
@@ -344,21 +363,30 @@ const CustomTooltip = ({ active, payload, label, units }) => {
         if (value == null || value === undefined) return null;
 
         let decimals = 2;
-        if (curve.key === "StaticPressureNew" || curve.key === "FanStaticEfficiency" ||
-          curve.key === "FanTotalEfficiency" || curve.key === "SystemCurve") {
+        if (
+          curve.key === "StaticPressureNew" ||
+          curve.key === "FanStaticEfficiency" ||
+          curve.key === "FanTotalEfficiency" ||
+          curve.key === "SystemCurve"
+        ) {
           decimals = 1;
         }
 
         return (
-          <div key={curve.key} style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: "16px",
-            fontSize: "12px",
-            marginTop: "4px",
-            color: "#000000"
-          }}>
-            <span style={{ color: curve.color, fontWeight: "500" }}>{labels[curve.key]}:</span>
+          <div
+            key={curve.key}
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "16px",
+              fontSize: "12px",
+              marginTop: "4px",
+              color: "#000000",
+            }}
+          >
+            <span style={{ color: curve.color, fontWeight: "500" }}>
+              {labels[curve.key]}:
+            </span>
             <span style={{ fontWeight: "600" }}>
               {value.toFixed(decimals)} {unitMap[curve.key]}
             </span>
@@ -534,7 +562,13 @@ export default function ResultsPage() {
     const impellerConf = item.Impeller?.conf;
 
     // Impeller cost
-    if (bladeSymbol && bladeMaterial && hubSymbol != null && frameSizeMm != null && numberOfBlades != null) {
+    if (
+      bladeSymbol &&
+      bladeMaterial &&
+      hubSymbol != null &&
+      frameSizeMm != null &&
+      numberOfBlades != null
+    ) {
       setImpellerPricingLoading(true);
       setImpellerPricing(null);
       fetch("/api/pricing/axial-impeller/calculate", {
@@ -550,7 +584,8 @@ export default function ResultsPage() {
       })
         .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((data) => {
-          if (data?.data?.totalCost != null) setImpellerPricing(data.data.totalCost);
+          if (data?.data?.totalCost != null)
+            setImpellerPricing(data.data.totalCost);
         })
         .catch(() => setImpellerPricing(null))
         .finally(() => setImpellerPricingLoading(false));
@@ -563,26 +598,36 @@ export default function ResultsPage() {
     if (fanType && innerDia != null) {
       setCasingPricingLoading(true);
       setCasingPricing(null);
-      const model = impellerConf ? `${fanType}-${impellerConf}` : fanType;
-      fetch("/api/pricing/axial-casing/calculate-casing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model, sizeMm: Number(innerDia) }),
-      })
+      fetch(
+        `${process.env.REACT_APP_API_BASE_URL}/api/axial/pricing/casing/calculate-casing`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ fanType, sizeMm: Number(innerDia) }),
+        },
+      )
         .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((result) => {
           if (result?.totalCost != null) setCasingPricing(result.totalCost);
         })
         .catch(() => {
           if (impellerConf) {
-            return fetch("/api/pricing/axial-casing/calculate-casing", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ model: fanType, sizeMm: Number(innerDia) }),
-            })
+            return fetch(
+              `${process.env.REACT_APP_API_BASE_URL}/api/axial/pricing/casing/calculate-casing`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  model: fanType,
+                  sizeMm: Number(innerDia),
+                }),
+              },
+            )
               .then((r) => (r.ok ? r.json() : Promise.reject(r)))
               .then((result) => {
-                if (result?.totalCost != null) setCasingPricing(result.totalCost);
+                if (result?.totalCost != null)
+                  setCasingPricing(result.totalCost);
+                console.log("Casing Pricing:", result);
               });
           }
         })
@@ -597,7 +642,9 @@ export default function ResultsPage() {
     if (fanType && innerDia != null) {
       setAccessoryPricingLoading(true);
       setAccessoryPricing(null);
-      fetch(`/api/accessories-pricing/lookup/${encodeURIComponent(fanType)}/${encodeURIComponent(innerDia)}`)
+      fetch(
+        `/api/accessories-pricing/lookup/${encodeURIComponent(fanType)}/${encodeURIComponent(innerDia)}`,
+      )
         .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((data) => setAccessoryPricing(data))
         .catch(() => setAccessoryPricing(null))
@@ -900,14 +947,14 @@ export default function ResultsPage() {
                         const staticEfficiencyValue =
                           predictions.FanStaticEfficiencyPred
                             ? (
-                              predictions.FanStaticEfficiencyPred * 100
-                            ).toFixed(2)
+                                predictions.FanStaticEfficiencyPred * 100
+                              ).toFixed(2)
                             : "-";
                         const totalEfficiencyValue =
                           predictions.FanTotalEfficiencyPred
                             ? (
-                              predictions.FanTotalEfficiencyPred * 100
-                            ).toFixed(2)
+                                predictions.FanTotalEfficiencyPred * 100
+                              ).toFixed(2)
                             : "-";
                         const AirFlow =
                           parseInt(input.airFlow)?.toFixed(2) || "-";
@@ -1053,7 +1100,9 @@ export default function ResultsPage() {
                           })
                             .then((response) => response.blob())
                             .then((blob) => {
-                              const file = new Blob([blob], { type: "application/pdf" });
+                              const file = new Blob([blob], {
+                                type: "application/pdf",
+                              });
                               const url = window.URL.createObjectURL(file);
                               window.open(url, "_blank");
                             })
@@ -1252,15 +1301,18 @@ export default function ResultsPage() {
                     };
 
                     const blades = item.Blades
-                      ? `${item.Blades.symbol || ""}${item.Blades.material
-                        ? ` (${item.Blades.material})`
-                        : ""
-                      } - ${item.Blades.noBlades || ""} blades @ ${item.Blades.angle || ""
-                      }°`
+                      ? `${item.Blades.symbol || ""}${
+                          item.Blades.material
+                            ? ` (${item.Blades.material})`
+                            : ""
+                        } - ${item.Blades.noBlades || ""} blades @ ${
+                          item.Blades.angle || ""
+                        }°`
                       : null;
                     const imp = item.Impeller
-                      ? `${item.Impeller.conf || ""} (inner ${item.Impeller.innerDia || ""
-                      } mm)`
+                      ? `${item.Impeller.conf || ""} (inner ${
+                          item.Impeller.innerDia || ""
+                        } mm)`
                       : null;
 
                     const motor = item.matchedMotor;
@@ -1271,8 +1323,8 @@ export default function ResultsPage() {
                     let motorEff =
                       motor?.efficiency50Hz ??
                       (motor &&
-                        Array.isArray(motor.effCurve) &&
-                        motor.effCurve.length > 0
+                      Array.isArray(motor.effCurve) &&
+                      motor.effCurve.length > 0
                         ? motor.effCurve[0]
                         : null);
                     // If efficiency is already a percentage (>1), convert to decimal for display
@@ -1548,12 +1600,13 @@ export default function ResultsPage() {
                                   }}
                                 >
                                   {motor?.Phase
-                                    ? `${motor.Phase === 1
-                                      ? "220"
-                                      : motor.Phase === 3
-                                        ? "380"
-                                        : "—"
-                                    }V / ${motor.Phase}Ph / 50Hz`
+                                    ? `${
+                                        motor.Phase === 1
+                                          ? "220"
+                                          : motor.Phase === 3
+                                            ? "380"
+                                            : "—"
+                                      }V / ${motor.Phase}Ph / 50Hz`
                                     : "—"}
                                 </span>
                               </div>
@@ -1618,37 +1671,103 @@ export default function ResultsPage() {
                         {activeTab === "curve" && (
                           <div style={{ marginBottom: "1.5rem" }}>
                             <div style={{ position: "relative" }}>
-                              <h4 style={{ color: "#1e293b", fontSize: "1rem", fontWeight: "600", marginBottom: "1rem" }}>
+                              <h4
+                                style={{
+                                  color: "#1e293b",
+                                  fontSize: "1rem",
+                                  fontWeight: "600",
+                                  marginBottom: "1rem",
+                                }}
+                              >
                                 Fan Performance Curves
                               </h4>
                               {/* Curve visibility checkboxes - above chart */}
-                              <div style={{
-                                display: "flex", flexWrap: "wrap", gap: "1.5rem", justifyContent: "center",
-                                marginBottom: "1rem", backgroundColor: "#f1f5f9", padding: "0.75rem 1.5rem",
-                                borderRadius: "8px", border: "1px solid #e2e8f0",
-                              }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  flexWrap: "wrap",
+                                  gap: "1.5rem",
+                                  justifyContent: "center",
+                                  marginBottom: "1rem",
+                                  backgroundColor: "#f1f5f9",
+                                  padding: "0.75rem 1.5rem",
+                                  borderRadius: "8px",
+                                  border: "1px solid #e2e8f0",
+                                }}
+                              >
                                 {[
-                                  { key: "StaticPressureNew", label: "Static Pressure", color: "#000000" },
-                                  { key: "FanInputPowerNew", label: "Fan Input Power", color: "#002060" },
-                                  { key: "FanStaticEfficiency", label: "Static Efficiency", color: "#385723" },
-                                  { key: "FanTotalEfficiency", label: "Total Efficiency", color: "#385723", dashed: true },
-                                  { key: "SystemCurve", label: "System Curve", color: "#FF0000" },
+                                  {
+                                    key: "StaticPressureNew",
+                                    label: "Static Pressure",
+                                    color: "#000000",
+                                  },
+                                  {
+                                    key: "FanInputPowerNew",
+                                    label: "Fan Input Power",
+                                    color: "#002060",
+                                  },
+                                  {
+                                    key: "FanStaticEfficiency",
+                                    label: "Static Efficiency",
+                                    color: "#385723",
+                                  },
+                                  {
+                                    key: "FanTotalEfficiency",
+                                    label: "Total Efficiency",
+                                    color: "#385723",
+                                    dashed: true,
+                                  },
+                                  {
+                                    key: "SystemCurve",
+                                    label: "System Curve",
+                                    color: "#FF0000",
+                                  },
                                 ].map((curve) => (
-                                  <label key={curve.key} style={{
-                                    display: "flex", alignItems: "center", gap: "0.5rem",
-                                    cursor: "pointer", fontSize: "0.85rem", userSelect: "none",
-                                  }}>
-                                    <input type="checkbox" checked={curveVisibility[curve.key]}
-                                      onChange={() => toggleCurveVisibility(curve.key)}
-                                      style={{ cursor: "pointer", width: "16px", height: "16px", accentColor: curve.color }}
+                                  <label
+                                    key={curve.key}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.5rem",
+                                      cursor: "pointer",
+                                      fontSize: "0.85rem",
+                                      userSelect: "none",
+                                    }}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={curveVisibility[curve.key]}
+                                      onChange={() =>
+                                        toggleCurveVisibility(curve.key)
+                                      }
+                                      style={{
+                                        cursor: "pointer",
+                                        width: "16px",
+                                        height: "16px",
+                                        accentColor: curve.color,
+                                      }}
                                     />
-                                    <span style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: curve.color, fontWeight: "500" }}>
-                                      <span style={{
-                                        display: "inline-block", width: "20px", height: "3px",
-                                        backgroundColor: curve.color,
-                                        borderTop: curve.dashed ? "2px dashed" : "none",
-                                        borderColor: curve.color,
-                                      }} />
+                                    <span
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: "0.4rem",
+                                        color: curve.color,
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          display: "inline-block",
+                                          width: "20px",
+                                          height: "3px",
+                                          backgroundColor: curve.color,
+                                          borderTop: curve.dashed
+                                            ? "2px dashed"
+                                            : "none",
+                                          borderColor: curve.color,
+                                        }}
+                                      />
                                       {curve.label}
                                     </span>
                                   </label>
@@ -1673,7 +1792,10 @@ export default function ResultsPage() {
                                     justifyContent: "center",
                                   }}
                                 >
-                                  <ResponsiveContainer width="100%" height="100%">
+                                  <ResponsiveContainer
+                                    width="100%"
+                                    height="100%"
+                                  >
                                     {(() => {
                                       const airflowData =
                                         item["AirFlowNew"] || [];
@@ -1691,10 +1813,15 @@ export default function ResultsPage() {
                                         );
                                       }
 
-                                      const dataXMax = Math.max(...validAirflows);
+                                      const dataXMax = Math.max(
+                                        ...validAirflows,
+                                      );
 
                                       // ===== DYNAMIC X-AXIS: exactly 10 intervals (11 ticks including 0) =====
-                                      const xTickResult = generateNiceTicks(dataXMax, 10);
+                                      const xTickResult = generateNiceTicks(
+                                        dataXMax,
+                                        10,
+                                      );
                                       const xTicks = xTickResult.ticks;
                                       const xDomainMax = xTickResult.max;
 
@@ -1753,10 +1880,15 @@ export default function ResultsPage() {
                                       // ===== CURVE DATA: normalize all curves to shared clean airflow steps =====
                                       // Generate shared clean airflow sample points from 0 to xDomainMax
                                       const numSamples = 800;
-                                      const sampleStep = xDomainMax / (numSamples - 1);
+                                      const sampleStep =
+                                        xDomainMax / (numSamples - 1);
                                       const sharedXPoints = [];
                                       for (let i = 0; i < numSamples; i++) {
-                                        sharedXPoints.push(parseFloat((i * sampleStep).toFixed(4)));
+                                        sharedXPoints.push(
+                                          parseFloat(
+                                            (i * sampleStep).toFixed(4),
+                                          ),
+                                        );
                                       }
 
                                       // Merge all curve data into a single dataset keyed by shared x
@@ -1767,13 +1899,18 @@ export default function ResultsPage() {
                                         mergedDataMap.set(xKey, { x: xVal });
                                       });
                                       graphTypes.forEach((graph) => {
-                                        const data = curveData[graph.dataKey] || [];
+                                        const data =
+                                          curveData[graph.dataKey] || [];
                                         data.forEach((point) => {
                                           const xKey = point.x.toFixed(4);
                                           if (!mergedDataMap.has(xKey)) {
-                                            mergedDataMap.set(xKey, { x: point.x });
+                                            mergedDataMap.set(xKey, {
+                                              x: point.x,
+                                            });
                                           }
-                                          mergedDataMap.get(xKey)[graph.dataKey] = point.y;
+                                          mergedDataMap.get(xKey)[
+                                            graph.dataKey
+                                          ] = point.y;
                                         });
                                       });
 
@@ -1820,9 +1957,10 @@ export default function ResultsPage() {
                                       // --- Pressure Y-Axis ---
                                       const rawPressureData =
                                         item["StaticPressureNew"] || [];
-                                      const validPressureValues = rawPressureData
-                                        .filter((v) => v != null && !isNaN(v))
-                                        .map(Number);
+                                      const validPressureValues =
+                                        rawPressureData
+                                          .filter((v) => v != null && !isNaN(v))
+                                          .map(Number);
                                       let pMax =
                                         validPressureValues.length > 0
                                           ? Math.max(...validPressureValues)
@@ -1837,14 +1975,21 @@ export default function ResultsPage() {
                                         const coeffA =
                                           predictedStaticPressure /
                                           Math.pow(userAirflowInput, 2);
-                                        const maxSysP = coeffA * Math.pow(dataXMax, 2);
+                                        const maxSysP =
+                                          coeffA * Math.pow(dataXMax, 2);
                                         if (maxSysP > pMax) pMax = maxSysP;
                                       }
-                                      if (predictedStaticPressure && predictedStaticPressure > pMax) {
+                                      if (
+                                        predictedStaticPressure &&
+                                        predictedStaticPressure > pMax
+                                      ) {
                                         pMax = predictedStaticPressure;
                                       }
 
-                                      const pTickResult = generateNiceTicks(pMax || 600, 10);
+                                      const pTickResult = generateNiceTicks(
+                                        pMax || 600,
+                                        10,
+                                      );
                                       const pressureTicks = pTickResult.ticks;
                                       const pressureAxisMax = pTickResult.max;
 
@@ -1860,7 +2005,10 @@ export default function ResultsPage() {
                                           : 0;
                                       pwDataMax = pwDataMax * 1.2 || 1.8;
 
-                                      const pwTickResult = generateNiceTicks(pwDataMax, 10);
+                                      const pwTickResult = generateNiceTicks(
+                                        pwDataMax,
+                                        10,
+                                      );
                                       const powerTicks = pwTickResult.ticks;
                                       const pwMax = pwTickResult.max;
 
@@ -1871,7 +2019,8 @@ export default function ResultsPage() {
                                       ];
 
                                       // Get prediction values for summary
-                                      const predictions = item.predictions || {};
+                                      const predictions =
+                                        item.predictions || {};
                                       return (
                                         <LineChart
                                           data={mergedData}
@@ -1882,15 +2031,25 @@ export default function ResultsPage() {
                                             bottom: 50,
                                           }}
                                           onClick={(e) => {
-                                            if (!e || !e.activePayload || !e.activePayload.length) return;
-                                            const pt = e.activePayload[0]?.payload;
+                                            if (
+                                              !e ||
+                                              !e.activePayload ||
+                                              !e.activePayload.length
+                                            )
+                                              return;
+                                            const pt =
+                                              e.activePayload[0]?.payload;
                                             if (!pt) return;
                                             setSelectedChartPoint({
                                               x: pt.x,
-                                              StaticPressureNew: pt.StaticPressureNew,
-                                              FanInputPowerNew: pt.FanInputPowerNew,
-                                              FanStaticEfficiency: pt.FanStaticEfficiency,
-                                              FanTotalEfficiency: pt.FanTotalEfficiency,
+                                              StaticPressureNew:
+                                                pt.StaticPressureNew,
+                                              FanInputPowerNew:
+                                                pt.FanInputPowerNew,
+                                              FanStaticEfficiency:
+                                                pt.FanStaticEfficiency,
+                                              FanTotalEfficiency:
+                                                pt.FanTotalEfficiency,
                                             });
                                             setIsLocked(true);
                                           }}
@@ -1911,8 +2070,9 @@ export default function ResultsPage() {
                                             domain={[0, xDomainMax]}
                                             type="number"
                                             label={{
-                                              value: `Air Flow (${units?.airFlow || "CFM"
-                                                })`,
+                                              value: `Air Flow (${
+                                                units?.airFlow || "CFM"
+                                              })`,
                                               position: "insideBottom",
                                               offset: -10,
                                               fill: "#000000",
@@ -1934,14 +2094,15 @@ export default function ResultsPage() {
                                             domain={[
                                               0,
                                               pressureTicks[
-                                              pressureTicks.length - 1
+                                                pressureTicks.length - 1
                                               ] || 100,
                                             ]}
                                             hide={false}
                                             allowDataOverflow={true}
                                             label={{
-                                              value: `Pressure (${units?.pressure || "Pa"
-                                                })`,
+                                              value: `Pressure (${
+                                                units?.pressure || "Pa"
+                                              })`,
                                               angle: -90,
                                               position: "insideLeft",
                                               offset: -10,
@@ -1992,16 +2153,18 @@ export default function ResultsPage() {
                                             ticks={powerTicks}
                                             domain={[
                                               0,
-                                              powerTicks[powerTicks.length - 1] ||
-                                              10,
+                                              powerTicks[
+                                                powerTicks.length - 1
+                                              ] || 10,
                                             ]}
                                             hide={false}
                                             allowDataOverflow={true}
                                             axisLine={{ stroke: "#002060" }}
                                             tickLine={{ stroke: "#002060" }}
                                             label={{
-                                              value: `Power (${units?.power || "kW"
-                                                })`,
+                                              value: `Power (${
+                                                units?.power || "kW"
+                                              })`,
                                               angle: 90,
                                               position: "right",
                                               offset: 0,
@@ -2015,7 +2178,11 @@ export default function ResultsPage() {
                                             }}
                                           />
                                           {!isLocked && (
-                                            <Tooltip content={<CustomTooltip units={units} />} />
+                                            <Tooltip
+                                              content={
+                                                <CustomTooltip units={units} />
+                                              }
+                                            />
                                           )}
                                           {/* Static Pressure */}
                                           {curveVisibility.StaticPressureNew && (
@@ -2095,69 +2262,178 @@ export default function ResultsPage() {
                                           )}
                                           {/* Operating Point Intersection Dots - clickable to lock/unlock */}
                                           {(() => {
-                                            const opAirflow = Number(input?.airFlow);
-                                            if (!opAirflow || opAirflow <= 0) return null;
+                                            const opAirflow = Number(
+                                              input?.airFlow,
+                                            );
+                                            if (!opAirflow || opAirflow <= 0)
+                                              return null;
                                             const dots = [];
-                                            const dotStyle = { cursor: "pointer" };
+                                            const dotStyle = {
+                                              cursor: "pointer",
+                                            };
                                             const selectedStroke = "#f59e0b";
                                             const normalStroke = "#ffffff";
 
                                             const handleDotClick = (e) => {
-                                              if (e && e.stopPropagation) e.stopPropagation();
+                                              if (e && e.stopPropagation)
+                                                e.stopPropagation();
                                               if (isLocked) {
                                                 setIsLocked(false);
                                                 setSelectedChartPoint(null);
                                               } else {
                                                 setSelectedChartPoint({
                                                   x: opAirflow,
-                                                  StaticPressureNew: predictions.StaticPressurePred,
-                                                  FanInputPowerNew: predictions.FanInputPowerPred,
-                                                  FanStaticEfficiency: predictions.FanStaticEfficiencyPred != null ? predictions.FanStaticEfficiencyPred * 100 : null,
-                                                  FanTotalEfficiency: predictions.FanTotalEfficiencyPred != null ? predictions.FanTotalEfficiencyPred * 100 : null,
-                                                  SystemCurve: predictedStaticPressure,
+                                                  StaticPressureNew:
+                                                    predictions.StaticPressurePred,
+                                                  FanInputPowerNew:
+                                                    predictions.FanInputPowerPred,
+                                                  FanStaticEfficiency:
+                                                    predictions.FanStaticEfficiencyPred !=
+                                                    null
+                                                      ? predictions.FanStaticEfficiencyPred *
+                                                        100
+                                                      : null,
+                                                  FanTotalEfficiency:
+                                                    predictions.FanTotalEfficiencyPred !=
+                                                    null
+                                                      ? predictions.FanTotalEfficiencyPred *
+                                                        100
+                                                      : null,
+                                                  SystemCurve:
+                                                    predictedStaticPressure,
                                                 });
                                                 setIsLocked(true);
                                               }
                                             };
 
-                                            if (curveVisibility.StaticPressureNew && predictions.StaticPressurePred != null) {
+                                            if (
+                                              curveVisibility.StaticPressureNew &&
+                                              predictions.StaticPressurePred !=
+                                                null
+                                            ) {
                                               dots.push(
-                                                <ReferenceDot key="op-pressure" x={opAirflow} y={predictions.StaticPressurePred} yAxisId="pressure"
-                                                  r={isLocked ? 8 : 6} fill="#000000" stroke={isLocked ? selectedStroke : normalStroke} strokeWidth={isLocked ? 3 : 2}
-                                                  style={dotStyle} onClick={handleDotClick}
-                                                />
+                                                <ReferenceDot
+                                                  key="op-pressure"
+                                                  x={opAirflow}
+                                                  y={
+                                                    predictions.StaticPressurePred
+                                                  }
+                                                  yAxisId="pressure"
+                                                  r={isLocked ? 8 : 6}
+                                                  fill="#000000"
+                                                  stroke={
+                                                    isLocked
+                                                      ? selectedStroke
+                                                      : normalStroke
+                                                  }
+                                                  strokeWidth={isLocked ? 3 : 2}
+                                                  style={dotStyle}
+                                                  onClick={handleDotClick}
+                                                />,
                                               );
                                             }
-                                            if (curveVisibility.FanInputPowerNew && predictions.FanInputPowerPred != null) {
+                                            if (
+                                              curveVisibility.FanInputPowerNew &&
+                                              predictions.FanInputPowerPred !=
+                                                null
+                                            ) {
                                               dots.push(
-                                                <ReferenceDot key="op-power" x={opAirflow} y={predictions.FanInputPowerPred} yAxisId="power"
-                                                  r={isLocked ? 8 : 6} fill="#002060" stroke={isLocked ? selectedStroke : normalStroke} strokeWidth={isLocked ? 3 : 2}
-                                                  style={dotStyle} onClick={handleDotClick}
-                                                />
+                                                <ReferenceDot
+                                                  key="op-power"
+                                                  x={opAirflow}
+                                                  y={
+                                                    predictions.FanInputPowerPred
+                                                  }
+                                                  yAxisId="power"
+                                                  r={isLocked ? 8 : 6}
+                                                  fill="#002060"
+                                                  stroke={
+                                                    isLocked
+                                                      ? selectedStroke
+                                                      : normalStroke
+                                                  }
+                                                  strokeWidth={isLocked ? 3 : 2}
+                                                  style={dotStyle}
+                                                  onClick={handleDotClick}
+                                                />,
                                               );
                                             }
-                                            if (curveVisibility.FanStaticEfficiency && predictions.FanStaticEfficiencyPred != null) {
+                                            if (
+                                              curveVisibility.FanStaticEfficiency &&
+                                              predictions.FanStaticEfficiencyPred !=
+                                                null
+                                            ) {
                                               dots.push(
-                                                <ReferenceDot key="op-seff" x={opAirflow} y={predictions.FanStaticEfficiencyPred * 100} yAxisId="efficiency"
-                                                  r={isLocked ? 8 : 6} fill="#385723" stroke={isLocked ? selectedStroke : normalStroke} strokeWidth={isLocked ? 3 : 2}
-                                                  style={dotStyle} onClick={handleDotClick}
-                                                />
+                                                <ReferenceDot
+                                                  key="op-seff"
+                                                  x={opAirflow}
+                                                  y={
+                                                    predictions.FanStaticEfficiencyPred *
+                                                    100
+                                                  }
+                                                  yAxisId="efficiency"
+                                                  r={isLocked ? 8 : 6}
+                                                  fill="#385723"
+                                                  stroke={
+                                                    isLocked
+                                                      ? selectedStroke
+                                                      : normalStroke
+                                                  }
+                                                  strokeWidth={isLocked ? 3 : 2}
+                                                  style={dotStyle}
+                                                  onClick={handleDotClick}
+                                                />,
                                               );
                                             }
-                                            if (curveVisibility.FanTotalEfficiency && predictions.FanTotalEfficiencyPred != null) {
+                                            if (
+                                              curveVisibility.FanTotalEfficiency &&
+                                              predictions.FanTotalEfficiencyPred !=
+                                                null
+                                            ) {
                                               dots.push(
-                                                <ReferenceDot key="op-teff" x={opAirflow} y={predictions.FanTotalEfficiencyPred * 100} yAxisId="efficiency"
-                                                  r={isLocked ? 8 : 6} fill="#385723" stroke={isLocked ? selectedStroke : normalStroke} strokeWidth={isLocked ? 3 : 2}
-                                                  style={dotStyle} onClick={handleDotClick}
-                                                />
+                                                <ReferenceDot
+                                                  key="op-teff"
+                                                  x={opAirflow}
+                                                  y={
+                                                    predictions.FanTotalEfficiencyPred *
+                                                    100
+                                                  }
+                                                  yAxisId="efficiency"
+                                                  r={isLocked ? 8 : 6}
+                                                  fill="#385723"
+                                                  stroke={
+                                                    isLocked
+                                                      ? selectedStroke
+                                                      : normalStroke
+                                                  }
+                                                  strokeWidth={isLocked ? 3 : 2}
+                                                  style={dotStyle}
+                                                  onClick={handleDotClick}
+                                                />,
                                               );
                                             }
-                                            if (curveVisibility.SystemCurve && predictedStaticPressure && opAirflow > 0) {
+                                            if (
+                                              curveVisibility.SystemCurve &&
+                                              predictedStaticPressure &&
+                                              opAirflow > 0
+                                            ) {
                                               dots.push(
-                                                <ReferenceDot key="op-sys" x={opAirflow} y={predictedStaticPressure} yAxisId="pressure"
-                                                  r={isLocked ? 8 : 6} fill="#FF0000" stroke={isLocked ? selectedStroke : normalStroke} strokeWidth={isLocked ? 3 : 2}
-                                                  style={dotStyle} onClick={handleDotClick}
-                                                />
+                                                <ReferenceDot
+                                                  key="op-sys"
+                                                  x={opAirflow}
+                                                  y={predictedStaticPressure}
+                                                  yAxisId="pressure"
+                                                  r={isLocked ? 8 : 6}
+                                                  fill="#FF0000"
+                                                  stroke={
+                                                    isLocked
+                                                      ? selectedStroke
+                                                      : normalStroke
+                                                  }
+                                                  strokeWidth={isLocked ? 3 : 2}
+                                                  style={dotStyle}
+                                                  onClick={handleDotClick}
+                                                />,
                                               );
                                             }
                                             return dots;
@@ -2247,9 +2523,9 @@ export default function ResultsPage() {
                                       >
                                         {predictions.FanStaticEfficiencyPred
                                           ? (
-                                            predictions.FanStaticEfficiencyPred *
-                                            100
-                                          ).toFixed(1)
+                                              predictions.FanStaticEfficiencyPred *
+                                              100
+                                            ).toFixed(1)
                                           : "—"}
                                       </Text>
                                       <Text
@@ -2274,9 +2550,9 @@ export default function ResultsPage() {
                                       >
                                         {predictions.FanTotalEfficiencyPred
                                           ? (
-                                            predictions.FanTotalEfficiencyPred *
-                                            100
-                                          ).toFixed(1)
+                                              predictions.FanTotalEfficiencyPred *
+                                              100
+                                            ).toFixed(1)
                                           : "—"}
                                       </Text>
                                       <Text
@@ -2624,8 +2900,8 @@ export default function ResultsPage() {
                                                     key={`lw-cell-${index}`}
                                                     fill={
                                                       lwBarColors[
-                                                      index %
-                                                      lwBarColors.length
+                                                        index %
+                                                          lwBarColors.length
                                                       ]
                                                     }
                                                   />
@@ -2721,8 +2997,8 @@ export default function ResultsPage() {
                                                     key={`lp-cell-${index}`}
                                                     fill={
                                                       lpBarColors[
-                                                      index %
-                                                      lpBarColors.length
+                                                        index %
+                                                          lpBarColors.length
                                                       ]
                                                     }
                                                   />
@@ -2867,388 +3143,400 @@ export default function ResultsPage() {
                           </div>
                         )}
                         {/* Pricing Section - Only show when activeTab is 'pricing' */}
-                      {activeTab === "pricing" && (
-                        <div style={{ marginBottom: "1.5rem" }}>
-                          {(() => {
-                            // Check if motor is selected
-                            if (!motor) {
+                        {activeTab === "pricing" && (
+                          <div style={{ marginBottom: "1.5rem" }}>
+                            {(() => {
+                              // Check if motor is selected
+                              if (!motor) {
+                                return (
+                                  <div
+                                    className="detail-card"
+                                    style={{
+                                      padding: "2rem",
+                                      textAlign: "center",
+                                      color: "#64748b",
+                                    }}
+                                  >
+                                    <p>
+                                      No motor selected. Please select a fan to
+                                      view pricing information.
+                                    </p>
+                                  </div>
+                                );
+                              }
+
+                              // Determine which column to use for Electrical Motor Cost based on fan type
+                              // WF or ARTF → Other Price with VAT & Factor (L.E)
+                              // Any other fan type → B3 Price with VAT & Factor (L.E)
+                              const fanType = units?.fanType || "";
+                              const isWFOrARTF =
+                                fanType === "WF" || fanType === "ARTF";
+
+                              // Get pricing values from the matched motor
+                              // These values are fetched exactly as stored in the database
+                              let electricalMotorCost = isWFOrARTF
+                                ? motor.otherPriceWithVat
+                                : motor.b3PriceWithVat;
+
+                              if (!electricalMotorCost) {
+                                electricalMotorCost =
+                                  (isWFOrARTF
+                                    ? motor.otherPriceWithoutVat
+                                    : motor.b3PriceWithoutVat) * 1.14;
+                              }
+                              const electricalComponentCost =
+                                motor.totalPriceWithVat;
+
+                              // Format currency value
+                              const formatPricingValue = (value) => {
+                                if (value === null || value === undefined)
+                                  return "—";
+                                const num =
+                                  typeof value === "number"
+                                    ? value
+                                    : parseFloat(value);
+                                if (isNaN(num)) return "—";
+                                return num.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                });
+                              };
+                              const impellerCost = impellerPricing;
+                              const casingCost = casingPricing;
+
                               return (
-                                <div
-                                  className="detail-card"
-                                  style={{
-                                    padding: "2rem",
-                                    textAlign: "center",
-                                    color: "#64748b",
-                                  }}
-                                >
-                                  <p>
-                                    No motor selected. Please select a fan to view
-                                    pricing information.
-                                  </p>
+                                <div className="detail-card">
+                                  <h4>Pricing Information</h4>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      flexDirection: "column",
+                                      gap: "1.5rem",
+                                      marginTop: "1rem",
+                                    }}
+                                  >
+                                    {/* Electrical Motor Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background: "#f8fafc",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #e2e8f0",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#475569",
+                                            fontSize: "0.875rem",
+                                          }}
+                                        >
+                                          Electrical Motor Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#64748b",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          {isWFOrARTF
+                                            ? "Other Price with VAT & Factor"
+                                            : "B3 Price with VAT & Factor"}
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#059669",
+                                          fontSize: "1.25rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {formatPricingValue(
+                                          electricalMotorCost,
+                                        )}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#64748b",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+
+                                    {/* Electrical Component Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background: "#f8fafc",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #e2e8f0",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#475569",
+                                            fontSize: "0.875rem",
+                                          }}
+                                        >
+                                          Electrical Component Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#64748b",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          Price With VAT Per Meter (Total)
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#2563eb",
+                                          fontSize: "1.25rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {formatPricingValue(
+                                          electricalComponentCost,
+                                        )}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#64748b",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+
+                                    {/* Axial Impeller Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background: "#f8fafc",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #e2e8f0",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#475569",
+                                            fontSize: "0.875rem",
+                                          }}
+                                        >
+                                          Axial Impeller Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#64748b",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          {item.Blades?.symbol &&
+                                          item.Blades?.material
+                                            ? `Blade: ${item.Blades.symbol} (${
+                                                item.Blades.material
+                                              }), Hub: ${
+                                                item.hubType || "—"
+                                              }, Frame: ${
+                                                item.matchedMotor?.frameSize ||
+                                                "—"
+                                              } mm`
+                                            : "Impeller components"}
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#7c3aed",
+                                          fontSize: "1.25rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {impellerPricingLoading
+                                          ? "Loading..."
+                                          : formatPricingValue(
+                                              impellerCost,
+                                            )}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#64748b",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+
+                                    {/* Axial Casing Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background: "#f8fafc",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #e2e8f0",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#475569",
+                                            fontSize: "0.875rem",
+                                          }}
+                                        >
+                                          Axial Casing Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#64748b",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          {`Model: ${fanType || "—"}, Size: ${
+                                            item.Impeller?.innerDia || "—"
+                                          } mm`}
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#0891b2",
+                                          fontSize: "1.25rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {casingPricingLoading
+                                          ? "Loading..."
+                                          : formatPricingValue(casingCost)}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#64748b",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+
+                                    {/* Other Accessories Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background: "#f8fafc",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #e2e8f0",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#475569",
+                                            fontSize: "0.875rem",
+                                          }}
+                                        >
+                                          Other Accessories Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#64748b",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          Price with VAT (Fan: {fanType}, Size:{" "}
+                                          {item.Impeller?.innerDia || "—"} mm)
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#d97706",
+                                          fontSize: "1.25rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {accessoryPricingLoading
+                                          ? "Loading..."
+                                          : formatPricingValue(
+                                              accessoryPricing?.priceWithVatLe,
+                                            )}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#64748b",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+                                  </div>
+
+                                  {/* Info note */}
+                                  <div
+                                    style={{
+                                      marginTop: "1.5rem",
+                                      padding: "0.75rem 1rem",
+                                      background: "#f1f5f9",
+                                      borderRadius: "0.375rem",
+                                      borderLeft: "3px solid #3b82f6",
+                                    }}
+                                  >
+                                    <p
+                                      style={{
+                                        color: "#475569",
+                                        fontSize: "0.8rem",
+                                        margin: 0,
+                                      }}
+                                    >
+                                      <strong style={{ color: "#1e293b" }}>
+                                        Note:
+                                      </strong>{" "}
+                                      Pricing values are fetched from the
+                                      selected motor ({motor.model || "N/A"}).
+                                      {isWFOrARTF
+                                        ? " Using 'Other Price' for WF/ARTF fan type."
+                                        : " Using 'B3 Price' for standard fan type."}
+                                    </p>
+                                  </div>
                                 </div>
                               );
-                            }
-
-                            // Determine which column to use for Electrical Motor Cost based on fan type
-                            // WF or ARTF → Other Price with VAT & Factor (L.E)
-                            // Any other fan type → B3 Price with VAT & Factor (L.E)
-                            const fanType = units?.fanType || "";
-                            const isWFOrARTF =
-                              fanType === "WF" || fanType === "ARTF";
-
-                            // Get pricing values from the matched motor
-                            // These values are fetched exactly as stored in the database
-                            let electricalMotorCost = isWFOrARTF
-                              ? motor.otherPriceWithVat
-                              : motor.b3PriceWithVat;
-
-                            if (!electricalMotorCost){
-                              electricalMotorCost = (isWFOrARTF
-                              ? motor.otherPriceWithoutVat
-                              : motor.b3PriceWithoutVat)*1.14;
-
-                            }
-                            const electricalComponentCost = motor.totalPriceWithVat;
-
-                            // Format currency value
-                            const formatPricingValue = (value) => {
-                              if (value === null || value === undefined) return "—";
-                              const num =
-                                typeof value === "number"
-                                  ? value
-                                  : parseFloat(value);
-                              if (isNaN(num)) return "—";
-                              return num.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              });
-                            };
-                            const impellerCost = impellerPricing;
-                            const casingCost = casingPricing;
-
-                            return (
-                              <div className="detail-card">
-                                <h4>Pricing Information</h4>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    flexDirection: "column",
-                                    gap: "1.5rem",
-                                    marginTop: "1rem",
-                                  }}
-                                >
-                                  {/* Electrical Motor Cost */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      padding: "1rem 1.5rem",
-                                      background: "#f8fafc",
-                                      borderRadius: "0.5rem",
-                                      border: "1px solid #e2e8f0",
-                                    }}
-                                  >
-                                    <div>
-                                      <span
-                                        style={{
-                                          color: "#475569",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        Electrical Motor Cost
-                                      </span>
-                                      <div
-                                        style={{
-                                          color: "#64748b",
-                                          fontSize: "0.75rem",
-                                          marginTop: "0.25rem",
-                                        }}
-                                      >
-                                        {isWFOrARTF
-                                          ? "Other Price with VAT & Factor"
-                                          : "B3 Price with VAT & Factor"}
-                                      </div>
-                                    </div>
-                                    <span
-                                      style={{
-                                        color: "#059669",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {formatPricingValue(electricalMotorCost)}{" "}
-                                      <span
-                                        style={{
-                                          fontSize: "0.875rem",
-                                          color: "#64748b",
-                                          fontWeight: "normal",
-                                        }}
-                                      >
-                                        L.E
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  {/* Electrical Component Cost */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      padding: "1rem 1.5rem",
-                                      background: "#f8fafc",
-                                      borderRadius: "0.5rem",
-                                      border: "1px solid #e2e8f0",
-                                    }}
-                                  >
-                                    <div>
-                                      <span
-                                        style={{
-                                          color: "#475569",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        Electrical Component Cost
-                                      </span>
-                                      <div
-                                        style={{
-                                          color: "#64748b",
-                                          fontSize: "0.75rem",
-                                          marginTop: "0.25rem",
-                                        }}
-                                      >
-                                        Price With VAT Per Meter (Total)
-                                      </div>
-                                    </div>
-                                    <span
-                                      style={{
-                                        color: "#2563eb",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {formatPricingValue(electricalComponentCost)}{" "}
-                                      <span
-                                        style={{
-                                          fontSize: "0.875rem",
-                                          color: "#64748b",
-                                          fontWeight: "normal",
-                                        }}
-                                      >
-                                        L.E
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  {/* Axial Impeller Cost */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      padding: "1rem 1.5rem",
-                                      background: "#f8fafc",
-                                      borderRadius: "0.5rem",
-                                      border: "1px solid #e2e8f0",
-                                    }}
-                                  >
-                                    <div>
-                                      <span
-                                        style={{
-                                          color: "#475569",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        Axial Impeller Cost
-                                      </span>
-                                      <div
-                                        style={{
-                                          color: "#64748b",
-                                          fontSize: "0.75rem",
-                                          marginTop: "0.25rem",
-                                        }}
-                                      >
-                                        {item.Blades?.symbol &&
-                                          item.Blades?.material
-                                          ? `Blade: ${item.Blades.symbol} (${item.Blades.material
-                                          }), Hub: ${item.hubType || "—"
-                                          }, Frame: ${item.matchedMotor?.frameSize || "—"
-                                          } mm`
-                                          : "Impeller components"}
-                                      </div>
-                                    </div>
-                                    <span
-                                      style={{
-                                        color: "#7c3aed",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {impellerPricingLoading
-                                        ? "Loading..."
-                                        : formatPricingValue(impellerCost)}{" "}
-                                      <span
-                                        style={{
-                                          fontSize: "0.875rem",
-                                          color: "#64748b",
-                                          fontWeight: "normal",
-                                        }}
-                                      >
-                                        L.E
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  {/* Axial Casing Cost */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      padding: "1rem 1.5rem",
-                                      background: "#f8fafc",
-                                      borderRadius: "0.5rem",
-                                      border: "1px solid #e2e8f0",
-                                    }}
-                                  >
-                                    <div>
-                                      <span
-                                        style={{
-                                          color: "#475569",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        Axial Casing Cost
-                                      </span>
-                                      <div
-                                        style={{
-                                          color: "#64748b",
-                                          fontSize: "0.75rem",
-                                          marginTop: "0.25rem",
-                                        }}
-                                      >
-                                        {`Model: ${fanType || "—"}, Size: ${item.Impeller?.innerDia || "—"
-                                          } mm`}
-                                      </div>
-                                    </div>
-                                    <span
-                                      style={{
-                                        color: "#0891b2",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {casingPricingLoading
-                                        ? "Loading..."
-                                        : formatPricingValue(casingCost)}{" "}
-                                      <span
-                                        style={{
-                                          fontSize: "0.875rem",
-                                          color: "#64748b",
-                                          fontWeight: "normal",
-                                        }}
-                                      >
-                                        L.E
-                                      </span>
-                                    </span>
-                                  </div>
-
-                                  {/* Other Accessories Cost */}
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                      padding: "1rem 1.5rem",
-                                      background: "#f8fafc",
-                                      borderRadius: "0.5rem",
-                                      border: "1px solid #e2e8f0",
-                                    }}
-                                  >
-                                    <div>
-                                      <span
-                                        style={{
-                                          color: "#475569",
-                                          fontSize: "0.875rem",
-                                        }}
-                                      >
-                                        Other Accessories Cost
-                                      </span>
-                                      <div
-                                        style={{
-                                          color: "#64748b",
-                                          fontSize: "0.75rem",
-                                          marginTop: "0.25rem",
-                                        }}
-                                      >
-                                        Price with VAT (Fan: {fanType}, Size:{" "}
-                                        {item.Impeller?.innerDia || "—"} mm)
-                                      </div>
-                                    </div>
-                                    <span
-                                      style={{
-                                        color: "#d97706",
-                                        fontSize: "1.25rem",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {accessoryPricingLoading
-                                        ? "Loading..."
-                                        : formatPricingValue(
-                                          accessoryPricing?.priceWithVatLe
-                                        )}{" "}
-                                      <span
-                                        style={{
-                                          fontSize: "0.875rem",
-                                          color: "#64748b",
-                                          fontWeight: "normal",
-                                        }}
-                                      >
-                                        L.E
-                                      </span>
-                                    </span>
-                                  </div>
-                                </div>
-
-                                {/* Info note */}
-                                <div
-                                  style={{
-                                    marginTop: "1.5rem",
-                                    padding: "0.75rem 1rem",
-                                    background: "#f1f5f9",
-                                    borderRadius: "0.375rem",
-                                    borderLeft: "3px solid #3b82f6",
-                                  }}
-                                >
-                                  <p
-                                    style={{
-                                      color: "#475569",
-                                      fontSize: "0.8rem",
-                                      margin: 0,
-                                    }}
-                                  >
-                                    <strong style={{ color: "#1e293b" }}>
-                                      Note:
-                                    </strong>{" "}
-                                    Pricing values are fetched from the selected
-                                    motor ({motor.model || "N/A"}).
-                                    {isWFOrARTF
-                                      ? " Using 'Other Price' for WF/ARTF fan type."
-                                      : " Using 'B3 Price' for standard fan type."}
-                                  </p>
-                                </div>
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      )}
+                            })()}
+                          </div>
+                        )}
                       </div>
                     );
                   })()}
                 </div>
-              )
-            }
+              )}
 
             {/* Save to Project Button */}
 

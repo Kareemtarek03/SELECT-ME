@@ -34,8 +34,16 @@ const CASING_SUB_TABS = [
   { id: "impellers", name: "Impeller", path: "casing-impellers" },
   { id: "funnels", name: "Funnels", path: "casing-funnels" },
   { id: "sleeve-shafts", name: "Sleeve+Shaft", path: "casing-sleeve-shafts" },
-  { id: "matching-flanges", name: "Matching Flange", path: "casing-matching-flanges" },
-  { id: "bearing-assemblies", name: "Bearing Assembly", path: "casing-bearing-assemblies" },
+  {
+    id: "matching-flanges",
+    name: "Matching Flange",
+    path: "casing-matching-flanges",
+  },
+  {
+    id: "bearing-assemblies",
+    name: "Bearing Assembly",
+    path: "casing-bearing-assemblies",
+  },
   { id: "fan-bases", name: "Fan Base", path: "casing-fan-bases" },
   { id: "belt-covers", name: "Belt Cover", path: "casing-belt-covers" },
   { id: "motor-bases", name: "Motor Base", path: "casing-motor-bases" },
@@ -72,15 +80,35 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "volute2mmWeightKgWithoutScrap", label: "2mm Weight w/o Scrap", type: "number" },
+      {
+        key: "volute2mmWeightKgWithoutScrap",
+        label: "2mm Weight w/o Scrap",
+        type: "number",
+      },
       { key: "volute2mmScrapPct", label: "2mm Scrap %", type: "number" },
-      { key: "volute2mmSheetMetalDimensionsMm", label: "2mm Dimensions", type: "text" },
-      { key: "volute1mmWeightKgWithoutScrap", label: "1mm Weight w/o Scrap", type: "number" },
+      {
+        key: "volute2mmSheetMetalDimensionsMm",
+        label: "2mm Dimensions",
+        type: "text",
+      },
+      {
+        key: "volute1mmWeightKgWithoutScrap",
+        label: "1mm Weight w/o Scrap",
+        type: "number",
+      },
       { key: "volute1mmScrapPct", label: "1mm Scrap %", type: "number" },
-      { key: "volute1mmSheetMetalDimensionsMm", label: "1mm Dimensions", type: "text" },
+      {
+        key: "volute1mmSheetMetalDimensionsMm",
+        label: "1mm Dimensions",
+        type: "text",
+      },
       { key: "volute1mmLaserTimeMin", label: "1mm Laser Time", type: "number" },
       { key: "volute1mmRolling", label: "1mm Rolling", type: "number" },
-      { key: "volute1mmSheetMetalOverlapping", label: "1mm Overlapping", type: "number" },
+      {
+        key: "volute1mmSheetMetalOverlapping",
+        label: "1mm Overlapping",
+        type: "number",
+      },
     ],
   },
   "casing-frames": {
@@ -93,12 +121,28 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "angleBarWeightKgWithoutScrap", label: "Angle Bar Weight", type: "number" },
+      {
+        key: "angleBarWeightKgWithoutScrap",
+        label: "Angle Bar Weight",
+        type: "number",
+      },
       { key: "angleBarDimensionsMm", label: "Angle Bar Dims", type: "text" },
-      { key: "supportWeightKgWithoutScrap", label: "Support Weight", type: "number" },
-      { key: "supportSheetMetalDimensionsMm", label: "Support Dims", type: "text" },
+      {
+        key: "supportWeightKgWithoutScrap",
+        label: "Support Weight",
+        type: "number",
+      },
+      {
+        key: "supportSheetMetalDimensionsMm",
+        label: "Support Dims",
+        type: "text",
+      },
       { key: "supportLaserTimeMin", label: "Support Laser", type: "number" },
-      { key: "supportCasingCircumferenceM", label: "Support Circumf", type: "number" },
+      {
+        key: "supportCasingCircumferenceM",
+        label: "Support Circumf",
+        type: "number",
+      },
       { key: "supportPaintingLe", label: "Support Painting", type: "number" },
     ],
   },
@@ -112,13 +156,33 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "bladesWeightKgWithoutScrap", label: "Blades Weight", type: "number" },
-      { key: "bladesSheetMetalDimensionsMm", label: "Blades Dims", type: "text" },
-      { key: "plateWeightKgWithoutScrap", label: "Plate Weight", type: "number" },
+      {
+        key: "bladesWeightKgWithoutScrap",
+        label: "Blades Weight",
+        type: "number",
+      },
+      {
+        key: "bladesSheetMetalDimensionsMm",
+        label: "Blades Dims",
+        type: "text",
+      },
+      {
+        key: "plateWeightKgWithoutScrap",
+        label: "Plate Weight",
+        type: "number",
+      },
       { key: "plateSheetMetalDimensionsMm", label: "Plate Dims", type: "text" },
-      { key: "plateCentrifugalImpellerRigCostPcs", label: "Plate Rig Cost", type: "number" },
+      {
+        key: "plateCentrifugalImpellerRigCostPcs",
+        label: "Plate Rig Cost",
+        type: "number",
+      },
       { key: "plateLaserTimeMin", label: "Plate Laser", type: "number" },
-      { key: "plateCasingCircumferenceM", label: "Plate Circumf", type: "number" },
+      {
+        key: "plateCasingCircumferenceM",
+        label: "Plate Circumf",
+        type: "number",
+      },
       { key: "platePaintingLe", label: "Plate Painting", type: "number" },
     ],
   },
@@ -131,12 +195,36 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "funnel15mmWeightKgWithoutScrap", label: "1.5mm Weight", type: "number" },
-      { key: "funnel15mmSheetMetalDimensionsMm", label: "1.5mm Dims", type: "text" },
-      { key: "funnel15mmDieCastingLePc", label: "1.5mm Die Casting", type: "number" },
-      { key: "funnel15mmGalvanizeLe", label: "1.5mm Galvanize", type: "number" },
-      { key: "funnel3mmWeightKgWithoutScrap", label: "3mm Weight", type: "number" },
-      { key: "funnel3mmSheetMetalDimensionsMm", label: "3mm Dims", type: "text" },
+      {
+        key: "funnel15mmWeightKgWithoutScrap",
+        label: "1.5mm Weight",
+        type: "number",
+      },
+      {
+        key: "funnel15mmSheetMetalDimensionsMm",
+        label: "1.5mm Dims",
+        type: "text",
+      },
+      {
+        key: "funnel15mmDieCastingLePc",
+        label: "1.5mm Die Casting",
+        type: "number",
+      },
+      {
+        key: "funnel15mmGalvanizeLe",
+        label: "1.5mm Galvanize",
+        type: "number",
+      },
+      {
+        key: "funnel3mmWeightKgWithoutScrap",
+        label: "3mm Weight",
+        type: "number",
+      },
+      {
+        key: "funnel3mmSheetMetalDimensionsMm",
+        label: "3mm Dims",
+        type: "text",
+      },
       { key: "funnel3mmPaintingLe", label: "3mm Painting", type: "number" },
     ],
   },
@@ -149,10 +237,22 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "sleeveWeightKgWithoutScrap", label: "Sleeve Weight", type: "number" },
-      { key: "sleeveSheetMetalDimensionsMm", label: "Sleeve Dims", type: "text" },
+      {
+        key: "sleeveWeightKgWithoutScrap",
+        label: "Sleeve Weight",
+        type: "number",
+      },
+      {
+        key: "sleeveSheetMetalDimensionsMm",
+        label: "Sleeve Dims",
+        type: "text",
+      },
       { key: "sleeveManufacturingLePc", label: "Sleeve Mfg", type: "number" },
-      { key: "shaftWeightKgWithoutScrap", label: "Shaft Weight", type: "number" },
+      {
+        key: "shaftWeightKgWithoutScrap",
+        label: "Shaft Weight",
+        type: "number",
+      },
       { key: "shaftSheetMetalDimensionsMm", label: "Shaft Dims", type: "text" },
       { key: "shaftManufacturingLePc", label: "Shaft Mfg", type: "number" },
     ],
@@ -167,12 +267,28 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "flange3mmWeightKgWithoutScrap", label: "Flange Weight", type: "number" },
-      { key: "flange3mmSheetMetalDimensionsMm", label: "Flange Dims", type: "text" },
+      {
+        key: "flange3mmWeightKgWithoutScrap",
+        label: "Flange Weight",
+        type: "number",
+      },
+      {
+        key: "flange3mmSheetMetalDimensionsMm",
+        label: "Flange Dims",
+        type: "text",
+      },
       { key: "flange3mmLaserTimeMin", label: "Laser Time", type: "number" },
       { key: "flange3mmRolling", label: "Rolling", type: "number" },
-      { key: "flange3mmCasingCircumferenceM", label: "Circumf", type: "number" },
-      { key: "selfAligningBearingHousingLe", label: "Bearing Housing", type: "number" },
+      {
+        key: "flange3mmCasingCircumferenceM",
+        label: "Circumf",
+        type: "number",
+      },
+      {
+        key: "selfAligningBearingHousingLe",
+        label: "Bearing Housing",
+        type: "number",
+      },
     ],
   },
   "casing-bearing-assemblies": {
@@ -185,7 +301,11 @@ const CASING_TAB_CONFIG = {
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
       { key: "boltsNutsKg", label: "Bolts+Nuts (kg)", type: "number" },
-      { key: "assemblyLaboursPerShaft", label: "Assembly Labours/Shaft", type: "number" },
+      {
+        key: "assemblyLaboursPerShaft",
+        label: "Assembly Labours/Shaft",
+        type: "number",
+      },
     ],
   },
   "casing-fan-bases": {
@@ -198,7 +318,11 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "weightKgWithoutScrap", label: "Weight w/o Scrap", type: "number" },
+      {
+        key: "weightKgWithoutScrap",
+        label: "Weight w/o Scrap",
+        type: "number",
+      },
       { key: "scrapPct", label: "Scrap %", type: "number" },
       { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
       { key: "laserTimeMin", label: "Laser Time", type: "number" },
@@ -215,7 +339,11 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "weightKgWithoutScrap", label: "Weight w/o Scrap", type: "number" },
+      {
+        key: "weightKgWithoutScrap",
+        label: "Weight w/o Scrap",
+        type: "number",
+      },
       { key: "scrapPct", label: "Scrap %", type: "number" },
       { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
       { key: "laserTimeMin", label: "Laser Time", type: "number" },
@@ -232,7 +360,11 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "weightKgWithoutScrap", label: "Weight w/o Scrap", type: "number" },
+      {
+        key: "weightKgWithoutScrap",
+        label: "Weight w/o Scrap",
+        type: "number",
+      },
       { key: "scrapPct", label: "Scrap %", type: "number" },
       { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
       { key: "laserTimeMin", label: "Laser Time", type: "number" },
@@ -250,12 +382,20 @@ const CASING_TAB_CONFIG = {
     ],
     formFields: [
       { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "vibrationIsolatorsLe", label: "Vibration Isolators", type: "number" },
+      {
+        key: "vibrationIsolatorsLe",
+        label: "Vibration Isolators",
+        type: "number",
+      },
       { key: "vinylStickersLe", label: "Vinyl Stickers", type: "number" },
       { key: "namePlateLe", label: "Name Plate", type: "number" },
       { key: "packingLe", label: "Packing", type: "number" },
       { key: "labourCostLe", label: "Labour Cost", type: "number" },
-      { key: "internalTransportationLe", label: "Internal Transport", type: "number" },
+      {
+        key: "internalTransportationLe",
+        label: "Internal Transport",
+        type: "number",
+      },
     ],
   },
 };
@@ -306,13 +446,25 @@ function CentrifugalFansTab() {
 
   const openAdd = () => {
     setEditingRow(null);
-    setForm({ airFlow: "[]", totPressure: "[]", velPressure: "[]", staticPressure: "[]", fanInputPow: "[]" });
+    setForm({
+      airFlow: "[]",
+      totPressure: "[]",
+      velPressure: "[]",
+      staticPressure: "[]",
+      fanInputPow: "[]",
+    });
     setEditOpen(true);
   };
   const openEdit = (row) => {
     setEditingRow(row);
     const f = { ...row };
-    ["airFlow", "totPressure", "velPressure", "staticPressure", "fanInputPow"].forEach((k) => {
+    [
+      "airFlow",
+      "totPressure",
+      "velPressure",
+      "staticPressure",
+      "fanInputPow",
+    ].forEach((k) => {
       f[k] = typeof row[k] === "string" ? row[k] : JSON.stringify(row[k] || []);
     });
     setForm(f);
@@ -324,23 +476,39 @@ function CentrifugalFansTab() {
     setError(null);
     try {
       const body = { ...form };
-      ["minSpeedRPM", "highSpeedRPM", "fanShaftDiameter", "innerDiameter", "desigDensity", "RPM"].forEach((k) => {
+      [
+        "minSpeedRPM",
+        "highSpeedRPM",
+        "fanShaftDiameter",
+        "innerDiameter",
+        "desigDensity",
+        "RPM",
+      ].forEach((k) => {
         if (body[k] !== undefined && body[k] !== "") body[k] = Number(body[k]);
       });
       if (editingRow) {
-        const r = await fetch(`${API}/api/centrifugal/fan-data/${editingRow.id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Update failed");
+        const r = await fetch(
+          `${API}/api/centrifugal/fan-data/${editingRow.id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        );
+        if (!r.ok)
+          throw new Error(
+            (await r.json().catch(() => ({}))).error || "Update failed",
+          );
       } else {
         const r = await fetch(`${API}/api/centrifugal/fan-data/fan-data`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Create failed");
+        if (!r.ok)
+          throw new Error(
+            (await r.json().catch(() => ({}))).error || "Create failed",
+          );
       }
       setEditOpen(false);
       setEditingRow(null);
@@ -355,7 +523,9 @@ function CentrifugalFansTab() {
   const handleDelete = async (id) => {
     try {
       setDeletingIds((s) => [...s, id]);
-      const r = await fetch(`${API}/api/centrifugal/fan-data/${id}`, { method: "DELETE" });
+      const r = await fetch(`${API}/api/centrifugal/fan-data/${id}`, {
+        method: "DELETE",
+      });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         throw new Error(j?.error || "Delete failed");
@@ -375,10 +545,34 @@ function CentrifugalFansTab() {
   return (
     <Box>
       <Stack direction="row" mb={4} gap={2}>
-        <Button size="sm" bg="var(--btn-primary)" color="white" _hover={{ bg: "var(--btn-primary-hover)" }} onClick={openAdd}>Add Fan</Button>
-        <Button size="sm" bg="var(--btn-secondary)" color="white" _hover={{ bg: "var(--btn-secondary-hover)" }} onClick={fetchData}>Refresh</Button>
+        <Button
+          size="sm"
+          bg="var(--btn-primary)"
+          color="white"
+          _hover={{ bg: "var(--btn-primary-hover)" }}
+          onClick={openAdd}
+        >
+          Add Fan
+        </Button>
+        <Button
+          size="sm"
+          bg="var(--btn-secondary)"
+          color="white"
+          _hover={{ bg: "var(--btn-secondary-hover)" }}
+          onClick={fetchData}
+        >
+          Refresh
+        </Button>
       </Stack>
-      <Box className="admin-table-container" overflowX="auto" borderWidth="1px" borderRadius="lg" borderColor="var(--border-color)" bg="var(--bg-card)" boxShadow="sm">
+      <Box
+        className="admin-table-container"
+        overflowX="auto"
+        borderWidth="1px"
+        borderRadius="lg"
+        borderColor="var(--border-color)"
+        bg="var(--bg-card)"
+        boxShadow="sm"
+      >
         <Table.Root size="sm">
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
@@ -393,10 +587,21 @@ function CentrifugalFansTab() {
           </Table.Header>
           <Table.Body>
             {list.map((row, idx) => (
-              <Table.Row key={row.id} bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}>
+              <Table.Row
+                key={row.id}
+                bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}
+              >
                 <Table.Cell>
                   <Stack direction="row" gap={1}>
-                    <Button size="xs" bg="var(--btn-secondary)" color="white" _hover={{ bg: "var(--btn-secondary-hover)" }} onClick={() => openEdit(row)}>Edit</Button>
+                    <Button
+                      size="xs"
+                      bg="var(--btn-secondary)"
+                      color="white"
+                      _hover={{ bg: "var(--btn-secondary-hover)" }}
+                      onClick={() => openEdit(row)}
+                    >
+                      Edit
+                    </Button>
                     <Button
                       size="xs"
                       bg="var(--btn-danger)"
@@ -420,36 +625,60 @@ function CentrifugalFansTab() {
           </Table.Body>
         </Table.Root>
       </Box>
-      {list.length === 0 && !editOpen && <Text mt={2}>No centrifugal fan data. Click Add Fan or use seed.</Text>}
+      {list.length === 0 && !editOpen && (
+        <Text mt={2}>No centrifugal fan data. Click Add Fan or use seed.</Text>
+      )}
       {editOpen && (
         <Dialog.Root open={editOpen}>
           <Portal>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-              <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" maxW="500px" border="1px solid var(--border-color)" boxShadow="lg">
+              <Dialog.Content
+                bg="var(--bg-card)"
+                color="var(--text-primary)"
+                maxW="500px"
+                border="1px solid var(--border-color)"
+                boxShadow="lg"
+              >
                 <Dialog.Header>
-                  <Dialog.Title>{editingRow ? "Edit Fan" : "Add Fan"}</Dialog.Title>
+                  <Dialog.Title>
+                    {editingRow ? "Edit Fan" : "Add Fan"}
+                  </Dialog.Title>
                 </Dialog.Header>
                 <Dialog.Body>
                   <Stack gap={3}>
                     {FAN_SCALAR_FIELDS.map(({ key, label, type }) => (
                       <Box key={key}>
-                        <Text fontSize="sm" mb={1}>{label}</Text>
+                        <Text fontSize="sm" mb={1}>
+                          {label}
+                        </Text>
                         <Input
                           type={type === "number" ? "number" : "text"}
                           value={form[key] ?? ""}
-                          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [key]: e.target.value }))
+                          }
                           size="sm"
                         />
                       </Box>
                     ))}
-                    {["airFlow", "totPressure", "velPressure", "staticPressure", "fanInputPow"].map((key) => (
+                    {[
+                      "airFlow",
+                      "totPressure",
+                      "velPressure",
+                      "staticPressure",
+                      "fanInputPow",
+                    ].map((key) => (
                       <Box key={key}>
-                        <Text fontSize="sm" mb={1}>{key} (JSON array)</Text>
+                        <Text fontSize="sm" mb={1}>
+                          {key} (JSON array)
+                        </Text>
                         <textarea
                           rows={2}
                           value={form[key] ?? "[]"}
-                          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [key]: e.target.value }))
+                          }
                           style={{
                             width: "100%",
                             padding: "6px 8px",
@@ -464,8 +693,24 @@ function CentrifugalFansTab() {
                   </Stack>
                 </Dialog.Body>
                 <Dialog.Footer>
-                  <Button variant="outline" borderColor="var(--border-color)" color="var(--text-primary)" _hover={{ bg: "var(--bg-elevated)" }} onClick={() => setEditOpen(false)}>Cancel</Button>
-                  <Button bg="var(--btn-primary)" color="white" _hover={{ bg: "var(--btn-primary-hover)" }} onClick={handleSaveFan} isLoading={saving}>Save</Button>
+                  <Button
+                    variant="outline"
+                    borderColor="var(--border-color)"
+                    color="var(--text-primary)"
+                    _hover={{ bg: "var(--bg-elevated)" }}
+                    onClick={() => setEditOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    bg="var(--btn-primary)"
+                    color="white"
+                    _hover={{ bg: "var(--btn-primary-hover)" }}
+                    onClick={handleSaveFan}
+                    isLoading={saving}
+                  >
+                    Save
+                  </Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" onClick={() => setEditOpen(false)} />
@@ -480,17 +725,44 @@ function CentrifugalFansTab() {
           <Portal>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-              <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="lg">
+              <Dialog.Content
+                bg="var(--bg-card)"
+                color="var(--text-primary)"
+                border="1px solid var(--border-color)"
+                boxShadow="lg"
+              >
                 <Dialog.Header>
                   <Dialog.Title>Delete fan?</Dialog.Title>
                 </Dialog.Header>
-                <Dialog.Body>ID {confirmDelete.id} – {confirmDelete.bladesModel || "No model"}. This cannot be undone.</Dialog.Body>
+                <Dialog.Body>
+                  ID {confirmDelete.id} –{" "}
+                  {confirmDelete.bladesModel || "No model"}. This cannot be
+                  undone.
+                </Dialog.Body>
                 <Dialog.Footer>
-                  <Button variant="outline" borderColor="var(--border-color)" color="var(--text-primary)" _hover={{ bg: "var(--bg-elevated)" }} onClick={() => setConfirmDelete(null)}>Cancel</Button>
-                  <Button bg="var(--btn-danger)" color="white" _hover={{ bg: "var(--btn-danger-hover)" }} onClick={() => handleDelete(confirmDelete.id)}>Delete</Button>
+                  <Button
+                    variant="outline"
+                    borderColor="var(--border-color)"
+                    color="var(--text-primary)"
+                    _hover={{ bg: "var(--bg-elevated)" }}
+                    onClick={() => setConfirmDelete(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    bg="var(--btn-danger)"
+                    color="white"
+                    _hover={{ bg: "var(--btn-danger-hover)" }}
+                    onClick={() => handleDelete(confirmDelete.id)}
+                  >
+                    Delete
+                  </Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
-                  <CloseButton size="sm" onClick={() => setConfirmDelete(null)} />
+                  <CloseButton
+                    size="sm"
+                    onClick={() => setConfirmDelete(null)}
+                  />
                 </Dialog.CloseTrigger>
               </Dialog.Content>
             </Dialog.Positioner>
@@ -512,7 +784,16 @@ const getCellVal = (row, key) => {
 // ---------- Generic CRUD Table (Pulleys, Belt Standard, Pulley Standard) ----------
 // formFields: [{ key, label, type: 'number'|'text' }] - used for Add/Edit form (exclude id)
 // columns: [{ key, label }] - key can be nested e.g. "casing.modelAndSize"
-function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, columns, getRowId, formFields }) {
+function GenericCrudTab({
+  title,
+  listPath,
+  createPath,
+  updatePath,
+  deletePath,
+  columns,
+  getRowId,
+  formFields,
+}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [list, setList] = useState([]);
@@ -522,7 +803,25 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
   const [editingRow, setEditingRow] = useState(null);
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [calculatePrice, setCalculatePrice] = useState(false);
+  const [calculatePriceResult, setCalculatePriceResult] = useState(null);
 
+  const handleCalculatePrice = async (row) => {
+    setCalculatePrice(true);
+    setCalculatePriceResult(null);
+    const r = await fetch(`${API}/api/centrifugal/data/casing-price`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(row),
+    });
+    if (!r.ok)
+      throw new Error(
+        (await r.json().catch(() => ({}))).error || "Calculate price failed",
+      );
+    const data = await r.json();
+    console.log("Calculate price result:", data);
+    setCalculatePriceResult(data);
+  };
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -545,12 +844,23 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
 
   const openAdd = () => {
     setEditingRow(null);
-    setForm(formFields ? formFields.reduce((acc, f) => ({ ...acc, [f.key]: "" }), {}) : {});
+    setForm(
+      formFields
+        ? formFields.reduce((acc, f) => ({ ...acc, [f.key]: "" }), {})
+        : {},
+    );
     setEditOpen(true);
   };
   const openEdit = (row) => {
     setEditingRow(row);
-    setForm(formFields ? formFields.reduce((acc, f) => ({ ...acc, [f.key]: row[f.key] ?? "" }), {}) : {});
+    setForm(
+      formFields
+        ? formFields.reduce(
+            (acc, f) => ({ ...acc, [f.key]: row[f.key] ?? "" }),
+            {},
+          )
+        : {},
+    );
     setEditOpen(true);
   };
 
@@ -561,22 +871,32 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
     try {
       const body = { ...form };
       formFields.forEach((f) => {
-        if (f.type === "number" && body[f.key] !== "" && body[f.key] != null) body[f.key] = Number(body[f.key]);
+        if (f.type === "number" && body[f.key] !== "" && body[f.key] != null)
+          body[f.key] = Number(body[f.key]);
       });
       if (editingRow) {
-        const r = await fetch(`${API}${updatePath.replace(":id", getRowId(editingRow))}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Update failed");
+        const r = await fetch(
+          `${API}${updatePath.replace(":id", getRowId(editingRow))}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          },
+        );
+        if (!r.ok)
+          throw new Error(
+            (await r.json().catch(() => ({}))).error || "Update failed",
+          );
       } else {
         const r = await fetch(`${API}${createPath}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),
         });
-        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "Create failed");
+        if (!r.ok)
+          throw new Error(
+            (await r.json().catch(() => ({}))).error || "Create failed",
+          );
       }
       setEditOpen(false);
       setEditingRow(null);
@@ -591,7 +911,9 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
   const handleDelete = async (id) => {
     try {
       setDeletingIds((s) => [...s, id]);
-      const r = await fetch(`${API}${deletePath.replace(":id", id)}`, { method: "DELETE" });
+      const r = await fetch(`${API}${deletePath.replace(":id", id)}`, {
+        method: "DELETE",
+      });
       if (!r.ok) {
         const j = await r.json().catch(() => ({}));
         throw new Error(j?.error || "Delete failed");
@@ -612,11 +934,35 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
     <Box>
       <Stack direction="row" mb={4} gap={2}>
         {formFields?.length > 0 && (
-          <Button size="sm" bg="var(--btn-primary)" color="white" _hover={{ bg: "var(--btn-primary-hover)" }} onClick={openAdd}>Add</Button>
+          <Button
+            size="sm"
+            bg="var(--btn-primary)"
+            color="white"
+            _hover={{ bg: "var(--btn-primary-hover)" }}
+            onClick={openAdd}
+          >
+            Add
+          </Button>
         )}
-        <Button size="sm" bg="var(--btn-secondary)" color="white" _hover={{ bg: "var(--btn-secondary-hover)" }} onClick={fetchData}>Refresh</Button>
+        <Button
+          size="sm"
+          bg="var(--btn-secondary)"
+          color="white"
+          _hover={{ bg: "var(--btn-secondary-hover)" }}
+          onClick={fetchData}
+        >
+          Refresh
+        </Button>
       </Stack>
-      <Box className="admin-table-container" overflowX="auto" borderWidth="1px" borderRadius="lg" borderColor="var(--border-color)" bg="var(--bg-card)" boxShadow="sm">
+      <Box
+        className="admin-table-container"
+        overflowX="auto"
+        borderWidth="1px"
+        borderRadius="lg"
+        borderColor="var(--border-color)"
+        bg="var(--bg-card)"
+        boxShadow="sm"
+      >
         <Table.Root size="sm">
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
@@ -628,11 +974,36 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
           </Table.Header>
           <Table.Body>
             {list.map((row, idx) => (
-              <Table.Row key={getRowId(row)} bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}>
+              <Table.Row
+                key={getRowId(row)}
+                bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}
+              >
                 <Table.Cell>
                   <Stack direction="row" gap={1}>
                     {formFields?.length > 0 && (
-                      <Button size="xs" bg="var(--btn-secondary)" color="white" _hover={{ bg: "var(--btn-secondary-hover)" }} onClick={() => openEdit(row)}>Edit</Button>
+                      <Button
+                        size="xs"
+                        bg="var(--btn-secondary)"
+                        color="white"
+                        _hover={{ bg: "var(--btn-secondary-hover)" }}
+                        onClick={() => openEdit(row)}
+                      >
+                        Edit
+                      </Button>
+                    )}
+                    <Button
+                      size="xs"
+                      bg="var(--btn-primary)"
+                      color="white"
+                      _hover={{ bg: "var(--btn-primary-hover)" }}
+                      onClick={() => handleCalculatePrice(row)}
+                    >
+                      Calculate Price
+                    </Button>
+                    {calculatePriceResult && (
+                      <Text fontSize="xs" color="var(--text-muted)">
+                        {calculatePriceResult.price}
+                      </Text>
                     )}
                     <Button
                       size="xs"
@@ -660,7 +1031,12 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
           <Portal>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-              <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="lg">
+              <Dialog.Content
+                bg="var(--bg-card)"
+                color="var(--text-primary)"
+                border="1px solid var(--border-color)"
+                boxShadow="lg"
+              >
                 <Dialog.Header>
                   <Dialog.Title>{editingRow ? "Edit" : "Add"}</Dialog.Title>
                 </Dialog.Header>
@@ -668,11 +1044,15 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
                   <Stack gap={3}>
                     {formFields.map(({ key, label, type }) => (
                       <Box key={key}>
-                        <Text fontSize="sm" mb={1}>{label}</Text>
+                        <Text fontSize="sm" mb={1}>
+                          {label}
+                        </Text>
                         <Input
                           type={type === "number" ? "number" : "text"}
                           value={form[key] ?? ""}
-                          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+                          onChange={(e) =>
+                            setForm((f) => ({ ...f, [key]: e.target.value }))
+                          }
                           size="sm"
                         />
                       </Box>
@@ -680,8 +1060,24 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
                   </Stack>
                 </Dialog.Body>
                 <Dialog.Footer>
-                  <Button variant="outline" borderColor="var(--border-color)" color="var(--text-primary)" _hover={{ bg: "var(--bg-elevated)" }} onClick={() => setEditOpen(false)}>Cancel</Button>
-                  <Button bg="var(--btn-primary)" color="white" _hover={{ bg: "var(--btn-primary-hover)" }} onClick={handleSave} isLoading={saving}>Save</Button>
+                  <Button
+                    variant="outline"
+                    borderColor="var(--border-color)"
+                    color="var(--text-primary)"
+                    _hover={{ bg: "var(--bg-elevated)" }}
+                    onClick={() => setEditOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    bg="var(--btn-primary)"
+                    color="white"
+                    _hover={{ bg: "var(--btn-primary-hover)" }}
+                    onClick={handleSave}
+                    isLoading={saving}
+                  >
+                    Save
+                  </Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" onClick={() => setEditOpen(false)} />
@@ -696,17 +1092,42 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
           <Portal>
             <Dialog.Backdrop />
             <Dialog.Positioner>
-              <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="lg">
+              <Dialog.Content
+                bg="var(--bg-card)"
+                color="var(--text-primary)"
+                border="1px solid var(--border-color)"
+                boxShadow="lg"
+              >
                 <Dialog.Header>
                   <Dialog.Title>Delete?</Dialog.Title>
                 </Dialog.Header>
-                <Dialog.Body>ID {getRowId(confirmDelete)}. This cannot be undone.</Dialog.Body>
+                <Dialog.Body>
+                  ID {getRowId(confirmDelete)}. This cannot be undone.
+                </Dialog.Body>
                 <Dialog.Footer>
-                  <Button variant="outline" borderColor="var(--border-color)" color="var(--text-primary)" _hover={{ bg: "var(--bg-elevated)" }} onClick={() => setConfirmDelete(null)}>Cancel</Button>
-                  <Button bg="var(--btn-danger)" color="white" _hover={{ bg: "var(--btn-danger-hover)" }} onClick={() => handleDelete(getRowId(confirmDelete))}>Delete</Button>
+                  <Button
+                    variant="outline"
+                    borderColor="var(--border-color)"
+                    color="var(--text-primary)"
+                    _hover={{ bg: "var(--bg-elevated)" }}
+                    onClick={() => setConfirmDelete(null)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    bg="var(--btn-danger)"
+                    color="white"
+                    _hover={{ bg: "var(--btn-danger-hover)" }}
+                    onClick={() => handleDelete(getRowId(confirmDelete))}
+                  >
+                    Delete
+                  </Button>
                 </Dialog.Footer>
                 <Dialog.CloseTrigger asChild>
-                  <CloseButton size="sm" onClick={() => setConfirmDelete(null)} />
+                  <CloseButton
+                    size="sm"
+                    onClick={() => setConfirmDelete(null)}
+                  />
                 </Dialog.CloseTrigger>
               </Dialog.Content>
             </Dialog.Positioner>
@@ -723,10 +1144,12 @@ export default function CentrifugalDataPage() {
   const tabFromUrl = searchParams.get("tab");
   const casingSubFromUrl = searchParams.get("casing");
   const [activeTab, setActiveTab] = useState(
-    tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : "fans"
+    tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : "fans",
   );
   const [casingSubTab, setCasingSubTab] = useState(
-    casingSubFromUrl && CASING_SUB_TABS.some((t) => t.id === casingSubFromUrl) ? casingSubFromUrl : "casing-pricing"
+    casingSubFromUrl && CASING_SUB_TABS.some((t) => t.id === casingSubFromUrl)
+      ? casingSubFromUrl
+      : "casing-pricing",
   );
 
   useEffect(() => {
@@ -736,14 +1159,20 @@ export default function CentrifugalDataPage() {
   }, [tabFromUrl]);
 
   useEffect(() => {
-    if (casingSubFromUrl && CASING_SUB_TABS.some((t) => t.id === casingSubFromUrl) && casingSubFromUrl !== casingSubTab) {
+    if (
+      casingSubFromUrl &&
+      CASING_SUB_TABS.some((t) => t.id === casingSubFromUrl) &&
+      casingSubFromUrl !== casingSubTab
+    ) {
       setCasingSubTab(casingSubFromUrl);
     }
   }, [casingSubFromUrl]);
 
   const setActiveTabAndUrl = (id) => {
     setActiveTab(id);
-    setSearchParams(id === "casing" ? { tab: id, casing: casingSubTab } : { tab: id });
+    setSearchParams(
+      id === "casing" ? { tab: id, casing: casingSubTab } : { tab: id },
+    );
   };
 
   const setCasingSubTabAndUrl = (id) => {
@@ -754,15 +1183,33 @@ export default function CentrifugalDataPage() {
   return (
     <Box minH="100vh" bg="var(--bg-page)" display="flex" flexDirection="column">
       <HamburgerMenu />
-      <Box pt={{ base: "80px", md: "100px" }} pb={8} px={{ base: 4, md: 6, lg: 8 }}>
+      <Box
+        pt={{ base: "80px", md: "100px" }}
+        pb={8}
+        px={{ base: 4, md: 6, lg: 8 }}
+      >
         <Box w="100%" mx="auto">
-          <Box mb={6} display="flex" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={4}>
+          <Box
+            mb={6}
+            display="flex"
+            justifyContent="space-between"
+            alignItems="flex-start"
+            flexWrap="wrap"
+            gap={4}
+          >
             <Box>
-              <Heading as="h1" size="xl" color="var(--text-primary)" fontWeight="bold" mb={2}>
+              <Heading
+                as="h1"
+                size="xl"
+                color="var(--text-primary)"
+                fontWeight="bold"
+                mb={2}
+              >
                 Centrifugal Data
               </Heading>
               <Text color="var(--text-muted)" fontSize="md">
-                Manage centrifugal fans, pulleys, belt length standard, pulley standard, and casing pricing
+                Manage centrifugal fans, pulleys, belt length standard, pulley
+                standard, and casing pricing
               </Text>
             </Box>
             <Button
@@ -776,7 +1223,12 @@ export default function CentrifugalDataPage() {
               Open Common Data (Motor & Pricing Items)
             </Button>
           </Box>
-          <Box display="flex" gap={2} borderBottom="1px solid var(--border-color)" pb={4}>
+          <Box
+            display="flex"
+            gap={2}
+            borderBottom="1px solid var(--border-color)"
+            pb={4}
+          >
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -829,7 +1281,11 @@ export default function CentrifugalDataPage() {
                   { key: "no", label: "No", type: "number" },
                   { key: "beltType", label: "Belt Type", type: "text" },
                   { key: "grooves", label: "Grooves", type: "number" },
-                  { key: "pitchDiameter", label: "Pitch Diameter", type: "number" },
+                  {
+                    key: "pitchDiameter",
+                    label: "Pitch Diameter",
+                    type: "number",
+                  },
                   { key: "bushNo", label: "Bush No", type: "text" },
                   { key: "minBore", label: "Min Bore", type: "number" },
                   { key: "maxBore", label: "Max Bore", type: "number" },
@@ -886,7 +1342,14 @@ export default function CentrifugalDataPage() {
             )}
             {activeTab === "casing" && (
               <Box>
-                <Box display="flex" gap={2} flexWrap="wrap" mb={4} borderBottom="1px solid var(--border-color)" pb={3}>
+                <Box
+                  display="flex"
+                  gap={2}
+                  flexWrap="wrap"
+                  mb={4}
+                  borderBottom="1px solid var(--border-color)"
+                  pb={3}
+                >
                   {CASING_SUB_TABS.map((st) => {
                     const isActive = casingSubTab === st.id;
                     return (

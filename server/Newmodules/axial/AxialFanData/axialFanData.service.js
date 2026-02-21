@@ -15,14 +15,16 @@ async function getPrismaClient() {
       const { PrismaClient } = await import("@prisma/client");
       const dbUrl = process.env.DATABASE_URL;
 
-      console.log(`Axial Service: Initializing PrismaClient with URL: ${dbUrl}`);
+      console.log(
+        `Axial Service: Initializing PrismaClient with URL: ${dbUrl}`,
+      );
 
       const options = {};
       if (dbUrl) {
         options.datasources = {
           db: {
-            url: dbUrl
-          }
+            url: dbUrl,
+          },
         };
       }
 
@@ -30,12 +32,15 @@ async function getPrismaClient() {
 
       // Test connection
       await prisma.$connect();
-      console.log("Axial Service: Prisma connected successfully");
-
     } catch (err) {
-      console.error("Axial Service: Prisma client not available or connection failed:", err.message);
-      if (err.message.includes('engine') || err.message.includes('binary')) {
-        console.error("This looks like a Prisma engine resolution error. Check PRISMA_QUERY_ENGINE_LIBRARY environment variable.");
+      console.error(
+        "Axial Service: Prisma client not available or connection failed:",
+        err.message,
+      );
+      if (err.message.includes("engine") || err.message.includes("binary")) {
+        console.error(
+          "This looks like a Prisma engine resolution error. Check PRISMA_QUERY_ENGINE_LIBRARY environment variable.",
+        );
       }
       prisma = null;
     }
@@ -92,15 +97,15 @@ function convertFanUnits(fan, units = {}) {
     convAirFlow: convertArray(fan.airFlow, airFlowConverters[airFlowUnit]),
     convTotPressure: convertArray(
       fan.totPressure,
-      pressureConverters[pressureUnit]
+      pressureConverters[pressureUnit],
     ),
     convVelPressure: convertArray(
       fan.velPressure,
-      pressureConverters[pressureUnit]
+      pressureConverters[pressureUnit],
     ),
     convStaticPressure: convertArray(
       fan.staticPressure,
-      pressureConverters[pressureUnit]
+      pressureConverters[pressureUnit],
     ),
     convFanInputPow: convertArray(fan.fanInputPow, powerConverters[powerUnit]),
   };
@@ -118,19 +123,19 @@ function recalcFanPerformance(fan, input) {
   const AirFlowNew = scaleArray(fan.convAirFlow, rpmRatio);
   const TotalPressureNew = scaleArray(
     fan.convTotPressure,
-    Math.pow(rpmRatio, 2) * densityRatio
+    Math.pow(rpmRatio, 2) * densityRatio,
   );
   const VelocityPressureNew = scaleArray(
     fan.convVelPressure,
-    Math.pow(rpmRatio, 2) * densityRatio
+    Math.pow(rpmRatio, 2) * densityRatio,
   );
   const StaticPressureNew = scaleArray(
     fan.convStaticPressure,
-    Math.pow(rpmRatio, 2) * densityRatio
+    Math.pow(rpmRatio, 2) * densityRatio,
   );
   const FanInputPowerNew = scaleArray(
     fan.convFanInputPow,
-    Math.pow(rpmRatio, 3) * densityRatio
+    Math.pow(rpmRatio, 3) * densityRatio,
   );
 
   // Efficiency using OLD converted data
@@ -187,11 +192,14 @@ export async function processFanDataService(inputOptions) {
     if (fanType && fanTypeToDbColumn[fanType]) {
       const dbColumn = fanTypeToDbColumn[fanType];
       whereClause[dbColumn] = 1;
-      console.log(`[FanFilter] Filtering DB by ${dbColumn}=1 for fanType="${fanType}"`);
     } else if (fanType) {
-      console.warn(`[FanFilter] ⚠️ fanType="${fanType}" not found in fanTypeToDbColumn map — no type filter applied`);
+      console.warn(
+        `[FanFilter] ⚠️ fanType="${fanType}" not found in fanTypeToDbColumn map — no type filter applied`,
+      );
     } else {
-      console.warn(`[FanFilter] ⚠️ No fanType provided — returning all fans unfiltered`);
+      console.warn(
+        `[FanFilter] ⚠️ No fanType provided — returning all fans unfiltered`,
+      );
     }
 
     // read from Prisma FanData table and map DB rows to the expected nested shape
@@ -274,24 +282,39 @@ export async function processFanDataService(inputOptions) {
         Impeller: { conf: r.impellerConf, innerDia: r.impellerInnerDia },
         desigDensity: r.desigDensity,
         RPM: r.RPM,
-        airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
-        totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
-        velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
-        staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
-        fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+        airFlow:
+          typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
+        totPressure:
+          typeof r.totPressure === "string"
+            ? JSON.parse(r.totPressure)
+            : r.totPressure,
+        velPressure:
+          typeof r.velPressure === "string"
+            ? JSON.parse(r.velPressure)
+            : r.velPressure,
+        staticPressure:
+          typeof r.staticPressure === "string"
+            ? JSON.parse(r.staticPressure)
+            : r.staticPressure,
+        fanInputPow:
+          typeof r.fanInputPow === "string"
+            ? JSON.parse(r.fanInputPow)
+            : r.fanInputPow,
       }))
-      .sort((a, b) => (a.Id - b.Id));
+      .sort((a, b) => a.Id - b.Id);
     if (fanType && fanTypeToDbColumn[fanType]) {
       const dbColumn = fanTypeToDbColumn[fanType];
       const beforeCount = rawData.length;
       rawData = rawData.filter((fan) => fan[dbColumn] === 1);
-      console.log(`[FanFilter] DB: filtered ${beforeCount} → ${rawData.length} fans by ${dbColumn}=1`);
+      console.log(
+        `[FanFilter] DB: filtered ${beforeCount} → ${rawData.length} fans by ${dbColumn}=1`,
+      );
     }
   }
 
   const convertedData = rawData.map((fan) => convertFanUnits(fan, units));
   const recalculatedData = convertedData.map((fan) =>
-    recalcFanPerformance(fan, input)
+    recalcFanPerformance(fan, input),
   );
   // Save outputs for verification
   // fs.writeFileSync(
@@ -302,7 +325,6 @@ export async function processFanDataService(inputOptions) {
 
   return { convertedData, recalculatedData };
 }
-
 
 // Linear Interpolation (matches C# FanCalculationService.cs)
 // Used for fan performance predictions - same as WPF application
@@ -344,11 +366,17 @@ class LinearInterpolator {
       if (Math.abs(x2 - x1) < MinPointSpacing) continue;
 
       // Check if target is between these two points
-      const isBetween = (x1 <= targetX && targetX <= x2) ||
-        (x2 <= targetX && targetX <= x1);
+      const isBetween =
+        (x1 <= targetX && targetX <= x2) || (x2 <= targetX && targetX <= x1);
 
       if (isBetween) {
-        return this.linearInterpolate(x1, yValues[i], x2, yValues[i + 1], targetX);
+        return this.linearInterpolate(
+          x1,
+          yValues[i],
+          x2,
+          yValues[i + 1],
+          targetX,
+        );
       }
     }
 
@@ -446,9 +474,8 @@ export async function main(InputData) {
     },
   };
 
-  const { convertedData, recalculatedData } = await processFanDataService(
-    inputOptions
-  );
+  const { convertedData, recalculatedData } =
+    await processFanDataService(inputOptions);
 
   // Load fans from recalculated data
   const { xPerFan, yPerFan, curveNames, PredNames } =
@@ -532,7 +559,6 @@ export async function Output({ units, input, dataSource }) {
     const candidates = Array.isArray(result.result)
       ? result.result
       : result.recalculatedData;
-    console.log("🔍 candidates:", candidates);
     const staticRefRaw =
       input && (input.staticPressure ?? input.StaticPressure);
     const staticRef =
@@ -542,7 +568,7 @@ export async function Output({ units, input, dataSource }) {
       if (!fan || !fan.predictions) return false;
       // ensure predictions object has at least one non-null numeric value
       const hasNumeric = Object.values(fan.predictions).some(
-        (v) => typeof v === "number" && !Number.isNaN(v)
+        (v) => typeof v === "number" && !Number.isNaN(v),
       );
       if (!hasNumeric) return false;
 
@@ -556,16 +582,16 @@ export async function Output({ units, input, dataSource }) {
           fan.predictions.StaticPressurepred;
         if (typeof sp !== "number" || Number.isNaN(sp)) return false;
         const pressureFactors = {
-          "Pa": 1,
-          "kPa": 0.001,
-          "bar": 0.00001,
-          "psi": 0.000145038,
+          Pa: 1,
+          kPa: 0.001,
+          bar: 0.00001,
+          psi: 0.000145038,
           "in.wg": 0.00401865,
         };
         const currentUnit = units?.pressure || units?.staticPressure || "Pa";
         const factor = pressureFactors[currentUnit] || 1;
         // const testSp = sp / factor;
-        const staticPressureVariance= 25;
+        const staticPressureVariance = 25;
         // const staticPressureVariance =
         //   testSp < 38 ? 50 :
         //     testSp <= 75 ? 35 :
@@ -605,9 +631,11 @@ export async function Output({ units, input, dataSource }) {
         const blades = fan.Blades || {};
         const impeller = fan.Impeller || {};
         // Generate model string with validated fan type prefix
-        const FanModel = `${units.fanType || ""}-${impeller.innerDia || ""}-${blades.noBlades || ""
-          }\\${blades.angle || ""}\\${blades.material || ""}${blades.symbol || ""
-          }-${noPoles}${input.NoPhases == 3 ? "T" : "M"}`;
+        const FanModel = `${units.fanType || ""}-${impeller.innerDia || ""}-${
+          blades.noBlades || ""
+        }\\${blades.angle || ""}\\${blades.material || ""}${
+          blades.symbol || ""
+        }-${noPoles}${input.NoPhases == 3 ? "T" : "M"}`;
 
         return { FanModel, ...fan };
       });
@@ -619,13 +647,18 @@ export async function Output({ units, input, dataSource }) {
       const prismaClient = await getPrismaClient();
       if (!prismaClient) throw new Error("Database not available");
       const rows = await prismaClient.motorData.findMany();
+      console.log("Motors:", rows[0]);
       // Transform Prisma rows to include effCurve array for frontend compatibility
       // Desktop uses SQLite with effCurve as JSON string, web uses PostgreSQL with separate efficiency fields
       motors = rows.map((m) => {
         // Try to get efficiency from separate fields first (web schema)
         // Then fallback to parsing effCurve JSON string (desktop schema)
         let effCurveArray = [];
-        if (m.efficiency50Hz != null || m.efficiency375Hz != null || m.efficiency25Hz != null) {
+        if (
+          m.efficiency50Hz != null ||
+          m.efficiency375Hz != null ||
+          m.efficiency25Hz != null
+        ) {
           // Web schema: separate efficiency fields
           effCurveArray = [
             m.efficiency50Hz ?? 0,
@@ -635,7 +668,10 @@ export async function Output({ units, input, dataSource }) {
         } else if (m.effCurve) {
           // Desktop schema: effCurve is a JSON string
           try {
-            const parsed = typeof m.effCurve === 'string' ? JSON.parse(m.effCurve) : m.effCurve;
+            const parsed =
+              typeof m.effCurve === "string"
+                ? JSON.parse(m.effCurve)
+                : m.effCurve;
             effCurveArray = Array.isArray(parsed) ? parsed : [];
           } catch (e) {
             effCurveArray = [];
@@ -677,7 +713,7 @@ export async function Output({ units, input, dataSource }) {
         null;
       const fPowerVal =
         typeof fanPowerCandidate === "number" &&
-          !Number.isNaN(fanPowerCandidate)
+        !Number.isNaN(fanPowerCandidate)
           ? fanPowerCandidate
           : fPower;
       const fPowerFinal =
@@ -838,7 +874,9 @@ export async function exportFanData(res) {
       updatedAt: r.updatedAt,
     }));
   } catch (e) {
-    throw new Error("Failed to export fan data from database: " + (e?.message || String(e)));
+    throw new Error(
+      "Failed to export fan data from database: " + (e?.message || String(e)),
+    );
   }
 
   const filename = "FanData-export.xlsx";
@@ -850,14 +888,14 @@ export async function exportFanData(res) {
   res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
   res.setHeader(
     "Content-Type",
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   );
   res.send(buffer);
 }
 
 export async function importFanDataFromExcel(
   fileBase64,
-  filename = "uploaded.xlsx"
+  filename = "uploaded.xlsx",
 ) {
   if (!fileBase64) throw new Error("No fileBase64 provided");
   const buffer = Buffer.from(fileBase64, "base64");
@@ -1080,7 +1118,9 @@ export async function importFanDataFromExcel(
       if (!prismaClient) throw new Error("Database not available");
 
       if (id) {
-        const existing = await prismaClient.fanData.findUnique({ where: { id } });
+        const existing = await prismaClient.fanData.findUnique({
+          where: { id },
+        });
         if (!existing) {
           console.warn(`No existing fan with id=${id}, creating new instead.`);
           await prismaClient.fanData.create({ data: dataPayload });
@@ -1099,6 +1139,8 @@ export async function importFanDataFromExcel(
     const prismaClientFinal = await getPrismaClient();
     return await prismaClientFinal.fanData.findMany();
   } catch (err) {
-    throw new Error("Failed to import fan data: " + (err?.message || String(err)));
+    throw new Error(
+      "Failed to import fan data: " + (err?.message || String(err)),
+    );
   }
 }

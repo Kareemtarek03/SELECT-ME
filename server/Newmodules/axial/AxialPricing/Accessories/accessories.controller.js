@@ -24,7 +24,8 @@ export const AccessoriesController = {
     async getBoltsPrice(req, res) {
         try {
             const price = await AccessoriesService.getBoltsAndNutsPrice();
-            res.json({ price, sr: 21, description: "Bolts & Nuts" });
+            console.log("Bolts & Nuts price:", price);
+            res.json({ price, description: "Bolts & Nuts" });
         } catch (error) {
             console.error("Get bolts price error:", error);
             res.status(500).json({ error: "Failed to fetch Bolts & Nuts price" });

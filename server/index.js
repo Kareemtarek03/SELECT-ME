@@ -23,7 +23,7 @@ import { accessoriesRoutes } from "./Newmodules/axial/AxialPricing/index.js";
 
 // Centrifugal fan modules
 import centrifugalFanDataRoutes from "./Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js";
-import centrifugalDataAdminRoutes from "./Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.route.js";
+import centrifugalDataAdminRoutes from "./Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.router.js";
 import centrifugalPdfRoutes from "./Newmodules/centrifugal/CentrifugalPDF/centrifugalPdf.route.js";
 
 // Database Initialization

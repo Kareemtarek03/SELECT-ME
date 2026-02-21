@@ -20,184 +20,124 @@ let server;
 let fanDataCache = null;
 let motorDataCache = null;
 
-// Force absolute path for DATABASE_URL if it's relative (e.g., from .env)
-if (
-  process.env.DATABASE_URL &&
-  process.env.DATABASE_URL.startsWith("file:./")
-) {
-  const rootPath = isDev ? __dirname : app.getAppPath();
-  const relativePath = process.env.DATABASE_URL.replace("file:./", "");
-  const absolutePath = path.resolve(rootPath, relativePath).replace(/\\/g, "/");
-  process.env.DATABASE_URL = `file:${absolutePath}`;
-  console.log("Early DATABASE_URL normalization:", process.env.DATABASE_URL);
-}
+// Production database path - set by setupProductionDatabase(), used before server starts
+let productionDbPath = null;
 
-// Configure Database Path for Production
-if (!isDev) {
+function setupProductionDatabase() {
+  if (isDev) return;
   const userDataPath = app.getPath("userData");
   const dbPath = path.join(userDataPath, "database.db");
+  productionDbPath = dbPath;
 
   console.log("Configuring production database...");
   console.log("User Data Path:", userDataPath);
+  console.log("Database path:", dbPath);
 
   // Ensure the directory exists
-  if (!fs.existsSync(userDataPath)) {
-    fs.mkdirSync(userDataPath, { recursive: true });
+  try {
+    if (!fs.existsSync(userDataPath)) {
+      fs.mkdirSync(userDataPath, { recursive: true });
+      console.log("Created userData directory:", userDataPath);
+    }
+  } catch (dirErr) {
+    console.error("❌ Failed to create userData directory:", dirErr.message);
+    throw dirErr;
   }
 
   // Check if database exists
   const dbExists = fs.existsSync(dbPath);
   console.log("Database exists:", dbExists);
 
-  // If the database file doesn't exist, try to copy from bundled template
   if (!dbExists) {
-    try {
-      // In production, the original dev.db is in the prisma folder (from extraResources)
-      // Check multiple possible locations
-      const possiblePaths = [
-        path.join(process.resourcesPath, "prisma", "dev.db"), // extraResources location
-        path.join(app.getAppPath(), "prisma", "dev.db"), // ASAR location
-        path.join(
-          process.resourcesPath,
-          "app.asar.unpacked",
-          "prisma",
-          "dev.db"
-        ), // Unpacked location
-      ];
+    // Try to copy from bundled template
+    const possiblePaths = [
+      path.join(process.resourcesPath, "prisma", "dev.db"),
+      path.join(app.getAppPath(), "prisma", "dev.db"),
+      path.join(process.resourcesPath, "app.asar.unpacked", "prisma", "dev.db"),
+    ];
 
-      console.log("=== Database Discovery ===");
-      console.log("Resources path:", process.resourcesPath);
-      console.log("App path:", app.getAppPath());
-
-      let templateDbPath = null;
-      for (const possiblePath of possiblePaths) {
-        console.log(
-          `Checking: ${possiblePath} - Exists: ${fs.existsSync(possiblePath)}`
-        );
-        if (fs.existsSync(possiblePath)) {
-          const stats = fs.statSync(possiblePath);
-          console.log(`  Size: ${(stats.size / 1024).toFixed(2)} KB`);
-          if (stats.size > 0) {
-            templateDbPath = possiblePath;
-            break;
-          }
+    console.log("=== Database Discovery ===");
+    let templateDbPath = null;
+    for (const p of possiblePaths) {
+      const exists = fs.existsSync(p);
+      console.log(`  ${p} - Exists: ${exists}`);
+      if (exists) {
+        const stats = fs.statSync(p);
+        if (stats.size > 0) {
+          templateDbPath = p;
+          break;
         }
       }
+    }
 
-      if (templateDbPath) {
-        console.log("✅ Found template database at:", templateDbPath);
-        try {
-          // Copy the template database to user data directory
-          fs.copyFileSync(templateDbPath, dbPath);
-          const copiedStats = fs.statSync(dbPath);
-          console.log(`✅ Successfully copied database to: ${dbPath}`);
-          console.log(
-            `   Original size: ${(
-              fs.statSync(templateDbPath).size / 1024
-            ).toFixed(2)} KB`
-          );
-          console.log(
-            `   Copied size: ${(copiedStats.size / 1024).toFixed(2)} KB`
-          );
-
-          // Verify the copy was successful
-          if (copiedStats.size === 0) {
-            console.error(
-              "❌ Copied database is empty! This should not happen."
-            );
-            throw new Error("Copied database file is empty");
-          }
-
-          // Set DATABASE_URL immediately after copying
-          const normalizedDbPath = dbPath.replace(/\\/g, "/");
-          process.env.DATABASE_URL = `file:${normalizedDbPath}`;
-          console.log(`✅ DATABASE_URL set to: ${process.env.DATABASE_URL}`);
-        } catch (e) {
-          console.error("❌ FAILED to copy database:", e.message);
-          console.error("   Error details:", e);
-          console.log("Will create new database and run migrations instead");
-          // Create empty database file - SQLite will create it when we connect
-          fs.writeFileSync(dbPath, "");
-        }
-      } else {
-        console.warn("⚠️  Template database not found in any location!");
-        console.warn(
-          "   This means the database was not included in the build."
-        );
-        console.warn("   Searched locations:");
-        possiblePaths.forEach((p) => {
-          console.warn(`     - ${p} (exists: ${fs.existsSync(p)})`);
-        });
-        console.warn("   Will create new database and run migrations.");
-        // Create empty database file - SQLite will create it when we connect
-        try {
-          fs.writeFileSync(dbPath, "");
-          console.log("   Created empty database file, will run migrations");
-        } catch (writeErr) {
-          console.error(
-            "   ❌ Failed to create empty database:",
-            writeErr.message
-          );
-        }
-      }
-    } catch (copyErr) {
-      console.error("❌ Database setup error:", copyErr);
-      console.log("Will create new database and run migrations instead");
-      // Create empty database file - SQLite will create it when we connect
+    if (templateDbPath) {
       try {
-        fs.writeFileSync(dbPath, "");
-      } catch (writeErr) {
-        console.error("Failed to create database file:", writeErr);
+        fs.copyFileSync(templateDbPath, dbPath);
+        console.log("✅ Copied template database to:", dbPath);
+      } catch (e) {
+        console.error("❌ Copy failed:", e.message);
+        ensureDatabaseFileExists(dbPath);
       }
+    } else {
+      console.warn("⚠️ Template not found - creating empty database for migrations");
+      ensureDatabaseFileExists(dbPath);
     }
   } else {
     console.log("✅ Database already exists at:", dbPath);
-    const stats = fs.statSync(dbPath);
-    console.log(`   Size: ${(stats.size / 1024).toFixed(2)} KB`);
   }
 
-  // Force Prisma to use the writable database path
-  // Normalize path to use forward slashes for Prisma/SQLite on Windows
+  // Set DATABASE_URL for Prisma
   const normalizedDbPath = dbPath.replace(/\\/g, "/");
   process.env.DATABASE_URL = `file:${normalizedDbPath}`;
-  console.log("DATABASE_URL:", process.env.DATABASE_URL);
+  console.log("DATABASE_URL set to:", process.env.DATABASE_URL);
 
   // Prisma Engine Resolution for Packaged App
   try {
-    const unpackedPath = path.join(process.resourcesPath, "app.asar.unpacked");
-    // Locate engine binaries (unpacked via asarUnpack in package.json)
-    const engineDir = path.join(
-      unpackedPath,
-      "node_modules",
-      "@prisma",
-      "engines"
-    );
-    console.log(
-      "Looking for Prisma engines in:",
-      engineDir,
-      "Exists:",
-      fs.existsSync(engineDir)
-    );
-
+    const engineDir = path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", "@prisma", "engines");
     if (fs.existsSync(engineDir)) {
       const files = fs.readdirSync(engineDir);
-      const engineFile = files.find(
-        (f) =>
-          f.includes("query_engine") &&
-          (f.endsWith(".node") || f.endsWith(".exe") || f.endsWith(".dll.node"))
+      const engineFile = files.find((f) =>
+        f.includes("query_engine") && (f.endsWith(".node") || f.endsWith(".exe") || f.endsWith(".dll.node"))
       );
-
       if (engineFile) {
         const fullEnginePath = path.join(engineDir, engineFile);
         process.env.PRISMA_QUERY_ENGINE_LIBRARY = fullEnginePath;
         process.env.PRISMA_QUERY_ENGINE_BINARY = fullEnginePath;
-        console.log("PRISMA_ENGINE:", fullEnginePath);
       }
     }
   } catch (engineErr) {
     console.warn("Engine resolution failed:", engineErr.message);
   }
-} else {
+}
+
+function ensureDatabaseFileExists(dbPath) {
+  try {
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(dbPath, "");
+    console.log("✅ Created database file at:", dbPath);
+    const stats = fs.statSync(dbPath);
+    console.log("   File size:", stats.size, "bytes");
+  } catch (err) {
+    console.error("❌ Failed to create database file:", err.message);
+    console.error("   Path:", dbPath);
+    throw err;
+  }
+}
+
+if (isDev) {
+  // Development: normalize relative DATABASE_URL from .env to absolute path
+  if (
+    process.env.DATABASE_URL &&
+    process.env.DATABASE_URL.startsWith("file:./")
+  ) {
+    const relativePath = process.env.DATABASE_URL.replace("file:./", "");
+    const absolutePath = path.resolve(__dirname, relativePath).replace(/\\/g, "/");
+    process.env.DATABASE_URL = `file:${absolutePath}`;
+    console.log("Dev DATABASE_URL normalized:", process.env.DATABASE_URL);
+  }
 }
 
 function getResourcesPath() {
@@ -505,6 +445,7 @@ function processFanData(units, input) {
 // Start embedded Express server
 function startServer() {
   return new Promise((resolve, reject) => {
+    (async () => {
     try {
       const resourcesPath = getResourcesPath();
       const appPath = getAppPath();
@@ -1131,7 +1072,7 @@ function startServer() {
       try {
         const centrifugalDataAdminModule = await import(
           getModulePath(
-            "server/Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.route.js"
+            "server/Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.router.js"
           )
         );
         expressApp.use("/api/centrifugal/data", centrifugalDataAdminModule.default);
@@ -1357,6 +1298,7 @@ function startServer() {
       console.error("Failed to start server:", error);
       reject(error);
     }
+    })();
   });
 }
 
@@ -1417,6 +1359,10 @@ app.whenReady().then(async () => {
   console.log("App is packaged:", app.isPackaged);
 
   try {
+    // Production: set up database path and create database.db before server starts
+    if (!isDev) {
+      setupProductionDatabase();
+    }
     await startServer();
     console.log("Server started successfully");
     createWindow();

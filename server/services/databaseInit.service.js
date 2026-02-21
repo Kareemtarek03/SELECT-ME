@@ -15,8 +15,10 @@ async function getPrismaClient() {
     console.log("Initializing PrismaClient in DatabaseInitService...");
     console.log("Current DATABASE_URL:", dbUrl);
 
-    // Resolve relative file: paths to absolute (for Electron / different cwd)
-    if (dbUrl && dbUrl.startsWith("file:./")) {
+    // In Electron production, DATABASE_URL is already set by electron-main to userDataPath
+    // Only resolve relative paths when NOT in Electron production (no APP_PATH/RESOURCES_PATH)
+    const isElectronProduction = process.env.APP_PATH || process.env.RESOURCES_PATH;
+    if (!isElectronProduction && dbUrl && dbUrl.startsWith("file:./")) {
       const relativePath = dbUrl.replace(/^file:\.?\//, "");
       const projectRoot = path.join(__dirname, "..", "..");
       const absolutePath = path.join(projectRoot, relativePath);

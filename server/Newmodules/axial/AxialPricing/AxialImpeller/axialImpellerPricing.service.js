@@ -17,9 +17,9 @@ const PRICING_SR = {
 /**
  * Helper function to get pricing item by SR number
  */
-async function getPricingItemBySr(sr) {
+async function getPricingItemByDescription(description) {
   const item = await prisma.pricingItem.findFirst({
-    where: { sr: sr },
+    where: { description: description },
   });
   return item ? item.priceWithVat || 0 : 0;
 }
@@ -48,8 +48,8 @@ async function logAllPricingItems() {
             .toString()
             .padStart(3, " ")} | ${item.category.name.padEnd(
             20,
-            " "
-          )} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat || 0}`
+            " ",
+          )} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat || 0}`,
         );
       });
     }
@@ -359,24 +359,31 @@ export const AxialImpellerPricingService = {
    */
   async calculateBladeCost(blade, numberOfBlades) {
     // Fetch pricing items
-    const moldFactor = await getPricingItemBySr(PRICING_SR.MOLD_FACTOR);
-    const moldLifetime = await getPricingItemBySr(PRICING_SR.MOLD_LIFETIME);
-    const rawMaterialInj = await getPricingItemBySr(
-      PRICING_SR.RAW_MATERIAL_INJ
+    const moldFactor = await getPricingItemByDescription(
+      "Mold Currency change Factor",
     );
-    const machineFactor = await getPricingItemBySr(PRICING_SR.MACHINE_FACTOR);
+    const moldLifetime = await getPricingItemByDescription("Mold Life time");
+    const rawMaterialInj =
+      blade.material === "A"
+        ? await getPricingItemByDescription(
+            "336 Aluminum Raw Material (Injection)",
+          )
+        : await getPricingItemByDescription("PAG 30% Raw Material");
+    const machineFactor = await getPricingItemByDescription(
+      "Axial Impeller Maching Factor",
+    );
 
     // Determine InjMachineCost based on material (A or P)
     const injMachineCostSr =
       blade.material === "A"
-        ? PRICING_SR.INJ_MACHINE_COST_AL
-        : PRICING_SR.INJ_MACHINE_COST_PAG;
-    const injMachineCost = await getPricingItemBySr(injMachineCostSr);
+        ? "Aluminum injection machine cost"
+        : "PAG injection Small machine cost";
+    const injMachineCost = await getPricingItemByDescription(injMachineCostSr);
 
     // BladeFactor only applies to Aluminum (A), otherwise 0
     const bladeFactor =
       blade.material === "A"
-        ? await getPricingItemBySr(PRICING_SR.BLADE_FACTOR)
+        ? await getPricingItemByDescription("Blade Cutting")
         : 0;
 
     // Calculate components
@@ -449,12 +456,18 @@ export const AxialImpellerPricingService = {
     const isFixed = hub.hubType === "Fixed";
 
     // Fetch pricing items
-    const moldFactor = await getPricingItemBySr(PRICING_SR.MOLD_FACTOR);
-    const moldLifetime = await getPricingItemBySr(PRICING_SR.MOLD_LIFETIME);
-    const rawMaterialInj = await getPricingItemBySr(
-      PRICING_SR.RAW_MATERIAL_INJ
+    const moldFactor = await getPricingItemByDescription(
+      "Mold Currency change Factor",
     );
-    const machineFactor = await getPricingItemBySr(PRICING_SR.MACHINE_FACTOR);
+    const moldLifetime = await getPricingItemByDescription("Mold Life time");
+    const rawMaterialInj = isFixed
+      ? await getPricingItemByDescription(
+          "336 Aluminum Raw Material (Injection)",
+        )
+      : await getPricingItemByDescription("PAG 30% Raw Material");
+    const machineFactor = await getPricingItemByDescription(
+      "Axial Impeller Maching Factor",
+    );
 
     // Calculate mold cost based on hub type
     let moldCostComponent = 0;
@@ -478,8 +491,8 @@ export const AxialImpellerPricingService = {
     // Injection machine cost based on hub type
     let injMachineComponent = 0;
     if (isFixed) {
-      const injMachineCostFixed = await getPricingItemBySr(
-        PRICING_SR.INJ_MACHINE_COST_HUB_FIXED
+      const injMachineCostFixed = await getPricingItemByDescription(
+        "Aluminum injection machine cost (Hub 6)",
       );
       injMachineComponent = injMachineCostFixed * 1.1;
     } else {
@@ -528,14 +541,18 @@ export const AxialImpellerPricingService = {
    */
   async calculateFrameCost(frame) {
     // Fetch pricing items
-    const moldFactor = await getPricingItemBySr(PRICING_SR.MOLD_FACTOR);
-    const moldLifetime = await getPricingItemBySr(PRICING_SR.MOLD_LIFETIME);
-    const rawMaterialInj = await getPricingItemBySr(
-      PRICING_SR.RAW_MATERIAL_INJ
+    const moldFactor = await getPricingItemByDescription(
+      "Mold Currency change Factor",
     );
-    const machineFactor = await getPricingItemBySr(PRICING_SR.MACHINE_FACTOR);
-    const injMachineCost = await getPricingItemBySr(
-      PRICING_SR.INJ_MACHINE_COST_PAG
+    const moldLifetime = await getPricingItemByDescription("Mold Life time");
+    const rawMaterialInj = await getPricingItemByDescription(
+      "336 Aluminum Raw Material (Injection)",
+    );
+    const machineFactor = await getPricingItemByDescription(
+      "Axial Impeller Maching Factor",
+    );
+    const injMachineCost = await getPricingItemByDescription(
+      "Aluminum injection machine cost (AM)",
     );
 
     // Mold cost component (same as non-fixed hub)
@@ -606,14 +623,14 @@ export const AxialImpellerPricingService = {
     // Fetch the pricing records by their respective search criteria
     const blade = await this.getBladeBySymbolAndMaterial(
       bladeSymbol,
-      bladeMaterial
+      bladeMaterial,
     );
     const hub = await this.getHubBySymbol(hubSymbol.toString());
     const frame = await this.getFrameBySize(frameSizeMm);
 
     if (!blade) {
       throw new Error(
-        `Blade not found with symbol: ${bladeSymbol} and material: ${bladeMaterial}`
+        `Blade not found with symbol: ${bladeSymbol} and material: ${bladeMaterial}`,
       );
     }
     if (!hub) {
@@ -626,7 +643,7 @@ export const AxialImpellerPricingService = {
     // Calculate blade cost
     const bladeCalculation = await this.calculateBladeCost(
       blade,
-      numberOfBlades
+      numberOfBlades,
     );
 
     // Calculate hub cost

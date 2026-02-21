@@ -9,7 +9,7 @@
   },
   {
     "Sr.": "2",
-    "Description": "Black Steel Welding ",
+    "Description": "Black Steel Welding",
     "Unit": "Meter",
     "Updated Date": null,
     " Price w/o VAT ": null,
@@ -33,7 +33,7 @@
   },
   {
     "Sr.": "5",
-    "Description": "Black Steel Laser ",
+    "Description": "Black Steel Laser",
     "Unit": "Min",
     "Updated Date": null,
     " Price w/o VAT ": null,
@@ -193,10 +193,43 @@
   },
   {
     "Sr.": "22",
-    "Description": "Dollar exchange ",
+    "Description": "Dollar exchange",
     "Unit": "EGY",
     "Updated Date": null,
     " Price w/o VAT ": null,
     " Price with VAT ": null
-  }
+  },
+  {
+    "Sr.": "23",
+    "Description": "Profit",
+    "Unit": "Percentage",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+      "Sr.": "24",
+      "Description": "Galvanized Sheet Steel Overlaping",
+      "Unit": "Line",
+      "Updated Date": null,
+      " Price w/o VAT ": null,
+      " Price with VAT ": null
+    },
+    {
+      "Sr.": "25",
+      "Description": "Galvanized Sheet Steel Raw Material",
+      "Unit": "Ton",
+      "Updated Date": null,
+      " Price w/o VAT ": null,
+      " Price with VAT ": null
+    },
+    {
+      "Sr.": "26",
+      "Description": "Hard Steel Chrom Raw Material",
+      "Unit": "Ton",
+      "Updated Date": null,
+      " Price w/o VAT ": null,
+      " Price with VAT ": null
+    }
+  
 ]
