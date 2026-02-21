@@ -14,7 +14,7 @@ import {
   CloseButton,
   Input,
 } from "@chakra-ui/react";
-import { FaDatabase, FaCog, FaList, FaFan, FaBox } from "react-icons/fa";
+import { FaDatabase, FaCog, FaList, FaFan, FaBox, FaSave, FaTimes } from "react-icons/fa";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
@@ -78,9 +78,9 @@ const CASING_TAB_CONFIG = {
       { key: "volute1mmWeightKgWithoutScrap", label: "1mm Weight w/o Scrap", type: "number" },
       { key: "volute1mmScrapPct", label: "1mm Scrap %", type: "number" },
       { key: "volute1mmSheetMetalDimensionsMm", label: "1mm Dimensions", type: "text" },
-      { key: "volute1mmLaserTimeMin", label: "1mm Laser Time", type: "number" },
-      { key: "volute1mmRolling", label: "1mm Rolling", type: "number" },
-      { key: "volute1mmSheetMetalOverlapping", label: "1mm Overlapping", type: "number" },
+      { key: "volute1mmLaserTimeMin", label: "Laser Time", type: "number" },
+      { key: "volute1mmRolling", label: "Rolling", type: "number" },
+      { key: "volute1mmSheetMetalOverlapping", label: "Overlapping", type: "number" },
     ],
   },
   "casing-frames": {
@@ -97,9 +97,9 @@ const CASING_TAB_CONFIG = {
       { key: "angleBarDimensionsMm", label: "Angle Bar Dims", type: "text" },
       { key: "supportWeightKgWithoutScrap", label: "Support Weight", type: "number" },
       { key: "supportSheetMetalDimensionsMm", label: "Support Dims", type: "text" },
-      { key: "supportLaserTimeMin", label: "Support Laser", type: "number" },
-      { key: "supportCasingCircumferenceM", label: "Support Circumf", type: "number" },
-      { key: "supportPaintingLe", label: "Support Painting", type: "number" },
+      { key: "supportLaserTimeMin", label: "Laser", type: "number" },
+      { key: "supportCasingCircumferenceM", label: "Circumf", type: "number" },
+      { key: "supportPaintingLe", label: "Painting", type: "number" },
     ],
   },
   "casing-impellers": {
@@ -117,9 +117,9 @@ const CASING_TAB_CONFIG = {
       { key: "plateWeightKgWithoutScrap", label: "Plate Weight", type: "number" },
       { key: "plateSheetMetalDimensionsMm", label: "Plate Dims", type: "text" },
       { key: "plateCentrifugalImpellerRigCostPcs", label: "Plate Rig Cost", type: "number" },
-      { key: "plateLaserTimeMin", label: "Plate Laser", type: "number" },
-      { key: "plateCasingCircumferenceM", label: "Plate Circumf", type: "number" },
-      { key: "platePaintingLe", label: "Plate Painting", type: "number" },
+      { key: "plateLaserTimeMin", label: "Laser", type: "number" },
+      { key: "plateCasingCircumferenceM", label: "Circumf", type: "number" },
+      { key: "platePaintingLe", label: "Painting", type: "number" },
     ],
   },
   "casing-funnels": {
@@ -137,7 +137,7 @@ const CASING_TAB_CONFIG = {
       { key: "funnel15mmGalvanizeLe", label: "1.5mm Galvanize", type: "number" },
       { key: "funnel3mmWeightKgWithoutScrap", label: "3mm Weight", type: "number" },
       { key: "funnel3mmSheetMetalDimensionsMm", label: "3mm Dims", type: "text" },
-      { key: "funnel3mmPaintingLe", label: "3mm Painting", type: "number" },
+      { key: "funnel3mmPaintingLe", label: "Painting", type: "number" },
     ],
   },
   "casing-sleeve-shafts": {
@@ -616,12 +616,26 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
         )}
         <Button size="sm" bg="var(--btn-secondary)" color="white" _hover={{ bg: "var(--btn-secondary-hover)" }} onClick={fetchData}>Refresh</Button>
       </Stack>
+      {editOpen && formFields?.length > 0 && (
+        <Box bg="#ffffff" borderRadius="lg" border="1px solid #e2e8f0" p={6} mb={4} boxShadow="0 1px 3px rgba(0,0,0,0.08)">
+          <Heading as="h3" size="md" color="#1e293b" mb={4}>{editingRow ? "Edit" : "Add"}</Heading>
+          <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={4}>
+            {formFields.map(({ key, label, type }) => (
+              <Input key={key} placeholder={label} type={type === "number" ? "number" : "text"} value={form[key] ?? ""} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} bg="var(--bg-page)" color="var(--text-primary)" border="1px solid var(--border-color)" _placeholder={{ color: "var(--text-muted-2)" }} />
+            ))}
+          </Box>
+          <Box display="flex" gap={3} mt={4}>
+            <Button bg="#059669" color="white" _hover={{ bg: "#047857" }} leftIcon={<FaSave />} onClick={handleSave} isLoading={saving}>Save</Button>
+            <Button bg="#e2e8f0" color="#1e293b" _hover={{ bg: "#cbd5e1" }} leftIcon={<FaTimes />} onClick={() => { setEditOpen(false); setEditingRow(null); }}>Cancel</Button>
+          </Box>
+        </Box>
+      )}
       <Box className="admin-table-container" overflowX="auto" borderWidth="1px" borderRadius="lg" borderColor="var(--border-color)" bg="var(--bg-card)" boxShadow="sm">
         <Table.Root size="sm">
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
-              {columns.map((c) => (
+              {formFields.map((c) => (
                 <Table.ColumnHeader key={c.key}>{c.label}</Table.ColumnHeader>
               ))}
             </Table.Row>
@@ -646,7 +660,7 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
                     </Button>
                   </Stack>
                 </Table.Cell>
-                {columns.map((c) => (
+                {formFields.map((c) => (
                   <Table.Cell key={c.key}>{getCellVal(row, c.key)}</Table.Cell>
                 ))}
               </Table.Row>
@@ -656,40 +670,18 @@ function GenericCrudTab({ title, listPath, createPath, updatePath, deletePath, c
       </Box>
       {list.length === 0 && !editOpen && <Text mt={2}>No data.</Text>}
       {editOpen && formFields?.length > 0 && (
-        <Dialog.Root open={editOpen}>
-          <Portal>
-            <Dialog.Backdrop />
-            <Dialog.Positioner>
-              <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="lg">
-                <Dialog.Header>
-                  <Dialog.Title>{editingRow ? "Edit" : "Add"}</Dialog.Title>
-                </Dialog.Header>
-                <Dialog.Body>
-                  <Stack gap={3}>
-                    {formFields.map(({ key, label, type }) => (
-                      <Box key={key}>
-                        <Text fontSize="sm" mb={1}>{label}</Text>
-                        <Input
-                          type={type === "number" ? "number" : "text"}
-                          value={form[key] ?? ""}
-                          onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
-                          size="sm"
-                        />
-                      </Box>
-                    ))}
-                  </Stack>
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Button variant="outline" borderColor="var(--border-color)" color="var(--text-primary)" _hover={{ bg: "var(--bg-elevated)" }} onClick={() => setEditOpen(false)}>Cancel</Button>
-                  <Button bg="var(--btn-primary)" color="white" _hover={{ bg: "var(--btn-primary-hover)" }} onClick={handleSave} isLoading={saving}>Save</Button>
-                </Dialog.Footer>
-                <Dialog.CloseTrigger asChild>
-                  <CloseButton size="sm" onClick={() => setEditOpen(false)} />
-                </Dialog.CloseTrigger>
-              </Dialog.Content>
-            </Dialog.Positioner>
-          </Portal>
-        </Dialog.Root>
+        <Box bg="#ffffff" borderRadius="lg" border="1px solid #e2e8f0" p={6} mb={4} boxShadow="0 1px 3px rgba(0,0,0,0.08)">
+          <Heading as="h3" size="md" color="#1e293b" mb={4}>{editingRow ? "Edit" : "Add"}</Heading>
+          <Box display="grid" gridTemplateColumns="repeat(auto-fill, minmax(140px, 1fr))" gap={4}>
+            {formFields.map(({ key, label, type }) => (
+              <Input key={key} placeholder={label} type={type === "number" ? "number" : "text"} value={form[key] ?? ""} onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))} bg="var(--bg-page)" color="var(--text-primary)" border="1px solid var(--border-color)" _placeholder={{ color: "var(--text-muted-2)" }} />
+            ))}
+          </Box>
+          <Box display="flex" gap={3} mt={4}>
+            <Button bg="#059669" color="white" _hover={{ bg: "#047857" }} leftIcon={<FaSave />} onClick={handleSave} isLoading={saving}>Save</Button>
+            <Button bg="#e2e8f0" color="#1e293b" _hover={{ bg: "#cbd5e1" }} leftIcon={<FaTimes />} onClick={() => { setEditOpen(false); setEditingRow(null); }}>Cancel</Button>
+          </Box>
+        </Box>
       )}
       {confirmDelete && (
         <Dialog.Root open={!!confirmDelete}>

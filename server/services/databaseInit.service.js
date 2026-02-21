@@ -16,8 +16,10 @@ async function getPrismaClient() {
     console.log("Current DATABASE_URL:", dbUrl);
 
     // Resolve relative file: paths to absolute (for Electron / different cwd)
+    // Prisma CLI resolves file:./X relative to the prisma/ schema directory,
+    // so at runtime we must do the same to point at the same database file
     if (dbUrl && dbUrl.startsWith("file:./")) {
-      const relativePath = dbUrl.replace(/^file:\.?\//, "");
+      const relativePath = dbUrl.replace(/^file:\.\//, "");
       const projectRoot = path.join(__dirname, "..", "..");
       const absolutePath = path.join(projectRoot, relativePath);
       dbUrl = `file:${absolutePath.replace(/\\/g, "/")}`;
