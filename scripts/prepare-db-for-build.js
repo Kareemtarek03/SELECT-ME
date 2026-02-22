@@ -8,8 +8,9 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, "..");
 const dbPath = path.join(rootDir, "prisma", "dev.db");
 
-console.log("🔧 Preparing database for build...");
-console.log("Database path:", dbPath);
+console.log("🔧 Preparing database for build (this creates the TEMPLATE for packaging)...");
+console.log("Template path:", dbPath);
+console.log("(The packaged app will create its own database.db when run - not use this file directly)");
 
 // Ensure prisma directory exists
 const prismaDir = path.dirname(dbPath);

@@ -1,11 +1,21 @@
-import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 import XLSX from "xlsx";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// In Electron production, load Prisma via createRequire from unpacked root
+// so .prisma/client/default resolves correctly
+function loadPrismaClient() {
+  const unpackedRoot = process.env.RESOURCES_PATH
+    ? path.join(process.env.RESOURCES_PATH, "app.asar.unpacked")
+    : path.join(__dirname, "..", "..");
+  const require = createRequire(path.join(unpackedRoot, "package.json"));
+  return require("@prisma/client").PrismaClient;
+}
 
 let prisma = null;
 
@@ -27,6 +37,7 @@ async function getPrismaClient() {
       console.log("Resolved DATABASE_URL:", dbUrl);
     }
 
+    const PrismaClient = loadPrismaClient();
     prisma = new PrismaClient();
     console.log("PrismaClient initialized successfully");
   }

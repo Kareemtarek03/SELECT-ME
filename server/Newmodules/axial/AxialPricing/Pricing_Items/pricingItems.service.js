@@ -1,5 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { createRequire } from "module";
+import path from "path";
+import { fileURLToPath } from "url";
 import xlsx from "xlsx";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const unpackedRoot = process.env.RESOURCES_PATH
+  ? path.join(process.env.RESOURCES_PATH, "app.asar.unpacked")
+  : path.join(__dirname, "..", "..", "..", "..", "..");
+const require = createRequire(path.join(unpackedRoot, "package.json"));
+const { PrismaClient } = require("@prisma/client");
 import * as pricingUtils from "../shared/pricingUtils.js";
 import {
     recalculateAllMotorPrices,

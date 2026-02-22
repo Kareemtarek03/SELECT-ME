@@ -2,17 +2,26 @@ import fs from "fs";
 import xlsx from "xlsx";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Prisma client - lazy loaded only when needed (for database mode)
-// This allows the module to work in Electron desktop where @prisma/client may not be available
+// In Electron production, use createRequire from unpacked root so .prisma/client resolves
 let prisma = null;
 async function getPrismaClient() {
   if (!prisma) {
     try {
-      const { PrismaClient } = await import("@prisma/client");
+      let PrismaClient;
+      if (process.env.RESOURCES_PATH) {
+        const unpackedRoot = path.join(process.env.RESOURCES_PATH, "app.asar.unpacked");
+        const require = createRequire(path.join(unpackedRoot, "package.json"));
+        PrismaClient = require("@prisma/client").PrismaClient;
+      } else {
+        const pkg = await import("@prisma/client");
+        PrismaClient = (pkg.default || pkg).PrismaClient;
+      }
       const dbUrl = process.env.DATABASE_URL;
 
       console.log(

@@ -101,6 +101,11 @@
       {
         "from": "prisma/dev.db",
         "to": "prisma/dev.db"
+      },
+      {
+        "from": "node_modules/.prisma/client",
+        "to": "prisma-generated-client",
+        "filter": ["**/*"]
       }
     ],
     "asar": true,

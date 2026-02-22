@@ -1,6 +1,7 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, Menu } = require("electron");
 const path = require("path");
 const fs = require("fs");
+const { pathToFileURL } = require("url");
 const express = require("express");
 const cors = require("cors");
 
@@ -23,47 +24,108 @@ let motorDataCache = null;
 // Production database path - set by setupProductionDatabase(), used before server starts
 let productionDbPath = null;
 
-function setupProductionDatabase() {
+async function setupProductionDatabase() {
   if (isDev) return;
-  const userDataPath = app.getPath("userData");
-  const dbPath = path.join(userDataPath, "database.db");
+
+  // Use database next to exe when running from win-unpacked (portable/testing)
+  // Otherwise use userData (installed app)
+  const exeDir = path.dirname(app.getPath("exe"));
+  const isPortable = exeDir.includes("win-unpacked") || exeDir.includes("linux-unpacked") || exeDir.includes("mac");
+  const dbPath = isPortable
+    ? path.join(exeDir, "database.db")
+    : path.join(app.getPath("userData"), "database.db");
   productionDbPath = dbPath;
 
   console.log("Configuring production database...");
-  console.log("User Data Path:", userDataPath);
+  console.log("Mode:", isPortable ? "portable (next to exe)" : "installed (userData)");
   console.log("Database path:", dbPath);
 
   // Ensure the directory exists
+  const dbDir = path.dirname(dbPath);
   try {
-    if (!fs.existsSync(userDataPath)) {
-      fs.mkdirSync(userDataPath, { recursive: true });
-      console.log("Created userData directory:", userDataPath);
+    if (!fs.existsSync(dbDir)) {
+      fs.mkdirSync(dbDir, { recursive: true });
+      console.log("Created database directory:", dbDir);
     }
   } catch (dirErr) {
-    console.error("❌ Failed to create userData directory:", dirErr.message);
+    console.error("❌ Failed to create database directory:", dirErr.message);
     throw dirErr;
   }
 
-  // Check if database exists
-  const dbExists = fs.existsSync(dbPath);
-  console.log("Database exists:", dbExists);
+  // Prisma Engine Resolution - MUST run before any Prisma usage
+  const enginePaths = [
+    path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", "@prisma", "engines"),
+    path.join(app.getAppPath(), "node_modules", "@prisma", "engines"),
+    path.join(process.resourcesPath, "..", "app.asar.unpacked", "node_modules", "@prisma", "engines"),
+  ];
+  for (const engineDir of enginePaths) {
+    try {
+      if (fs.existsSync(engineDir)) {
+        const files = fs.readdirSync(engineDir);
+        const engineFile = files.find((f) =>
+          f.includes("query_engine") && (f.endsWith(".node") || f.endsWith(".exe") || f.endsWith(".dll.node"))
+        );
+        if (engineFile) {
+          const fullEnginePath = path.join(engineDir, engineFile);
+          process.env.PRISMA_QUERY_ENGINE_LIBRARY = fullEnginePath;
+          process.env.PRISMA_QUERY_ENGINE_BINARY = fullEnginePath;
+          console.log("✅ Prisma engine found:", fullEnginePath);
+          break;
+        }
+      }
+    } catch (e) {
+      // try next path
+    }
+  }
+  if (!process.env.PRISMA_QUERY_ENGINE_LIBRARY) {
+    console.warn("⚠️ Prisma engine not found - database may fail");
+  }
 
+  // electron-builder's asarUnpack glob doesn't extract dotfolders like .prisma
+  // The generated Prisma client is shipped via extraResources as "prisma-generated-client"
+  // Copy it to unpacked node_modules/.prisma/client so require('.prisma/client/default') works
+  const unpackedDotPrisma = path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", ".prisma", "client");
+  if (!fs.existsSync(path.join(unpackedDotPrisma, "default.js"))) {
+    const extraResourceClient = path.join(process.resourcesPath, "prisma-generated-client");
+    if (fs.existsSync(extraResourceClient)) {
+      console.log("Copying prisma-generated-client → .prisma/client in unpacked...");
+      fs.mkdirSync(unpackedDotPrisma, { recursive: true });
+      const files = fs.readdirSync(extraResourceClient);
+      for (const file of files) {
+        const src = path.join(extraResourceClient, file);
+        const dest = path.join(unpackedDotPrisma, file);
+        try {
+          const stat = fs.statSync(src);
+          if (stat.isFile()) {
+            fs.copyFileSync(src, dest);
+          }
+        } catch (e) {
+          console.warn(`  ⚠️ Could not copy ${file}: ${e.message}`);
+        }
+      }
+      console.log("✅ .prisma/client installed in unpacked node_modules");
+    } else {
+      console.warn("⚠️ prisma-generated-client not found in resources - Prisma will not work");
+    }
+  } else {
+    console.log("✅ .prisma/client already present in unpacked");
+  }
+
+  const dbExists = fs.existsSync(dbPath);
   if (!dbExists) {
-    // Try to copy from bundled template
     const possiblePaths = [
       path.join(process.resourcesPath, "prisma", "dev.db"),
       path.join(app.getAppPath(), "prisma", "dev.db"),
       path.join(process.resourcesPath, "app.asar.unpacked", "prisma", "dev.db"),
     ];
-
     console.log("=== Database Discovery ===");
     let templateDbPath = null;
     for (const p of possiblePaths) {
       const exists = fs.existsSync(p);
       console.log(`  ${p} - Exists: ${exists}`);
       if (exists) {
-        const stats = fs.statSync(p);
-        if (stats.size > 0) {
+        const templateStats = fs.statSync(p);
+        if (templateStats.size > 1024) {
           templateDbPath = p;
           break;
         }
@@ -79,35 +141,76 @@ function setupProductionDatabase() {
         ensureDatabaseFileExists(dbPath);
       }
     } else {
-      console.warn("⚠️ Template not found - creating empty database for migrations");
+      console.warn("⚠️ Template not found - creating empty database");
       ensureDatabaseFileExists(dbPath);
     }
-  } else {
-    console.log("✅ Database already exists at:", dbPath);
   }
 
   // Set DATABASE_URL for Prisma
-  const normalizedDbPath = dbPath.replace(/\\/g, "/");
-  process.env.DATABASE_URL = `file:${normalizedDbPath}`;
+  // Use file: with forward slashes; encode spaces for paths like "SELECT ME"
+  const normalizedDbPath = dbPath.replace(/\\/g, "/").replace(/ /g, "%20");
+  const dbUrl = `file:${normalizedDbPath}`;
+  process.env.DATABASE_URL = dbUrl;
+  process.env.RESOURCES_PATH = process.resourcesPath;
+  process.env.APP_PATH = app.getAppPath();
   console.log("DATABASE_URL set to:", process.env.DATABASE_URL);
 
-  // Prisma Engine Resolution for Packaged App
+  // Quick connection test - verify Prisma can connect before server starts
   try {
-    const engineDir = path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", "@prisma", "engines");
-    if (fs.existsSync(engineDir)) {
-      const files = fs.readdirSync(engineDir);
-      const engineFile = files.find((f) =>
-        f.includes("query_engine") && (f.endsWith(".node") || f.endsWith(".exe") || f.endsWith(".dll.node"))
-      );
-      if (engineFile) {
-        const fullEnginePath = path.join(engineDir, engineFile);
-        process.env.PRISMA_QUERY_ENGINE_LIBRARY = fullEnginePath;
-        process.env.PRISMA_QUERY_ENGINE_BINARY = fullEnginePath;
-      }
+    const { PrismaClient } = await import("@prisma/client");
+    const testPrisma = new PrismaClient({
+      datasources: { db: { url: dbUrl } },
+    });
+    await testPrisma.$connect();
+    await testPrisma.$disconnect();
+    console.log("✅ Database connection test passed");
+  } catch (connErr) {
+    console.error("❌ Database connection test failed:", connErr?.message || connErr);
+    if (connErr?.message?.includes("engine") || connErr?.message?.includes("binary")) {
+      console.error("   → Prisma engine may not be found. Check PRISMA_QUERY_ENGINE_LIBRARY.");
     }
-  } catch (engineErr) {
-    console.warn("Engine resolution failed:", engineErr.message);
   }
+
+  // Run migrations and seed in background - don't block app start
+  // App window will show immediately; database will be ready shortly
+  setImmediate(async () => {
+    const DB_SETUP_TIMEOUT_MS = 45000;
+    const runWithTimeout = (fn) =>
+      Promise.race([
+        fn(),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout")), DB_SETUP_TIMEOUT_MS)
+        ),
+      ]);
+
+    const modulePath = path.join(process.resourcesPath, "app.asar.unpacked", "server", "services");
+    const migrationPath = path.join(modulePath, "migrationRunner.service.js");
+    const dbInitPath = path.join(modulePath, "databaseInit.service.js");
+
+    try {
+      if (fs.existsSync(migrationPath)) {
+        const { runMigrations } = await import(pathToFileURL(migrationPath).href);
+        await runWithTimeout(() => runMigrations(dbPath));
+        console.log("✅ Migrations completed");
+      } else {
+        console.warn("⚠️ Migration runner not found at:", migrationPath);
+      }
+    } catch (migErr) {
+      console.warn("⚠️ Migrations failed:", migErr?.message || migErr);
+    }
+
+    try {
+      if (fs.existsSync(dbInitPath)) {
+        const { DatabaseInitService } = await import(pathToFileURL(dbInitPath).href);
+        await runWithTimeout(() => DatabaseInitService.initializeDatabase());
+        console.log("✅ Database initialization completed");
+      } else {
+        console.warn("⚠️ DatabaseInitService not found at:", dbInitPath);
+      }
+    } catch (seedErr) {
+      console.warn("⚠️ Database seed failed:", seedErr?.message || seedErr);
+    }
+  });
 }
 
 function ensureDatabaseFileExists(dbPath) {
@@ -1095,6 +1198,72 @@ function startServer() {
         console.warn("⚠️ Could not mount centrifugal fan data routes:", err.message);
       }
 
+      // Axial Fan Data CRUD routes (admin page: list, add, edit, delete fans + export/import)
+      try {
+        const axialFanDataModule = await import(
+          getModulePath("server/Newmodules/axial/AxialFanData/axialFanData.route.js")
+        );
+        expressApp.use("/api/axial/fan-data", axialFanDataModule.default);
+        expressApp.use("/api/fan-data", axialFanDataModule.default);
+        console.log("✅ Axial fan data routes mounted at /api/axial/fan-data & /api/fan-data");
+      } catch (err) {
+        console.warn("⚠️ Could not mount axial fan data routes:", err.message);
+      }
+
+      // Axial Motor Data CRUD routes (admin page: list, add, edit, delete motors + export/import)
+      try {
+        const axialMotorDataModule = await import(
+          getModulePath("server/Newmodules/axial/AxialMotorData/axialMotorData.route.js")
+        );
+        expressApp.use("/api/motor-data", axialMotorDataModule.default);
+        console.log("✅ Axial motor data routes mounted at /api/motor-data");
+      } catch (err) {
+        console.warn("⚠️ Could not mount axial motor data routes:", err.message);
+      }
+
+      // Axial Pricing routes (items, accessories, impeller, casing)
+      try {
+        const axialPricingModule = await import(
+          getModulePath("server/Newmodules/axial/AxialPricing/axialPricing.routes.js")
+        );
+        expressApp.use("/api/axial/pricing", axialPricingModule.default);
+        console.log("✅ Axial pricing routes mounted at /api/axial/pricing");
+      } catch (err) {
+        console.warn("⚠️ Could not mount axial pricing routes:", err.message);
+      }
+
+      // Pricing compatibility routes (/api/pricing/axial-impeller, /api/pricing/axial-casing, /api/pricing/items, /api/pricing/categories)
+      try {
+        const { axialImpellerRoutes } = await import(
+          getModulePath("server/Newmodules/axial/AxialPricing/AxialImpeller/index.js")
+        );
+        const { axialCasingRoutes } = await import(
+          getModulePath("server/Newmodules/axial/AxialPricing/AxialCasing/index.js")
+        );
+        const { pricingItemsRoutes } = await import(
+          getModulePath("server/Newmodules/axial/AxialPricing/Pricing_Items/index.js")
+        );
+        const pricingCompatRouter = express.Router();
+        pricingCompatRouter.use("/axial-impeller", axialImpellerRoutes);
+        pricingCompatRouter.use("/axial-casing", axialCasingRoutes);
+        pricingCompatRouter.use("/", pricingItemsRoutes);
+        expressApp.use("/api/pricing", pricingCompatRouter);
+        console.log("✅ Pricing compat routes mounted at /api/pricing");
+      } catch (err) {
+        console.warn("⚠️ Could not mount pricing compat routes:", err.message);
+      }
+
+      // Accessories Pricing routes
+      try {
+        const { accessoriesRoutes } = await import(
+          getModulePath("server/Newmodules/axial/AxialPricing/index.js")
+        );
+        expressApp.use("/api/accessories-pricing", accessoriesRoutes);
+        console.log("✅ Accessories pricing routes mounted at /api/accessories-pricing");
+      } catch (err) {
+        console.warn("⚠️ Could not mount accessories pricing routes:", err.message);
+      }
+
       // Catalog API Routes - List available catalog PDFs
       expressApp.get("/api/catalogs", (req, res) => {
         try {
@@ -1334,8 +1503,23 @@ function createWindow() {
     autoHideMenuBar: true,
   });
 
-  // Remove the application menu (File, Edit, View, Window, Help)
-  mainWindow.setMenu(null);
+  // Use a minimal hidden menu that preserves Edit role shortcuts
+  // (without this, Ctrl+A/C/V/X and double-click select break in Electron)
+  Menu.setApplicationMenu(Menu.buildFromTemplate([
+    {
+      label: "Edit",
+      submenu: [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "selectAll" },
+      ],
+    },
+  ]));
+  mainWindow.setMenuBarVisibility(false);
 
   // Load from embedded server
   mainWindow.loadURL("http://127.0.0.1:5001");
@@ -1359,9 +1543,9 @@ app.whenReady().then(async () => {
   console.log("App is packaged:", app.isPackaged);
 
   try {
-    // Production: set up database path and create database.db before server starts
+    // Production: set up database path, create database.db, migrate, and seed before server starts
     if (!isDev) {
-      setupProductionDatabase();
+      await setupProductionDatabase();
     }
     await startServer();
     console.log("Server started successfully");

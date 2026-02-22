@@ -1,5 +1,13 @@
-import { PrismaClient } from "@prisma/client";
+import { createRequire } from "module";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const unpackedRoot = process.env.RESOURCES_PATH
+  ? path.join(process.env.RESOURCES_PATH, "app.asar.unpacked")
+  : path.join(__dirname, "..", "..", "..", "..", "..");
+const require = createRequire(path.join(unpackedRoot, "package.json"));
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 // SR# Constants for pricing items
@@ -30,7 +38,7 @@ async function getPricingItemByDescription(description) {
 async function logAllPricingItems() {
   try {
     const allItems = await prisma.pricingItem.findMany({
-      orderBy: { sr: "asc" },
+      
       include: {
         category: true,
       },

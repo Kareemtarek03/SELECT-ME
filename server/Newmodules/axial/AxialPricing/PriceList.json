@@ -208,28 +208,28 @@
     " Price with VAT ": null
   },
   {
-      "Sr.": "24",
-      "Description": "Galvanized Sheet Steel Overlaping",
-      "Unit": "Line",
-      "Updated Date": null,
-      " Price w/o VAT ": null,
-      " Price with VAT ": null
-    },
-    {
-      "Sr.": "25",
-      "Description": "Galvanized Sheet Steel Raw Material",
-      "Unit": "Ton",
-      "Updated Date": null,
-      " Price w/o VAT ": null,
-      " Price with VAT ": null
-    },
-    {
-      "Sr.": "26",
-      "Description": "Hard Steel Chrom Raw Material",
-      "Unit": "Ton",
-      "Updated Date": null,
-      " Price w/o VAT ": null,
-      " Price with VAT ": null
-    }
+    "Sr.": "24",
+    "Description": "Galvanized Sheet Steel Overlaping",
+    "Unit": "Line",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "25",
+    "Description": "Galvanized Sheet Steel Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  },
+  {
+    "Sr.": "26",
+    "Description": "Hard Steel Chrom Raw Material",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": null,
+    " Price with VAT ": null
+  }
   
 ]

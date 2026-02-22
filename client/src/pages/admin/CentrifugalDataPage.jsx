@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { FaDatabase, FaCog, FaList, FaFan, FaBox, FaSave, FaTimes } from "react-icons/fa";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
+import { CASING_TAB_CONFIG } from "../../utils/casingTabConfig.js";
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
 
@@ -51,354 +52,6 @@ const CASING_SUB_TABS = [
 ];
 
 const VALID_TABS = new Set(TABS.map((t) => t.id));
-
-// Price w/ VAT and Price w/ VAT Scrap are CALCULATED (equations to be added later) - not stored
-const CASING_TAB_CONFIG = {
-  "casing-pricing": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "type", label: "Type" },
-      { key: "model", label: "Model" },
-      { key: "sizeMm", label: "Size (mm)" },
-      { key: "modelAndSize", label: "Model & Size" },
-    ],
-    formFields: [
-      { key: "type", label: "Type", type: "text" },
-      { key: "model", label: "Model", type: "text" },
-      { key: "sizeMm", label: "Size (mm)", type: "number" },
-      { key: "modelAndSize", label: "Model & Size", type: "text" },
-    ],
-  },
-  "casing-volutes": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "volute2mmWeightKgWithoutScrap", label: "2mm Weight" },
-      { key: "volute1mmWeightKgWithoutScrap", label: "1mm Weight" },
-      { key: "volute1mmLaserTimeMin", label: "1mm Laser" },
-      { key: "volute1mmRolling", label: "1mm Rolling" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "volute2mmWeightKgWithoutScrap",
-        label: "2mm Weight w/o Scrap",
-        type: "number",
-      },
-      { key: "volute2mmScrapPct", label: "2mm Scrap %", type: "number" },
-      {
-        key: "volute2mmSheetMetalDimensionsMm",
-        label: "2mm Dimensions",
-        type: "text",
-      },
-      {
-        key: "volute1mmWeightKgWithoutScrap",
-        label: "1mm Weight w/o Scrap",
-        type: "number",
-      },
-      { key: "volute1mmScrapPct", label: "1mm Scrap %", type: "number" },
-      {
-        key: "volute1mmSheetMetalDimensionsMm",
-        label: "1mm Dimensions",
-        type: "text",
-      },
-      { key: "volute1mmLaserTimeMin", label: "1mm Laser Time", type: "number" },
-      { key: "volute1mmRolling", label: "1mm Rolling", type: "number" },
-      {
-        key: "volute1mmSheetMetalOverlapping",
-        label: "1mm Overlapping",
-        type: "number",
-      },
-    ],
-  },
-  "casing-frames": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "angleBarWeightKgWithoutScrap", label: "Angle Bar Weight" },
-      { key: "supportWeightKgWithoutScrap", label: "Support Weight" },
-      { key: "supportLaserTimeMin", label: "Support Laser" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "angleBarWeightKgWithoutScrap",
-        label: "Angle Bar Weight",
-        type: "number",
-      },
-      { key: "angleBarDimensionsMm", label: "Angle Bar Dims", type: "text" },
-      {
-        key: "supportWeightKgWithoutScrap",
-        label: "Support Weight",
-        type: "number",
-      },
-      {
-        key: "supportSheetMetalDimensionsMm",
-        label: "Support Dims",
-        type: "text",
-      },
-      { key: "supportLaserTimeMin", label: "Support Laser", type: "number" },
-      {
-        key: "supportCasingCircumferenceM",
-        label: "Support Circumf",
-        type: "number",
-      },
-      { key: "supportPaintingLe", label: "Support Painting", type: "number" },
-    ],
-  },
-  "casing-impellers": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "bladesWeightKgWithoutScrap", label: "Blades Weight" },
-      { key: "plateWeightKgWithoutScrap", label: "Plate Weight" },
-      { key: "plateLaserTimeMin", label: "Plate Laser" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "bladesWeightKgWithoutScrap",
-        label: "Blades Weight",
-        type: "number",
-      },
-      {
-        key: "bladesSheetMetalDimensionsMm",
-        label: "Blades Dims",
-        type: "text",
-      },
-      {
-        key: "plateWeightKgWithoutScrap",
-        label: "Plate Weight",
-        type: "number",
-      },
-      { key: "plateSheetMetalDimensionsMm", label: "Plate Dims", type: "text" },
-      {
-        key: "plateCentrifugalImpellerRigCostPcs",
-        label: "Plate Rig Cost",
-        type: "number",
-      },
-      { key: "plateLaserTimeMin", label: "Plate Laser", type: "number" },
-      {
-        key: "plateCasingCircumferenceM",
-        label: "Plate Circumf",
-        type: "number",
-      },
-      { key: "platePaintingLe", label: "Plate Painting", type: "number" },
-    ],
-  },
-  "casing-funnels": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "funnel15mmWeightKgWithoutScrap", label: "1.5mm Weight" },
-      { key: "funnel3mmWeightKgWithoutScrap", label: "3mm Weight" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "funnel15mmWeightKgWithoutScrap",
-        label: "1.5mm Weight",
-        type: "number",
-      },
-      {
-        key: "funnel15mmSheetMetalDimensionsMm",
-        label: "1.5mm Dims",
-        type: "text",
-      },
-      {
-        key: "funnel15mmDieCastingLePc",
-        label: "1.5mm Die Casting",
-        type: "number",
-      },
-      {
-        key: "funnel15mmGalvanizeLe",
-        label: "1.5mm Galvanize",
-        type: "number",
-      },
-      {
-        key: "funnel3mmWeightKgWithoutScrap",
-        label: "3mm Weight",
-        type: "number",
-      },
-      {
-        key: "funnel3mmSheetMetalDimensionsMm",
-        label: "3mm Dims",
-        type: "text",
-      },
-      { key: "funnel3mmPaintingLe", label: "3mm Painting", type: "number" },
-    ],
-  },
-  "casing-sleeve-shafts": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "sleeveWeightKgWithoutScrap", label: "Sleeve Weight" },
-      { key: "shaftWeightKgWithoutScrap", label: "Shaft Weight" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "sleeveWeightKgWithoutScrap",
-        label: "Sleeve Weight",
-        type: "number",
-      },
-      {
-        key: "sleeveSheetMetalDimensionsMm",
-        label: "Sleeve Dims",
-        type: "text",
-      },
-      { key: "sleeveManufacturingLePc", label: "Sleeve Mfg", type: "number" },
-      {
-        key: "shaftWeightKgWithoutScrap",
-        label: "Shaft Weight",
-        type: "number",
-      },
-      { key: "shaftSheetMetalDimensionsMm", label: "Shaft Dims", type: "text" },
-      { key: "shaftManufacturingLePc", label: "Shaft Mfg", type: "number" },
-    ],
-  },
-  "casing-matching-flanges": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "flange3mmWeightKgWithoutScrap", label: "Flange Weight" },
-      { key: "flange3mmLaserTimeMin", label: "Laser" },
-      { key: "flange3mmRolling", label: "Rolling" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "flange3mmWeightKgWithoutScrap",
-        label: "Flange Weight",
-        type: "number",
-      },
-      {
-        key: "flange3mmSheetMetalDimensionsMm",
-        label: "Flange Dims",
-        type: "text",
-      },
-      { key: "flange3mmLaserTimeMin", label: "Laser Time", type: "number" },
-      { key: "flange3mmRolling", label: "Rolling", type: "number" },
-      {
-        key: "flange3mmCasingCircumferenceM",
-        label: "Circumf",
-        type: "number",
-      },
-      {
-        key: "selfAligningBearingHousingLe",
-        label: "Bearing Housing",
-        type: "number",
-      },
-    ],
-  },
-  "casing-bearing-assemblies": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "boltsNutsKg", label: "Bolts+Nuts (kg)" },
-      { key: "assemblyLaboursPerShaft", label: "Assembly Labours" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      { key: "boltsNutsKg", label: "Bolts+Nuts (kg)", type: "number" },
-      {
-        key: "assemblyLaboursPerShaft",
-        label: "Assembly Labours/Shaft",
-        type: "number",
-      },
-    ],
-  },
-  "casing-fan-bases": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "weightKgWithoutScrap", label: "Weight" },
-      { key: "laserTimeMin", label: "Laser" },
-      { key: "bendingLine", label: "Bending" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "weightKgWithoutScrap",
-        label: "Weight w/o Scrap",
-        type: "number",
-      },
-      { key: "scrapPct", label: "Scrap %", type: "number" },
-      { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
-      { key: "laserTimeMin", label: "Laser Time", type: "number" },
-      { key: "bendingLine", label: "Bending Line", type: "number" },
-      { key: "paintingLe", label: "Painting", type: "number" },
-    ],
-  },
-  "casing-belt-covers": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "weightKgWithoutScrap", label: "Weight" },
-      { key: "laserTimeMin", label: "Laser" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "weightKgWithoutScrap",
-        label: "Weight w/o Scrap",
-        type: "number",
-      },
-      { key: "scrapPct", label: "Scrap %", type: "number" },
-      { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
-      { key: "laserTimeMin", label: "Laser Time", type: "number" },
-      { key: "casingCircumferenceM", label: "Circumf", type: "number" },
-      { key: "paintingLe", label: "Painting", type: "number" },
-    ],
-  },
-  "casing-motor-bases": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "weightKgWithoutScrap", label: "Weight" },
-      { key: "laserTimeMin", label: "Laser" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "weightKgWithoutScrap",
-        label: "Weight w/o Scrap",
-        type: "number",
-      },
-      { key: "scrapPct", label: "Scrap %", type: "number" },
-      { key: "sheetMetalDimensionsMm", label: "Dimensions", type: "text" },
-      { key: "laserTimeMin", label: "Laser Time", type: "number" },
-      { key: "bendingLine", label: "Bending Line", type: "number" },
-      { key: "studNutPriceLe", label: "Stud & Nut", type: "number" },
-      { key: "paintingLe", label: "Painting", type: "number" },
-    ],
-  },
-  "casing-accessories": {
-    columns: [
-      { key: "id", label: "ID" },
-      { key: "casing.modelAndSize", label: "Casing" },
-      { key: "vibrationIsolatorsLe", label: "Vibration Isol" },
-      { key: "labourCostLe", label: "Labour" },
-    ],
-    formFields: [
-      { key: "casingId", label: "Casing ID", type: "number" },
-      {
-        key: "vibrationIsolatorsLe",
-        label: "Vibration Isolators",
-        type: "number",
-      },
-      { key: "vinylStickersLe", label: "Vinyl Stickers", type: "number" },
-      { key: "namePlateLe", label: "Name Plate", type: "number" },
-      { key: "packingLe", label: "Packing", type: "number" },
-      { key: "labourCostLe", label: "Labour Cost", type: "number" },
-      {
-        key: "internalTransportationLe",
-        label: "Internal Transport",
-        type: "number",
-      },
-    ],
-  },
-};
 
 // ---------- Centrifugal Fans Tab ----------
 const FAN_SCALAR_FIELDS = [
@@ -629,96 +282,90 @@ function CentrifugalFansTab() {
         <Text mt={2}>No centrifugal fan data. Click Add Fan or use seed.</Text>
       )}
       {editOpen && (
-        <Dialog.Root open={editOpen}>
-          <Portal>
-            <Dialog.Backdrop />
-            <Dialog.Positioner>
-              <Dialog.Content
-                bg="var(--bg-card)"
-                color="var(--text-primary)"
-                maxW="500px"
-                border="1px solid var(--border-color)"
-                boxShadow="lg"
-              >
-                <Dialog.Header>
-                  <Dialog.Title>
-                    {editingRow ? "Edit Fan" : "Add Fan"}
-                  </Dialog.Title>
-                </Dialog.Header>
-                <Dialog.Body>
-                  <Stack gap={3}>
-                    {FAN_SCALAR_FIELDS.map(({ key, label, type }) => (
-                      <Box key={key}>
-                        <Text fontSize="sm" mb={1}>
-                          {label}
-                        </Text>
-                        <Input
-                          type={type === "number" ? "number" : "text"}
-                          value={form[key] ?? ""}
-                          onChange={(e) =>
-                            setForm((f) => ({ ...f, [key]: e.target.value }))
-                          }
-                          size="sm"
-                        />
-                      </Box>
-                    ))}
-                    {[
-                      "airFlow",
-                      "totPressure",
-                      "velPressure",
-                      "staticPressure",
-                      "fanInputPow",
-                    ].map((key) => (
-                      <Box key={key}>
-                        <Text fontSize="sm" mb={1}>
-                          {key} (JSON array)
-                        </Text>
-                        <textarea
-                          rows={2}
-                          value={form[key] ?? "[]"}
-                          onChange={(e) =>
-                            setForm((f) => ({ ...f, [key]: e.target.value }))
-                          }
-                          style={{
-                            width: "100%",
-                            padding: "6px 8px",
-                            fontSize: "13px",
-                            fontFamily: "monospace",
-                            border: "1px solid #e2e8f0",
-                            borderRadius: "6px",
-                          }}
-                        />
-                      </Box>
-                    ))}
-                  </Stack>
-                </Dialog.Body>
-                <Dialog.Footer>
-                  <Button
-                    variant="outline"
-                    borderColor="var(--border-color)"
-                    color="var(--text-primary)"
-                    _hover={{ bg: "var(--bg-elevated)" }}
-                    onClick={() => setEditOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    bg="var(--btn-primary)"
-                    color="white"
-                    _hover={{ bg: "var(--btn-primary-hover)" }}
-                    onClick={handleSaveFan}
-                    isLoading={saving}
-                  >
-                    Save
-                  </Button>
-                </Dialog.Footer>
-                <Dialog.CloseTrigger asChild>
-                  <CloseButton size="sm" onClick={() => setEditOpen(false)} />
-                </Dialog.CloseTrigger>
-              </Dialog.Content>
-            </Dialog.Positioner>
-          </Portal>
-        </Dialog.Root>
+        <Box
+          bg="var(--bg-card)"
+          borderRadius="lg"
+          border="1px solid var(--border-color)"
+          p={6}
+          mb={4}
+          boxShadow="0 1px 3px rgba(0,0,0,0.08)"
+        >
+          <Heading as="h3" size="md" color="var(--text-primary)" mb={4}>
+            {editingRow ? "Edit Fan" : "Add Fan"}
+          </Heading>
+          <Box
+            display="grid"
+            gridTemplateColumns="repeat(auto-fill, minmax(180px, 1fr))"
+            gap={4}
+          >
+            {FAN_SCALAR_FIELDS.map(({ key, label, type }) => (
+              <Box key={key}>
+                <Text fontSize="sm" mb={1} color="var(--text-primary)">
+                  {label}
+                </Text>
+                <Input
+                  type={type === "number" ? "number" : "text"}
+                  value={form[key] ?? ""}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                  size="sm"
+                  bg="var(--bg-page)"
+                  border="1px solid var(--border-color)"
+                />
+              </Box>
+            ))}
+            {[
+              "airFlow",
+              "totPressure",
+              "velPressure",
+              "staticPressure",
+              "fanInputPow",
+            ].map((key) => (
+              <Box key={key} gridColumn="1 / -1">
+                <Text fontSize="sm" mb={1} color="var(--text-primary)">
+                  {key} (JSON array)
+                </Text>
+                <Box
+                  as="textarea"
+                  rows={2}
+                  value={form[key] ?? "[]"}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, [key]: e.target.value }))
+                  }
+                  w="100%"
+                  p={2}
+                  fontSize="sm"
+                  fontFamily="monospace"
+                  bg="var(--bg-page)"
+                  border="1px solid var(--border-color)"
+                  borderRadius="md"
+                  color="var(--text-primary)"
+                />
+              </Box>
+            ))}
+          </Box>
+          <Stack direction="row" gap={3} mt={4}>
+            <Button
+              variant="outline"
+              borderColor="var(--border-color)"
+              color="var(--text-primary)"
+              _hover={{ bg: "var(--bg-elevated)" }}
+              onClick={() => setEditOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              bg="var(--btn-primary)"
+              color="white"
+              _hover={{ bg: "var(--btn-primary-hover)" }}
+              onClick={handleSaveFan}
+              isLoading={saving}
+            >
+              Save
+            </Button>
+          </Stack>
+        </Box>
       )}
       {confirmDelete && (
         <Dialog.Root open={!!confirmDelete}>
@@ -775,10 +422,18 @@ function CentrifugalFansTab() {
 
 // Resolve nested keys like "casing.modelAndSize"
 const getCellVal = (row, key) => {
+  const formatNumber = (value) => {
+    if (value === null || value === undefined || value === "" || value === "-") return "-";
+    return Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
   if (key.includes(".")) {
-    return key.split(".").reduce((o, k) => o?.[k], row) ?? "-";
+    const value = key.split(".").reduce((o, k) => o?.[k], row) ?? "-";
+    if (typeof value !== "number") return value;
+    return formatNumber(value);
   }
-  return row[key] ?? "-";
+  const value = row[key] ?? "-";
+  if (typeof value !== "number") return value;
+  return formatNumber(value);
 };
 
 // ---------- Generic CRUD Table (Pulleys, Belt Standard, Pulley Standard) ----------
@@ -967,7 +622,7 @@ function GenericCrudTab({
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
-              {formFields.map((c) => (
+              {(columns?.length ? columns : formFields).map((c) => (
                 <Table.ColumnHeader key={c.key}>{c.label}</Table.ColumnHeader>
               ))}
             </Table.Row>
@@ -991,7 +646,7 @@ function GenericCrudTab({
                         Edit
                       </Button>
                     )}
-                    <Button
+                    {/* <Button
                       size="xs"
                       bg="var(--btn-primary)"
                       color="white"
@@ -999,12 +654,12 @@ function GenericCrudTab({
                       onClick={() => handleCalculatePrice(row)}
                     >
                       Calculate Price
-                    </Button>
-                    {calculatePriceResult && (
+                    </Button> */}
+                    {/* {calculatePriceResult && (
                       <Text fontSize="xs" color="var(--text-muted)">
                         {calculatePriceResult.price}
                       </Text>
-                    )}
+                    )} */}
                     <Button
                       size="xs"
                       bg="var(--btn-danger)"
@@ -1017,7 +672,7 @@ function GenericCrudTab({
                     </Button>
                   </Stack>
                 </Table.Cell>
-                {formFields.map((c) => (
+                {(columns?.length ? columns : formFields).map((c) => (
                   <Table.Cell key={c.key}>{getCellVal(row, c.key)}</Table.Cell>
                 ))}
               </Table.Row>

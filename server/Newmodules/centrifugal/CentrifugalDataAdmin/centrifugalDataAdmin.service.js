@@ -879,10 +879,18 @@ export async function calculatePricing(input) {
 }
 
 // ---------- Casing Price Calculation ----------
+const DEBUG_CASING_PRICE = process.env.DEBUG_CASING_PRICE === "1";
+
+function debugLog(...args) {
+  if (DEBUG_CASING_PRICE) console.log("[casingPrice]", ...args);
+}
+
 export async function casingPriceCalculation(input) {
-  const { type, size, id } = input || {};
-  // TODO: Implement pricing calculation logic
-  // For now returns a placeholder - you can fill in the rest
+  const { type, size, sizeMm, id, casingId } = input || {};
+  // Child rows (volute, frame, etc.) have casingId; casing-pricing rows have id
+  const lookupCasingId = casingId ?? id;
+
+  debugLog("INPUT:", { type, size, sizeMm, id, casingId, lookupCasingId });
 
   const prisma = await getPrismaClient();
   let price = {
@@ -906,45 +914,65 @@ export async function casingPriceCalculation(input) {
     totalFanPriceWithVat: null,
     totalFanPriceWithVatScrapRecycle: null,
   };
-  if (!prisma) return null;
+  if (!prisma) {
+    debugLog("FAIL: prisma not available");
+    return null;
+  }
   const priceItems = await prisma.pricingItem.findMany({});
-  const casing = id
-    ? await prisma.centrifugalCasingPricing.findUnique({ where: { id } })
+  debugLog("priceItems count:", priceItems?.length);
+
+  const casing = lookupCasingId
+    ? await prisma.centrifugalCasingPricing.findUnique({
+        where: { id: lookupCasingId },
+      })
     : await prisma.centrifugalCasingPricing.findFirst({
         where: {
           type: type ?? "",
-          sizeMm: size ?? 0,
+          sizeMm: size ?? sizeMm ?? 0,
         },
       });
-  if (!casing) return null;
-  console.log("Casing:", casing);
+
+  if (!casing) {
+    debugLog("FAIL: casing not found", {
+      lookupCasingId,
+      type,
+      size,
+      sizeMm,
+    });
+    return null;
+  }
+  debugLog("casing found:", { id: casing.id, type: casing.type, sizeMm: casing.sizeMm });
   const volute = await prisma.centrifugalCasingVolute.findFirst({
-    where: {
-      casingId: casing.id,
-    },
+    where: { casingId: casing.id },
   });
-  if (!volute) return null;
-  price.volute =
-    (volute.volute2mmWeightKgWithScrap + volute.volute1mmWeightKgWithScrap) *
-    ((priceItems.find((item) => {
-      const desc = (item.description ?? "").toString();
-      return desc.includes("Galvanized") && desc.includes("Raw Material");
-    })?.priceWithVat || 0) /
-      1000);
+  if (!volute) {
+    debugLog("FAIL: volute not found for casingId", casing.id);
+    return null;
+  }
+  debugLog("volute:", {
+    volute2mmWeightKgWithScrap: volute.volute2mmWeightKgWithScrap,
+    volute1mmWeightKgWithScrap: volute.volute1mmWeightKgWithScrap,
+    volute1mmLaserTimeMin: volute.volute1mmLaserTimeMin,
+  });
+  const galvanizedPrice =
+    (priceItems.find((item) => item.description?.includes("Galvanized Sheet Steel Raw Material"))?.priceWithVat ?? 0) / 1000;
+  const voluteWeight =
+    (volute.volute2mmWeightKgWithScrap ?? 0) + (volute.volute1mmWeightKgWithScrap ?? 0);
+  price.volute = voluteWeight * galvanizedPrice;
   price.volute +=
-    volute.volute1mmLaserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    (volute.volute1mmLaserTimeMin ?? 0) *
+    (priceItems.find((item) => item.description?.includes("Black Steel Laser"))
+      ?.priceWithVat || 0);
   price.volute +=
-    volute.volute1mmRolling *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Rolling"),
-      )?.priceWithVat || 0;
+    (volute.volute1mmRolling ?? 0) *
+    (priceItems.find((item) =>
+      item.description?.includes("Black Steel Rolling"),
+    )?.priceWithVat || 0);
   price.volute +=
-    volute.volute1mmSheetMetalOverlapping *
-      priceItems.find((item) =>
-        item.description.includes("Galvanized Sheet Steel Overlaping"),
-      )?.priceWithVat || 0;
+    (volute.volute1mmSheetMetalOverlapping ?? 0) *
+    (priceItems.find((item) =>
+      item.description?.includes("Galvanized Sheet Steel Overlaping"),
+    )?.priceWithVat || 0);
   price.volute *=
     1 +
       priceItems.find((item) => item.description.includes("Profit"))
@@ -956,16 +984,17 @@ export async function casingPriceCalculation(input) {
     ((volute.volute2mmWeightKgWithScrap -
       volute.volute2mmWeightKgWithoutScrap) *
       (priceItems.find((item) =>
-        item.description.includes("Galvanized Raw Material"),
+        item.description.includes("Galvanized Sheet Steel Raw Material"),
       )?.priceWithVat || 0)) /
       1000 /
       2;
   const frame = await prisma.centrifugalCasingFrame.findFirst({
-    where: {
-      casingId: casing.id,
-    },
+    where: { casingId: casing.id },
   });
-  if (!frame) return null;
+  if (!frame) {
+    debugLog("FAIL: frame not found for casingId", casing.id);
+    return null;
+  }
   price.frame =
     (frame.angleBarWeightKgWithScrap *
       priceItems.find((item) =>
@@ -1005,11 +1034,12 @@ export async function casingPriceCalculation(input) {
       1000 /
       2;
   const impeller = await prisma.centrifugalCasingImpeller.findFirst({
-    where: {
-      casingId: casing.id,
-    },
+    where: { casingId: casing.id },
   });
-  if (!impeller) return null;
+  if (!impeller) {
+    debugLog("FAIL: impeller not found for casingId", casing.id);
+    return null;
+  }
   price.impeller =
     ((impeller.bladesWeightKgWithScrap + impeller.plateWeightKgWithScrap) *
       priceItems.find((item) =>
@@ -1043,11 +1073,12 @@ export async function casingPriceCalculation(input) {
       1000 /
       2;
   const funnels = await prisma.centrifugalCasingFunnels.findFirst({
-    where: {
-      casingId: casing.id,
-    },
+    where: { casingId: casing.id },
   });
-  if (!funnels) return null;
+  if (!funnels) {
+    debugLog("FAIL: funnels not found for casingId", casing.id);
+    return null;
+  }
   price.funnels =
     ((funnels.funnel15mmWeightKgWithScrap +
       funnels.funnel3mmWeightKgWithScrap) *
@@ -1067,11 +1098,12 @@ export async function casingPriceCalculation(input) {
         100 || 0;
   price.funnels *= 1.14; // VAT
   const sleeveShaft = await prisma.centrifugalCasingSleeveShaft.findFirst({
-    where: {
-      casingId: casing.id,
-    },
+    where: { casingId: casing.id },
   });
-  if (!sleeveShaft) return null;
+  if (!sleeveShaft) {
+    debugLog("FAIL: sleeveShaft not found for casingId", casing.id);
+    return null;
+  }
   price.sleeveShaft =
     (sleeveShaft.sleeveWeightKgWithScrap *
       priceItems.find((item) =>
@@ -1099,7 +1131,10 @@ export async function casingPriceCalculation(input) {
       },
     },
   );
-  if (!matchingFlange) return null;
+  if (!matchingFlange) {
+    debugLog("FAIL: matchingFlange not found for casingId", casing.id);
+    return null;
+  }
   price.matchingFlange =
     (matchingFlange.flange3mmWeightKgWithScrap *
       priceItems.find((item) =>
@@ -1136,7 +1171,10 @@ export async function casingPriceCalculation(input) {
         casingId: casing.id,
       },
     });
-  if (!bearingAssembly) return null;
+  if (!bearingAssembly) {
+    debugLog("FAIL: bearingAssembly not found for casingId", casing.id);
+    return null;
+  }
   price.bearingAssembly =
     bearingAssembly.boltsNutsKg *
       priceItems.find((item) => item.description.includes("Bolts"))
@@ -1151,7 +1189,10 @@ export async function casingPriceCalculation(input) {
       casingId: casing.id,
     },
   });
-  if (!fanBase) return null;
+  if (!fanBase) {
+    debugLog("FAIL: fanBase not found for casingId", casing.id);
+    return null;
+  }
   price.fanBase =
     (fanBase.weightKgWithScrap *
       priceItems.find((item) =>
@@ -1170,14 +1211,15 @@ export async function casingPriceCalculation(input) {
   price.fanBase += fanBase.paintingLe;
   price.fanBase *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat || 0;
+      (priceItems.find((item) => item.description?.includes("Profit"))
+        ?.priceWithVat ?? 0) /
+        100;
   price.fanBase *= 1.14; // VAT
   price.fanBaseWithoutScrap =
     price.fanBase -
-    ((fanBase.weightKgWithoutScrap - fanBase.weightKgWithoutScrap) *
+    (((fanBase.weightKgWithScrap ?? 0) - (fanBase.weightKgWithoutScrap ?? 0)) *
       (priceItems.find((item) =>
-        item.description.includes("Black Steel Raw Material"),
+        item.description?.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
       1000 /
       2;
@@ -1186,7 +1228,10 @@ export async function casingPriceCalculation(input) {
       casingId: casing.id,
     },
   });
-  if (!beltCover) return null;
+  if (!beltCover) {
+    debugLog("FAIL: beltCover not found for casingId", casing.id);
+    return null;
+  }
   price.beltCover =
     (beltCover.weightKgWithScrap *
       priceItems.find((item) =>
@@ -1222,7 +1267,10 @@ export async function casingPriceCalculation(input) {
       casingId: casing.id,
     },
   });
-  if (!motorBase) return null;
+  if (!motorBase) {
+    debugLog("FAIL: motorBase not found for casingId", casing.id);
+    return null;
+  }
   price.motorBase =
     (motorBase.weightKgWithScrap *
       priceItems.find((item) =>
@@ -1259,7 +1307,10 @@ export async function casingPriceCalculation(input) {
       casingId: casing.id,
     },
   });
-  if (!accessories) return null;
+  if (!accessories) {
+    debugLog("FAIL: accessories not found for casingId", casing.id);
+    return null;
+  }
   price.accessories = accessories.vibrationIsolatorsLe;
   price.accessories += accessories.vinylStickersLe;
   price.accessories += accessories.namePlateLe;
@@ -1290,5 +1341,10 @@ export async function casingPriceCalculation(input) {
     price.beltCoverWithoutScrap +
     price.motorBaseWithoutScrap +
     price.accessories;
+
+  debugLog("FINAL price:", {
+    totalFanPriceWithVat: price.totalFanPriceWithVat,
+    totalFanPriceWithVatScrapRecycle: price.totalFanPriceWithVatScrapRecycle,
+  });
   return price;
 }

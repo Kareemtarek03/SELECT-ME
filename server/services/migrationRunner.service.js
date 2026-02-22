@@ -1,17 +1,28 @@
-import { PrismaClient } from "@prisma/client";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// In Electron production, load Prisma via createRequire from unpacked root
+// so .prisma/client/default resolves correctly (both are in app.asar.unpacked/node_modules)
+function getPrismaClient() {
+  const unpackedRoot = process.env.RESOURCES_PATH
+    ? path.join(process.env.RESOURCES_PATH, "app.asar.unpacked")
+    : path.join(__dirname, "..", "..");
+  const require = createRequire(path.join(unpackedRoot, "package.json"));
+  return require("@prisma/client").PrismaClient;
+}
 
 /**
  * Runs Prisma migrations programmatically in production
  * This is needed when the database doesn't exist or hasn't been migrated
  */
 export async function runMigrations(dbPath) {
-    const dbUrl = `file:${dbPath.replace(/\\/g, "/")}`;
+    const normalized = dbPath.replace(/\\/g, "/").replace(/ /g, "%20");
+    const dbUrl = `file:${normalized}`;
     console.log("🔄 Running migrations for database:", dbUrl);
 
     // Ensure database file exists (create empty file if it doesn't)
@@ -25,6 +36,7 @@ export async function runMigrations(dbPath) {
     }
 
     // Create Prisma client with the database URL
+    const PrismaClient = getPrismaClient();
     const prisma = new PrismaClient({
         datasources: {
             db: {

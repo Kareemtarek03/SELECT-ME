@@ -765,10 +765,21 @@ export async function calculatePricing(req, res) {
 // ---------- Casing Price Calculation ----------
 export async function casingPriceCalculation(req, res) {
   try {
+    if (process.env.DEBUG_CASING_PRICE === "1") {
+      console.log("[casingPrice] POST body:", JSON.stringify(req.body, null, 2));
+    }
     const result = await service.casingPriceCalculation(req.body);
+    if (result === null) {
+      return res.status(404).json({
+        error: "Casing or related data not found. Check that casing has volute, frame, impeller, etc.",
+      });
+    }
     res.json(result);
   } catch (e) {
     console.error("POST /casing-price", e);
-    res.status(500).json({ error: e.message });
+    res.status(500).json({
+      error: e.message,
+      stack: process.env.NODE_ENV === "development" ? e.stack : undefined,
+    });
   }
 }

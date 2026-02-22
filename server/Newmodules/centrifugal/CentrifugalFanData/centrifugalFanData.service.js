@@ -1,5 +1,6 @@
 import path from "path";
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2155,23 +2156,23 @@ export function processPhase18(params) {
 export function processPhase19(params) {
   const { selectedFan, phase18Result, phase9Data } = params;
 
-  console.log("\n=== PHASE 19 DEBUG ===");
-  console.log("selectedFan keys:", selectedFan ? Object.keys(selectedFan) : "null");
-  console.log("selectedFan.curveArrays exists:", !!selectedFan?.curveArrays);
-  console.log("selectedFan.curveArrays?.airFlow first 3:", selectedFan?.curveArrays?.airFlow?.slice(0, 3));
-  console.log("selectedFan.originalFanData exists:", !!selectedFan?.originalFanData);
-  console.log("selectedFan.originalFanData?.airFlow first 3:", selectedFan?.originalFanData?.airFlow?.slice(0, 3));
-  console.log("phase18Result:", phase18Result ? { fanSpeedN2: phase18Result.fanSpeedN2, originalSpeed: phase18Result.originalSpeed } : "null");
+  // console.log("\n=== PHASE 19 DEBUG ===");
+  // console.log("selectedFan keys:", selectedFan ? Object.keys(selectedFan) : "null");
+  // console.log("selectedFan.curveArrays exists:", !!selectedFan?.curveArrays);
+  // console.log("selectedFan.curveArrays?.airFlow first 3:", selectedFan?.curveArrays?.airFlow?.slice(0, 3));
+  // console.log("selectedFan.originalFanData exists:", !!selectedFan?.originalFanData);
+  // console.log("selectedFan.originalFanData?.airFlow first 3:", selectedFan?.originalFanData?.airFlow?.slice(0, 3));
+  // console.log("phase18Result:", phase18Result ? { fanSpeedN2: phase18Result.fanSpeedN2, originalSpeed: phase18Result.originalSpeed } : "null");
 
   if (!selectedFan || !phase18Result) {
-    console.log("ERROR: Missing required parameters");
+    // console.log("ERROR: Missing required parameters");
     return { error: "Missing required parameters", details: "selectedFan and phase18Result are required" };
   }
 
   // N2 = Fan Speed from Phase 18 (AAO column - the operating speed)
   const N2 = phase18Result.fanSpeedN2;
   if (!N2 || N2 <= 0) {
-    console.log("ERROR: Invalid fan speed N2:", N2);
+    // console.log("ERROR: Invalid fan speed N2:", N2);
     return { error: "Invalid fan speed", details: "Phase 18 fanSpeedN2 is required and must be positive" };
   }
 
@@ -2181,8 +2182,8 @@ export function processPhase19(params) {
     selectedFan.originalFanData?.RPM ||
     phase18Result.originalSpeed || 1000;
 
-  console.log("N2 (operating speed):", N2);
-  console.log("OriginalRPM (rated speed):", originalRPM);
+  // console.log("N2 (operating speed):", N2);
+  // console.log("OriginalRPM (rated speed):", originalRPM);
 
   // Get Phase 9 sorted curve arrays
   // Phase 9 sorts Phase 8 arrays by airflow and filters by fan model
@@ -2202,8 +2203,8 @@ export function processPhase19(params) {
     curveSource = selectedFan;
     curveSourceName = "selectedFan (UNSORTED - BUG!)";
   }
-  console.log("curveSource used:", curveSourceName);
-  console.log("curveSource.airFlow first 5:", curveSource.airFlow?.slice(0, 5));
+  // console.log("curveSource used:", curveSourceName);
+  // console.log("curveSource.airFlow first 5:", curveSource.airFlow?.slice(0, 5));
 
   // Extract raw arrays from curveSource
   const rawAirFlow = Array.isArray(curveSource.airFlow) ? curveSource.airFlow : [];
@@ -2230,24 +2231,24 @@ export function processPhase19(params) {
   const phase9TotalEfficiency = indexedData.map(item => rawTotalEfficiency[item.idx]);
   const phase9StaticEfficiency = indexedData.map(item => rawStaticEfficiency[item.idx]);
 
-  console.log("Phase 19 arrays (sorted by airflow):");
-  console.log("  airFlow length:", phase9AirFlow.length, "first 3:", phase9AirFlow.slice(0, 3));
-  console.log("  totalPressure length:", phase9TotalPressure.length);
-  console.log("  velocityPressure length:", phase9VelocityPressure.length);
-  console.log("  staticPressure length:", phase9StaticPressure.length);
-  console.log("  fanInputPower length:", phase9FanInputPower.length);
-  console.log("  totalEfficiency length:", phase9TotalEfficiency.length);
-  console.log("  staticEfficiency length:", phase9StaticEfficiency.length);
+  // console.log("Phase 19 arrays (sorted by airflow):");
+  // console.log("  airFlow length:", phase9AirFlow.length, "first 3:", phase9AirFlow.slice(0, 3));
+  // console.log("  totalPressure length:", phase9TotalPressure.length);
+  // console.log("  velocityPressure length:", phase9VelocityPressure.length);
+  // console.log("  staticPressure length:", phase9StaticPressure.length);
+  // console.log("  fanInputPower length:", phase9FanInputPower.length);
+  // console.log("  totalEfficiency length:", phase9TotalEfficiency.length);
+  // console.log("  staticEfficiency length:", phase9StaticEfficiency.length);
 
   if (phase9AirFlow.length === 0) {
-    console.log("ERROR: No Phase 9 airflow data found");
-    console.log("Available keys in curveSource:", Object.keys(curveSource));
+    // console.log("ERROR: No Phase 9 airflow data found");
+    // console.log("Available keys in curveSource:", Object.keys(curveSource));
     return { error: "No airflow data", details: "Phase 9 airflow array is empty" };
   }
 
   // Calculate speed ratio: N2 / OriginalRPM
   const speedRatio = N2 / originalRPM;
-  console.log("Speed ratio (N2/OriginalRPM):", speedRatio);
+  // console.log("Speed ratio (N2/OriginalRPM):", speedRatio);
 
   // Helper to safely map arrays
   const safeMap = (arr, fn) => arr.map((v, i) => {
@@ -2325,11 +2326,11 @@ export function processPhase19(params) {
     fanModel: selectedFan.fanModel || selectedFan.model || phase18Result.fanModelFormatted,
   };
 
-  console.log("Phase 19 result arrays lengths:");
-  console.log("  airFlowNew:", result.airFlowNew.length);
-  console.log("  totalPressureNew:", result.totalPressureNew.length);
-  console.log("  staticPressureNew:", result.staticPressureNew.length);
-  console.log("  fanInputPowerNew:", result.fanInputPowerNew.length);
+  // console.log("Phase 19 result arrays lengths:");
+  // console.log("  airFlowNew:", result.airFlowNew.length);
+  // console.log("  totalPressureNew:", result.totalPressureNew.length);
+  // console.log("  staticPressureNew:", result.staticPressureNew.length);
+  // console.log("  fanInputPowerNew:", result.fanInputPowerNew.length);
 
   return result;
 }
@@ -2368,8 +2369,8 @@ export function processPhase20(params) {
     safetyFactor = 0.1  // F17 in Excel - Safety factor (default 10%)
   } = params;
 
-  console.log("\n=== PHASE 20 NOISE CALCULATION ===");
-  console.log("Input parameters:", { distance, directivityQ, motorPowerFactor, safetyFactor });
+  // console.log("\n=== PHASE 20 NOISE CALCULATION ===");
+  // console.log("Input parameters:", { distance, directivityQ, motorPowerFactor, safetyFactor });
 
   if (!phase18Result) {
     return { error: "Missing required parameters", details: "phase18Result is required" };
@@ -2382,7 +2383,7 @@ export function processPhase20(params) {
   // Motor efficiency - use from phase18 or default to 0.867 (from Excel ZG4)
   const motorEfficiency = phase18Result.motorEfficiency || 0.867;
 
-  console.log("Phase 18 values:", { staticPressure, fanInputPower, motorEfficiency });
+  // console.log("Phase 18 values:", { staticPressure, fanInputPower, motorEfficiency });
 
   if (!staticPressure || staticPressure <= 0 || !fanInputPower || fanInputPower <= 0) {
     return {
@@ -2398,13 +2399,13 @@ export function processPhase20(params) {
 
   // ZH = (YY / ZG) * (1 + F17) = (YY / motorEfficiency) * (1 + 0.1)
   const ZH = (YY / motorEfficiency) * (1 + safetyFactor);
-  console.log("YY (motor output power):", YY);
-  console.log("ZH (power factor):", ZH);
+  // console.log("YY (motor output power):", YY);
+  // console.log("ZH (power factor):", ZH);
 
   // Calculate LW(A) Total (ZV column)
   // ZV = 62 + 10*LOG10(ZH) + 10*LOG10(staticPressure)
   const LW_Total = 62 + 10 * Math.log10(ZH) + 10 * Math.log10(staticPressure);
-  console.log("LW(A) Total:", LW_Total);
+  // console.log("LW(A) Total:", LW_Total);
 
   // LW(A) octave band offsets (from Excel formulas ZN-ZU)
   const LW_offsets = {
@@ -2435,8 +2436,8 @@ export function processPhase20(params) {
   // AAE = ZV - ABS(10*LOG10(Q/(4*PI*r²)))
   const distanceAttenuation = Math.abs(10 * Math.log10(directivityQ / (4 * Math.PI * Math.pow(distance, 2))));
   const LP_Total = LW_Total - distanceAttenuation;
-  console.log("Distance attenuation:", distanceAttenuation);
-  console.log("LP(A) Total:", LP_Total);
+  // console.log("Distance attenuation:", distanceAttenuation);
+  // console.log("LP(A) Total:", LP_Total);
 
   // LP(A) octave band offsets (from Excel formulas ZW-AAD)
   const LP_offsets = {
@@ -2525,12 +2526,12 @@ export function processPhase20(params) {
     }
   };
 
-  console.log("Phase 20 result:", {
-    LW_Total: result.LW.total,
-    LP_Total: result.LP.total,
-    LW_array: result.LW_array,
-    LP_array: result.LP_array
-  });
+  // console.log("Phase 20 result:", {
+  //   LW_Total: result.LW.total,
+  //   LP_Total: result.LP.total,
+  //   LW_array: result.LW_array,
+  //   LP_array: result.LP_array
+  // });
 
   return result;
 }
@@ -2539,11 +2540,20 @@ export function processPhase20(params) {
 // Main Service Function: Process Fan Data through Phases 1-10
 // ============================================================================
 // Prisma client - lazy loaded only when needed (for database mode)
+// In Electron production, use createRequire from unpacked root so .prisma/client resolves
 let prisma = null;
 export async function getPrismaClient() {
   if (!prisma) {
     try {
-      const { PrismaClient } = await import("@prisma/client");
+      let PrismaClient;
+      if (process.env.RESOURCES_PATH) {
+        const unpackedRoot = path.join(process.env.RESOURCES_PATH, "app.asar.unpacked");
+        const require = createRequire(path.join(unpackedRoot, "package.json"));
+        PrismaClient = require("@prisma/client").PrismaClient;
+      } else {
+        const pkg = await import("@prisma/client");
+        PrismaClient = (pkg.default || pkg).PrismaClient;
+      }
       const dbUrl = process.env.DATABASE_URL;
 
       console.log(`Centrifugal Service: Initializing PrismaClient with URL: ${dbUrl}`);
