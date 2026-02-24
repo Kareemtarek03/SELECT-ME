@@ -1,34 +1,11 @@
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
-import { createRequire } from "module";
+import PDFDocument from "pdfkit";
+import SVGtoPDF from "svg-to-pdfkit";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-// Create require function that resolves from the main app's node_modules
-// This is needed because when unpacked from asar, ES modules can't find packages
-const require = createRequire(import.meta.url);
-
-// Try to resolve pdfkit from multiple locations
-let PDFDocument, SVGtoPDF;
-try {
-    // First try normal import (works in development)
-    PDFDocument = (await import("pdfkit")).default;
-    SVGtoPDF = (await import("svg-to-pdfkit")).default;
-} catch (err) {
-    // In production, try to require from the asar's node_modules
-    try {
-        // Get the asar path by removing .unpacked from current path
-        const asarPath = __dirname.replace(/\.unpacked/, '').replace(/server[\\/]Newmodules[\\/]centrifugal[\\/]CentrifugalPDF$/, '');
-        const asarRequire = createRequire(path.join(asarPath, 'package.json'));
-        PDFDocument = asarRequire("pdfkit");
-        SVGtoPDF = asarRequire("svg-to-pdfkit");
-    } catch (err2) {
-        console.error("Failed to load PDF dependencies:", err2);
-        throw new Error("PDF generation dependencies not available");
-    }
-}
 
 // ===== EXACT COLORS FROM REFERENCE SCREENSHOTS =====
 const COLORS = {

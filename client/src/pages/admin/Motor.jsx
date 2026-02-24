@@ -236,7 +236,6 @@ export default function MotorPage() {
 
   // Exact column order matching JSON file - columns use exact JSON key names
   const COLUMN_ORDER = [
-    "id",
     "Material",
     "Model",
     "Power (kW)",
@@ -578,7 +577,9 @@ export default function MotorPage() {
             </Table.Header>
 
             <Table.Body borderColor="var(--border-color)">
-              {motors.map((m, idx) => {
+              {motors.length === 0 && <Table.Row><Table.Cell colSpan={ (columns?.length ?? 0) + 1 }><Text textAlign="center">No data.</Text></Table.Cell></Table.Row>}
+              {motors.length > 0 && motors.map((m, idx) => {
+              
                 const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
 
                 return (
@@ -669,9 +670,7 @@ export default function MotorPage() {
               <Dialog.Body>
                 {selectedMotor ? (
                   <Text color="var(--text-muted)">
-                    Are you sure you want to delete motor ID{" "}
-                    <strong>{selectedMotor.id}</strong>? This action cannot be
-                    undone.
+                    Are you sure you want to delete this motor? This action cannot be undone.
                   </Text>
                 ) : (
                   <Text color="var(--text-muted)">No motor selected.</Text>
@@ -730,7 +729,7 @@ export default function MotorPage() {
               <Dialog.Header>
                 <Dialog.Title color="var(--text-primary)">
                   {editingMotor
-                    ? `Edit Motor (ID: ${editingMotor.id})`
+                    ? `Edit Motor`
                     : "Add New Motor"}
                 </Dialog.Title>
               </Dialog.Header>

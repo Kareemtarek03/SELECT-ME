@@ -11,6 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
+import ExportImportButtons from "../../../components/ExportImportButtons";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
@@ -268,6 +269,7 @@ export default function AccessoriesTab() {
                     <Badge bg="var(--badge-secondary-bg)" color="var(--btn-secondary)" px={3} py={1} borderRadius="md">
                         Accessories
                     </Badge>
+                    <ExportImportButtons exportPath="/api/centrifugal/data/export/accessory-pricing" importPath="/api/centrifugal/data/import/accessory-pricing" onImportDone={fetchData} />
                     <Text color="var(--text-muted)" fontSize="sm">
                         {items.length} items
                     </Text>

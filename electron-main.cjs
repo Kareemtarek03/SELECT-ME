@@ -54,9 +54,8 @@ async function setupProductionDatabase() {
 
   // Prisma Engine Resolution - MUST run before any Prisma usage
   const enginePaths = [
-    path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", "@prisma", "engines"),
     path.join(app.getAppPath(), "node_modules", "@prisma", "engines"),
-    path.join(process.resourcesPath, "..", "app.asar.unpacked", "node_modules", "@prisma", "engines"),
+    path.join(process.resourcesPath, "app", "node_modules", "@prisma", "engines"),
   ];
   for (const engineDir of enginePaths) {
     try {
@@ -81,34 +80,30 @@ async function setupProductionDatabase() {
     console.warn("⚠️ Prisma engine not found - database may fail");
   }
 
-  // electron-builder's asarUnpack glob doesn't extract dotfolders like .prisma
-  // The generated Prisma client is shipped via extraResources as "prisma-generated-client"
-  // Copy it to unpacked node_modules/.prisma/client so require('.prisma/client/default') works
-  const unpackedDotPrisma = path.join(process.resourcesPath, "app.asar.unpacked", "node_modules", ".prisma", "client");
-  if (!fs.existsSync(path.join(unpackedDotPrisma, "default.js"))) {
+  // With asar: false, .prisma/client is already in app/node_modules/.prisma/client
+  // Also ensure the extraResources copy is available as a fallback
+  const appDotPrisma = path.join(app.getAppPath(), "node_modules", ".prisma", "client");
+  if (!fs.existsSync(path.join(appDotPrisma, "default.js"))) {
     const extraResourceClient = path.join(process.resourcesPath, "prisma-generated-client");
     if (fs.existsSync(extraResourceClient)) {
-      console.log("Copying prisma-generated-client → .prisma/client in unpacked...");
-      fs.mkdirSync(unpackedDotPrisma, { recursive: true });
-      const files = fs.readdirSync(extraResourceClient);
-      for (const file of files) {
+      console.log("Copying prisma-generated-client → .prisma/client...");
+      fs.mkdirSync(appDotPrisma, { recursive: true });
+      const clientFiles = fs.readdirSync(extraResourceClient);
+      for (const file of clientFiles) {
         const src = path.join(extraResourceClient, file);
-        const dest = path.join(unpackedDotPrisma, file);
+        const dest = path.join(appDotPrisma, file);
         try {
-          const stat = fs.statSync(src);
-          if (stat.isFile()) {
-            fs.copyFileSync(src, dest);
-          }
+          if (fs.statSync(src).isFile()) fs.copyFileSync(src, dest);
         } catch (e) {
           console.warn(`  ⚠️ Could not copy ${file}: ${e.message}`);
         }
       }
-      console.log("✅ .prisma/client installed in unpacked node_modules");
+      console.log("✅ .prisma/client installed");
     } else {
-      console.warn("⚠️ prisma-generated-client not found in resources - Prisma will not work");
+      console.warn("⚠️ prisma-generated-client not found in resources");
     }
   } else {
-    console.log("✅ .prisma/client already present in unpacked");
+    console.log("✅ .prisma/client already present");
   }
 
   const dbExists = fs.existsSync(dbPath);
@@ -116,7 +111,6 @@ async function setupProductionDatabase() {
     const possiblePaths = [
       path.join(process.resourcesPath, "prisma", "dev.db"),
       path.join(app.getAppPath(), "prisma", "dev.db"),
-      path.join(process.resourcesPath, "app.asar.unpacked", "prisma", "dev.db"),
     ];
     console.log("=== Database Discovery ===");
     let templateDbPath = null;
@@ -157,7 +151,9 @@ async function setupProductionDatabase() {
 
   // Quick connection test - verify Prisma can connect before server starts
   try {
-    const { PrismaClient } = await import("@prisma/client");
+    const { PrismaClient } = require(
+      path.join(app.getAppPath(), "node_modules", "@prisma", "client")
+    );
     const testPrisma = new PrismaClient({
       datasources: { db: { url: dbUrl } },
     });
@@ -183,7 +179,7 @@ async function setupProductionDatabase() {
         ),
       ]);
 
-    const modulePath = path.join(process.resourcesPath, "app.asar.unpacked", "server", "services");
+    const modulePath = path.join(app.getAppPath(), "server", "services");
     const migrationPath = path.join(modulePath, "migrationRunner.service.js");
     const dbInitPath = path.join(modulePath, "databaseInit.service.js");
 
@@ -252,26 +248,11 @@ function getAppPath() {
 }
 
 // Helper function to get the correct module path for dynamic imports
-// In production, ES modules are unpacked from asar to app.asar.unpacked folder
-// Windows requires forward slashes in file:// URLs for ES module imports
+// With asar: false, all files are in a normal directory under resources/app
 function getModulePath(relativePath) {
-  let fullPath;
-  if (isDev) {
-    // In development, use __dirname directly
-    fullPath = path.join(__dirname, relativePath);
-  } else {
-    // First try unpacked path (where ES modules should be if asarUnpacked)
-    const unpackedPath = path.join(process.resourcesPath, "app.asar.unpacked");
-    fullPath = path.join(unpackedPath, relativePath);
-
-    if (!fs.existsSync(fullPath)) {
-      // Fallback to ASAR internal path
-      fullPath = path.join(app.getAppPath(), relativePath);
-    }
-  }
-  // Convert Windows backslashes to forward slashes for ES module compatibility
-  const normalizedPath = fullPath.replace(/\\/g, "/");
-  return `file:///${normalizedPath}`;
+  const base = isDev ? __dirname : app.getAppPath();
+  const fullPath = path.join(base, relativePath);
+  return pathToFileURL(fullPath).href;
 }
 
 // Load data from JSON files
@@ -558,7 +539,7 @@ function startServer() {
       console.log("App path:", appPath);
 
       const expressApp = express();
-      expressApp.use(express.json());
+      expressApp.use(express.json({ limit: "50mb" }));
       expressApp.use(cors({ origin: true, credentials: true }));
 
       // Serve static files from the React app build directory
@@ -1370,7 +1351,9 @@ function startServer() {
                 // If database is larger than 1KB, it likely has data
                 if (dbStats.size > 1024) {
                   // Quick check: try to query if tables exist
-                  const { PrismaClient } = await import("@prisma/client");
+                  const { PrismaClient } = require(
+                    path.join(app.getAppPath(), "node_modules", "@prisma", "client")
+                  );
                   const testPrisma = new PrismaClient({
                     datasources: {
                       db: { url: process.env.DATABASE_URL },

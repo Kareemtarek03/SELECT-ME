@@ -11,6 +11,7 @@ import {
 import ImpellerBladesTable from "../../../components/ImpellerBladesTable";
 import ImpellerHubsTable from "../../../components/ImpellerHubsTable";
 import ImpellerFramesTable from "../../../components/ImpellerFramesTable";
+import ExportImportButtons from "../../../components/ExportImportButtons";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
@@ -178,30 +179,30 @@ export default function ImpellerPricingTab() {
             </Button>
           </Box>
 
-          {/* Table Components */}
+          {/* Export/Import + Table Components */}
           {activeSubTab === "blades" && (
-            <ImpellerBladesTable
-              blades={blades}
-              onUpdate={fetchData}
-              getAuthHeaders={getAuthHeaders}
-              setAlert={setAlert}
-            />
+            <>
+              <Box display="flex" gap={2} mb={3} alignItems="center" flexWrap="wrap">
+                <ExportImportButtons exportPath="/api/centrifugal/data/export/impeller-blades" importPath="/api/centrifugal/data/import/impeller-blades" onImportDone={fetchData} />
+              </Box>
+              <ImpellerBladesTable blades={blades} onUpdate={fetchData} getAuthHeaders={getAuthHeaders} setAlert={setAlert} />
+            </>
           )}
           {activeSubTab === "hubs" && (
-            <ImpellerHubsTable
-              hubs={hubs}
-              onUpdate={fetchData}
-              getAuthHeaders={getAuthHeaders}
-              setAlert={setAlert}
-            />
+            <>
+              <Box display="flex" gap={2} mb={3} alignItems="center" flexWrap="wrap">
+                <ExportImportButtons exportPath="/api/centrifugal/data/export/impeller-hubs" importPath="/api/centrifugal/data/import/impeller-hubs" onImportDone={fetchData} />
+              </Box>
+              <ImpellerHubsTable hubs={hubs} onUpdate={fetchData} getAuthHeaders={getAuthHeaders} setAlert={setAlert} />
+            </>
           )}
           {activeSubTab === "frames" && (
-            <ImpellerFramesTable
-              frames={frames}
-              onUpdate={fetchData}
-              getAuthHeaders={getAuthHeaders}
-              setAlert={setAlert}
-            />
+            <>
+              <Box display="flex" gap={2} mb={3} alignItems="center" flexWrap="wrap">
+                <ExportImportButtons exportPath="/api/centrifugal/data/export/impeller-frames" importPath="/api/centrifugal/data/import/impeller-frames" onImportDone={fetchData} />
+              </Box>
+              <ImpellerFramesTable frames={frames} onUpdate={fetchData} getAuthHeaders={getAuthHeaders} setAlert={setAlert} />
+            </>
           )}
         </>
       )}

@@ -1,6 +1,7 @@
 import xlsx from "xlsx";
 import path from "path";
-import { createRequire } from "module";
+import pkgPrisma from "@prisma/client";
+const { PrismaClient } = pkgPrisma;
 import {
   calculateMotorPrices,
   stripCalculatedFields,
@@ -8,20 +9,10 @@ import {
   parsePrice,
 } from "./axialMotorPricing.service.js";
 
-// Prisma client - lazy loaded only when needed (for database mode)
 let prisma = null;
 async function getPrismaClient() {
   if (!prisma) {
     try {
-      let PrismaClient;
-      if (process.env.RESOURCES_PATH) {
-        const unpackedRoot = path.join(process.env.RESOURCES_PATH, "app.asar.unpacked");
-        const require = createRequire(path.join(unpackedRoot, "package.json"));
-        PrismaClient = require("@prisma/client").PrismaClient;
-      } else {
-        const pkg = await import("@prisma/client");
-        PrismaClient = (pkg.default || pkg).PrismaClient;
-      }
       prisma = new PrismaClient();
     } catch (err) {
       console.warn("Prisma client not available - database mode disabled");

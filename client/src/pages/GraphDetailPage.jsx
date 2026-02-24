@@ -190,7 +190,7 @@ export default function GraphDetailPage() {
             ← Back to Results
           </Button>
           <Heading size="lg" color="gray.800" mb={2}>
-            Performance Curves - {fan.FanModel || `Fan ${fan.Id}`}
+            Performance Curves - {fan.FanModel || `Fan`}
           </Heading>
           <Text color="gray.600" fontSize="sm">
             Hover over each curve to see exact values at different positions

@@ -8,6 +8,7 @@ import {
   Badge,
 } from "@chakra-ui/react";
 import CasingPricingTable from "../../../components/CasingPricingTable";
+import ExportImportButtons from "../../../components/ExportImportButtons";
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
 
@@ -57,9 +58,10 @@ export default function CasingPricingTab() {
         <Heading color="var(--text-primary)" mb={2}>
           Casing Pricing
         </Heading>
-        <Box display="flex" alignItems="center" gap={3}>
+        <Box display="flex" alignItems="center" gap={3} flexWrap="wrap">
           <Text color="var(--text-muted)">Manage pricing for axial fan casings</Text>
           <Badge colorPalette="blue">{casings.length} items</Badge>
+          <ExportImportButtons exportPath="/api/centrifugal/data/export/axial-casing" importPath="/api/centrifugal/data/import/axial-casing" onImportDone={fetchData} />
         </Box>
       </Box>
 

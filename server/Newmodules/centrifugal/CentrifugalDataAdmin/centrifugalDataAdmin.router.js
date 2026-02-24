@@ -1,7 +1,30 @@
 import express from "express";
 import * as ctrl from "./centrifugalDataAdmin.controller.js";
+import * as excel from "./centrifugalExcel.controller.js";
 
 const router = express.Router();
+
+// ---------- Excel Export/Import (all tables) ----------
+router.get("/export/centrifugal-fans", excel.exportCentrifugalFanData);
+router.post("/import/centrifugal-fans", excel.importCentrifugalFanData);
+router.get("/export/pulleys", excel.exportPulleys);
+router.post("/import/pulleys", excel.importPulleys);
+router.get("/export/belt-standards", excel.exportBeltStandards);
+router.post("/import/belt-standards", excel.importBeltStandards);
+router.get("/export/pulley-standards", excel.exportPulleyStandards);
+router.post("/import/pulley-standards", excel.importPulleyStandards);
+router.get("/export/casing-all", excel.exportCasingPricingAll);
+router.post("/import/casing-all", excel.importCasingPricingAll);
+router.get("/export/accessory-pricing", excel.exportAccessoryPricing);
+router.post("/import/accessory-pricing", excel.importAccessoryPricing);
+router.get("/export/impeller-blades", excel.exportAxialImpellerBlades);
+router.post("/import/impeller-blades", excel.importAxialImpellerBlades);
+router.get("/export/impeller-hubs", excel.exportAxialImpellerHubs);
+router.post("/import/impeller-hubs", excel.importAxialImpellerHubs);
+router.get("/export/impeller-frames", excel.exportAxialImpellerFrames);
+router.post("/import/impeller-frames", excel.importAxialImpellerFrames);
+router.get("/export/axial-casing", excel.exportAxialCasingPricing);
+router.post("/import/axial-casing", excel.importAxialCasingPricing);
 
 // ---------- Pulley Data ----------
 router.get("/pulleys", ctrl.getPulleys);

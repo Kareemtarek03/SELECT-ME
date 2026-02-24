@@ -118,17 +118,8 @@ router.post("/test-recalc", async (req, res) => {
   try {
     const { recalculateAllAccessoriesPrices } =
       await import("../shared/pricingUtils.js");
-    let PrismaClient;
-    if (process.env.RESOURCES_PATH) {
-      const { createRequire } = await import("module");
-      const path = (await import("path")).default;
-      const unpackedRoot = path.join(process.env.RESOURCES_PATH, "app.asar.unpacked");
-      const require = createRequire(path.join(unpackedRoot, "package.json"));
-      PrismaClient = require("@prisma/client").PrismaClient;
-    } else {
-      const pkg = await import("@prisma/client");
-      PrismaClient = (pkg.default || pkg).PrismaClient;
-    }
+    const pkg = await import("@prisma/client");
+    const PrismaClient = (pkg.default || pkg).PrismaClient;
     const prisma = new PrismaClient();
 
     // Get Bolts & Nuts price

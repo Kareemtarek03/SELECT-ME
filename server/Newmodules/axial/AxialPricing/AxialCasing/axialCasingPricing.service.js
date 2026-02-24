@@ -1,13 +1,5 @@
-import { createRequire } from "module";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const unpackedRoot = process.env.RESOURCES_PATH
-  ? path.join(process.env.RESOURCES_PATH, "app.asar.unpacked")
-  : path.join(__dirname, "..", "..", "..", "..", "..");
-const require = createRequire(path.join(unpackedRoot, "package.json"));
-const { PrismaClient } = require("@prisma/client");
+import pkg from "@prisma/client";
+const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 /**

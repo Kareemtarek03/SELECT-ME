@@ -108,15 +108,7 @@
         "filter": ["**/*"]
       }
     ],
-    "asar": true,
-    "asarUnpack": [
-      "**/node_modules/canvas/**",
-      "**/node_modules/@prisma/engines/**",
-      "**/node_modules/@prisma/client/**",
-      "**/node_modules/.prisma/**",
-      "**/node_modules/xlsx/**",
-      "server/**"
-    ],
+    "asar": false,
     "win": {
       "target": [
         {

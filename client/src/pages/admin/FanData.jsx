@@ -414,7 +414,6 @@ export default function FanDataPage() {
                   <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Actions
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">Id</Table.ColumnHeader>
                   <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
                     Designated Density
                   </Table.ColumnHeader>
@@ -513,9 +512,6 @@ export default function FanDataPage() {
                         })()}
                       </Table.Cell>
                       <Table.Cell borderColor="var(--border-color)">
-                        {formatValue(r.Id)}
-                      </Table.Cell>
-                      <Table.Cell borderBottomColor="var(--border-color)">
                         {formatValue(r.desigDensity)}
                       </Table.Cell>
                       <Table.Cell
@@ -605,9 +601,8 @@ export default function FanDataPage() {
               </Dialog.Header>
               <Dialog.Body>
                 {selectedFan ? (
-                  <Text color="#64748b">
-                    Are you sure you want to delete fan ID{" "}
-                    <strong>{selectedFan.id}</strong>? This cannot be undone.
+                  <Text color="#64748b">  
+                    Are you sure you want to delete this fan? This cannot be undone.
                   </Text>
                 ) : (
                   <Text color="#64748b">No fan selected.</Text>

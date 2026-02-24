@@ -16,6 +16,7 @@ import {
 } from "@chakra-ui/react";
 import { FaDatabase, FaCog, FaList, FaFan, FaBox, FaSave, FaTimes } from "react-icons/fa";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
+import ExportImportButtons from "../../components/ExportImportButtons.jsx";
 import { CASING_TAB_CONFIG } from "../../utils/casingTabConfig.js";
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
@@ -197,7 +198,7 @@ function CentrifugalFansTab() {
 
   return (
     <Box>
-      <Stack direction="row" mb={4} gap={2}>
+      <Stack direction="row" mb={4} gap={2} flexWrap="wrap" alignItems="center">
         <Button
           size="sm"
           bg="var(--btn-primary)"
@@ -216,6 +217,11 @@ function CentrifugalFansTab() {
         >
           Refresh
         </Button>
+        <ExportImportButtons
+          exportPath="/api/centrifugal/data/export/centrifugal-fans"
+          importPath="/api/centrifugal/data/import/centrifugal-fans"
+          onImportDone={fetchData}
+        />
       </Stack>
       <Box
         className="admin-table-container"
@@ -230,7 +236,6 @@ function CentrifugalFansTab() {
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
-              <Table.ColumnHeader>ID</Table.ColumnHeader>
               <Table.ColumnHeader>Blades Type</Table.ColumnHeader>
               <Table.ColumnHeader>Blades Model</Table.ColumnHeader>
               <Table.ColumnHeader>RPM</Table.ColumnHeader>
@@ -267,7 +272,6 @@ function CentrifugalFansTab() {
                     </Button>
                   </Stack>
                 </Table.Cell>
-                <Table.Cell>{row.id}</Table.Cell>
                 <Table.Cell>{row.bladesType ?? "-"}</Table.Cell>
                 <Table.Cell>{row.bladesModel ?? "-"}</Table.Cell>
                 <Table.Cell>{row.RPM ?? "-"}</Table.Cell>
@@ -382,7 +386,6 @@ function CentrifugalFansTab() {
                   <Dialog.Title>Delete fan?</Dialog.Title>
                 </Dialog.Header>
                 <Dialog.Body>
-                  ID {confirmDelete.id} –{" "}
                   {confirmDelete.bladesModel || "No model"}. This cannot be
                   undone.
                 </Dialog.Body>
@@ -448,6 +451,8 @@ function GenericCrudTab({
   columns,
   getRowId,
   formFields,
+  exportPath,
+  importPath,
 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -587,7 +592,7 @@ function GenericCrudTab({
 
   return (
     <Box>
-      <Stack direction="row" mb={4} gap={2}>
+      <Stack direction="row" mb={4} gap={2} flexWrap="wrap" alignItems="center">
         {formFields?.length > 0 && (
           <Button
             size="sm"
@@ -608,6 +613,9 @@ function GenericCrudTab({
         >
           Refresh
         </Button>
+        {exportPath && importPath && (
+          <ExportImportButtons exportPath={exportPath} importPath={importPath} onImportDone={fetchData} />
+        )}
       </Stack>
       <Box
         className="admin-table-container"
@@ -628,7 +636,8 @@ function GenericCrudTab({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {list.map((row, idx) => (
+            {list.length === 0 && <Table.Row><Table.Cell colSpan={columns?.length ? columns.length + 1 : formFields?.length + 1}><Text textAlign="center">No data.</Text></Table.Cell></Table.Row>}
+            {list.length > 0 && list.map((row, idx) => (
               <Table.Row
                 key={getRowId(row)}
                 bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}
@@ -757,7 +766,7 @@ function GenericCrudTab({
                   <Dialog.Title>Delete?</Dialog.Title>
                 </Dialog.Header>
                 <Dialog.Body>
-                  ID {getRowId(confirmDelete)}. This cannot be undone.
+                  This cannot be undone.
                 </Dialog.Body>
                 <Dialog.Footer>
                   <Button
@@ -924,8 +933,9 @@ export default function CentrifugalDataPage() {
                 updatePath="/api/centrifugal/data/pulleys/:id"
                 deletePath="/api/centrifugal/data/pulleys/:id"
                 getRowId={(r) => r.id}
+                exportPath="/api/centrifugal/data/export/pulleys"
+                importPath="/api/centrifugal/data/import/pulleys"
                 columns={[
-                  { key: "id", label: "ID" },
                   { key: "beltType", label: "Belt Type" },
                   { key: "grooves", label: "Grooves" },
                   { key: "pitchDiameter", label: "Pitch Diameter" },
@@ -956,8 +966,9 @@ export default function CentrifugalDataPage() {
                 updatePath="/api/centrifugal/data/belt-standards/:id"
                 deletePath="/api/centrifugal/data/belt-standards/:id"
                 getRowId={(r) => r.id}
+                exportPath="/api/centrifugal/data/export/belt-standards"
+                importPath="/api/centrifugal/data/import/belt-standards"
                 columns={[
-                  { key: "id", label: "ID" },
                   { key: "spz", label: "SPZ" },
                   { key: "spa", label: "SPA" },
                   { key: "spb", label: "SPB" },
@@ -978,8 +989,9 @@ export default function CentrifugalDataPage() {
                 updatePath="/api/centrifugal/data/pulley-standards/:id"
                 deletePath="/api/centrifugal/data/pulley-standards/:id"
                 getRowId={(r) => r.id}
+                exportPath="/api/centrifugal/data/export/pulley-standards"
+                importPath="/api/centrifugal/data/import/pulley-standards"
                 columns={[
-                  { key: "id", label: "ID" },
                   { key: "no", label: "No" },
                   { key: "spz", label: "SPZ" },
                   { key: "spa", label: "SPA" },
@@ -997,6 +1009,13 @@ export default function CentrifugalDataPage() {
             )}
             {activeTab === "casing" && (
               <Box>
+                <Stack direction="row" mb={4} gap={2} flexWrap="wrap" alignItems="center">
+                  <ExportImportButtons
+                    exportPath="/api/centrifugal/data/export/casing-all"
+                    importPath="/api/centrifugal/data/import/casing-all"
+                  />
+                  <Text fontSize="xs" color="var(--text-muted)">Export/Import all casing tables at once (multi-sheet Excel)</Text>
+                </Stack>
                 <Box
                   display="flex"
                   gap={2}

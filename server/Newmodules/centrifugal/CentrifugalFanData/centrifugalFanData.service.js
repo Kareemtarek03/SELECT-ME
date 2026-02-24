@@ -1,6 +1,7 @@
 import path from "path";
 import { fileURLToPath } from "url";
-import { createRequire } from "module";
+import pkgPrisma from "@prisma/client";
+const { PrismaClient: PrismaClientClass } = pkgPrisma;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -2539,21 +2540,10 @@ export function processPhase20(params) {
 // ============================================================================
 // Main Service Function: Process Fan Data through Phases 1-10
 // ============================================================================
-// Prisma client - lazy loaded only when needed (for database mode)
-// In Electron production, use createRequire from unpacked root so .prisma/client resolves
 let prisma = null;
 export async function getPrismaClient() {
   if (!prisma) {
     try {
-      let PrismaClient;
-      if (process.env.RESOURCES_PATH) {
-        const unpackedRoot = path.join(process.env.RESOURCES_PATH, "app.asar.unpacked");
-        const require = createRequire(path.join(unpackedRoot, "package.json"));
-        PrismaClient = require("@prisma/client").PrismaClient;
-      } else {
-        const pkg = await import("@prisma/client");
-        PrismaClient = (pkg.default || pkg).PrismaClient;
-      }
       const dbUrl = process.env.DATABASE_URL;
 
       console.log(`Centrifugal Service: Initializing PrismaClient with URL: ${dbUrl}`);
@@ -2567,7 +2557,7 @@ export async function getPrismaClient() {
         };
       }
 
-      prisma = new PrismaClient(options);
+      prisma = new PrismaClientClass(options);
 
       // Test connection
       await prisma.$connect();
