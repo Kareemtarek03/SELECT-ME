@@ -3,28 +3,46 @@ const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
 /**
+ * Descriptions for casing SR pricing (must match PriceList.json / DB exactly)
+ * SR1=Raw Material, SR2=Welding, SR3=Rolling, SR4=Bending, SR5=Laser, SR6=Painting
+ */
+const CASING_PRICING_DESCRIPTIONS = [
+  "Black Steel Raw Material",
+  "Black Steel Welding", // was "Black Steel Welding " (typo) - DB has no trailing space
+  "Black Steel Rolling",
+  "Black Steel Bending Line",
+  "Black Steel Laser",
+  "Black Steel Painting/Diameter",
+];
+
+/**
  * Fetch SR pricing values from pricing items
  */
 async function getPricingItems() {
   const items = await prisma.pricingItem.findMany({
     where: {
-      description: {
-        in: [
-          "Black Steel Raw Material",
-          "Black Steel Welding ",
-          "Black Steel Rolling",
-          "Black Steel Bending Line",
-          "Black Steel Laser",
-          "Black Steel Painting/Diameter",
-        ],
-      },
+      description: { in: CASING_PRICING_DESCRIPTIONS },
     },
   });
 
   const pricingItems = {};
   items.forEach((item) => {
-    pricingItems[`SR${item.sr}`] = item.priceWithoutVat || 0;
+    const price = item.priceWithVat != null ? Number(item.priceWithVat) : 0;
+    pricingItems[`SR${item.sr}`] = price;
   });
+
+  // Debug: warn when SR values are missing or zero (casing total cost will be 0)
+  const srKeys = ["SR1", "SR2", "SR3", "SR4", "SR5", "SR6"];
+  const missingOrZero = srKeys.filter(
+    (k) => !pricingItems[k] || pricingItems[k] === 0,
+  );
+  if (missingOrZero.length > 0) {
+    console.warn(
+      "[AxialCasing] Pricing items missing or zero for:",
+      missingOrZero.join(", "),
+      "- Total cost will be 0. Populate Pricing Items (Axial Pricing tab) with prices.",
+    );
+  }
 
   return pricingItems;
 }

@@ -15,13 +15,19 @@ const PRICING_SR = {
 };
 
 /**
- * Helper function to get pricing item by SR number
+ * Helper function to get pricing item by description.
+ * Tries exact match first, then contains match for common variations.
  */
-async function getPricingItemByDescription(description) {
-  const item = await prisma.pricingItem.findFirst({
-    where: { description: description },
+async function getPricingItemByDescription(description, fallbackContains = null) {
+  let item = await prisma.pricingItem.findFirst({
+    where: { description },
   });
-  return item ? item.priceWithVat || 0 : 0;
+  if (!item && fallbackContains) {
+    item = await prisma.pricingItem.findFirst({
+      where: { description: { contains: fallbackContains } },
+    });
+  }
+  return item?.priceWithVat != null ? Number(item.priceWithVat) : 0;
 }
 
 /**
@@ -42,14 +48,31 @@ async function logAllPricingItems() {
     if (allItems.length === 0) {
       console.log("⚠️  No pricing items found in database!");
     } else {
+      const impellerCritical = [
+        "Mold Currency change Factor",
+        "Mold Life time",
+        "336 Aluminum Raw Material (Injection)",
+        "PAG 30% Raw Material",
+        "Axial Impeller Maching Factor",
+        "Aluminum injection Small machine cost",
+        "Aluminum injection machine cost (AM)",
+        "Aluminum injection machine cost (Hub 6)",
+        "PAG injection Small machine cost",
+      ];
+      const missing = impellerCritical.filter(
+        (d) => !allItems.some((i) => i.description === d && (i.priceWithVat ?? i.priceWithoutVat) > 0)
+      );
+      if (missing.length > 0) {
+        console.warn(
+          "[AxialImpeller] Pricing items missing or zero - impeller totalCost may be 0:",
+          missing.join(", ")
+        );
+      }
       allItems.forEach((item) => {
         console.log(
           `SR# ${item.sr
             .toString()
-            .padStart(3, " ")} | ${item.category.name.padEnd(
-            20,
-            " ",
-          )} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat || 0}`,
+            .padStart(3, " ")} | ${item.category?.name?.padEnd(20, " ") || "N/A"} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat ?? item.priceWithoutVat ?? 0}`,
         );
       });
     }
@@ -78,12 +101,23 @@ export const AxialImpellerPricingService = {
   // ========================
 
   /**
-   * Get all blade pricing records
+   * Get all blade pricing records with calculated totalCost (per 1 blade)
    */
   async getAllBlades() {
-    return await prisma.axialImpellerBlade.findMany({
+    const blades = await prisma.axialImpellerBlade.findMany({
       orderBy: [{ symbol: "asc" }, { material: "asc" }],
     });
+    const enriched = [];
+    for (const blade of blades) {
+      try {
+        const calc = await this.calculateBladeCost(blade, 1);
+        enriched.push({ ...blade, totalCost: calc.totalCost });
+      } catch (err) {
+        console.warn(`[AxialImpeller] Blade ${blade.id} (${blade.symbol}) totalCost calc failed:`, err.message);
+        enriched.push({ ...blade, totalCost: 0 });
+      }
+    }
+    return enriched;
   },
 
   /**
@@ -171,12 +205,23 @@ export const AxialImpellerPricingService = {
   // ========================
 
   /**
-   * Get all hub pricing records
+   * Get all hub pricing records with calculated totalCost
    */
   async getAllHubs() {
-    return await prisma.axialImpellerHub.findMany({
+    const hubs = await prisma.axialImpellerHub.findMany({
       orderBy: [{ symbol: "asc" }, { material: "asc" }],
     });
+    const enriched = [];
+    for (const hub of hubs) {
+      try {
+        const calc = await this.calculateHubCost(hub);
+        enriched.push({ ...hub, totalCost: calc.totalCost });
+      } catch (err) {
+        console.warn(`[AxialImpeller] Hub ${hub.id} (${hub.symbol}) totalCost calc failed:`, err.message);
+        enriched.push({ ...hub, totalCost: 0 });
+      }
+    }
+    return enriched;
   },
 
   /**
@@ -259,12 +304,23 @@ export const AxialImpellerPricingService = {
   // ========================
 
   /**
-   * Get all frame pricing records
+   * Get all frame pricing records with calculated totalCost
    */
   async getAllFrames() {
-    return await prisma.axialImpellerFrame.findMany({
+    const frames = await prisma.axialImpellerFrame.findMany({
       orderBy: [{ material: "asc" }, { frameSizeMm: "asc" }],
     });
+    const enriched = [];
+    for (const frame of frames) {
+      try {
+        const calc = await this.calculateFrameCost(frame);
+        enriched.push({ ...frame, totalCost: calc.totalCost });
+      } catch (err) {
+        console.warn(`[AxialImpeller] Frame ${frame.id} (${frame.frameSizeMm}mm) totalCost calc failed:`, err.message);
+        enriched.push({ ...frame, totalCost: 0 });
+      }
+    }
+    return enriched;
   },
 
   /**
@@ -374,11 +430,14 @@ export const AxialImpellerPricingService = {
     );
 
     // Determine InjMachineCost based on material (A or P)
-    const injMachineCostSr =
+    // Aluminum: "Aluminum injection Small machine cost" or "Aluminum injection machine cost (AM)"
+    const injMachineCost =
       blade.material === "A"
-        ? "Aluminum injection machine cost"
-        : "PAG injection Small machine cost";
-    const injMachineCost = await getPricingItemByDescription(injMachineCostSr);
+        ? await getPricingItemByDescription(
+            "Aluminum injection Small machine cost",
+            "Aluminum injection machine cost"
+          )
+        : await getPricingItemByDescription("PAG injection Small machine cost");
 
     // BladeFactor only applies to Aluminum (A), otherwise 0
     const bladeFactor =

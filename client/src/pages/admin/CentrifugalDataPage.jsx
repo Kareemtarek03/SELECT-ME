@@ -14,7 +14,15 @@ import {
   CloseButton,
   Input,
 } from "@chakra-ui/react";
-import { FaDatabase, FaCog, FaList, FaFan, FaBox, FaSave, FaTimes } from "react-icons/fa";
+import {
+  FaDatabase,
+  FaCog,
+  FaList,
+  FaFan,
+  FaBox,
+  FaSave,
+  FaTimes,
+} from "react-icons/fa";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 import ExportImportButtons from "../../components/ExportImportButtons.jsx";
 import { CASING_TAB_CONFIG } from "../../utils/casingTabConfig.js";
@@ -67,6 +75,48 @@ const FAN_SCALAR_FIELDS = [
   { key: "RPM", label: "RPM", type: "number" },
 ];
 
+const FAN_ARRAY_FIELDS = [
+  { key: "airFlow", label: "Air Flow" },
+  { key: "totPressure", label: "Total Pressure" },
+  { key: "velPressure", label: "Velocity Pressure" },
+  { key: "fanInputPow", label: "Fan Input Power" },
+  { key: "staticPressure", label: "Static Pressure" },
+];
+
+function formatNumber(value, decimals = 2) {
+  if (value === null || value === undefined || value === "" || value === "-")
+    return "-";
+  return Number(value).toLocaleString(undefined, {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+function parseArrayVal(val) {
+  if (val == null || val === "") return [];
+  if (Array.isArray(val)) return val;
+  try {
+    const parsed = JSON.parse(val);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function getMaxArrayLengths(list) {
+  const max = {};
+  FAN_ARRAY_FIELDS.forEach(({ key }) => {
+    max[key] = 0;
+  });
+  list.forEach((row) => {
+    FAN_ARRAY_FIELDS.forEach(({ key }) => {
+      const arr = parseArrayVal(row[key]);
+      if (arr.length > max[key]) max[key] = arr.length;
+    });
+  });
+  return max;
+}
+
 function CentrifugalFansTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -85,6 +135,7 @@ function CentrifugalFansTab() {
       const r = await fetch(`${API}/api/centrifugal/fan-data/fan-data`);
       if (!r.ok) throw new Error(await r.text());
       const j = await r.json();
+      console.log(j.data);
       setList(j.data || []);
     } catch (e) {
       setError(e.message || "Failed to load");
@@ -196,6 +247,8 @@ function CentrifugalFansTab() {
   if (loading) return <Spinner size="lg" />;
   if (error) return <Alert status="error">{error}</Alert>;
 
+  const maxArrayLengths = getMaxArrayLengths(list);
+
   return (
     <Box>
       <Stack direction="row" mb={4} gap={2} flexWrap="wrap" alignItems="center">
@@ -224,7 +277,7 @@ function CentrifugalFansTab() {
         />
       </Stack>
       <Box
-        className="admin-table-container"
+        className="admin-table-container admin-table-fit-content"
         overflowX="auto"
         borderWidth="1px"
         borderRadius="lg"
@@ -236,11 +289,27 @@ function CentrifugalFansTab() {
           <Table.Header bg="var(--table-header-bg)">
             <Table.Row>
               <Table.ColumnHeader>Actions</Table.ColumnHeader>
-              <Table.ColumnHeader>Blades Type</Table.ColumnHeader>
-              <Table.ColumnHeader>Blades Model</Table.ColumnHeader>
-              <Table.ColumnHeader>RPM</Table.ColumnHeader>
-              <Table.ColumnHeader>Inner Diameter</Table.ColumnHeader>
-              <Table.ColumnHeader>Desig. Density</Table.ColumnHeader>
+              {FAN_SCALAR_FIELDS.map(({ key, label }) => (
+                <Table.ColumnHeader key={key}>{label}</Table.ColumnHeader>
+              ))}
+              {FAN_ARRAY_FIELDS.flatMap(({ key, label }) =>
+                Array.from(
+                  { length: Math.max(1, maxArrayLengths[key]) },
+                  (_, i) => (
+                    <Table.ColumnHeader
+                      key={`${key}-${i}`}
+                      style={{
+                        borderRight:
+                          i !== Math.max(1, maxArrayLengths[key]) - 1
+                            ? "none"
+                            : "1px solid var(--border-color)",
+                      }}
+                    >
+                      {label} {i + 1}
+                    </Table.ColumnHeader>
+                  ),
+                ),
+              )}
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -272,11 +341,26 @@ function CentrifugalFansTab() {
                     </Button>
                   </Stack>
                 </Table.Cell>
-                <Table.Cell>{row.bladesType ?? "-"}</Table.Cell>
-                <Table.Cell>{row.bladesModel ?? "-"}</Table.Cell>
-                <Table.Cell>{row.RPM ?? "-"}</Table.Cell>
-                <Table.Cell>{row.innerDiameter ?? "-"}</Table.Cell>
-                <Table.Cell>{row.desigDensity ?? "-"}</Table.Cell>
+                {FAN_SCALAR_FIELDS.map(({ key }) => (
+                  <Table.Cell key={key}>{row[key] ?? "-"}</Table.Cell>
+                ))}
+                {FAN_ARRAY_FIELDS.flatMap(({ key }) => {
+                  const arr = parseArrayVal(row[key]);
+                  const maxLen = Math.max(1, maxArrayLengths[key]);
+                  return Array.from({ length: maxLen }, (_, i) => (
+                    <Table.Cell
+                      key={`${key}-${i}`}
+                      style={{
+                        borderRight:
+                          i !== Math.max(1, maxArrayLengths[key]) - 1
+                            ? "none"
+                            : "1px solid var(--border-color)",
+                      }}
+                    >
+                      {formatNumber(arr[i] ?? "-", 2)}
+                    </Table.Cell>
+                  ));
+                })}
               </Table.Row>
             ))}
           </Table.Body>
@@ -426,8 +510,12 @@ function CentrifugalFansTab() {
 // Resolve nested keys like "casing.modelAndSize"
 const getCellVal = (row, key) => {
   const formatNumber = (value) => {
-    if (value === null || value === undefined || value === "" || value === "-") return "-";
-    return Number(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    if (value === null || value === undefined || value === "" || value === "-")
+      return "-";
+    return Number(value).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
   };
   if (key.includes(".")) {
     const value = key.split(".").reduce((o, k) => o?.[k], row) ?? "-";
@@ -463,25 +551,25 @@ function GenericCrudTab({
   const [editingRow, setEditingRow] = useState(null);
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
-  const [calculatePrice, setCalculatePrice] = useState(false);
-  const [calculatePriceResult, setCalculatePriceResult] = useState(null);
+  // const [calculatePrice, setCalculatePrice] = useState(false);
+  // const [calculatePriceResult, setCalculatePriceResult] = useState(null);
 
-  const handleCalculatePrice = async (row) => {
-    setCalculatePrice(true);
-    setCalculatePriceResult(null);
-    const r = await fetch(`${API}/api/centrifugal/data/casing-price`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(row),
-    });
-    if (!r.ok)
-      throw new Error(
-        (await r.json().catch(() => ({}))).error || "Calculate price failed",
-      );
-    const data = await r.json();
-    console.log("Calculate price result:", data);
-    setCalculatePriceResult(data);
-  };
+  // const handleCalculatePrice = async (row) => {
+  //   setCalculatePrice(true);
+  //   setCalculatePriceResult(null);
+  //   const r = await fetch(`${API}/api/centrifugal/data/casing-price`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(row),
+  //   });
+  //   if (!r.ok)
+  //     throw new Error(
+  //       (await r.json().catch(() => ({}))).error || "Calculate price failed",
+  //     );
+  //   const data = await r.json();
+  //   console.log("Calculate price result:", data);
+  //   setCalculatePriceResult(data);
+  // };
   const fetchData = async () => {
     setLoading(true);
     setError(null);
@@ -614,7 +702,11 @@ function GenericCrudTab({
           Refresh
         </Button>
         {exportPath && importPath && (
-          <ExportImportButtons exportPath={exportPath} importPath={importPath} onImportDone={fetchData} />
+          <ExportImportButtons
+            exportPath={exportPath}
+            importPath={importPath}
+            onImportDone={fetchData}
+          />
         )}
       </Stack>
       <Box
@@ -636,26 +728,39 @@ function GenericCrudTab({
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {list.length === 0 && <Table.Row><Table.Cell colSpan={columns?.length ? columns.length + 1 : formFields?.length + 1}><Text textAlign="center">No data.</Text></Table.Cell></Table.Row>}
-            {list.length > 0 && list.map((row, idx) => (
-              <Table.Row
-                key={getRowId(row)}
-                bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}
-              >
-                <Table.Cell>
-                  <Stack direction="row" gap={1}>
-                    {formFields?.length > 0 && (
-                      <Button
-                        size="xs"
-                        bg="var(--btn-secondary)"
-                        color="white"
-                        _hover={{ bg: "var(--btn-secondary-hover)" }}
-                        onClick={() => openEdit(row)}
-                      >
-                        Edit
-                      </Button>
-                    )}
-                    {/* <Button
+            {list.length === 0 && (
+              <Table.Row>
+                <Table.Cell
+                  colSpan={
+                    columns?.length
+                      ? columns.length + 1
+                      : formFields?.length + 1
+                  }
+                >
+                  <Text textAlign="center">No data.</Text>
+                </Table.Cell>
+              </Table.Row>
+            )}
+            {list.length > 0 &&
+              list.map((row, idx) => (
+                <Table.Row
+                  key={getRowId(row)}
+                  bg={idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)"}
+                >
+                  <Table.Cell>
+                    <Stack direction="row" gap={1}>
+                      {formFields?.length > 0 && (
+                        <Button
+                          size="xs"
+                          bg="var(--btn-secondary)"
+                          color="white"
+                          _hover={{ bg: "var(--btn-secondary-hover)" }}
+                          onClick={() => openEdit(row)}
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {/* <Button
                       size="xs"
                       bg="var(--btn-primary)"
                       color="white"
@@ -664,28 +769,30 @@ function GenericCrudTab({
                     >
                       Calculate Price
                     </Button> */}
-                    {/* {calculatePriceResult && (
+                      {/* {calculatePriceResult && (
                       <Text fontSize="xs" color="var(--text-muted)">
                         {calculatePriceResult.price}
                       </Text>
                     )} */}
-                    <Button
-                      size="xs"
-                      bg="var(--btn-danger)"
-                      color="white"
-                      _hover={{ bg: "var(--btn-danger-hover)" }}
-                      isLoading={deletingIds.includes(getRowId(row))}
-                      onClick={() => setConfirmDelete(row)}
-                    >
-                      Delete
-                    </Button>
-                  </Stack>
-                </Table.Cell>
-                {(columns?.length ? columns : formFields).map((c) => (
-                  <Table.Cell key={c.key}>{getCellVal(row, c.key)}</Table.Cell>
-                ))}
-              </Table.Row>
-            ))}
+                      <Button
+                        size="xs"
+                        bg="var(--btn-danger)"
+                        color="white"
+                        _hover={{ bg: "var(--btn-danger-hover)" }}
+                        isLoading={deletingIds.includes(getRowId(row))}
+                        onClick={() => setConfirmDelete(row)}
+                      >
+                        Delete
+                      </Button>
+                    </Stack>
+                  </Table.Cell>
+                  {(columns?.length ? columns : formFields).map((c) => (
+                    <Table.Cell key={c.key}>
+                      {getCellVal(row, c.key)}
+                    </Table.Cell>
+                  ))}
+                </Table.Row>
+              ))}
           </Table.Body>
         </Table.Root>
       </Box>
@@ -765,9 +872,7 @@ function GenericCrudTab({
                 <Dialog.Header>
                   <Dialog.Title>Delete?</Dialog.Title>
                 </Dialog.Header>
-                <Dialog.Body>
-                  This cannot be undone.
-                </Dialog.Body>
+                <Dialog.Body>This cannot be undone.</Dialog.Body>
                 <Dialog.Footer>
                   <Button
                     variant="outline"
@@ -1009,12 +1114,20 @@ export default function CentrifugalDataPage() {
             )}
             {activeTab === "casing" && (
               <Box>
-                <Stack direction="row" mb={4} gap={2} flexWrap="wrap" alignItems="center">
+                <Stack
+                  direction="row"
+                  mb={4}
+                  gap={2}
+                  flexWrap="wrap"
+                  alignItems="center"
+                >
                   <ExportImportButtons
                     exportPath="/api/centrifugal/data/export/casing-all"
                     importPath="/api/centrifugal/data/import/casing-all"
                   />
-                  <Text fontSize="xs" color="var(--text-muted)">Export/Import all casing tables at once (multi-sheet Excel)</Text>
+                  <Text fontSize="xs" color="var(--text-muted)">
+                    Export/Import all casing tables at once (multi-sheet Excel)
+                  </Text>
                 </Stack>
                 <Box
                   display="flex"

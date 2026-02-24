@@ -42,7 +42,7 @@ const HEADERS = [
   "Transport",
   "Packing",
   "Steel Balls",
-
+  "Total Cost w/ VAT",
   "Actions",
 ];
 
@@ -290,7 +290,11 @@ export default function ImpellerBladesTable({
                       <TableCell>{item.transportationCost}</TableCell>
                       <TableCell>{item.packingCost}</TableCell>
                       <TableCell>{item.steelBallsCost}</TableCell>
-
+                      <TableCell>
+                        {item.totalCost != null
+                          ? Number(item.totalCost).toFixed(2)
+                          : "-"}
+                      </TableCell>
                       <TableCell isLast>
                         <ViewModeButtons
                           onEdit={() => handleEdit(item)}

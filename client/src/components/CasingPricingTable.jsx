@@ -82,8 +82,9 @@ export default function CasingPricingTable({
     onUpdate,
     getAuthHeaders,
     setAlert,
-    "Casing"
+    "Casing",
   );
+
   const formatNumber = (price) => {
     if (price === null || price === undefined) return "—";
     const num = typeof price === "number" ? price : parseFloat(price);
@@ -105,20 +106,132 @@ export default function CasingPricingTable({
           setNewItem(INITIAL_FORM);
         }}
       >
-        <Input placeholder="Model" value={newItem.model} onChange={(e) => setNewItem({ ...newItem, model: e.target.value })} {...inputProps} />
-        <Input placeholder="Size (mm)" type="number" value={newItem.sizeMm} onChange={(e) => setNewItem({ ...newItem, sizeMm: e.target.value })} {...inputProps} />
-        <Input placeholder="Weight (kg) w/o Scrap" type="number" value={newItem.casingWeightKgWithoutScrap} onChange={(e) => setNewItem({ ...newItem, casingWeightKgWithoutScrap: e.target.value })} {...inputProps} />
-        <Input placeholder="Scrap %" type="number" value={newItem.scrapPercentage} onChange={(e) => setNewItem({ ...newItem, scrapPercentage: e.target.value })} {...inputProps} />
-        <Input placeholder="Circumference (m)" type="number" value={newItem.casingCircumferenceMeter} onChange={(e) => setNewItem({ ...newItem, casingCircumferenceMeter: e.target.value })} {...inputProps} />
-        <Input placeholder="Laser Time (min)" type="number" value={newItem.laserTimeMinutes} onChange={(e) => setNewItem({ ...newItem, laserTimeMinutes: e.target.value })} {...inputProps} />
-        <Input placeholder="Bending Line" type="number" value={newItem.bendingLine} onChange={(e) => setNewItem({ ...newItem, bendingLine: e.target.value })} {...inputProps} />
-        <Input placeholder="Rolling" type="number" value={newItem.rolling} onChange={(e) => setNewItem({ ...newItem, rolling: e.target.value })} {...inputProps} />
-        <Input placeholder="Painting Ø" type="number" value={newItem.paintingDiameter} onChange={(e) => setNewItem({ ...newItem, paintingDiameter: e.target.value })} {...inputProps} />
-        <Input placeholder="Profit %" type="number" value={newItem.profitPercentage} onChange={(e) => setNewItem({ ...newItem, profitPercentage: e.target.value })} {...inputProps} />
-        <Input placeholder="Accessory 1 Desc" value={newItem.accessory1Description} onChange={(e) => setNewItem({ ...newItem, accessory1Description: e.target.value })} {...inputProps} />
-        <Input placeholder="Accessory 1 Price" type="number" value={newItem.accessory1PriceWithoutVat} onChange={(e) => setNewItem({ ...newItem, accessory1PriceWithoutVat: e.target.value })} {...inputProps} />
-        <Input placeholder="Accessory 2 Desc" value={newItem.accessory2Description} onChange={(e) => setNewItem({ ...newItem, accessory2Description: e.target.value })} {...inputProps} />
-        <Input placeholder="Accessory 2 Price" type="number" value={newItem.accessory2PriceWithoutVat} onChange={(e) => setNewItem({ ...newItem, accessory2PriceWithoutVat: e.target.value })} {...inputProps} />
+        <Input
+          placeholder="Model"
+          value={newItem.model}
+          onChange={(e) => setNewItem({ ...newItem, model: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Size (mm)"
+          type="number"
+          value={newItem.sizeMm}
+          onChange={(e) => setNewItem({ ...newItem, sizeMm: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Weight (kg) w/o Scrap"
+          type="number"
+          value={newItem.casingWeightKgWithoutScrap}
+          onChange={(e) =>
+            setNewItem({
+              ...newItem,
+              casingWeightKgWithoutScrap: e.target.value,
+            })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Scrap %"
+          type="number"
+          value={newItem.scrapPercentage}
+          onChange={(e) =>
+            setNewItem({ ...newItem, scrapPercentage: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Circumference (m)"
+          type="number"
+          value={newItem.casingCircumferenceMeter}
+          onChange={(e) =>
+            setNewItem({ ...newItem, casingCircumferenceMeter: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Laser Time (min)"
+          type="number"
+          value={newItem.laserTimeMinutes}
+          onChange={(e) =>
+            setNewItem({ ...newItem, laserTimeMinutes: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Bending Line"
+          type="number"
+          value={newItem.bendingLine}
+          onChange={(e) =>
+            setNewItem({ ...newItem, bendingLine: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Rolling"
+          type="number"
+          value={newItem.rolling}
+          onChange={(e) => setNewItem({ ...newItem, rolling: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Painting Ø"
+          type="number"
+          value={newItem.paintingDiameter}
+          onChange={(e) =>
+            setNewItem({ ...newItem, paintingDiameter: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Profit %"
+          type="number"
+          value={newItem.profitPercentage}
+          onChange={(e) =>
+            setNewItem({ ...newItem, profitPercentage: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Accessory 1 Desc"
+          value={newItem.accessory1Description}
+          onChange={(e) =>
+            setNewItem({ ...newItem, accessory1Description: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Accessory 1 Price"
+          type="number"
+          value={newItem.accessory1PriceWithoutVat}
+          onChange={(e) =>
+            setNewItem({
+              ...newItem,
+              accessory1PriceWithoutVat: e.target.value,
+            })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Accessory 2 Desc"
+          value={newItem.accessory2Description}
+          onChange={(e) =>
+            setNewItem({ ...newItem, accessory2Description: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Accessory 2 Price"
+          type="number"
+          value={newItem.accessory2PriceWithoutVat}
+          onChange={(e) =>
+            setNewItem({
+              ...newItem,
+              accessory2PriceWithoutVat: e.target.value,
+            })
+          }
+          {...inputProps}
+        />
       </AddFormBox>
 
       <PricingTableWrapper
@@ -296,19 +409,31 @@ export default function CasingPricingTable({
                     <>
                       <TableCell>{item.model}</TableCell>
                       <TableCell>{formatNumber(item.sizeMm)}</TableCell>
-                      <TableCell>{formatNumber(item.casingWeightKgWithoutScrap)}</TableCell>
-                      <TableCell>{formatNumber(item.scrapPercentage)}</TableCell>
+                      <TableCell>
+                        {formatNumber(item.casingWeightKgWithoutScrap)}
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber(item.scrapPercentage)}
+                      </TableCell>
                       <TableCell>
                         {item.weightWithScrap
                           ? item.weightWithScrap.toFixed(3)
                           : "-"}
                       </TableCell>
-                      <TableCell>{formatNumber(item.casingCircumferenceMeter)}</TableCell>
-                      <TableCell>{formatNumber(item.laserTimeMinutes)}</TableCell>
+                      <TableCell>
+                        {formatNumber(item.casingCircumferenceMeter)}
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber(item.laserTimeMinutes)}
+                      </TableCell>
                       <TableCell>{formatNumber(item.bendingLine)}</TableCell>
                       <TableCell>{formatNumber(item.rolling)}</TableCell>
-                      <TableCell>{formatNumber(item.paintingDiameter)}</TableCell>
-                      <TableCell>{formatNumber(item.profitPercentage)}</TableCell>
+                      <TableCell>
+                        {formatNumber(item.paintingDiameter)}
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber(item.profitPercentage)}
+                      </TableCell>
                       <TableCell>{item.accessory1Description || "-"}</TableCell>
                       <TableCell>
                         {formatNumber(item.accessory1PriceWithoutVat) || "-"}

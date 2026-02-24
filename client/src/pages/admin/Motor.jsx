@@ -535,7 +535,7 @@ export default function MotorPage() {
       <Text mb={4}>{motors.length} Motors Found</Text>
       {motors.length > 0 && (
         <Box
-          className="admin-table-container"
+          className="admin-table-container admin-table-fit-content"
           overflowX="auto"
           borderWidth="1px"
           borderRadius="lg"

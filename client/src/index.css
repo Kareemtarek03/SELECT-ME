@@ -43,6 +43,17 @@
   background: var(--bg-elevated) !important;
 }
 
+/* Admin table with content-fit columns (no squishing) */
+.admin-table-container.admin-table-fit-content table {
+  width: max-content;
+  table-layout: auto;
+}
+.admin-table-container.admin-table-fit-content thead th,
+.admin-table-container.admin-table-fit-content tbody td {
+  white-space: nowrap;
+  padding: 0.5rem 0.75rem;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',

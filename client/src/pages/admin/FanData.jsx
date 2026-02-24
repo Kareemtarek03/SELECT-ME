@@ -34,19 +34,28 @@ export default function FanDataPage() {
     setLoading(true);
     setError(null);
     try {
-      console.log("process.env.REACT_APP_API_BASE_URL",process.env.REACT_APP_API_BASE_URL)
+      console.log(
+        "process.env.REACT_APP_API_BASE_URL",
+        process.env.REACT_APP_API_BASE_URL,
+      );
       const resp = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/fan-data`
+        `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/fan-data`,
       );
       if (!resp.ok) {
         const text = await resp.text();
         throw new Error(`API error: ${resp.status} ${text}`);
       }
-      console.log("resp",resp)
+      console.log("resp", resp);
       const data = await resp.json();
       const rawList = Array.isArray(data) ? data : data.data || [];
       // API may return array fields as JSON strings (e.g. from SQLite); parse so table can use them
-      const SERIES_KEYS = ["airFlow", "totPressure", "staticPressure", "velPressure", "fanInputPow"];
+      const SERIES_KEYS = [
+        "airFlow",
+        "totPressure",
+        "staticPressure",
+        "velPressure",
+        "fanInputPow",
+      ];
       const list = rawList.map((item) => {
         const out = { ...item };
         SERIES_KEYS.forEach((k) => {
@@ -75,14 +84,22 @@ export default function FanDataPage() {
       return v
         .map((n) =>
           typeof n === "number"
-            ? n.toLocaleString(undefined, { maximumFractionDigits: 6 })
-            : String(n)
+            ? n.toLocaleString(undefined, { maximumFractionDigits: 3 })
+            : String(n),
         )
         .join(", ");
     if (typeof v === "object") return JSON.stringify(v);
     if (typeof v === "number")
       return v.toLocaleString(undefined, { maximumFractionDigits: 6 });
     return String(v);
+  };
+  const formatNumber = (value, decimals = 3) => {
+    if (value === null || value === undefined || value === "" || value === "-")
+      return "-";
+    return Number(value).toLocaleString(undefined, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
   };
   const downloadFanTemplate = async () => {
     // expects pre-made file at /templates/FanData-template.xlsx in the client public folder
@@ -112,7 +129,7 @@ export default function FanDataPage() {
       setDeletingIds((s) => [...s, fanId]);
       const resp = await fetch(
         `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/${fanId}`,
-        { method: "DELETE" }
+        { method: "DELETE" },
       );
       if (!resp.ok) {
         const j = await resp.json().catch(() => null);
@@ -134,17 +151,17 @@ export default function FanDataPage() {
     new Set(
       fans.flatMap((item) =>
         Object.keys(item).filter(
-          (k) => Array.isArray(item[k]) && item[k].length
-        )
-      )
-    )
+          (k) => Array.isArray(item[k]) && item[k].length,
+        ),
+      ),
+    ),
   );
 
   // determine maximum length per series key across all fans
   const seriesKeyMaxLen = seriesKeysUnion.reduce((acc, k) => {
     acc[k] = Math.max(
       ...fans.map((f) => (Array.isArray(f[k]) ? f[k].length : 0)),
-      0
+      0,
     );
     return acc;
   }, {});
@@ -158,7 +175,7 @@ export default function FanDataPage() {
       else if (k == "velPressure") return `Velocity Pressure - ${i + 1}`;
       else if (k == "fanInputPow") return `Fan Input Power - ${i + 1}`;
       else return `${k} - ${i + 1}`;
-    })
+    }),
   );
 
   // rows: one per fan. If Id missing, make a temporary auto-increment id (1-based index)
@@ -181,14 +198,14 @@ export default function FanDataPage() {
           k == "airFlow"
             ? `Air Flow - ${i + 1}`
             : k == "totPressure"
-            ? `Total Pressure - ${i + 1}`
-            : k == "staticPressure"
-            ? `Static Pressure - ${i + 1}`
-            : k == "velPressure"
-            ? `Velocity Pressure - ${i + 1}`
-            : k == "fanInputPow"
-            ? `Fan Input Power - ${i + 1}`
-            : `${k} - ${i + 1}`
+              ? `Total Pressure - ${i + 1}`
+              : k == "staticPressure"
+                ? `Static Pressure - ${i + 1}`
+                : k == "velPressure"
+                  ? `Velocity Pressure - ${i + 1}`
+                  : k == "fanInputPow"
+                    ? `Fan Input Power - ${i + 1}`
+                    : `${k} - ${i + 1}`
         ] = i < arr.length ? arr[i] : undefined;
       }
     });
@@ -208,11 +225,21 @@ export default function FanDataPage() {
 
   return (
     <Box p={4} bg="var(--bg-page)" color="var(--text-primary)">
-      <Heading mb={4} fontSize={"2xl"} fontWeight="bold" color="var(--text-primary)">
+      <Heading
+        mb={4}
+        fontSize={"2xl"}
+        fontWeight="bold"
+        color="var(--text-primary)"
+      >
         Fan Data
       </Heading>
 
-      <Stack direction={"row"} justifyContent={"space-between"} flexWrap="wrap" gap={4}>
+      <Stack
+        direction={"row"}
+        justifyContent={"space-between"}
+        flexWrap="wrap"
+        gap={4}
+      >
         <Box mb={4} display="flex" gap={2} alignItems="center">
           <Button
             size="sm"
@@ -277,7 +304,7 @@ export default function FanDataPage() {
                       fileBase64: base64,
                       filename: f.name,
                     }),
-                  }
+                  },
                 );
                 const json = await resp.json().catch(() => ({}));
                 if (!resp.ok)
@@ -285,7 +312,7 @@ export default function FanDataPage() {
                     json?.error ||
                       json?.details ||
                       resp.statusText ||
-                      "Import failed"
+                      "Import failed",
                   );
                 setImportMessage("Import successful");
                 await fetchData();
@@ -309,7 +336,7 @@ export default function FanDataPage() {
                 setDownloading(true);
                 setExportMessage(null);
                 const resp = await fetch(
-                  `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/export`
+                  `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/export`,
                 );
                 if (!resp.ok) {
                   const txt = await resp.text().catch(() => null);
@@ -320,11 +347,11 @@ export default function FanDataPage() {
 
                 if (cd) {
                   const m = cd.match(
-                    /filename\*=UTF-8''(.+)$|filename="?([^";]+)"?/i
+                    /filename\*=UTF-8''(.+)$|filename="?([^";]+)"?/i,
                   );
                   if (m) {
                     filename = decodeURIComponent(
-                      (m[1] || m[2] || filename).trim()
+                      (m[1] || m[2] || filename).trim(),
                     );
                   }
                 }
@@ -380,8 +407,6 @@ export default function FanDataPage() {
         </Alert.Root>
       )}
 
-      
-
       {error && (
         <Alert.Root status="error" mb={4}>
           <Alert.Title>Error</Alert.Title>
@@ -400,7 +425,7 @@ export default function FanDataPage() {
           </Text>
 
           <Box
-            className="admin-table-container"
+            className="admin-table-container admin-table-fit-content"
             overflowX="auto"
             borderWidth="1px"
             borderRadius="lg"
@@ -409,12 +434,26 @@ export default function FanDataPage() {
             boxShadow="0 1px 3px rgba(0,0,0,0.08)"
           >
             <Table.Root bg="transparent" w={"max-content"}>
-              <Table.Header bg="var(--table-header-bg)" color="var(--text-primary)">
-                <Table.Row bg="var(--table-header-bg)" color="var(--text-primary)">
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+              <Table.Header
+                bg="var(--table-header-bg)"
+                color="var(--text-primary)"
+              >
+                <Table.Row
+                  bg="var(--table-header-bg)"
+                  color="var(--text-primary)"
+                >
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Actions
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Designated Density
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
@@ -425,13 +464,25 @@ export default function FanDataPage() {
                   >
                     Speed (RPM)
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Blade Symbol
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Blade Material
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Blade Angle
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
@@ -442,7 +493,11 @@ export default function FanDataPage() {
                   >
                     Number of Blades
                   </Table.ColumnHeader>
-                  <Table.ColumnHeader color="var(--text-primary)" fontWeight="600" borderBottom="2px solid var(--table-header-border)">
+                  <Table.ColumnHeader
+                    color="var(--text-primary)"
+                    fontWeight="600"
+                    borderBottom="2px solid var(--table-header-border)"
+                  >
                     Impeller Inner Diameter
                   </Table.ColumnHeader>
                   <Table.ColumnHeader
@@ -457,7 +512,9 @@ export default function FanDataPage() {
                     const end = col.endsWith("10");
                     return (
                       <Table.ColumnHeader
-                        borderRight={end ? "1px solid var(--border-color)" : "none"}
+                        borderRight={
+                          end ? "1px solid var(--border-color)" : "none"
+                        }
                         color="var(--text-primary)"
                         fontWeight="600"
                         borderBottom="2px solid var(--table-header-border)"
@@ -472,7 +529,8 @@ export default function FanDataPage() {
 
               <Table.Body borderColor="var(--border-color)">
                 {pageRows.map((r, idx) => {
-                  const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
+                  const rowBg =
+                    idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
                   // Show row if it has an Id (or at least one series value when we have series columns)
                   const hasId = r.Id != null && r.Id !== "";
                   const hasSeriesData =
@@ -549,11 +607,13 @@ export default function FanDataPage() {
                         const end = col.endsWith("10");
                         return (
                           <Table.Cell
-                            borderRight={end ? "1px solid var(--border-color)" : "none"}
+                            borderRight={
+                              end ? "1px solid var(--border-color)" : "none"
+                            }
                             borderBottomColor="var(--border-color)"
                             key={col}
                           >
-                            {formatValue(r[col])}
+                            {formatNumber(r[col])}
                           </Table.Cell>
                         );
                       })}
@@ -595,14 +655,22 @@ export default function FanDataPage() {
         <Portal>
           <Dialog.Backdrop />
           <Dialog.Positioner>
-            <Dialog.Content bg="var(--bg-card)" color="var(--text-primary)" border="1px solid var(--border-color)" boxShadow="0 4px 12px rgba(0,0,0,0.15)">
+            <Dialog.Content
+              bg="var(--bg-card)"
+              color="var(--text-primary)"
+              border="1px solid var(--border-color)"
+              boxShadow="0 4px 12px rgba(0,0,0,0.15)"
+            >
               <Dialog.Header>
-                <Dialog.Title color="var(--text-primary)">Delete Fan Data</Dialog.Title>
+                <Dialog.Title color="var(--text-primary)">
+                  Delete Fan Data
+                </Dialog.Title>
               </Dialog.Header>
               <Dialog.Body>
                 {selectedFan ? (
-                  <Text color="#64748b">  
-                    Are you sure you want to delete this fan? This cannot be undone.
+                  <Text color="#64748b">
+                    Are you sure you want to delete this fan? This cannot be
+                    undone.
                   </Text>
                 ) : (
                   <Text color="#64748b">No fan selected.</Text>

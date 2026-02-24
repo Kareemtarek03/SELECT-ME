@@ -112,7 +112,6 @@ export default function ImpellerHubsTable({
           </Table.Header>
           <Table.Body borderColor="var(--border-color)">
             {hubs.map((item, idx) => {
-              console.log("Rendering hub item:", item);
               const rowBg = idx % 2 === 0 ? "var(--bg-page)" : "var(--bg-card)";
               return (
                 <Table.Row
@@ -212,7 +211,9 @@ export default function ImpellerHubsTable({
                       <TableCell>{item.transportationCost}</TableCell>
                       <TableCell>{item.packingCost}</TableCell>
                       <TableCell>
-                        {item.totalCost ? item.totalCost.toFixed(2) : "-"}
+                        {item.totalCost != null
+                          ? Number(item.totalCost).toFixed(2)
+                          : "-"}
                       </TableCell>
                       <TableCell isLast>
                         <ViewModeButtons
