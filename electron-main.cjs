@@ -1370,7 +1370,7 @@ function startServer() {
 
                     if (fanCount > 0 || centrifugalCount > 0) {
                       console.log(
-                        "✅ Database already has data - skipping migrations and seeding"
+                        "✅ Database already has data - skipping seeding (migrations will still run)"
                       );
                       databaseNeedsSetup = false;
                     } else {
@@ -1397,38 +1397,35 @@ function startServer() {
             }
           }
 
-          // Only run migrations and seeding if database needs setup
-          if (databaseNeedsSetup) {
-            // First, ensure database schema is up to date by running migrations
-            if (!isDev) {
-              try {
-                const migrationRunnerPath = getModulePath(
-                  "server/services/migrationRunner.service.js"
-                );
-                const { runMigrations } = await import(migrationRunnerPath);
-                // Get the database path from the environment variable we set earlier
-                const dbPathFromEnv = process.env.DATABASE_URL
-                  ? process.env.DATABASE_URL.replace(/^file:/, "")
-                  : null;
-                if (dbPathFromEnv) {
-                  console.log("🔄 Ensuring database schema is up to date...");
-                  // Normalize path for Windows (convert forward slashes back if needed)
-                  const normalizedPath = dbPathFromEnv.replace(/\//g, path.sep);
-                  await runMigrations(normalizedPath);
-                } else {
-                  console.warn("⚠️ DATABASE_URL not set, skipping migrations");
-                }
-              } catch (migrationErr) {
-                console.error(
-                  "⚠️ Migration runner failed (will continue with seeding):",
-                  migrationErr.message
-                );
-                console.error("Migration error details:", migrationErr);
-                // Continue with seeding even if migrations fail
+          // Always run migrations to apply pending schema changes
+          if (!isDev) {
+            try {
+              const migrationRunnerPath = getModulePath(
+                "server/services/migrationRunner.service.js"
+              );
+              const { runMigrations } = await import(migrationRunnerPath);
+              const dbPathFromEnv = process.env.DATABASE_URL
+                ? process.env.DATABASE_URL.replace(/^file:/, "")
+                : null;
+              if (dbPathFromEnv) {
+                console.log("🔄 Ensuring database schema is up to date...");
+                const normalizedPath = dbPathFromEnv.replace(/\//g, path.sep);
+                await runMigrations(normalizedPath);
+              } else {
+                console.warn("⚠️ DATABASE_URL not set, skipping migrations");
               }
+            } catch (migrationErr) {
+              console.error(
+                "⚠️ Migration runner failed (will continue):",
+                migrationErr.message
+              );
+              console.error("Migration error details:", migrationErr);
             }
+          }
 
-            // Then initialize and seed the database
+          // Only run seeding if database needs setup
+          if (databaseNeedsSetup) {
+            // Initialize and seed the database
             const dbInitPath = getModulePath(
               "server/services/databaseInit.service.js"
             );
