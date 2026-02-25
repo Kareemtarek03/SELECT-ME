@@ -641,7 +641,7 @@ function startServer() {
               "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
             )
           );
-          const result = centrifugalService.processPhase11(req.body);
+          const result = await centrifugalService.processPhase11(req.body);
           res.json({
             message: "✅ Phase 11 calculated successfully!",
             phase11: result,
@@ -659,7 +659,7 @@ function startServer() {
               "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
             )
           );
-          const result = centrifugalService.processPhase12(req.body);
+          const result = await centrifugalService.processPhase12(req.body);
           res.json({
             message: "✅ Phase 12 calculated successfully!",
             phase12: result,
@@ -677,7 +677,7 @@ function startServer() {
               "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
             )
           );
-          const result = centrifugalService.processPhase13(req.body);
+          const result = await centrifugalService.processPhase13(req.body);
           res.json({
             message: "✅ Phase 13 calculated successfully!",
             phase13: result,
@@ -695,7 +695,7 @@ function startServer() {
               "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
             )
           );
-          const result = centrifugalService.processPhase14(req.body);
+          const result = await centrifugalService.processPhase14(req.body);
           res.json({
             message: "✅ Phase 14 calculated successfully!",
             phase14: result,
@@ -713,7 +713,7 @@ function startServer() {
               "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
             )
           );
-          const result = centrifugalService.processPhase15(req.body);
+          const result = await centrifugalService.processPhase15(req.body);
           res.json({
             message: "✅ Phase 15 calculated successfully!",
             phase15: result,
