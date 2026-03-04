@@ -9,9 +9,10 @@ export default function HamburgerMenu() {
         { label: "Home", path: "/fan-categories", icon: "🏠" },
         { label: "Axial Catalog", path: "/catalogs", icon: "📄" },
         { label: "Unit Converter", path: "/unit-converter", icon: "⚙️" },
-        { label: "Axial Data", path: "/admin/axial", icon: "📋" },
-        { label: "Common Data", path: "/admin/common", icon: "⚙️" },
+        { label: "Axial Fan Data", path: "/admin/axial-fan-data", icon: "📋" },
+        { label: "Motor Data", path: "/admin/motor", icon: "⚙️" },
         { label: "Centrifugal Data", path: "/admin/centrifugal", icon: "💨" },
+        { label: "Pricing", path: "/admin/pricing", icon: "💰" },
     ];
 
     return (

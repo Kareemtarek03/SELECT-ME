@@ -1,27 +1,28 @@
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Box, Text, Heading, Button } from "@chakra-ui/react";
-import { FaDatabase, FaList } from "react-icons/fa";
-import HamburgerMenu from "../../components/HamburgerMenu.jsx";
-import FanData from "../admin/FanData";
-import AxialPricingTabsPage from "./pricing/AxialPricingTabsPage";
+import { FaFan, FaCog, FaList } from "react-icons/fa";
+import HamburgerMenu from "../../components/HamburgerMenu";
+import AxialPricingTabsPage from "../axial/pricing/AxialPricingTabsPage";
+import PricingItemsTab from "../axial/pricing/PricingItemsTab";
+import CentrifugalCasingPricingSection from "./CentrifugalCasingPricingSection";
 
 const TABS = [
-  { id: "fans", name: "Fans", icon: FaDatabase },
-  { id: "pricing", name: "Pricing", icon: FaList },
+  { id: "axial", name: "Axial", icon: FaFan },
+  { id: "centrifugal", name: "Centrifugal", icon: FaCog },
+  { id: "pricing-items", name: "Pricing Items", icon: FaList },
 ];
 
 const VALID_TABS = new Set(TABS.map((t) => t.id));
 
-export default function AxialDataPage() {
+export default function AdminPricingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const tabFromUrl = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(
-    tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : "fans"
+    tabFromUrl && VALID_TABS.has(tabFromUrl) ? tabFromUrl : "axial"
   );
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (tabFromUrl && VALID_TABS.has(tabFromUrl) && tabFromUrl !== activeTab) {
       setActiveTab(tabFromUrl);
     }
@@ -37,25 +38,20 @@ export default function AxialDataPage() {
       <HamburgerMenu />
       <Box pt={{ base: "80px", md: "100px" }} pb={8} px={{ base: 4, md: 6, lg: 8 }}>
         <Box w="100%" mx="auto">
-          <Box mb={6} display="flex" justifyContent="space-between" alignItems="flex-start" flexWrap="wrap" gap={4}>
-            <Box>
-              <Heading as="h1" size="xl" color="var(--text-primary)" fontWeight="bold" mb={2}>
-                Axial Data
-              </Heading>
-              <Text color="var(--text-muted)" fontSize="md">
-                Manage fan data and axial pricing (accessories, impeller, casing). Motor and pricing items are in Common Data.
-              </Text>
-            </Box>
-            <Button
-              size="sm"
-              variant="outline"
-              colorScheme="green"
-              onClick={() => navigate("/admin/pricing")}
-            >
-              Open Pricing
-            </Button>
+          <Box mb={6}>
+            <Heading as="h1" size="xl" color="var(--text-primary)" fontWeight="bold" mb={2}>
+              Pricing
+            </Heading>
+            <Text color="var(--text-muted)" fontSize="md">
+              Axial pricing (accessories, impeller, casing), centrifugal casing pricing, and pricing items.
+            </Text>
           </Box>
-          <Box display="flex" gap={2} borderBottom="1px solid var(--border-color)" pb={4}>
+          <Box
+            display="flex"
+            gap={2}
+            borderBottom="1px solid var(--border-color)"
+            pb={4}
+          >
             {TABS.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -87,9 +83,12 @@ export default function AxialDataPage() {
               );
             })}
           </Box>
-          <Box>
-            {activeTab === "fans" && <FanData />}
-            {activeTab === "pricing" && <AxialPricingTabsPage hidePricingItemsTab />}
+          <Box mt={6}>
+            {activeTab === "axial" && (
+              <AxialPricingTabsPage hidePricingItemsTab />
+            )}
+            {activeTab === "centrifugal" && <CentrifugalCasingPricingSection />}
+            {activeTab === "pricing-items" && <PricingItemsTab />}
           </Box>
         </Box>
       </Box>

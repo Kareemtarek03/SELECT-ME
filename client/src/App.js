@@ -20,9 +20,10 @@ import AxialResultsPage from "./pages/axial/AxialResultsPage";
 import AxialGraphDetailPage from "./pages/axial/AxialGraphDetailPage";
 
 // Admin pages
-import AxialDataPage from "./pages/axial/AxialDataPage";
-import CommonDataPage from "./pages/admin/CommonDataPage";
+import AxialFanDataPage from "./pages/admin/AxialFanDataPage";
+import MotorDataPage from "./pages/admin/MotorDataPage";
 import CentrifugalDataPage from "./pages/admin/CentrifugalDataPage";
+import AdminPricingPage from "./pages/admin/AdminPricingPage";
 // Centrifugal fan pages
 import CentrifugalFanTypesPage from "./pages/centrifugal/CentrifugalFanTypesPage";
 import CentrifugalFanSelectionPage from "./pages/centrifugal/CentrifugalFanSelectionPage";
@@ -49,24 +50,24 @@ function App() {
           {/* Landing Page - Default route */}
           <Route path="/" element={<LandingPage />} />
 
-          {/* Admin - /admin redirects to axial; direct routes below */}
+          {/* Admin - /admin redirects to axial fan data; order: 1 Axial Fan, 2 Motor, 3 Centrifugal, 4 Pricing */}
           <Route
             path="/admin"
-            element={<Navigate to="/admin/axial" replace />}
+            element={<Navigate to="/admin/axial-fan-data" replace />}
           />
           <Route
-            path="/admin/axial"
+            path="/admin/axial-fan-data"
             element={
               <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
-                <AxialDataPage />
+                <AxialFanDataPage />
               </div>
             }
           />
           <Route
-            path="/admin/common"
+            path="/admin/motor"
             element={
               <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
-                <CommonDataPage />
+                <MotorDataPage />
               </div>
             }
           />
@@ -75,6 +76,14 @@ function App() {
             element={
               <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
                 <CentrifugalDataPage />
+              </div>
+            }
+          />
+          <Route
+            path="/admin/pricing"
+            element={
+              <div style={{ minHeight: "100vh", background: "#f8fafc" }}>
+                <AdminPricingPage />
               </div>
             }
           />

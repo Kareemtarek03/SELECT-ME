@@ -32,9 +32,9 @@ export default function LandingPage() {
                     size="sm"
                     color="#475569"
                     _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/axial")}
+                    onClick={() => navigate("/admin/axial-fan-data")}
                 >
-                    Axial Data
+                    Axial Fan Data
                 </Button>
                 <Text color="#cbd5e1">|</Text>
                 <Button
@@ -42,9 +42,9 @@ export default function LandingPage() {
                     size="sm"
                     color="#475569"
                     _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/common")}
+                    onClick={() => navigate("/admin/motor")}
                 >
-                    Common Data
+                    Motor Data
                 </Button>
                 <Text color="#cbd5e1">|</Text>
                 <Button
@@ -55,6 +55,16 @@ export default function LandingPage() {
                     onClick={() => navigate("/admin/centrifugal")}
                 >
                     Centrifugal Data
+                </Button>
+                <Text color="#cbd5e1">|</Text>
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    color="#475569"
+                    _hover={{ color: "#1e293b" }}
+                    onClick={() => navigate("/admin/pricing")}
+                >
+                    Pricing
                 </Button>
             </Box>
             {/* Main Content */}
