@@ -315,7 +315,7 @@ export default function PricingItemsTab() {
                         _hover={{ bg: "var(--btn-primary-hover)" }}
                         onClick={handleDownloadTemplate}
                     >
-                        Download Template
+                        Download Data
                     </Button>
                     <Button
                         size="sm"
@@ -325,7 +325,7 @@ export default function PricingItemsTab() {
                         _hover={{ bg: "var(--btn-secondary-hover)" }}
                         sx={{ cursor: "pointer" }}
                     >
-                        Import Template
+                        Import Data
                         <input
                             type="file"
                             accept=".xlsx,.xls"
@@ -400,25 +400,25 @@ export default function PricingItemsTab() {
                         />
                     </Box>
                     <Box display="flex" gap={3} mt={4}>
-                    <Button
-                        bg="var(--btn-primary)"
-                        color="white"
-                        _hover={{ bg: "var(--btn-primary-hover)" }}
-                        leftIcon={<FaSave />}
-                        onClick={handleAddItem}
-                    >
-                        Save
-                    </Button>
-                    <Button
-                        variant="outline"
-                        borderColor="var(--border-color)"
-                        color="var(--text-primary)"
-                        _hover={{ bg: "var(--bg-elevated)" }}
-                        leftIcon={<FaTimes />}
-                        onClick={() => setShowAddForm(false)}
-                    >
-                        Cancel
-                    </Button>
+                        <Button
+                            bg="var(--btn-primary)"
+                            color="white"
+                            _hover={{ bg: "var(--btn-primary-hover)" }}
+                            leftIcon={<FaSave />}
+                            onClick={handleAddItem}
+                        >
+                            Save
+                        </Button>
+                        <Button
+                            variant="outline"
+                            borderColor="var(--border-color)"
+                            color="var(--text-primary)"
+                            _hover={{ bg: "var(--bg-elevated)" }}
+                            leftIcon={<FaTimes />}
+                            onClick={() => setShowAddForm(false)}
+                        >
+                            Cancel
+                        </Button>
                     </Box>
                 </Box>
             )}

@@ -239,7 +239,7 @@ export async function getCasingPricing() {
   const prisma = await getPrismaClient();
   if (!prisma) return null;
   return prisma.centrifugalCasingPricing.findMany({
-    orderBy: { modelAndSize: "asc" },
+    orderBy: { id: "asc" },
   });
 }
 
@@ -923,14 +923,14 @@ export async function casingPriceCalculation(input) {
 
   const casing = lookupCasingId
     ? await prisma.centrifugalCasingPricing.findUnique({
-        where: { id: lookupCasingId },
-      })
+      where: { id: lookupCasingId },
+    })
     : await prisma.centrifugalCasingPricing.findFirst({
-        where: {
-          type: type ?? "",
-          sizeMm: size ?? sizeMm ?? 0,
-        },
-      });
+      where: {
+        type: type ?? "",
+        sizeMm: size ?? sizeMm ?? 0,
+      },
+    });
 
   if (!casing) {
     debugLog("FAIL: casing not found", {
@@ -975,9 +975,9 @@ export async function casingPriceCalculation(input) {
     )?.priceWithVat || 0);
   price.volute *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.volute *= 1.14; // VAT
   price.voluteWithoutScrap =
     price.volute -
@@ -986,8 +986,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description.includes("Galvanized Sheet Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const frame = await prisma.centrifugalCasingFrame.findFirst({
     where: { casingId: casing.id },
   });
@@ -1000,30 +1000,30 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Formed Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 ||
+    1000 ||
     0 +
-      (frame.supportWeightKgWithScrap *
-        priceItems.find((item) =>
-          item.description.includes("Black Steel Raw Material"),
-        )?.priceWithVat) /
-        1000 ||
+    (frame.supportWeightKgWithScrap *
+      priceItems.find((item) =>
+        item.description.includes("Black Steel Raw Material"),
+      )?.priceWithVat) /
+    1000 ||
     0;
 
   price.frame +=
     frame.supportLaserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.frame +=
     frame.supportCasingCircumferenceM *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Welding"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Welding"),
+    )?.priceWithVat || 0;
   price.frame += frame.supportPaintingLe;
   price.frame *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.frame *= 1.14; // VAT
   price.frameWithoutScrap =
     price.frame -
@@ -1031,8 +1031,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const impeller = await prisma.centrifugalCasingImpeller.findFirst({
     where: { casingId: casing.id },
   });
@@ -1045,24 +1045,24 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.impeller += impeller.plateCentrifugalImpellerRigCostPcs;
 
   price.impeller +=
     impeller.plateLaserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.impeller +=
     impeller.plateCasingCircumferenceM *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Welding"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Welding"),
+    )?.priceWithVat || 0;
   price.impeller += impeller.platePaintingLe;
   price.impeller *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.impeller *= 1.14; // VAT
   price.impellerWithoutScrap =
     price.impeller -
@@ -1070,8 +1070,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const funnels = await prisma.centrifugalCasingFunnels.findFirst({
     where: { casingId: casing.id },
   });
@@ -1085,7 +1085,7 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.funnels +=
     funnels.funnel15mmDieCastingLePc + funnels.funnel3mmDieCastingLePc;
   price.funnels +=
@@ -1093,9 +1093,9 @@ export async function casingPriceCalculation(input) {
   price.funnels += funnels.funnel15mmGalvanizeLe + funnels.funnel3mmPaintingLe;
   price.funnels *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.funnels *= 1.14; // VAT
   const sleeveShaft = await prisma.centrifugalCasingSleeveShaft.findFirst({
     where: { casingId: casing.id },
@@ -1109,20 +1109,20 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.sleeveShaft += sleeveShaft.sleeveManufacturingLePc;
   price.sleeveShaft +=
     (sleeveShaft.shaftWeightKgWithScrap *
       (priceItems.find((item) =>
         item.description.includes("Hard Steel Chrom Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 || 0;
+    1000 || 0;
   price.sleeveShaft += sleeveShaft.shaftManufacturingLePc;
   price.sleeveShaft *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.sleeveShaft *= 1.14; // VAT
   const matchingFlange = await prisma.centrifugalCasingMatchingFlange.findFirst(
     {
@@ -1140,26 +1140,26 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.matchingFlange +=
     matchingFlange.flange3mmLaserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.matchingFlange +=
     matchingFlange.flange3mmRolling *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Rolling"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Rolling"),
+    )?.priceWithVat || 0;
   price.matchingFlange +=
     matchingFlange.flange3mmCasingCircumferenceM *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Welding"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Welding"),
+    )?.priceWithVat || 0;
   price.matchingFlange *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
 
   price.matchingFlange *= 1.14; // VAT
   price.matchingFlange +=
@@ -1177,8 +1177,8 @@ export async function casingPriceCalculation(input) {
   }
   price.bearingAssembly =
     bearingAssembly.boltsNutsKg *
-      priceItems.find((item) => item.description.includes("Bolts"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Bolts"))
+      ?.priceWithVat || 0;
   price.bearingAssembly +=
     bearingAssembly.assemblyLaboursPerShaft *
     (priceItems.find((item) => item.description.includes("Assembly Cost"))
@@ -1198,22 +1198,22 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.fanBase +=
     fanBase.laserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.fanBase +=
     fanBase.bendingLine *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Bending"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Bending"),
+    )?.priceWithVat || 0;
   price.fanBase += fanBase.paintingLe;
   price.fanBase *=
     1 +
-      (priceItems.find((item) => item.description?.includes("Profit"))
-        ?.priceWithVat ?? 0) /
-        100;
+    (priceItems.find((item) => item.description?.includes("Profit"))
+      ?.priceWithVat ?? 0) /
+    100;
   price.fanBase *= 1.14; // VAT
   price.fanBaseWithoutScrap =
     price.fanBase -
@@ -1221,8 +1221,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description?.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const beltCover = await prisma.centrifugalCasingBeltCover.findFirst({
     where: {
       casingId: casing.id,
@@ -1237,22 +1237,22 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.beltCover +=
     beltCover.laserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.beltCover +=
     beltCover.casingCircumferenceM *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Welding"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Welding"),
+    )?.priceWithVat || 0;
   price.beltCover += beltCover.paintingLe;
   price.beltCover *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.beltCover *= 1.14; // VAT
   price.beltCoverWithoutScrap =
     price.beltCover -
@@ -1260,8 +1260,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const motorBase = await prisma.centrifugalCasingMotorBase.findFirst({
     where: {
       casingId: casing.id,
@@ -1276,23 +1276,23 @@ export async function casingPriceCalculation(input) {
       priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
-      1000 || 0;
+    1000 || 0;
   price.motorBase +=
     motorBase.laserTimeMin *
-      priceItems.find((item) => item.description.includes("Black Steel Laser"))
-        ?.priceWithVat || 0;
+    priceItems.find((item) => item.description.includes("Black Steel Laser"))
+      ?.priceWithVat || 0;
   price.motorBase +=
     motorBase.bendingLine *
-      priceItems.find((item) =>
-        item.description.includes("Black Steel Bending"),
-      )?.priceWithVat || 0;
+    priceItems.find((item) =>
+      item.description.includes("Black Steel Bending"),
+    )?.priceWithVat || 0;
   price.motorBase += motorBase.studNutPriceLe;
   price.motorBase += motorBase.paintingLe;
   price.motorBase *=
     1 +
-      priceItems.find((item) => item.description.includes("Profit"))
-        ?.priceWithVat /
-        100 || 0;
+    priceItems.find((item) => item.description.includes("Profit"))
+      ?.priceWithVat /
+    100 || 0;
   price.motorBase *= 1.14; // VAT
   price.motorBaseWithoutScrap =
     price.motorBase -
@@ -1300,8 +1300,8 @@ export async function casingPriceCalculation(input) {
       (priceItems.find((item) =>
         item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat || 0)) /
-      1000 /
-      2;
+    1000 /
+    2;
   const accessories = await prisma.centrifugalCasingAccessories.findFirst({
     where: {
       casingId: casing.id,

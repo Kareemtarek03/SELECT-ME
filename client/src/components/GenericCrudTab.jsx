@@ -63,7 +63,9 @@ export default function GenericCrudTab({
       const r = await fetch(`${API}${listPath}`);
       if (!r.ok) throw new Error(await r.text());
       const j = await r.json();
-      setList(j.data || []);
+      const rows = j.data || [];
+      rows.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+      setList(rows);
     } catch (e) {
       setError(e.message || "Failed to load");
       setList([]);
@@ -90,9 +92,9 @@ export default function GenericCrudTab({
     setForm(
       formFields
         ? formFields.reduce(
-            (acc, f) => ({ ...acc, [f.key]: row[f.key] ?? "" }),
-            {}
-          )
+          (acc, f) => ({ ...acc, [f.key]: row[f.key] ?? "" }),
+          {}
+        )
         : {}
     );
     setEditOpen(true);

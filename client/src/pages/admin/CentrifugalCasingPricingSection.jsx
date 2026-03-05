@@ -21,6 +21,7 @@ const CASING_SUB_TABS = [
 
 export default function CentrifugalCasingPricingSection() {
   const [casingSubTab, setCasingSubTab] = useState("casing-pricing");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   return (
     <Box>
@@ -28,6 +29,7 @@ export default function CentrifugalCasingPricingSection() {
         <ExportImportButtons
           exportPath="/api/centrifugal/data/export/casing-all"
           importPath="/api/centrifugal/data/import/casing-all"
+          onImportDone={() => setRefreshKey((k) => k + 1)}
         />
         <Text fontSize="xs" color="var(--text-muted)">
           Export/Import all casing tables at once (multi-sheet Excel)
@@ -65,7 +67,7 @@ export default function CentrifugalCasingPricingSection() {
         if (!cfg) return null;
         return (
           <GenericCrudTab
-            key={st.id}
+            key={`${st.id}-${refreshKey}`}
             listPath={`/api/centrifugal/data/${st.path}`}
             createPath={`/api/centrifugal/data/${st.path}`}
             updatePath={`/api/centrifugal/data/${st.path}/:id`}
