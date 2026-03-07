@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
  * This is needed when the database doesn't exist or hasn't been migrated
  */
 export async function runMigrations(dbPath) {
-    const normalized = dbPath.replace(/\\/g, "/").replace(/ /g, "%20");
+    const normalized = dbPath.replace(/\\/g, "/");
     const dbUrl = `file:${normalized}`;
     console.log("🔄 Running migrations for database:", dbUrl);
 
@@ -40,14 +40,14 @@ export async function runMigrations(dbPath) {
         const tables = await prisma.$queryRaw`
             SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'
         `;
-        
+
         const hasTables = tables && tables.length > 0;
         console.log(`📊 Database has ${hasTables ? tables.length : 0} tables`);
         // Get the base path for migrations
         // In production, migrations are in resources/prisma/migrations
         // In development, they're in the project root prisma/migrations
         let migrationsPath = null;
-        
+
         // Try resources path first (production)
         if (process.env.RESOURCES_PATH) {
             const resourcesMigrationsPath = path.join(process.env.RESOURCES_PATH, "prisma", "migrations");
@@ -55,7 +55,7 @@ export async function runMigrations(dbPath) {
                 migrationsPath = resourcesMigrationsPath;
             }
         }
-        
+
         // Try app path (production, might be in asar)
         if (!migrationsPath && process.env.APP_PATH) {
             const appMigrationsPath = path.join(process.env.APP_PATH, "prisma", "migrations");
@@ -63,7 +63,7 @@ export async function runMigrations(dbPath) {
                 migrationsPath = appMigrationsPath;
             }
         }
-        
+
         // Try relative to current file (development)
         if (!migrationsPath) {
             const devMigrationsPath = path.join(__dirname, "..", "..", "prisma", "migrations");
@@ -71,7 +71,7 @@ export async function runMigrations(dbPath) {
                 migrationsPath = devMigrationsPath;
             }
         }
-        
+
         // Try process.resourcesPath (electron production)
         if (!migrationsPath && process.resourcesPath) {
             const electronMigrationsPath = path.join(process.resourcesPath, "prisma", "migrations");
@@ -89,7 +89,7 @@ export async function runMigrations(dbPath) {
             console.error("  - process.resourcesPath:", process.resourcesPath ? path.join(process.resourcesPath, "prisma", "migrations") : "not available");
             throw new Error("Migrations directory not found");
         }
-        
+
         console.log("📁 Using migrations directory:", migrationsPath);
 
         // Get all migration directories, sorted by name (which includes timestamp)
@@ -109,7 +109,7 @@ export async function runMigrations(dbPath) {
             const tableCheck = await prisma.$queryRaw`
                 SELECT name FROM sqlite_master WHERE type='table' AND name='_prisma_migrations'
             `;
-            
+
             if (tableCheck && tableCheck.length > 0) {
                 // Get applied migrations
                 const applied = await prisma.$queryRaw`
@@ -157,24 +157,24 @@ export async function runMigrations(dbPath) {
         // Apply each migration that hasn't been applied
         for (const migrationDir of migrationDirs) {
             const migrationName = migrationDir;
-            
+
             if (appliedMigrations.includes(migrationName)) {
                 console.log(`⏭️  Skipping already applied migration: ${migrationName}`);
                 continue;
             }
 
             const migrationSqlPath = path.join(migrationsPath, migrationDir, "migration.sql");
-            
+
             if (!fs.existsSync(migrationSqlPath)) {
                 console.warn(`⚠️  Migration SQL file not found: ${migrationSqlPath}`);
                 continue;
             }
 
             console.log(`🔄 Applying migration: ${migrationName}`);
-            
+
             try {
                 const migrationSql = fs.readFileSync(migrationSqlPath, "utf-8");
-                
+
                 // Split SQL into individual statements
                 const statements = migrationSql
                     .split(";")
@@ -189,7 +189,7 @@ export async function runMigrations(dbPath) {
                         } catch (stmtErr) {
                             // Some statements might fail if tables/columns already exist
                             // This is okay for idempotent migrations
-                            if (!stmtErr.message.includes("already exists") && 
+                            if (!stmtErr.message.includes("already exists") &&
                                 !stmtErr.message.includes("duplicate column")) {
                                 console.warn(`⚠️  Statement warning: ${stmtErr.message}`);
                             }

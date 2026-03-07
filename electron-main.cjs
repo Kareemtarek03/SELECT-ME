@@ -141,8 +141,9 @@ async function setupProductionDatabase() {
   }
 
   // Set DATABASE_URL for Prisma
-  // Use file: with forward slashes; encode spaces for paths like "SELECT ME"
-  const normalizedDbPath = dbPath.replace(/\\/g, "/").replace(/ /g, "%20");
+  // Use file: with forward slashes; do NOT encode spaces (%20) as Prisma/SQLite
+  // handles literal spaces but fails on %20-encoded paths
+  const normalizedDbPath = dbPath.replace(/\\/g, "/");
   const dbUrl = `file:${normalizedDbPath}`;
   process.env.DATABASE_URL = dbUrl;
   process.env.RESOURCES_PATH = process.resourcesPath;
@@ -530,923 +531,923 @@ function processFanData(units, input) {
 function startServer() {
   return new Promise((resolve, reject) => {
     (async () => {
-    try {
-      const resourcesPath = getResourcesPath();
-      const appPath = getAppPath();
+      try {
+        const resourcesPath = getResourcesPath();
+        const appPath = getAppPath();
 
-      console.log("Starting embedded server...");
-      console.log("Resources path:", resourcesPath);
-      console.log("App path:", appPath);
+        console.log("Starting embedded server...");
+        console.log("Resources path:", resourcesPath);
+        console.log("App path:", appPath);
 
-      const expressApp = express();
-      expressApp.use(express.json({ limit: "50mb" }));
-      expressApp.use(cors({ origin: true, credentials: true }));
+        const expressApp = express();
+        expressApp.use(express.json({ limit: "50mb" }));
+        expressApp.use(cors({ origin: true, credentials: true }));
 
-      // Serve static files from the React app build directory
-      const clientBuildPath = path.join(resourcesPath, "client", "build");
-      console.log("Client build path:", clientBuildPath);
+        // Serve static files from the React app build directory
+        const clientBuildPath = path.join(resourcesPath, "client", "build");
+        console.log("Client build path:", clientBuildPath);
 
-      // Load fan and motor data
-      loadData(clientBuildPath);
+        // Load fan and motor data
+        loadData(clientBuildPath);
 
-      // API Routes - Legacy route
-      expressApp.post("/api/fan-data/filter", (req, res) => {
-        try {
-          const { units, input } = req.body;
-          const results = processFanData(units, input);
-          res.json({ message: "Success", data: results });
-        } catch (err) {
-          console.error("API error:", err);
-          res.status(500).json({ error: err.message });
-        }
-      });
-
-      // Axial fan routes - using new Newmodules service
-      expressApp.post("/api/axial/fan-data/filter", async (req, res) => {
-        try {
-          const { units, input } = req.body;
-          const axialService = await import(
-            getModulePath(
-              "server/Newmodules/axial/AxialFanData/axialFanData.service.js"
-            )
-          );
-          const result = await axialService.Output({
-            units,
-            input,
-            dataSource: "file", // Temporarily using JSON instead of DB
-          });
-          res.json({ message: "Success", data: result.data || result });
-        } catch (err) {
-          console.error("Axial API error:", err);
-          res.status(500).json({
-            error: err.message || "Unknown Axial API error",
-            details: err.message,
-            stack: isDev ? err.stack : undefined,
-          });
-        }
-      });
-
-      // Centrifugal fan routes - dynamically import the service
-      expressApp.post("/api/centrifugal/fan-data/process", async (req, res) => {
-        try {
-          const { units, input } = req.body;
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-
-          // Build inputOptions with selectedFanType extracted from units.fanType
-          const inputOptions = {
-            filePath: "centrifugalFan.json",
-            units: units || {},
-            input,
-            dataSource: "file", // Temporarily using JSON instead of DB
-            selectedFanType: units?.centrifugalFanType || units?.fanType,
-          };
-
-          console.log(`\n=== Electron Centrifugal Process ===`);
-          console.log(`selectedFanType: ${inputOptions.selectedFanType}`);
-
-          const result = await centrifugalService.processFanDataService(
-            inputOptions
-          );
-
-          // Return phase-separated results matching the controller format
-          res.json({
-            message: "✅ Fan data processed successfully!",
-            phase3: result.results,
-            phase4: result.phase4,
-            phase5: result.phase5,
-            phase6: result.phase6,
-            phase7: result.phase7,
-            phase8: result.phase8,
-            phase9: result.phase9,
-            phase10: result.phase10,
-          });
-        } catch (err) {
-          console.error("Centrifugal API error:", err);
-          res.status(500).json({
-            error: err.message || "Unknown Centrifugal API error",
-            details: err.message,
-            stack: isDev ? err.stack : undefined,
-          });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase11", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = await centrifugalService.processPhase11(req.body);
-          res.json({
-            message: "✅ Phase 11 calculated successfully!",
-            phase11: result,
-          });
-        } catch (err) {
-          console.error("Phase 11 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase12", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = await centrifugalService.processPhase12(req.body);
-          res.json({
-            message: "✅ Phase 12 calculated successfully!",
-            phase12: result,
-          });
-        } catch (err) {
-          console.error("Phase 12 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase13", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = await centrifugalService.processPhase13(req.body);
-          res.json({
-            message: "✅ Phase 13 calculated successfully!",
-            phase13: result,
-          });
-        } catch (err) {
-          console.error("Phase 13 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase14", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = await centrifugalService.processPhase14(req.body);
-          res.json({
-            message: "✅ Phase 14 calculated successfully!",
-            phase14: result,
-          });
-        } catch (err) {
-          console.error("Phase 14 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase15", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = await centrifugalService.processPhase15(req.body);
-          res.json({
-            message: "✅ Phase 15 calculated successfully!",
-            phase15: result,
-          });
-        } catch (err) {
-          console.error("Phase 15 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post("/api/centrifugal/fan-data/phase16", async (req, res) => {
-        try {
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = centrifugalService.processPhase16(req.body);
-          res.json({
-            message: "✅ Phase 16 calculated successfully!",
-            phase16: result,
-          });
-        } catch (err) {
-          console.error("Phase 16 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      // Phase 18 - Final output table (individual row)
-      expressApp.post("/api/centrifugal/fan-data/phase18", async (req, res) => {
-        try {
-          const { selectedFan, phase16Row, phase17Motor, userPoles, userPhases, innerDiameter } = req.body;
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = centrifugalService.processPhase18({
-            selectedFan,
-            phase16Row,
-            phase17Motor,
-            userPoles: userPoles || 4,
-            userPhases: userPhases || 3,
-            innerDiameter,
-          });
-          res.json({
-            message: "✅ Phase 18 calculated successfully!",
-            phase18: result,
-          });
-        } catch (err) {
-          console.error("Phase 18 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      // Phase 17 - Sound data calculation (uses Phase 20 logic)
-      expressApp.post("/api/centrifugal/fan-data/phase17", async (req, res) => {
-        try {
-          const { selectedFan, distance, directivityQ } = req.body;
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-
-          // Create a phase18-like result structure from selectedFan for Phase 20
-          const phase18Result = {
-            fanModel: selectedFan?.fanModel || selectedFan?.model,
-            rpm: selectedFan?.rpm,
-            fanInputPower: selectedFan?.fanInputPower,
-            airFlow: selectedFan?.airFlow,
-            staticPressure: selectedFan?.staticPressure,
-          };
-
-          const result = centrifugalService.processPhase20({
-            phase18Result,
-            distance: distance ? parseFloat(distance) : 3,
-            directivityQ: directivityQ ? parseFloat(directivityQ) : 1,
-            safetyFactor: 0,
-          });
-
-          res.json({
-            message: "✅ Phase 17 sound data calculated!",
-            phase17: result,
-          });
-        } catch (err) {
-          console.error("Phase 17 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      // Phase 19 - Fan curve data with speed adjustment
-      expressApp.post("/api/centrifugal/fan-data/phase19", async (req, res) => {
-        try {
-          const { selectedFan, phase18Result } = req.body;
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-
-          const result = centrifugalService.processPhase19({
-            selectedFan,
-            phase18Result,
-          });
-
-          res.json({
-            message: "✅ Phase 19 curve data calculated!",
-            phase19: result,
-          });
-        } catch (err) {
-          console.error("Phase 19 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      // Phase 20 - Noise data calculation (LW(A) and LP(A))
-      expressApp.post("/api/centrifugal/fan-data/phase20", async (req, res) => {
-        try {
-          const { phase18Result, distance, directivityQ, safetyFactor } = req.body;
-          const centrifugalService = await import(
-            getModulePath(
-              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
-            )
-          );
-          const result = centrifugalService.processPhase20({
-            phase18Result,
-            distance: distance ? parseFloat(distance) : 3,
-            directivityQ: directivityQ ? parseFloat(directivityQ) : 1,
-            safetyFactor: safetyFactor ? parseFloat(safetyFactor) : 0.1,
-          });
-          res.json({
-            message: "✅ Phase 20 noise data calculated!",
-            phase20: result,
-          });
-        } catch (err) {
-          console.error("Phase 20 error:", err);
-          res.status(500).json({ error: err.message, details: err.message });
-        }
-      });
-
-      expressApp.post(
-        "/api/centrifugal/fan-data/phase18-all",
-        async (req, res) => {
+        // API Routes - Legacy route
+        expressApp.post("/api/fan-data/filter", (req, res) => {
           try {
-            const { phase16Data, phase13Motors, phase17Data, selectedFan } =
-              req.body;
+            const { units, input } = req.body;
+            const results = processFanData(units, input);
+            res.json({ message: "Success", data: results });
+          } catch (err) {
+            console.error("API error:", err);
+            res.status(500).json({ error: err.message });
+          }
+        });
 
-            // Import centrifugal service for Phase 18 and Phase 19 calculations
+        // Axial fan routes - using new Newmodules service
+        expressApp.post("/api/axial/fan-data/filter", async (req, res) => {
+          try {
+            const { units, input } = req.body;
+            const axialService = await import(
+              getModulePath(
+                "server/Newmodules/axial/AxialFanData/axialFanData.service.js"
+              )
+            );
+            const result = await axialService.Output({
+              units,
+              input,
+              dataSource: "file", // Temporarily using JSON instead of DB
+            });
+            res.json({ message: "Success", data: result.data || result });
+          } catch (err) {
+            console.error("Axial API error:", err);
+            res.status(500).json({
+              error: err.message || "Unknown Axial API error",
+              details: err.message,
+              stack: isDev ? err.stack : undefined,
+            });
+          }
+        });
+
+        // Centrifugal fan routes - dynamically import the service
+        expressApp.post("/api/centrifugal/fan-data/process", async (req, res) => {
+          try {
+            const { units, input } = req.body;
             const centrifugalService = await import(
               getModulePath(
                 "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
               )
             );
 
-            // Build consolidated results array - MUST match web version structure
-            // Web version calls Phase 18 service for EACH row to apply fan affinity laws
-            const results = [];
-            const rows = phase16Data?.rows || phase16Data || [];
+            // Build inputOptions with selectedFanType extracted from units.fanType
+            const inputOptions = {
+              filePath: "centrifugalFan.json",
+              units: units || {},
+              input,
+              dataSource: "file", // Temporarily using JSON instead of DB
+              selectedFanType: units?.centrifugalFanType || units?.fanType,
+            };
 
-            if (Array.isArray(rows)) {
-              for (let idx = 0; idx < rows.length; idx++) {
-                const row = rows[idx];
-                // Get motor from phase13Motors - use row.index if available, otherwise use idx
-                const motorIdx = row.index !== undefined ? row.index : idx;
-                const motor =
-                  phase13Motors?.[motorIdx] || phase13Motors?.[idx] || null;
+            console.log(`\n=== Electron Centrifugal Process ===`);
+            console.log(`selectedFanType: ${inputOptions.selectedFanType}`);
 
-                // Build phase17Motor - use Phase 13 motor object directly
-                // Phase 13 service returns: model, powerKW, powerHP, noOfPoles, noOfPhases,
-                // efficiency50Hz, insulationClass, shaftDiameterMM, shaftKeyLengthMM
-                const phase17Motor = motor
-                  ? {
-                    model: motor.model || "",
-                    powerKW: motor.powerKW,
-                    powerHP: motor.powerHP,
-                    noOfPoles: motor.noOfPoles,
-                    noOfPhases: motor.noOfPhases || 3,
-                    shaftDiameterMM: motor.shaftDiameterMM,
-                    shaftKeyLengthMM: motor.shaftKeyLengthMM,
-                    efficiency50Hz: motor.efficiency50Hz,
-                    insulationClass: motor.insulationClass || "F",
-                    ie: motor.ie,
-                    capacitors: motor.capacitors,
-                    // Calculated values from Phase 13
-                    motorOutputPowerRequired: motor.motorOutputPowerRequired,
-                    standardOutputPower: motor.standardOutputPower,
-                    motorEfficiencyUsed: motor.motorEfficiencyUsed,
-                    motorInputPowerRequired: motor.motorInputPowerRequired,
-                    standardMotorPower: motor.standardMotorPower,
-                    netFanPowerRequired: motor.netFanPowerRequired,
-                  }
-                  : null;
+            const result = await centrifugalService.processFanDataService(
+              inputOptions
+            );
 
-                // Call Phase 18 service - THIS IS CRITICAL
-                // Phase 18 applies fan affinity laws: airFlow*ratio, pressure*ratio², power*ratio³
-                let phase18 = null;
-                try {
-                  phase18 = centrifugalService.processPhase18({
-                    selectedFan: selectedFan,
-                    phase16Row: row,
-                    phase17Motor: phase17Motor,
-                    userPoles: motor?.noOfPoles || motor?.["No of Poles"] || 4,
-                    userPhases: 3,
-                    innerDiameter: selectedFan?.innerDiameter,
-                  });
+            // Return phase-separated results matching the controller format
+            res.json({
+              message: "✅ Fan data processed successfully!",
+              phase3: result.results,
+              phase4: result.phase4,
+              phase5: result.phase5,
+              phase6: result.phase6,
+              phase7: result.phase7,
+              phase8: result.phase8,
+              phase9: result.phase9,
+              phase10: result.phase10,
+            });
+          } catch (err) {
+            console.error("Centrifugal API error:", err);
+            res.status(500).json({
+              error: err.message || "Unknown Centrifugal API error",
+              details: err.message,
+              stack: isDev ? err.stack : undefined,
+            });
+          }
+        });
 
-                  // Check for error response
-                  if (phase18?.error) {
-                    console.error(
-                      `Phase 18 error for row ${idx}:`,
-                      phase18.error
-                    );
-                    phase18 = null;
-                  }
-                } catch (err) {
-                  console.error(
-                    `Phase 18 calculation error for row ${idx}:`,
-                    err
-                  );
-                }
+        expressApp.post("/api/centrifugal/fan-data/phase11", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = await centrifugalService.processPhase11(req.body);
+            res.json({
+              message: "✅ Phase 11 calculated successfully!",
+              phase11: result,
+            });
+          } catch (err) {
+            console.error("Phase 11 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
 
-                // Skip this row if Phase 18 failed
-                if (!phase18) {
-                  continue;
-                }
+        expressApp.post("/api/centrifugal/fan-data/phase12", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = await centrifugalService.processPhase12(req.body);
+            res.json({
+              message: "✅ Phase 12 calculated successfully!",
+              phase12: result,
+            });
+          } catch (err) {
+            console.error("Phase 12 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
 
-                // Call Phase 19 service for curve data
-                let phase19 = null;
-                if (selectedFan?.curveArrays) {
+        expressApp.post("/api/centrifugal/fan-data/phase13", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = await centrifugalService.processPhase13(req.body);
+            res.json({
+              message: "✅ Phase 13 calculated successfully!",
+              phase13: result,
+            });
+          } catch (err) {
+            console.error("Phase 13 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        expressApp.post("/api/centrifugal/fan-data/phase14", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = await centrifugalService.processPhase14(req.body);
+            res.json({
+              message: "✅ Phase 14 calculated successfully!",
+              phase14: result,
+            });
+          } catch (err) {
+            console.error("Phase 14 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        expressApp.post("/api/centrifugal/fan-data/phase15", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = await centrifugalService.processPhase15(req.body);
+            res.json({
+              message: "✅ Phase 15 calculated successfully!",
+              phase15: result,
+            });
+          } catch (err) {
+            console.error("Phase 15 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        expressApp.post("/api/centrifugal/fan-data/phase16", async (req, res) => {
+          try {
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = centrifugalService.processPhase16(req.body);
+            res.json({
+              message: "✅ Phase 16 calculated successfully!",
+              phase16: result,
+            });
+          } catch (err) {
+            console.error("Phase 16 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        // Phase 18 - Final output table (individual row)
+        expressApp.post("/api/centrifugal/fan-data/phase18", async (req, res) => {
+          try {
+            const { selectedFan, phase16Row, phase17Motor, userPoles, userPhases, innerDiameter } = req.body;
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = centrifugalService.processPhase18({
+              selectedFan,
+              phase16Row,
+              phase17Motor,
+              userPoles: userPoles || 4,
+              userPhases: userPhases || 3,
+              innerDiameter,
+            });
+            res.json({
+              message: "✅ Phase 18 calculated successfully!",
+              phase18: result,
+            });
+          } catch (err) {
+            console.error("Phase 18 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        // Phase 17 - Sound data calculation (uses Phase 20 logic)
+        expressApp.post("/api/centrifugal/fan-data/phase17", async (req, res) => {
+          try {
+            const { selectedFan, distance, directivityQ } = req.body;
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+
+            // Create a phase18-like result structure from selectedFan for Phase 20
+            const phase18Result = {
+              fanModel: selectedFan?.fanModel || selectedFan?.model,
+              rpm: selectedFan?.rpm,
+              fanInputPower: selectedFan?.fanInputPower,
+              airFlow: selectedFan?.airFlow,
+              staticPressure: selectedFan?.staticPressure,
+            };
+
+            const result = centrifugalService.processPhase20({
+              phase18Result,
+              distance: distance ? parseFloat(distance) : 3,
+              directivityQ: directivityQ ? parseFloat(directivityQ) : 1,
+              safetyFactor: 0,
+            });
+
+            res.json({
+              message: "✅ Phase 17 sound data calculated!",
+              phase17: result,
+            });
+          } catch (err) {
+            console.error("Phase 17 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        // Phase 19 - Fan curve data with speed adjustment
+        expressApp.post("/api/centrifugal/fan-data/phase19", async (req, res) => {
+          try {
+            const { selectedFan, phase18Result } = req.body;
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+
+            const result = centrifugalService.processPhase19({
+              selectedFan,
+              phase18Result,
+            });
+
+            res.json({
+              message: "✅ Phase 19 curve data calculated!",
+              phase19: result,
+            });
+          } catch (err) {
+            console.error("Phase 19 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        // Phase 20 - Noise data calculation (LW(A) and LP(A))
+        expressApp.post("/api/centrifugal/fan-data/phase20", async (req, res) => {
+          try {
+            const { phase18Result, distance, directivityQ, safetyFactor } = req.body;
+            const centrifugalService = await import(
+              getModulePath(
+                "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+              )
+            );
+            const result = centrifugalService.processPhase20({
+              phase18Result,
+              distance: distance ? parseFloat(distance) : 3,
+              directivityQ: directivityQ ? parseFloat(directivityQ) : 1,
+              safetyFactor: safetyFactor ? parseFloat(safetyFactor) : 0.1,
+            });
+            res.json({
+              message: "✅ Phase 20 noise data calculated!",
+              phase20: result,
+            });
+          } catch (err) {
+            console.error("Phase 20 error:", err);
+            res.status(500).json({ error: err.message, details: err.message });
+          }
+        });
+
+        expressApp.post(
+          "/api/centrifugal/fan-data/phase18-all",
+          async (req, res) => {
+            try {
+              const { phase16Data, phase13Motors, phase17Data, selectedFan } =
+                req.body;
+
+              // Import centrifugal service for Phase 18 and Phase 19 calculations
+              const centrifugalService = await import(
+                getModulePath(
+                  "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.service.js"
+                )
+              );
+
+              // Build consolidated results array - MUST match web version structure
+              // Web version calls Phase 18 service for EACH row to apply fan affinity laws
+              const results = [];
+              const rows = phase16Data?.rows || phase16Data || [];
+
+              if (Array.isArray(rows)) {
+                for (let idx = 0; idx < rows.length; idx++) {
+                  const row = rows[idx];
+                  // Get motor from phase13Motors - use row.index if available, otherwise use idx
+                  const motorIdx = row.index !== undefined ? row.index : idx;
+                  const motor =
+                    phase13Motors?.[motorIdx] || phase13Motors?.[idx] || null;
+
+                  // Build phase17Motor - use Phase 13 motor object directly
+                  // Phase 13 service returns: model, powerKW, powerHP, noOfPoles, noOfPhases,
+                  // efficiency50Hz, insulationClass, shaftDiameterMM, shaftKeyLengthMM
+                  const phase17Motor = motor
+                    ? {
+                      model: motor.model || "",
+                      powerKW: motor.powerKW,
+                      powerHP: motor.powerHP,
+                      noOfPoles: motor.noOfPoles,
+                      noOfPhases: motor.noOfPhases || 3,
+                      shaftDiameterMM: motor.shaftDiameterMM,
+                      shaftKeyLengthMM: motor.shaftKeyLengthMM,
+                      efficiency50Hz: motor.efficiency50Hz,
+                      insulationClass: motor.insulationClass || "F",
+                      ie: motor.ie,
+                      capacitors: motor.capacitors,
+                      // Calculated values from Phase 13
+                      motorOutputPowerRequired: motor.motorOutputPowerRequired,
+                      standardOutputPower: motor.standardOutputPower,
+                      motorEfficiencyUsed: motor.motorEfficiencyUsed,
+                      motorInputPowerRequired: motor.motorInputPowerRequired,
+                      standardMotorPower: motor.standardMotorPower,
+                      netFanPowerRequired: motor.netFanPowerRequired,
+                    }
+                    : null;
+
+                  // Call Phase 18 service - THIS IS CRITICAL
+                  // Phase 18 applies fan affinity laws: airFlow*ratio, pressure*ratio², power*ratio³
+                  let phase18 = null;
                   try {
-                    phase19 = centrifugalService.processPhase19({
+                    phase18 = centrifugalService.processPhase18({
                       selectedFan: selectedFan,
-                      phase18Result: phase18,
+                      phase16Row: row,
+                      phase17Motor: phase17Motor,
+                      userPoles: motor?.noOfPoles || motor?.["No of Poles"] || 4,
+                      userPhases: 3,
+                      innerDiameter: selectedFan?.innerDiameter,
                     });
-                    if (phase19?.error) {
+
+                    // Check for error response
+                    if (phase18?.error) {
                       console.error(
-                        `Phase 19 error for row ${idx}:`,
-                        phase19.error
+                        `Phase 18 error for row ${idx}:`,
+                        phase18.error
                       );
-                      phase19 = null;
+                      phase18 = null;
                     }
                   } catch (err) {
                     console.error(
-                      `Phase 19 calculation error for row ${idx}:`,
+                      `Phase 18 calculation error for row ${idx}:`,
                       err
                     );
                   }
-                }
 
-                // Use phase17Data as phase20 (sound data)
-                const phase20 = phase17Data || null;
+                  // Skip this row if Phase 18 failed
+                  if (!phase18) {
+                    continue;
+                  }
 
-                results.push({
-                  phase16Row: row,
-                  phase17Motor: phase17Motor,
-                  phase18: phase18,
-                  phase19: phase19,
-                  phase20: phase20,
-                  index: idx,
-                });
-              }
-            }
-
-            // Return results directly as array (matching web version)
-            res.json({
-              message: "✅ Phase 18 All models calculated!",
-              phase18All: results,
-            });
-          } catch (err) {
-            console.error("Phase 18 All error:", err);
-            res.status(500).json({ error: err.message, details: err.message });
-          }
-        }
-      );
-
-      // PDF Generation Routes - using Newmodules PDF generators
-      // Axial PDF route (prefixed)
-      expressApp.post("/api/axial/pdf/datasheet", async (req, res) => {
-        try {
-          const { fanData, userInput, units } = req.body;
-          if (!fanData) {
-            return res.status(400).json({ error: "Fan data is required" });
-          }
-
-          // Dynamically import the Axial PDF generator from Newmodules
-          if (!generateAxialFanDatasheetPDF) {
-            const pdfModule = await import(
-              getModulePath(
-                "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
-              )
-            );
-            generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
-          }
-
-          const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
-          // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
-          const fanUnitNo =
-            userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
-          const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
-          const filename = `${sanitizedName}_datasheet.pdf`;
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `inline; filename="${filename}"`
-          );
-          doc.pipe(res);
-          doc.end();
-        } catch (err) {
-          console.error("Axial PDF generation error:", err);
-          res
-            .status(500)
-            .json({ error: "Failed to generate PDF", details: err.message });
-        }
-      });
-
-      // Centrifugal PDF route
-      expressApp.post("/api/centrifugal/pdf/datasheet", async (req, res) => {
-        try {
-          const { fanData, userInput, units } = req.body;
-          if (!fanData) {
-            return res.status(400).json({ error: "Fan data is required" });
-          }
-
-          // Dynamically import the Centrifugal PDF generator from Newmodules
-          if (!generateCentrifugalFanDatasheetPDF) {
-            const pdfModule = await import(
-              getModulePath(
-                "server/Newmodules/centrifugal/CentrifugalPDF/centrifugalPdfGenerator.service.js"
-              )
-            );
-            generateCentrifugalFanDatasheetPDF =
-              pdfModule.generateCentrifugalFanDatasheetPDF;
-          }
-
-          const doc = generateCentrifugalFanDatasheetPDF(
-            fanData,
-            userInput,
-            units
-          );
-          // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
-          const fanUnitNo =
-            userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
-          const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
-          const filename = `${sanitizedName}_datasheet.pdf`;
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `inline; filename="${filename}"`
-          );
-          doc.pipe(res);
-          doc.end();
-        } catch (err) {
-          console.error("Centrifugal PDF generation error:", err);
-          res
-            .status(500)
-            .json({ error: "Failed to generate PDF", details: err.message });
-        }
-      });
-
-      // Legacy PDF route (uses Axial PDF generator)
-      expressApp.post("/api/pdf/datasheet", async (req, res) => {
-        try {
-          const { fanData, userInput, units } = req.body;
-          if (!fanData) {
-            return res.status(400).json({ error: "Fan data is required" });
-          }
-
-          // Dynamically import the Axial PDF generator from Newmodules
-          if (!generateAxialFanDatasheetPDF) {
-            const pdfModule = await import(
-              getModulePath(
-                "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
-              )
-            );
-            generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
-          }
-
-          const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
-          // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
-          const fanUnitNo =
-            userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
-          const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
-          const filename = `${sanitizedName}_datasheet.pdf`;
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `inline; filename="${filename}"`
-          );
-          doc.pipe(res);
-          doc.end();
-        } catch (err) {
-          console.error("PDF generation error:", err);
-          res
-            .status(500)
-            .json({ error: "Failed to generate PDF", details: err.message });
-        }
-      });
-
-      expressApp.post("/api/pdf/datasheet/download", async (req, res) => {
-        try {
-          const { fanData, userInput, units } = req.body;
-          if (!fanData) {
-            return res.status(400).json({ error: "Fan data is required" });
-          }
-
-          // Dynamically import the Axial PDF generator from Newmodules
-          if (!generateAxialFanDatasheetPDF) {
-            const pdfModule = await import(
-              getModulePath(
-                "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
-              )
-            );
-            generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
-          }
-
-          const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
-          // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
-          const fanUnitNo =
-            userInput?.fanUnitNo || fanData.FanModel || "Fan_Report";
-          const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
-          const filename = `${sanitizedName}_datasheet.pdf`;
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="${filename}"`
-          );
-          doc.pipe(res);
-          doc.end();
-        } catch (err) {
-          console.error("PDF generation error:", err);
-          res
-            .status(500)
-            .json({ error: "Failed to generate PDF", details: err.message });
-        }
-      });
-
-      // Centrifugal Data Admin routes (pulleys, belt-standards, pulley-standards, casing pricing CRUD)
-      // Must match server/index.js: app.use("/api/centrifugal/data", centrifugalDataAdminRoutes)
-      try {
-        const centrifugalDataAdminModule = await import(
-          getModulePath(
-            "server/Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.router.js"
-          )
-        );
-        expressApp.use("/api/centrifugal/data", centrifugalDataAdminModule.default);
-        console.log("✅ Centrifugal data admin routes mounted at /api/centrifugal/data");
-      } catch (err) {
-        console.warn("⚠️ Could not mount centrifugal data admin routes:", err.message);
-      }
-
-      // Centrifugal Fan Data CRUD routes (GET/POST fan-data, PUT/DELETE :id for admin page)
-      // Must match server/index.js: app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes)
-      try {
-        const centrifugalFanDataModule = await import(
-          getModulePath(
-            "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js"
-          )
-        );
-        expressApp.use("/api/centrifugal/fan-data", centrifugalFanDataModule.default);
-        console.log("✅ Centrifugal fan data routes mounted at /api/centrifugal/fan-data");
-      } catch (err) {
-        console.warn("⚠️ Could not mount centrifugal fan data routes:", err.message);
-      }
-
-      // Axial Fan Data CRUD routes (admin page: list, add, edit, delete fans + export/import)
-      try {
-        const axialFanDataModule = await import(
-          getModulePath("server/Newmodules/axial/AxialFanData/axialFanData.route.js")
-        );
-        expressApp.use("/api/axial/fan-data", axialFanDataModule.default);
-        expressApp.use("/api/fan-data", axialFanDataModule.default);
-        console.log("✅ Axial fan data routes mounted at /api/axial/fan-data & /api/fan-data");
-      } catch (err) {
-        console.warn("⚠️ Could not mount axial fan data routes:", err.message);
-      }
-
-      // Axial Motor Data CRUD routes (admin page: list, add, edit, delete motors + export/import)
-      try {
-        const axialMotorDataModule = await import(
-          getModulePath("server/Newmodules/axial/AxialMotorData/axialMotorData.route.js")
-        );
-        expressApp.use("/api/motor-data", axialMotorDataModule.default);
-        console.log("✅ Axial motor data routes mounted at /api/motor-data");
-      } catch (err) {
-        console.warn("⚠️ Could not mount axial motor data routes:", err.message);
-      }
-
-      // Axial Pricing routes (items, accessories, impeller, casing)
-      try {
-        const axialPricingModule = await import(
-          getModulePath("server/Newmodules/axial/AxialPricing/axialPricing.routes.js")
-        );
-        expressApp.use("/api/axial/pricing", axialPricingModule.default);
-        console.log("✅ Axial pricing routes mounted at /api/axial/pricing");
-      } catch (err) {
-        console.warn("⚠️ Could not mount axial pricing routes:", err.message);
-      }
-
-      // Pricing compatibility routes (/api/pricing/axial-impeller, /api/pricing/axial-casing, /api/pricing/items, /api/pricing/categories)
-      try {
-        const { axialImpellerRoutes } = await import(
-          getModulePath("server/Newmodules/axial/AxialPricing/AxialImpeller/index.js")
-        );
-        const { axialCasingRoutes } = await import(
-          getModulePath("server/Newmodules/axial/AxialPricing/AxialCasing/index.js")
-        );
-        const { pricingItemsRoutes } = await import(
-          getModulePath("server/Newmodules/axial/AxialPricing/Pricing_Items/index.js")
-        );
-        const pricingCompatRouter = express.Router();
-        pricingCompatRouter.use("/axial-impeller", axialImpellerRoutes);
-        pricingCompatRouter.use("/axial-casing", axialCasingRoutes);
-        pricingCompatRouter.use("/", pricingItemsRoutes);
-        expressApp.use("/api/pricing", pricingCompatRouter);
-        console.log("✅ Pricing compat routes mounted at /api/pricing");
-      } catch (err) {
-        console.warn("⚠️ Could not mount pricing compat routes:", err.message);
-      }
-
-      // Accessories Pricing routes
-      try {
-        const { accessoriesRoutes } = await import(
-          getModulePath("server/Newmodules/axial/AxialPricing/index.js")
-        );
-        expressApp.use("/api/accessories-pricing", accessoriesRoutes);
-        console.log("✅ Accessories pricing routes mounted at /api/accessories-pricing");
-      } catch (err) {
-        console.warn("⚠️ Could not mount accessories pricing routes:", err.message);
-      }
-
-      // Catalog API Routes - List available catalog PDFs
-      expressApp.get("/api/catalogs", (req, res) => {
-        try {
-          const catalogsPath = isDev
-            ? path.join(__dirname, "Catologs")
-            : path.join(process.resourcesPath, "Catologs");
-
-          console.log("Catalogs path:", catalogsPath);
-
-          if (!fs.existsSync(catalogsPath)) {
-            return res.json({ catalogs: [] });
-          }
-
-          const files = fs
-            .readdirSync(catalogsPath)
-            .filter((file) => file.toLowerCase().endsWith(".pdf"))
-            .map((file) => ({
-              name: file,
-              displayName: file.replace(".pdf", ""),
-              size: fs.statSync(path.join(catalogsPath, file)).size,
-            }));
-
-          res.json({ catalogs: files });
-        } catch (err) {
-          console.error("Catalog list error:", err);
-          res.status(500).json({ error: err.message });
-        }
-      });
-
-      // Catalog Download Route - Download a specific catalog PDF
-      expressApp.get("/api/catalogs/download/:filename", (req, res) => {
-        try {
-          const { filename } = req.params;
-
-          // Security: Prevent directory traversal
-          const sanitizedFilename = path.basename(filename);
-          if (!sanitizedFilename.toLowerCase().endsWith(".pdf")) {
-            return res.status(400).json({ error: "Invalid file type" });
-          }
-
-          const catalogsPath = isDev
-            ? path.join(__dirname, "Catologs")
-            : path.join(process.resourcesPath, "Catologs");
-
-          const filePath = path.join(catalogsPath, sanitizedFilename);
-
-          if (!fs.existsSync(filePath)) {
-            return res.status(404).json({ error: "Catalog not found" });
-          }
-
-          res.setHeader("Content-Type", "application/pdf");
-          res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="${sanitizedFilename}"`
-          );
-          res.setHeader("Content-Length", fs.statSync(filePath).size);
-
-          const fileStream = fs.createReadStream(filePath);
-          fileStream.pipe(res);
-        } catch (err) {
-          console.error("Catalog download error:", err);
-          res.status(500).json({ error: err.message });
-        }
-      });
-
-      if (fs.existsSync(clientBuildPath)) {
-        expressApp.use(express.static(clientBuildPath));
-
-        // Handle React Router - serve index.html for all non-API routes
-        expressApp.get("*", (req, res) => {
-          res.sendFile(path.join(clientBuildPath, "index.html"));
-        });
-
-        console.log("Static files configured");
-      } else {
-        console.error("Client build not found at:", clientBuildPath);
-      }
-
-      const PORT = 5001;
-      server = expressApp.listen(PORT, "127.0.0.1", async () => {
-        console.log(`Server running on http://127.0.0.1:${PORT}`);
-
-        // Initialize database - create schema and seed if needed
-        try {
-          // Set environment variables for the service to find data files
-          process.env.RESOURCES_PATH = resourcesPath;
-          process.env.APP_PATH = appPath;
-
-          // Check if database already has data (was copied from template)
-          let databaseNeedsSetup = true;
-          if (!isDev) {
-            try {
-              const dbPathFromEnv = process.env.DATABASE_URL
-                ? process.env.DATABASE_URL.replace(/^file:/, "")
-                : null;
-              if (dbPathFromEnv && fs.existsSync(dbPathFromEnv)) {
-                const dbStats = fs.statSync(dbPathFromEnv);
-                console.log(
-                  `📊 Database file size: ${(dbStats.size / 1024).toFixed(
-                    2
-                  )} KB`
-                );
-
-                // If database is larger than 1KB, it likely has data
-                if (dbStats.size > 1024) {
-                  // Quick check: try to query if tables exist
-                  const { PrismaClient } = require(
-                    path.join(app.getAppPath(), "node_modules", "@prisma", "client")
-                  );
-                  const testPrisma = new PrismaClient({
-                    datasources: {
-                      db: { url: process.env.DATABASE_URL },
-                    },
-                  });
-
-                  try {
-                    const fanCount = await testPrisma.fanData.count();
-                    const centrifugalCount =
-                      await testPrisma.centrifugalFanData.count();
-                    console.log(
-                      `📊 Database check: ${fanCount} axial fans, ${centrifugalCount} centrifugal fans`
-                    );
-
-                    if (fanCount > 0 || centrifugalCount > 0) {
-                      console.log(
-                        "✅ Database already has data - skipping seeding (migrations will still run)"
-                      );
-                      databaseNeedsSetup = false;
-                    } else {
-                      console.log(
-                        "⚠️ Database exists but is empty - will run migrations and seed"
+                  // Call Phase 19 service for curve data
+                  let phase19 = null;
+                  if (selectedFan?.curveArrays) {
+                    try {
+                      phase19 = centrifugalService.processPhase19({
+                        selectedFan: selectedFan,
+                        phase18Result: phase18,
+                      });
+                      if (phase19?.error) {
+                        console.error(
+                          `Phase 19 error for row ${idx}:`,
+                          phase19.error
+                        );
+                        phase19 = null;
+                      }
+                    } catch (err) {
+                      console.error(
+                        `Phase 19 calculation error for row ${idx}:`,
+                        err
                       );
                     }
-                  } catch (queryErr) {
-                    console.log(
-                      "⚠️ Could not query database (may need migrations):",
-                      queryErr.message
-                    );
-                    // Database might need migrations
-                  } finally {
-                    await testPrisma.$disconnect();
                   }
+
+                  // Use phase17Data as phase20 (sound data)
+                  const phase20 = phase17Data || null;
+
+                  results.push({
+                    phase16Row: row,
+                    phase17Motor: phase17Motor,
+                    phase18: phase18,
+                    phase19: phase19,
+                    phase20: phase20,
+                    index: idx,
+                  });
                 }
               }
-            } catch (checkErr) {
-              console.warn(
-                "⚠️ Could not check database status:",
-                checkErr.message
-              );
+
+              // Return results directly as array (matching web version)
+              res.json({
+                message: "✅ Phase 18 All models calculated!",
+                phase18All: results,
+              });
+            } catch (err) {
+              console.error("Phase 18 All error:", err);
+              res.status(500).json({ error: err.message, details: err.message });
             }
           }
+        );
 
-          // Always run migrations to apply pending schema changes
-          if (!isDev) {
-            try {
-              const migrationRunnerPath = getModulePath(
-                "server/services/migrationRunner.service.js"
-              );
-              const { runMigrations } = await import(migrationRunnerPath);
-              const dbPathFromEnv = process.env.DATABASE_URL
-                ? process.env.DATABASE_URL.replace(/^file:/, "")
-                : null;
-              if (dbPathFromEnv) {
-                console.log("🔄 Ensuring database schema is up to date...");
-                const normalizedPath = dbPathFromEnv.replace(/\//g, path.sep);
-                await runMigrations(normalizedPath);
-              } else {
-                console.warn("⚠️ DATABASE_URL not set, skipping migrations");
-              }
-            } catch (migrationErr) {
-              console.error(
-                "⚠️ Migration runner failed (will continue):",
-                migrationErr.message
-              );
-              console.error("Migration error details:", migrationErr);
+        // PDF Generation Routes - using Newmodules PDF generators
+        // Axial PDF route (prefixed)
+        expressApp.post("/api/axial/pdf/datasheet", async (req, res) => {
+          try {
+            const { fanData, userInput, units } = req.body;
+            if (!fanData) {
+              return res.status(400).json({ error: "Fan data is required" });
             }
-          }
 
-          // Only run seeding if database needs setup
-          if (databaseNeedsSetup) {
-            // Initialize and seed the database
-            const dbInitPath = getModulePath(
-              "server/services/databaseInit.service.js"
+            // Dynamically import the Axial PDF generator from Newmodules
+            if (!generateAxialFanDatasheetPDF) {
+              const pdfModule = await import(
+                getModulePath(
+                  "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
+                )
+              );
+              generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
+            }
+
+            const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
+            // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
+            const fanUnitNo =
+              userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
+            const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
+            const filename = `${sanitizedName}_datasheet.pdf`;
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `inline; filename="${filename}"`
             );
-            const { DatabaseInitService } = await import(dbInitPath);
-            await DatabaseInitService.initializeDatabase();
+            doc.pipe(res);
+            doc.end();
+          } catch (err) {
+            console.error("Axial PDF generation error:", err);
+            res
+              .status(500)
+              .json({ error: "Failed to generate PDF", details: err.message });
           }
-        } catch (dbErr) {
-          console.error("Database auto-init failed:", dbErr);
+        });
+
+        // Centrifugal PDF route
+        expressApp.post("/api/centrifugal/pdf/datasheet", async (req, res) => {
+          try {
+            const { fanData, userInput, units } = req.body;
+            if (!fanData) {
+              return res.status(400).json({ error: "Fan data is required" });
+            }
+
+            // Dynamically import the Centrifugal PDF generator from Newmodules
+            if (!generateCentrifugalFanDatasheetPDF) {
+              const pdfModule = await import(
+                getModulePath(
+                  "server/Newmodules/centrifugal/CentrifugalPDF/centrifugalPdfGenerator.service.js"
+                )
+              );
+              generateCentrifugalFanDatasheetPDF =
+                pdfModule.generateCentrifugalFanDatasheetPDF;
+            }
+
+            const doc = generateCentrifugalFanDatasheetPDF(
+              fanData,
+              userInput,
+              units
+            );
+            // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
+            const fanUnitNo =
+              userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
+            const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
+            const filename = `${sanitizedName}_datasheet.pdf`;
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `inline; filename="${filename}"`
+            );
+            doc.pipe(res);
+            doc.end();
+          } catch (err) {
+            console.error("Centrifugal PDF generation error:", err);
+            res
+              .status(500)
+              .json({ error: "Failed to generate PDF", details: err.message });
+          }
+        });
+
+        // Legacy PDF route (uses Axial PDF generator)
+        expressApp.post("/api/pdf/datasheet", async (req, res) => {
+          try {
+            const { fanData, userInput, units } = req.body;
+            if (!fanData) {
+              return res.status(400).json({ error: "Fan data is required" });
+            }
+
+            // Dynamically import the Axial PDF generator from Newmodules
+            if (!generateAxialFanDatasheetPDF) {
+              const pdfModule = await import(
+                getModulePath(
+                  "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
+                )
+              );
+              generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
+            }
+
+            const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
+            // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
+            const fanUnitNo =
+              userInput?.fanUnitNo || fanData.FanModel || "DataSheet";
+            const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
+            const filename = `${sanitizedName}_datasheet.pdf`;
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `inline; filename="${filename}"`
+            );
+            doc.pipe(res);
+            doc.end();
+          } catch (err) {
+            console.error("PDF generation error:", err);
+            res
+              .status(500)
+              .json({ error: "Failed to generate PDF", details: err.message });
+          }
+        });
+
+        expressApp.post("/api/pdf/datasheet/download", async (req, res) => {
+          try {
+            const { fanData, userInput, units } = req.body;
+            if (!fanData) {
+              return res.status(400).json({ error: "Fan data is required" });
+            }
+
+            // Dynamically import the Axial PDF generator from Newmodules
+            if (!generateAxialFanDatasheetPDF) {
+              const pdfModule = await import(
+                getModulePath(
+                  "server/Newmodules/axial/AxialPDF/axialPdfGenerator.service.js"
+                )
+              );
+              generateAxialFanDatasheetPDF = pdfModule.generateFanDatasheetPDF;
+            }
+
+            const doc = generateAxialFanDatasheetPDF(fanData, userInput, units);
+            // Use fanUnitNo from userInput if available, otherwise fall back to FanModel
+            const fanUnitNo =
+              userInput?.fanUnitNo || fanData.FanModel || "Fan_Report";
+            const sanitizedName = fanUnitNo.replace(/[/\\:*?"<>|]/g, "_");
+            const filename = `${sanitizedName}_datasheet.pdf`;
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="${filename}"`
+            );
+            doc.pipe(res);
+            doc.end();
+          } catch (err) {
+            console.error("PDF generation error:", err);
+            res
+              .status(500)
+              .json({ error: "Failed to generate PDF", details: err.message });
+          }
+        });
+
+        // Centrifugal Data Admin routes (pulleys, belt-standards, pulley-standards, casing pricing CRUD)
+        // Must match server/index.js: app.use("/api/centrifugal/data", centrifugalDataAdminRoutes)
+        try {
+          const centrifugalDataAdminModule = await import(
+            getModulePath(
+              "server/Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.router.js"
+            )
+          );
+          expressApp.use("/api/centrifugal/data", centrifugalDataAdminModule.default);
+          console.log("✅ Centrifugal data admin routes mounted at /api/centrifugal/data");
+        } catch (err) {
+          console.warn("⚠️ Could not mount centrifugal data admin routes:", err.message);
         }
 
-        resolve();
-      });
+        // Centrifugal Fan Data CRUD routes (GET/POST fan-data, PUT/DELETE :id for admin page)
+        // Must match server/index.js: app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes)
+        try {
+          const centrifugalFanDataModule = await import(
+            getModulePath(
+              "server/Newmodules/centrifugal/CentrifugalFanData/centrifugalFanData.route.js"
+            )
+          );
+          expressApp.use("/api/centrifugal/fan-data", centrifugalFanDataModule.default);
+          console.log("✅ Centrifugal fan data routes mounted at /api/centrifugal/fan-data");
+        } catch (err) {
+          console.warn("⚠️ Could not mount centrifugal fan data routes:", err.message);
+        }
 
-      server.on("error", (err) => {
-        console.error("Server error:", err);
-        reject(err);
-      });
-    } catch (error) {
-      console.error("Failed to start server:", error);
-      reject(error);
-    }
+        // Axial Fan Data CRUD routes (admin page: list, add, edit, delete fans + export/import)
+        try {
+          const axialFanDataModule = await import(
+            getModulePath("server/Newmodules/axial/AxialFanData/axialFanData.route.js")
+          );
+          expressApp.use("/api/axial/fan-data", axialFanDataModule.default);
+          expressApp.use("/api/fan-data", axialFanDataModule.default);
+          console.log("✅ Axial fan data routes mounted at /api/axial/fan-data & /api/fan-data");
+        } catch (err) {
+          console.warn("⚠️ Could not mount axial fan data routes:", err.message);
+        }
+
+        // Axial Motor Data CRUD routes (admin page: list, add, edit, delete motors + export/import)
+        try {
+          const axialMotorDataModule = await import(
+            getModulePath("server/Newmodules/axial/AxialMotorData/axialMotorData.route.js")
+          );
+          expressApp.use("/api/motor-data", axialMotorDataModule.default);
+          console.log("✅ Axial motor data routes mounted at /api/motor-data");
+        } catch (err) {
+          console.warn("⚠️ Could not mount axial motor data routes:", err.message);
+        }
+
+        // Axial Pricing routes (items, accessories, impeller, casing)
+        try {
+          const axialPricingModule = await import(
+            getModulePath("server/Newmodules/axial/AxialPricing/axialPricing.routes.js")
+          );
+          expressApp.use("/api/axial/pricing", axialPricingModule.default);
+          console.log("✅ Axial pricing routes mounted at /api/axial/pricing");
+        } catch (err) {
+          console.warn("⚠️ Could not mount axial pricing routes:", err.message);
+        }
+
+        // Pricing compatibility routes (/api/pricing/axial-impeller, /api/pricing/axial-casing, /api/pricing/items, /api/pricing/categories)
+        try {
+          const { axialImpellerRoutes } = await import(
+            getModulePath("server/Newmodules/axial/AxialPricing/AxialImpeller/index.js")
+          );
+          const { axialCasingRoutes } = await import(
+            getModulePath("server/Newmodules/axial/AxialPricing/AxialCasing/index.js")
+          );
+          const { pricingItemsRoutes } = await import(
+            getModulePath("server/Newmodules/axial/AxialPricing/Pricing_Items/index.js")
+          );
+          const pricingCompatRouter = express.Router();
+          pricingCompatRouter.use("/axial-impeller", axialImpellerRoutes);
+          pricingCompatRouter.use("/axial-casing", axialCasingRoutes);
+          pricingCompatRouter.use("/", pricingItemsRoutes);
+          expressApp.use("/api/pricing", pricingCompatRouter);
+          console.log("✅ Pricing compat routes mounted at /api/pricing");
+        } catch (err) {
+          console.warn("⚠️ Could not mount pricing compat routes:", err.message);
+        }
+
+        // Accessories Pricing routes
+        try {
+          const { accessoriesRoutes } = await import(
+            getModulePath("server/Newmodules/axial/AxialPricing/index.js")
+          );
+          expressApp.use("/api/accessories-pricing", accessoriesRoutes);
+          console.log("✅ Accessories pricing routes mounted at /api/accessories-pricing");
+        } catch (err) {
+          console.warn("⚠️ Could not mount accessories pricing routes:", err.message);
+        }
+
+        // Catalog API Routes - List available catalog PDFs
+        expressApp.get("/api/catalogs", (req, res) => {
+          try {
+            const catalogsPath = isDev
+              ? path.join(__dirname, "Catologs")
+              : path.join(process.resourcesPath, "Catologs");
+
+            console.log("Catalogs path:", catalogsPath);
+
+            if (!fs.existsSync(catalogsPath)) {
+              return res.json({ catalogs: [] });
+            }
+
+            const files = fs
+              .readdirSync(catalogsPath)
+              .filter((file) => file.toLowerCase().endsWith(".pdf"))
+              .map((file) => ({
+                name: file,
+                displayName: file.replace(".pdf", ""),
+                size: fs.statSync(path.join(catalogsPath, file)).size,
+              }));
+
+            res.json({ catalogs: files });
+          } catch (err) {
+            console.error("Catalog list error:", err);
+            res.status(500).json({ error: err.message });
+          }
+        });
+
+        // Catalog Download Route - Download a specific catalog PDF
+        expressApp.get("/api/catalogs/download/:filename", (req, res) => {
+          try {
+            const { filename } = req.params;
+
+            // Security: Prevent directory traversal
+            const sanitizedFilename = path.basename(filename);
+            if (!sanitizedFilename.toLowerCase().endsWith(".pdf")) {
+              return res.status(400).json({ error: "Invalid file type" });
+            }
+
+            const catalogsPath = isDev
+              ? path.join(__dirname, "Catologs")
+              : path.join(process.resourcesPath, "Catologs");
+
+            const filePath = path.join(catalogsPath, sanitizedFilename);
+
+            if (!fs.existsSync(filePath)) {
+              return res.status(404).json({ error: "Catalog not found" });
+            }
+
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+              "Content-Disposition",
+              `attachment; filename="${sanitizedFilename}"`
+            );
+            res.setHeader("Content-Length", fs.statSync(filePath).size);
+
+            const fileStream = fs.createReadStream(filePath);
+            fileStream.pipe(res);
+          } catch (err) {
+            console.error("Catalog download error:", err);
+            res.status(500).json({ error: err.message });
+          }
+        });
+
+        if (fs.existsSync(clientBuildPath)) {
+          expressApp.use(express.static(clientBuildPath));
+
+          // Handle React Router - serve index.html for all non-API routes
+          expressApp.get("*", (req, res) => {
+            res.sendFile(path.join(clientBuildPath, "index.html"));
+          });
+
+          console.log("Static files configured");
+        } else {
+          console.error("Client build not found at:", clientBuildPath);
+        }
+
+        const PORT = 5001;
+        server = expressApp.listen(PORT, "127.0.0.1", async () => {
+          console.log(`Server running on http://127.0.0.1:${PORT}`);
+
+          // Initialize database - create schema and seed if needed
+          try {
+            // Set environment variables for the service to find data files
+            process.env.RESOURCES_PATH = resourcesPath;
+            process.env.APP_PATH = appPath;
+
+            // Check if database already has data (was copied from template)
+            let databaseNeedsSetup = true;
+            if (!isDev) {
+              try {
+                const dbPathFromEnv = process.env.DATABASE_URL
+                  ? decodeURIComponent(process.env.DATABASE_URL.replace(/^file:/, ""))
+                  : null;
+                if (dbPathFromEnv && fs.existsSync(dbPathFromEnv)) {
+                  const dbStats = fs.statSync(dbPathFromEnv);
+                  console.log(
+                    `📊 Database file size: ${(dbStats.size / 1024).toFixed(
+                      2
+                    )} KB`
+                  );
+
+                  // If database is larger than 1KB, it likely has data
+                  if (dbStats.size > 1024) {
+                    // Quick check: try to query if tables exist
+                    const { PrismaClient } = require(
+                      path.join(app.getAppPath(), "node_modules", "@prisma", "client")
+                    );
+                    const testPrisma = new PrismaClient({
+                      datasources: {
+                        db: { url: process.env.DATABASE_URL },
+                      },
+                    });
+
+                    try {
+                      const fanCount = await testPrisma.fanData.count();
+                      const centrifugalCount =
+                        await testPrisma.centrifugalFanData.count();
+                      console.log(
+                        `📊 Database check: ${fanCount} axial fans, ${centrifugalCount} centrifugal fans`
+                      );
+
+                      if (fanCount > 0 || centrifugalCount > 0) {
+                        console.log(
+                          "✅ Database already has data - skipping seeding (migrations will still run)"
+                        );
+                        databaseNeedsSetup = false;
+                      } else {
+                        console.log(
+                          "⚠️ Database exists but is empty - will run migrations and seed"
+                        );
+                      }
+                    } catch (queryErr) {
+                      console.log(
+                        "⚠️ Could not query database (may need migrations):",
+                        queryErr.message
+                      );
+                      // Database might need migrations
+                    } finally {
+                      await testPrisma.$disconnect();
+                    }
+                  }
+                }
+              } catch (checkErr) {
+                console.warn(
+                  "⚠️ Could not check database status:",
+                  checkErr.message
+                );
+              }
+            }
+
+            // Always run migrations to apply pending schema changes
+            if (!isDev) {
+              try {
+                const migrationRunnerPath = getModulePath(
+                  "server/services/migrationRunner.service.js"
+                );
+                const { runMigrations } = await import(migrationRunnerPath);
+                const dbPathFromEnv = process.env.DATABASE_URL
+                  ? decodeURIComponent(process.env.DATABASE_URL.replace(/^file:/, ""))
+                  : null;
+                if (dbPathFromEnv) {
+                  console.log("🔄 Ensuring database schema is up to date...");
+                  const normalizedPath = dbPathFromEnv.replace(/\//g, path.sep);
+                  await runMigrations(normalizedPath);
+                } else {
+                  console.warn("⚠️ DATABASE_URL not set, skipping migrations");
+                }
+              } catch (migrationErr) {
+                console.error(
+                  "⚠️ Migration runner failed (will continue):",
+                  migrationErr.message
+                );
+                console.error("Migration error details:", migrationErr);
+              }
+            }
+
+            // Only run seeding if database needs setup
+            if (databaseNeedsSetup) {
+              // Initialize and seed the database
+              const dbInitPath = getModulePath(
+                "server/services/databaseInit.service.js"
+              );
+              const { DatabaseInitService } = await import(dbInitPath);
+              await DatabaseInitService.initializeDatabase();
+            }
+          } catch (dbErr) {
+            console.error("Database auto-init failed:", dbErr);
+          }
+
+          resolve();
+        });
+
+        server.on("error", (err) => {
+          console.error("Server error:", err);
+          reject(err);
+        });
+      } catch (error) {
+        console.error("Failed to start server:", error);
+        reject(error);
+      }
     })();
   });
 }
