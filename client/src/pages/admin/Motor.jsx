@@ -320,29 +320,6 @@ export default function MotorPage() {
     }));
   }, [motors]);
 
-  const downloadMotorTemplate = async () => {
-    // expects pre-made file at /templates/MotorData-template.xlsx in the client public folder
-    try {
-      const urlPath = `${
-        process.env.PUBLIC_URL || ""
-      }/templates/Motor-Data-Template.xlsx`;
-      const resp = await fetch(urlPath);
-      if (!resp.ok) throw new Error(`Template not found: ${resp.status}`);
-      const blob = await resp.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "Motor-Data-Template.xlsx";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      setExportMessage(err.message || "Failed to download template");
-    }
-  };
-
   return (
     <Box p={4} bg="var(--bg-page)" color="var(--text-primary)">
       <Heading mb={4} fontSize={"2xl"} fontWeight="bold" color="var(--text-primary)">
@@ -376,15 +353,6 @@ export default function MotorPage() {
           <Box mb={4} display="flex" gap={2} alignItems="center">
             <Button
               size="sm"
-              bg="var(--btn-primary)"
-              color="white"
-              _hover={{ bg: "var(--btn-primary-hover)" }}
-              onClick={downloadMotorTemplate}
-            >
-              Download Template
-            </Button>
-            <Button
-              size="sm"
               bg="var(--btn-secondary)"
               color="white"
               _hover={{ bg: "var(--btn-secondary-hover)" }}
@@ -393,7 +361,7 @@ export default function MotorPage() {
               }
               isDisabled={uploading}
             >
-              {uploading ? "Uploading..." : "Upload Motor Data"}
+              {uploading ? "Uploading..." : "Import"}
             </Button>
 
             <input
@@ -502,7 +470,7 @@ export default function MotorPage() {
                 }
               }}
             >
-              Export Motor Data
+              Export
             </Button>
           </Box>
         </Box>
