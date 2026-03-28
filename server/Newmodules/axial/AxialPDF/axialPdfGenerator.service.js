@@ -538,29 +538,19 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   const certIconsY = fanImgY + fanImgH + mm(0.5);  // 2mm gap from fan image
   const certIconsX = fanImgX + mm(-5);            // shift row 1mm to the right
 
-  // Icon 1: AMCA - 9.502mm × 10.201mm
-  const amcaW = mm(9);
-  const amcaH = mm(9);
-
-  try {
-    const amcaPath = path.join(__dirname, "PDF", "assets", "AMCA.png");
-    if (fs.existsSync(amcaPath)) {
-      doc.image(amcaPath, certIconsX, certIconsY, { width: amcaW, height: amcaH });
-    }
-  } catch (e) { console.error("Failed to load AMCA icon:", e.message); }
-
-  // Icon 2: ISO - 10.421mm × 9.037mm
-  const isoW = mm(9);
+  // Icon 1: ISO - rendered using SVGtoPDF (PDFKit doc.image does not support SVG)
+  const isoW = mm(11);
   const isoH = mm(9);
-  const isoX = certIconsX + amcaW + mm(2);  // 2mm gap from AMCA
+  const isoX = certIconsX;
   try {
-    const isoPath = path.join(__dirname, "PDF", "assets", "ISO.png");
+    const isoPath = path.join(__dirname, "PDF", "assets", "ISO.svg");
     if (fs.existsSync(isoPath)) {
-      doc.image(isoPath, isoX, certIconsY, { width: isoW, height: isoH });
+      const isoSvgContent = fs.readFileSync(isoPath, 'utf8');
+      SVGtoPDF(doc, isoSvgContent, isoX, certIconsY, { width: isoW, height: isoH, preserveAspectRatio: 'xMidYMid meet' });
     }
   } catch (e) { console.error("Failed to load ISO icon:", e.message); }
 
-  // Icon 3: EOS - 8.835mm × 9.037mm
+  // Icon 2: EOS 
   const eosW = mm(9);
   const eosH = mm(9);
   const eosX = isoX + isoW + mm(2);  // 2mm gap between icons
@@ -572,7 +562,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   } catch (e) { console.error("Failed to load EOS icon:", e.message); }
 
   // Calculate the tallest icon height to ensure proper spacing to data table
-  const maxIconHeight = Math.max(amcaH, isoH, eosH);
+  const maxIconHeight = Math.max(isoH, eosH);
   // Note: 2mm gap from bottom of icons to data table is ensured by TOP_TO_DATA_TABLE constant
 
   // ========== SECTION 2: DATA TABLES (from Image 2) ==========
@@ -644,7 +634,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
 
   const fanRows = [
     ["- Impeller Type", ":", "Axial"],
-    ["- Blades Symbol", ":", blades.symbol || "AM"],
+    ["- Blades Symbol", ":", ((blades.material || "") + (blades.symbol || "")) || "AM"],
     ["- Blades Material", ":", bladeMat],
     ["- Blades Angle [degree]", ":", formattedBladeAngle],
     ["- Configurations (Hub-Blades)", ":", impeller.conf || "16-8"],
@@ -669,7 +659,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
 
   const motorRows = [
     ["- Motor Model", ":", motor.model || "—"],
-    ["- Motor Power [kW]", ":", fmt(motor.powerKW, 1)],
+    ["- Motor Power [kW]", ":", fmt(motor.powerKW, 2)],
     ["- No. of Poles", ":", fmt(motor.NoPoles, 0)],
     ["- Voltage [V]/Phase/Frequency [Hz]", ":", `${motor.Phase === 3 ? "380" : "220"}/${motor.Phase || "—"}/50`],
     ["- Motor Efficiency [%]", ":", fmtPct(motorEff)],
@@ -753,17 +743,17 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   doc.moveTo(M + spectrumW, tableY).lineTo(M + spectrumW, tableY + cellH * 2).stroke();
 
   // Hz row
-  doc.fontSize(5.5).font(getFont()).fillColor(COLORS.black);
+  doc.fontSize(6).font(getFont()).fillColor(COLORS.black);
   doc.text("Hz", M, tableY + mm(0.8), { width: labelColW, align: "center" });
   bands.forEach((b, i) => {
     doc.text(b, barStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
   });
   const textOffsetY_LP = (cellH - 4) / 2;  // Center 4pt text vertically in cell
-  doc.fontSize(5).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
-  doc.fontSize(5);
+  doc.fontSize(6).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
+  doc.fontSize(6);
 
   // dBA row
-  doc.fontSize(5.5).font(getFont()).fillColor(COLORS.black);
+  doc.fontSize(6).font(getFont()).fillColor(COLORS.black);
   doc.text("dBA", M, tableY + cellH + mm(0.8), { width: labelColW, align: "center" });
   octaveLP.forEach((v, i) => {
     doc.text(fmt(v, 1), barStartX + i * (barW + barGap), tableY + cellH + mm(0.8), { width: barW, align: "center" });
@@ -804,7 +794,7 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     }
   }
 
-  // Table - matching photo styling
+  
   // Draw table grid lines (only horizontal lines and outer borders, no vertical cell dividers)
   doc.strokeColor("#000000").lineWidth(0.5);
   // Horizontal lines
@@ -816,16 +806,16 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   doc.moveTo(rwX + spectrumW, tableY).lineTo(rwX + spectrumW, tableY + cellH * 2).stroke();
 
   // Hz row
-  doc.fontSize(5.5).font(getFont()).fillColor(COLORS.black);
+  doc.fontSize(6).font(getFont()).fillColor(COLORS.black);
   doc.text("Hz", rwX, tableY + mm(0.8), { width: labelColW, align: "center" });
   bands.forEach((b, i) => {
     doc.text(b, rwBarStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
   });
-  doc.fontSize(5).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(1), { width: barW, align: "center" });
+  doc.fontSize(5.9).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(1), { width: barW, align: "center" });
 
 
   // dBA row
-  doc.fontSize(5, 5).font(getFont()).fillColor(COLORS.black);
+  doc.fontSize(6).font(getFont()).fillColor(COLORS.black);
   doc.text("dBA", rwX, tableY + cellH + mm(0.8), { width: labelColW, align: "center" });
   octaveLW.forEach((v, i) => {
     doc.text(fmt(v, 1), rwBarStartX + i * (barW + barGap), tableY + cellH + mm(0.8), { width: barW, align: "center" });
@@ -969,12 +959,8 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   const xStep = xTickResult.step;
 
   const pMin = 0;
-  // Include system curve peak in pMax
-  if (operatingStaticPressure && operatingAirFlow && operatingAirFlow > 0) {
-    const coeffA = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
-    const maxSysP = coeffA * Math.pow(dataXMax, 2);
-    if (maxSysP > pMax) pMax = maxSysP;
-  }
+  // Include operating point pressure in range (but NOT the system curve's
+  // extrapolated peak at max X, which can be astronomically high for small airflows)
   if (operatingStaticPressure && operatingStaticPressure > pMax) pMax = operatingStaticPressure;
   // Ps Y-axis: exactly 10 intervals
   const pTickResult = generateNiceTicks(pMax || 600, 10);
@@ -1132,19 +1118,19 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   if (operatingAirFlow && operatingAirFlow > 0) {
     // Static Pressure intersection
     if (operatingStaticPressure != null) {
-      drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveBlack);
+      drawIntersectionDot(operatingAirFlow, operatingStaticPressure, pMin, finalPMax, COLORS.curveRed);
     }
     // Fan Input Power intersection
     if (pred.FanInputPowerPred != null) {
-      drawIntersectionDot(operatingAirFlow, pred.FanInputPowerPred, pwMin, finalPwMax, COLORS.curveBlue);
+      drawIntersectionDot(operatingAirFlow, pred.FanInputPowerPred, pwMin, finalPwMax, COLORS.curveRed);
     }
     // Static Efficiency intersection
     if (pred.FanStaticEfficiencyPred != null) {
-      drawIntersectionDot(operatingAirFlow, pred.FanStaticEfficiencyPred * 100, effMin, effMax, COLORS.curveGreen);
+      drawIntersectionDot(operatingAirFlow, pred.FanStaticEfficiencyPred * 100, effMin, effMax, COLORS.curveRed);
     }
     // Total Efficiency intersection
     if (pred.FanTotalEfficiencyPred != null) {
-      drawIntersectionDot(operatingAirFlow, pred.FanTotalEfficiencyPred * 100, effMin, effMax, COLORS.curveGreen);
+      drawIntersectionDot(operatingAirFlow, pred.FanTotalEfficiencyPred * 100, effMin, effMax, COLORS.curveRed);
     }
     // System Curve intersection (same point as static pressure at operating airflow)
     if (operatingStaticPressure != null) {

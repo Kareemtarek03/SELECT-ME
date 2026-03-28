@@ -1295,25 +1295,24 @@ export default function ResultsPage() {
                     const summaryFields = {
                       FanModel: item.FanModel,
                       Id: item.Id,
-                      RPM: item.RPM,
+                      RPM: input?.RPM || item.RPM,
                       desigDensity: item.desigDensity,
                       InputDensity: item.InputDensity,
                     };
 
-                    const blades = item.Blades
-                      ? `${item.Blades.symbol || ""}${
-                          item.Blades.material
-                            ? ` (${item.Blades.material})`
-                            : ""
-                        } - ${item.Blades.noBlades || ""} blades @ ${
-                          item.Blades.angle || ""
-                        }°`
-                      : null;
-                    const imp = item.Impeller
-                      ? `${item.Impeller.conf || ""} (inner ${
-                          item.Impeller.innerDia || ""
-                        } mm)`
-                      : null;
+                    // Build blade designation: materialCode + symbol (e.g. "AM")
+                    const bladeMat = item.Blades?.material;
+                    const bladeMatDisplay = bladeMat === "A" || bladeMat === "Aluminum" ? "Aluminum" : bladeMat === "P" || bladeMat === "PAG" ? "Plastic" : bladeMat || "";
+                    const bladeSym = item.Blades?.symbol;
+                    const bladeMatCode = bladeMat === "Aluminum" ? "A" : bladeMat === "PAG" ? "P" : bladeMat ? bladeMat.charAt(0) : "";
+                    const bladeDesignation = bladeMatCode && bladeSym ? `${bladeMatCode}${bladeSym}` : (bladeSym || "");
+                    const bladeNoBlades = item.Blades?.noBlades;
+                    const bladeAngle = item.Blades?.angle;
+
+                    // Impeller data
+                    const impConf = item.Impeller?.conf;
+                    const impInnerDia = item.Impeller?.innerDia;
+                    const hubType = item.hubType;
 
                     const motor = item.matchedMotor;
                     console.log("Motor", motor);
@@ -1422,56 +1421,77 @@ export default function ResultsPage() {
                                     : "—"}
                                 </span>
                               </div>
+                              {/* Blades Section */}
                               <div
                                 style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
                                   padding: "0.625rem 0",
                                   borderBottom: "1px solid #e2e8f0",
                                 }}
                               >
-                                <span
-                                  style={{
-                                    color: "#64748b",
-                                    fontSize: "0.875rem",
-                                  }}
-                                >
-                                  Blades
-                                </span>
-                                <span
-                                  style={{
-                                    color: "#1e293b",
-                                    fontSize: "0.875rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  {blades || "—"}
-                                </span>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.375rem" }}>
+                                  <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Blades</span>
+                                  {bladeDesignation && (
+                                    <span style={{
+                                      background: "#eff6ff",
+                                      color: "#1d4ed8",
+                                      fontSize: "0.8125rem",
+                                      fontWeight: "700",
+                                      padding: "0.125rem 0.625rem",
+                                      borderRadius: "4px",
+                                      letterSpacing: "0.05em",
+                                    }}>
+                                      {bladeDesignation}
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.25rem", paddingLeft: "0.5rem" }}>
+                                  <div>
+                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Material</span>
+                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeMatDisplay || "—"}</div>
+                                  </div>
+                                  <div>
+                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>No. of Blades</span>
+                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeNoBlades ?? "—"}</div>
+                                  </div>
+                                  <div>
+                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Angle</span>
+                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeAngle != null ? `${bladeAngle}°` : "—"}</div>
+                                  </div>
+                                </div>
                               </div>
+
+                              {/* Impeller Section */}
                               <div
                                 style={{
-                                  display: "flex",
-                                  justifyContent: "space-between",
                                   padding: "0.625rem 0",
                                 }}
                               >
-                                <span
-                                  style={{
-                                    color: "#64748b",
-                                    fontSize: "0.875rem",
-                                  }}
-                                >
-                                  Impeller
-                                </span>
-                                <span
-                                  style={{
-                                    color: "#1e293b",
-                                    fontSize: "0.875rem",
-                                    fontWeight: "500",
-                                  }}
-                                >
-                                  {imp || "—"}
-                                </span>
+                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.375rem" }}>
+                                  <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Impeller</span>
+                                  {impConf && (
+                                    <span style={{
+                                      background: "#f0fdf4",
+                                      color: "#15803d",
+                                      fontSize: "0.8125rem",
+                                      fontWeight: "700",
+                                      padding: "0.125rem 0.625rem",
+                                      borderRadius: "4px",
+                                      letterSpacing: "0.05em",
+                                    }}>
+                                      {impConf}
+                                    </span>
+                                  )}
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem", paddingLeft: "0.5rem" }}>
+                                  <div>
+                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Inner Diameter</span>
+                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{impInnerDia != null ? `${impInnerDia} mm` : "—"}</div>
+                                  </div>
+                                  <div>
+                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Hub Type</span>
+                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{hubType ?? "—"}</div>
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
@@ -1777,14 +1797,15 @@ export default function ResultsPage() {
                               {/* Chart Container */}
                               <div
                                 style={{
-                                  background: "#f8fafc",
+                                  background: "transparent",
                                   borderRadius: "12px",
-                                  border: "1px solid #e2e8f0",
+                                  border: "none",
                                   padding: "1rem",
                                 }}
                               >
                                 <div
                                   style={{
+                                    position: "relative",
                                     width: "100%",
                                     height: "500px",
                                     display: "flex",
@@ -1966,19 +1987,8 @@ export default function ResultsPage() {
                                           ? Math.max(...validPressureValues)
                                           : 0;
 
-                                      // Include system curve peak in pressure range
-                                      if (
-                                        predictedStaticPressure &&
-                                        userAirflowInput &&
-                                        userAirflowInput > 0
-                                      ) {
-                                        const coeffA =
-                                          predictedStaticPressure /
-                                          Math.pow(userAirflowInput, 2);
-                                        const maxSysP =
-                                          coeffA * Math.pow(dataXMax, 2);
-                                        if (maxSysP > pMax) pMax = maxSysP;
-                                      }
+                                      // Include operating point pressure in range (but NOT the system curve's
+                                      // extrapolated peak at max X, which can be astronomically high for small airflows)
                                       if (
                                         predictedStaticPressure &&
                                         predictedStaticPressure > pMax
@@ -2055,15 +2065,17 @@ export default function ResultsPage() {
                                           }}
                                         >
                                           <CartesianGrid
-                                            strokeDasharray="3 3"
-                                            stroke="#e2e8f0"
+                                            strokeDasharray=""
+                                            stroke="#d0d0d0"
+                                            horizontal={true}
+                                            vertical={true}
                                             style={{ pointerEvents: "none" }}
                                           />
                                           <XAxis
                                             dataKey="x"
-                                            stroke="#94a3b8"
+                                            stroke="#000000"
                                             tick={{
-                                              fill: "#94a3b8",
+                                              fill: "#000000",
                                               fontSize: 14,
                                             }}
                                             ticks={xTicks}
@@ -2320,7 +2332,7 @@ export default function ResultsPage() {
                                                   }
                                                   yAxisId="pressure"
                                                   r={isLocked ? 8 : 6}
-                                                  fill="#000000"
+                                                  fill="#FF0000"
                                                   stroke={
                                                     isLocked
                                                       ? selectedStroke
@@ -2346,7 +2358,7 @@ export default function ResultsPage() {
                                                   }
                                                   yAxisId="power"
                                                   r={isLocked ? 8 : 6}
-                                                  fill="#002060"
+                                                  fill="#FF0000"
                                                   stroke={
                                                     isLocked
                                                       ? selectedStroke
@@ -2373,7 +2385,7 @@ export default function ResultsPage() {
                                                   }
                                                   yAxisId="efficiency"
                                                   r={isLocked ? 8 : 6}
-                                                  fill="#385723"
+                                                  fill="#FF0000"
                                                   stroke={
                                                     isLocked
                                                       ? selectedStroke
@@ -2400,7 +2412,7 @@ export default function ResultsPage() {
                                                   }
                                                   yAxisId="efficiency"
                                                   r={isLocked ? 8 : 6}
-                                                  fill="#385723"
+                                                  fill="#FF0000"
                                                   stroke={
                                                     isLocked
                                                       ? selectedStroke
@@ -2442,6 +2454,63 @@ export default function ResultsPage() {
                                       );
                                     })()}
                                   </ResponsiveContainer>
+                                  {/* Locked data box - shows when a point is selected */}
+                                  {isLocked && selectedChartPoint && (
+                                    <div
+                                      style={{
+                                        position: "absolute",
+                                        top: "30px",
+                                        right: "140px",
+                                        backgroundColor: "#ffffff",
+                                        border: "2px solid #1e293b",
+                                        borderRadius: "8px",
+                                        padding: "10px 14px",
+                                        boxShadow: "0 4px 16px rgba(0,0,0,0.2)",
+                                        zIndex: 10,
+                                        minWidth: "180px",
+                                        cursor: "pointer",
+                                      }}
+                                      onClick={() => {
+                                        setIsLocked(false);
+                                        setSelectedChartPoint(null);
+                                      }}
+                                    >
+                                      <div style={{ fontWeight: "700", fontSize: "13px", color: "#1e293b", marginBottom: "6px", borderBottom: "1px solid #e2e8f0", paddingBottom: "4px" }}>
+                                        Q: {Number(selectedChartPoint.x).toLocaleString()} {units?.airFlow || "CFM"}
+                                      </div>
+                                      {selectedChartPoint.StaticPressureNew != null && (
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
+                                          <span style={{ color: "#000000", fontWeight: "500" }}>Pst:</span>
+                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.StaticPressureNew.toFixed(1)} {units?.pressure || "Pa"}</span>
+                                        </div>
+                                      )}
+                                      {selectedChartPoint.FanInputPowerNew != null && (
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
+                                          <span style={{ color: "#002060", fontWeight: "500" }}>Psh:</span>
+                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanInputPowerNew.toFixed(2)} {units?.power || "kW"}</span>
+                                        </div>
+                                      )}
+                                      {selectedChartPoint.FanStaticEfficiency != null && (
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
+                                          <span style={{ color: "#385723", fontWeight: "500" }}>ηst:</span>
+                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanStaticEfficiency.toFixed(1)} %</span>
+                                        </div>
+                                      )}
+                                      {selectedChartPoint.FanTotalEfficiency != null && (
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
+                                          <span style={{ color: "#385723", fontWeight: "500" }}>ηtot:</span>
+                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanTotalEfficiency.toFixed(1)} %</span>
+                                        </div>
+                                      )}
+                                      {selectedChartPoint.SystemCurve != null && (
+                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
+                                          <span style={{ color: "#FF0000", fontWeight: "500" }}>System:</span>
+                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.SystemCurve.toFixed(1)} {units?.pressure || "Pa"}</span>
+                                        </div>
+                                      )}
+                                      <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "6px", textAlign: "center" }}>Click to dismiss</div>
+                                    </div>
+                                  )}
                                 </div>
                               </div>
 

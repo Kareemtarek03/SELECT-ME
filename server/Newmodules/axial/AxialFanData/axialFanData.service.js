@@ -722,15 +722,24 @@ export async function Output({ units, input, dataSource }) {
       if (fPowerFinal === null)
         return { ...fan, matchedMotor: null, powerDiff: null };
 
-      // collect motors with net >= fan power
+      // Motor Power [kW] >= Motor Input Power [kW] × (1 + Safety%)
+      // where Motor Input Power = Fan Input Power / Motor Efficiency
       const candidatesAbove = [];
       for (const m of motors) {
         const netRaw = m.netpower ?? m.netPower ?? m.powerKW ?? m.powerKw;
         const net = Number(netRaw);
         if (!Number.isFinite(net)) continue;
 
+        // Get this motor's efficiency (decimal); fallback to 0.85
+        let mEff = m.efficiency50Hz ?? (Array.isArray(m.effCurve) && m.effCurve.length > 0 ? m.effCurve[0] : null) ?? 0.85;
+        if (mEff > 1) mEff = mEff / 100;
+
+        // Required = (fanInputPower / motorEff) * (1 + Safety%)
+        const motorInputPower = fPowerFinal / mEff;
+        const requiredMotorPower = motorInputPower * (1 + input.Safety / 100);
+
         if (
-          net >= fPowerFinal * (1 + input.Safety / 100) &&
+          net >= requiredMotorPower &&
           noPoles == m.NoPoles &&
           m.Phase == input.NoPhases &&
           m.insClass == units.insulationClass
