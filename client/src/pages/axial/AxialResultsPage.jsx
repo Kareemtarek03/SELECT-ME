@@ -2,9 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "../../context/FormContext";
 import {
-  Button as ChakraButton,
-  Input,
-  Spinner,
   Flex,
   Box,
   Text,
@@ -21,7 +18,6 @@ import {
   Bar,
   Cell,
   CartesianGrid,
-  Legend,
   ReferenceDot,
 } from "recharts";
 import "./AxialResultsPage.css";
@@ -127,12 +123,70 @@ function generateNiceTicks(dataMax, numIntervals = 10) {
   const step = nice * mag;
   // Use ceil to find minimum intervals that cover the data (tight fit)
   const count = Math.ceil(margin / step);
-  const axisMax = step * count;
   const ticks = [];
   for (let i = 0; i <= count; i++) {
     ticks.push(parseFloat((i * step).toFixed(8)));
   }
   return { ticks, max: ticks[ticks.length - 1], step };
+}
+
+// Generate nice round tick values for a data range [dataMin, dataMax].
+// Supports non-zero minimum for dynamic Y-axis scaling.
+// Returns { ticks: number[], min: number, max: number, step: number }
+function generateNiceTicksRange(dataMin, dataMax, numIntervals = 10) {
+  // Fallback: if range is invalid, delegate to zero-based
+  if (dataMax == null || dataMin == null || !Number.isFinite(dataMin) || !Number.isFinite(dataMax)) {
+    const result = generateNiceTicks(dataMax || 100, numIntervals);
+    return { ...result, min: 0 };
+  }
+
+  let range = dataMax - dataMin;
+
+  // Minimum range enforcement — prevents flat/tiny curves from being invisible
+  const minRange = Math.abs(dataMax) * 0.1 || 1;
+  if (range < minRange) {
+    const center = (dataMax + dataMin) / 2;
+    dataMin = center - minRange / 2;
+    dataMax = center + minRange / 2;
+    range = dataMax - dataMin;
+  }
+
+  // Add 10% padding
+  const padding = range * 0.1;
+  const paddedMin = dataMin - padding;
+  const paddedMax = dataMax + padding;
+
+  // If padded min is close to zero or negative, snap to 0
+  if (paddedMin <= 0 || paddedMin < dataMax * 0.15) {
+    const result = generateNiceTicks(paddedMax, numIntervals);
+    return { ...result, min: 0 };
+  }
+
+  // Compute a nice step for the padded range
+  const paddedRange = paddedMax - paddedMin;
+  const rawStep = paddedRange / numIntervals;
+  const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const norm = rawStep / mag;
+  let nice;
+  if (norm <= 1) nice = 1;
+  else if (norm <= 1.5) nice = 1.5;
+  else if (norm <= 2) nice = 2;
+  else if (norm <= 2.5) nice = 2.5;
+  else if (norm <= 3) nice = 3;
+  else if (norm <= 5) nice = 5;
+  else nice = 10;
+  const step = nice * mag;
+
+  // Round min down and max up to nice step boundaries
+  const niceMin = Math.floor(paddedMin / step) * step;
+  const niceMax = Math.ceil(paddedMax / step) * step;
+
+  const ticks = [];
+  for (let v = niceMin; v <= niceMax + step * 0.001; v += step) {
+    ticks.push(parseFloat(v.toFixed(8)));
+  }
+
+  return { ticks, min: ticks[0], max: ticks[ticks.length - 1], step };
 }
 
 // Cubic spline interpolation for smooth curves
@@ -401,7 +455,6 @@ export default function ResultsPage() {
   const navigate = useNavigate();
   const { results: contextResults, units, input } = useFormData();
   const [selectedFanIndex, setSelectedFanIndex] = useState(0);
-  const [currentGraphIndex, setCurrentGraphIndex] = useState(0);
   const [activeTab, setActiveTab] = useState("performance"); // 'performance', 'curve', 'noise', or 'pricing'
   // Pricing for selected fan (impeller, casing, accessories)
   const [impellerPricing, setImpellerPricing] = useState(null);
@@ -449,8 +502,6 @@ export default function ResultsPage() {
       ? ["3-6", "6-6"]
       : ["5-5", "6-3", "6-6", "9-3", "9-9", "12-6", "12-12", "16-8", "16-16"];
 
-  const materialOptions = ["A", "P"];
-
   // Graph types for cycling - using the recalculated arrays from backend
   // Velocity Pressure removed per requirements
   const graphTypes = [
@@ -486,21 +537,12 @@ export default function ResultsPage() {
     },
   ];
 
-  const handlePrevGraph = () => {
-    setCurrentGraphIndex((prev) =>
-      prev === 0 ? graphTypes.length - 1 : prev - 1,
-    );
-  };
-
-  const handleNextGraph = () => {
-    setCurrentGraphIndex((prev) =>
-      prev === graphTypes.length - 1 ? 0 : prev + 1,
-    );
-  };
-
   // Extract results from context
   const apiData = contextResults?.data;
-  const fans = Array.isArray(apiData?.data) ? apiData.data : [];
+  const fans = useMemo(
+    () => (Array.isArray(apiData?.data) ? apiData.data : []),
+    [apiData?.data],
+  );
 
   // Apply filters to fans (must be before early return so hooks run unconditionally)
   const filteredFans = useMemo(
@@ -654,13 +696,6 @@ export default function ResultsPage() {
       setAccessoryPricingLoading(false);
     }
   }, [selectedFanIndex, filteredFans, units?.fanType]);
-
-  const formatValue = (v) => {
-    if (v === null || v === undefined) return "-";
-    if (typeof v === "number")
-      return v.toLocaleString(undefined, { maximumFractionDigits: 6 });
-    return String(v);
-  };
 
   const getDefaultForField = (type, name) => {
     const DEFAULTS = {
@@ -942,8 +977,6 @@ export default function ResultsPage() {
                           predictions.StaticPressurePred?.toFixed(2) || "-";
                         const powerValue =
                           predictions.FanInputPowerPred?.toFixed(2) || "-";
-                        const velocityPressureValue =
-                          predictions.VelocityPressurePred?.toFixed(2) || "-";
                         const staticEfficiencyValue =
                           predictions.FanStaticEfficiencyPred
                             ? (
@@ -1975,32 +2008,46 @@ export default function ResultsPage() {
 
                                       // ===== DYNAMIC Y-AXIS SCALING: exactly 10 intervals (11 ticks including 0) =====
 
-                                      // --- Pressure Y-Axis ---
-                                      const rawPressureData =
-                                        item["StaticPressureNew"] || [];
-                                      const validPressureValues =
-                                        rawPressureData
-                                          .filter((v) => v != null && !isNaN(v))
-                                          .map(Number);
-                                      let pMax =
-                                        validPressureValues.length > 0
-                                          ? Math.max(...validPressureValues)
-                                          : 0;
-
-                                      // Include operating point pressure in range (but NOT the system curve's
-                                      // extrapolated peak at max X, which can be astronomically high for small airflows)
-                                      if (
-                                        predictedStaticPressure &&
-                                        predictedStaticPressure > pMax
-                                      ) {
-                                        pMax = predictedStaticPressure;
+                                      // --- Pressure Y-Axis (data-driven min/max from all rendered pressure data) ---
+                                      // Collect all visible pressure values from mergedData (fan curve + system curve)
+                                      const allPressureVals = [];
+                                      mergedData.forEach((pt) => {
+                                        if (pt.StaticPressureNew != null && Number.isFinite(pt.StaticPressureNew)) {
+                                          allPressureVals.push(pt.StaticPressureNew);
+                                        }
+                                        if (pt.SystemCurve != null && Number.isFinite(pt.SystemCurve)) {
+                                          allPressureVals.push(pt.SystemCurve);
+                                        }
+                                      });
+                                      // Also include the operating point pressure
+                                      if (predictedStaticPressure && Number.isFinite(predictedStaticPressure)) {
+                                        allPressureVals.push(predictedStaticPressure);
                                       }
 
-                                      const pTickResult = generateNiceTicks(
+                                      let pMin = allPressureVals.length > 0 ? Math.min(...allPressureVals) : 0;
+                                      let pMax = allPressureVals.length > 0 ? Math.max(...allPressureVals) : 600;
+
+                                      // Cap system curve extremes: if the system curve pushes pMax far beyond the
+                                      // fan's static pressure range, limit it to avoid compressing the fan curve
+                                      const rawPressureData = item["StaticPressureNew"] || [];
+                                      const validPressureValues = rawPressureData
+                                        .filter((v) => v != null && !isNaN(v))
+                                        .map(Number);
+                                      if (validPressureValues.length > 0) {
+                                        const fanPMax = Math.max(...validPressureValues);
+                                        // Don't let system curve inflate axis beyond 2× the fan curve max
+                                        if (pMax > fanPMax * 2) {
+                                          pMax = fanPMax * 2;
+                                        }
+                                      }
+
+                                      const pTickResult = generateNiceTicksRange(
+                                        pMin,
                                         pMax || 600,
                                         10,
                                       );
                                       const pressureTicks = pTickResult.ticks;
+                                      const pressureAxisMin = pTickResult.min;
                                       const pressureAxisMax = pTickResult.max;
 
                                       // --- Power Y-Axis (20% margin) ---
@@ -2020,7 +2067,6 @@ export default function ResultsPage() {
                                         10,
                                       );
                                       const powerTicks = pwTickResult.ticks;
-                                      const pwMax = pwTickResult.max;
 
                                       // --- Efficiency Y-Axis (fixed 0-100%, 11 ticks) ---
                                       const efficiencyTicks = [
@@ -2067,9 +2113,9 @@ export default function ResultsPage() {
                                           <CartesianGrid
                                             strokeDasharray=""
                                             stroke="#d0d0d0"
+                                            strokeWidth={1}
                                             horizontal={true}
                                             vertical={true}
-                                            style={{ pointerEvents: "none" }}
                                           />
                                           <XAxis
                                             dataKey="x"
@@ -2095,7 +2141,6 @@ export default function ResultsPage() {
                                             }}
                                           />
                                           <YAxis
-                                            yAxisId="pressure"
                                             orientation="left"
                                             stroke="#000000"
                                             tick={{
@@ -2103,11 +2148,10 @@ export default function ResultsPage() {
                                               fontSize: 14,
                                             }}
                                             ticks={pressureTicks}
+                                            tickCount={pressureTicks.length}
                                             domain={[
-                                              0,
-                                              pressureTicks[
-                                                pressureTicks.length - 1
-                                              ] || 100,
+                                              pressureAxisMin,
+                                              pressureAxisMax,
                                             ]}
                                             hide={false}
                                             allowDataOverflow={true}
@@ -2199,7 +2243,6 @@ export default function ResultsPage() {
                                           {/* Static Pressure */}
                                           {curveVisibility.StaticPressureNew && (
                                             <Line
-                                              yAxisId="pressure"
                                               type="basis"
                                               dataKey="StaticPressureNew"
                                               stroke="#000000"
@@ -2260,7 +2303,6 @@ export default function ResultsPage() {
                                           {/* System Curve - Red */}
                                           {curveVisibility.SystemCurve && (
                                             <Line
-                                              yAxisId="pressure"
                                               type="basis"
                                               dataKey="SystemCurve"
                                               stroke="#FF0000"
@@ -2330,7 +2372,6 @@ export default function ResultsPage() {
                                                   y={
                                                     predictions.StaticPressurePred
                                                   }
-                                                  yAxisId="pressure"
                                                   r={isLocked ? 8 : 6}
                                                   fill="#FF0000"
                                                   stroke={
@@ -2434,7 +2475,6 @@ export default function ResultsPage() {
                                                   key="op-sys"
                                                   x={opAirflow}
                                                   y={predictedStaticPressure}
-                                                  yAxisId="pressure"
                                                   r={isLocked ? 8 : 6}
                                                   fill="#FF0000"
                                                   stroke={

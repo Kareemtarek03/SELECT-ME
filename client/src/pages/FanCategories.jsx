@@ -7,6 +7,7 @@ import {
     Button,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import HamburgerMenu from "../components/HamburgerMenu";
 import axialFanImage from "../assets/axial-fan.png";
 import centrifugalFanImage from "../assets/centrifugal-fan.png";
 
@@ -196,6 +197,8 @@ export default function FanCategories() {
             flexDirection="column"
             overflow="hidden"
         >
+            <HamburgerMenu />
+
             {/* Main Content */}
             <Box
                 flex={1}
@@ -221,7 +224,7 @@ export default function FanCategories() {
                             h="auto"
                             transition="color 0.3s ease"
                             _hover={{ color: "#137fec", bg: "transparent" }}
-                            onClick={() => navigate("/")}
+                            onClick={() => navigate("/dashboard")}
                             sx={{
                                 "& > span:first-of-type": {
                                     transition: "transform 0.3s ease",
@@ -232,7 +235,7 @@ export default function FanCategories() {
                             }}
                         >
                             <Text as="span" fontSize="lg">←</Text>
-                            <Text as="span">Back to Home</Text>
+                            <Text as="span">Back to Dashboard</Text>
                         </Button>
                     </Box>
 

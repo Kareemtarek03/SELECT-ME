@@ -6,10 +6,11 @@ import {
   Navigate,
 } from "react-router-dom";
 import { FormProvider } from "./context/FormContext";
-import GraphDetailPage from "./pages/GraphDetailPage";
 import FanCategories from "./pages/FanCategories";
 import UnitConverter from "./pages/UnitConverter";
 import LandingPage from "./pages/LandingPage";
+import DashboardPage from "./pages/DashboardPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 import CatalogPage from "./pages/CatalogPage";
 import "./index.css";
 
@@ -17,7 +18,6 @@ import "./index.css";
 import AxialFanTypesPage from "./pages/axial/AxialFanTypesPage";
 import AxialFanSelectionPage from "./pages/axial/AxialFanSelectionPage";
 import AxialResultsPage from "./pages/axial/AxialResultsPage";
-import AxialGraphDetailPage from "./pages/axial/AxialGraphDetailPage";
 
 // Admin pages
 import AxialFanDataPage from "./pages/admin/AxialFanDataPage";
@@ -49,6 +49,12 @@ function App() {
         <Routes>
           {/* Landing Page - Default route */}
           <Route path="/" element={<LandingPage />} />
+
+          {/* Dashboard - Main menu after landing page */}
+          <Route path="/dashboard" element={<DashboardPage />} />
+
+          {/* Admin Dashboard - Links to all admin data tables */}
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
 
           {/* Admin - /admin redirects to axial fan data; order: 1 Axial Fan, 2 Motor, 3 Centrifugal, 4 Pricing */}
           <Route
@@ -115,15 +121,6 @@ function App() {
               </div>
             }
           />
-          <Route
-            path="/graph-detail"
-            element={
-              <div style={{ minHeight: "100vh", background: "#f7fafc" }}>
-                <GraphDetailPage />
-              </div>
-            }
-          />
-
           {/* Unit Converter Route - No Header */}
           <Route
             path="/unit-converter"
@@ -169,15 +166,6 @@ function App() {
               </div>
             }
           />
-          <Route
-            path="/axial/graph-detail"
-            element={
-              <div style={{ minHeight: "100vh", background: "#f7fafc" }}>
-                <AxialGraphDetailPage />
-              </div>
-            }
-          />
-
           {/* Centrifugal Fan Routes */}
           <Route
             path="/centrifugal/fan-types"

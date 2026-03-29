@@ -7,16 +7,6 @@ export default function LandingPage() {
     const navigate = useNavigate();
     const currentYear = new Date().getFullYear();
 
-    const handleExit = () => {
-        // For Electron app, close the window
-        if (window.electron) {
-            window.electron.close();
-        } else {
-            // For web, just go back or close tab
-            window.close();
-        }
-    };
-
     return (
         <Box
             h="100vh"
@@ -26,47 +16,6 @@ export default function LandingPage() {
             position="relative"
             overflow="hidden"
         >
-            <Box w="100vw" display="flex" justifyContent="flex-end" alignItems="center" gap={2} margin={2}>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    color="#475569"
-                    _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/axial-fan-data")}
-                >
-                    Axial Fan Data
-                </Button>
-                <Text color="#cbd5e1">|</Text>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    color="#475569"
-                    _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/motor")}
-                >
-                    Motor Data
-                </Button>
-                <Text color="#cbd5e1">|</Text>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    color="#475569"
-                    _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/centrifugal")}
-                >
-                    Centrifugal Data
-                </Button>
-                <Text color="#cbd5e1">|</Text>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    color="#475569"
-                    _hover={{ color: "#1e293b" }}
-                    onClick={() => navigate("/admin/pricing")}
-                >
-                    Pricing
-                </Button>
-            </Box>
             {/* Main Content */}
             <Box flex={1} display="flex" alignItems="center" justifyContent="center">
                 <VStack spacing={6} align="center">
@@ -104,7 +53,7 @@ export default function LandingPage() {
 
                     {/* Fan Selection Button */}
                     <Button
-                        onClick={() => navigate("/fan-categories")}
+                        onClick={() => navigate("/dashboard")}
                         bg="linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
                         color="white"
                         size="lg"

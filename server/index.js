@@ -26,6 +26,9 @@ import centrifugalFanDataRoutes from "./Newmodules/centrifugal/CentrifugalFanDat
 import centrifugalDataAdminRoutes from "./Newmodules/centrifugal/CentrifugalDataAdmin/centrifugalDataAdmin.router.js";
 import centrifugalPdfRoutes from "./Newmodules/centrifugal/CentrifugalPDF/centrifugalPdf.route.js";
 
+// Catalog module
+import catalogRoutes from "./Newmodules/catalogs/catalogs.route.js";
+
 // Database Initialization
 import { DatabaseInitService } from "./services/databaseInit.service.js";
 
@@ -62,8 +65,8 @@ app.use("/api/centrifugal/fan-data", centrifugalFanDataRoutes);
 app.use("/api/centrifugal/data", centrifugalDataAdminRoutes);
 app.use("/api/centrifugal/pdf", centrifugalPdfRoutes);
 
-// Catalog routes - commented out as module doesn't exist yet
-// app.use("/api/catalogs", catalogRoutes);
+// Catalog routes
+app.use("/api/catalogs", catalogRoutes);
 
 // Serve static files from the React app build directory
 // In packaged app, client/build is in resources folder

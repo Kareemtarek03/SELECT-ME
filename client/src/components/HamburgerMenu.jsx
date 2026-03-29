@@ -6,13 +6,11 @@ export default function HamburgerMenu() {
     const navigate = useNavigate();
 
     const menuItems = [
-        { label: "Home", path: "/fan-categories", icon: "🏠" },
-        { label: "Axial Catalog", path: "/catalogs", icon: "📄" },
-        { label: "Unit Converter", path: "/unit-converter", icon: "⚙️" },
-        { label: "Axial Fan Data", path: "/admin/axial-fan-data", icon: "📋" },
-        { label: "Motor Data", path: "/admin/motor", icon: "⚙️" },
-        { label: "Centrifugal Data", path: "/admin/centrifugal", icon: "💨" },
-        { label: "Pricing", path: "/admin/pricing", icon: "💰" },
+        { label: "Home", path: "/", icon: "🏠" },
+        { label: "Fan Selection", path: "/fan-categories", icon: "🌀" },
+        { label: "Axial Catalog", path: "/catalogs", icon: "📋" },
+        { label: "Unit Converter", path: "/unit-converter", icon: "🔄" },
+        { label: "Admin", path: "/admin-dashboard", icon: "⚙️" },
     ];
 
     return (
