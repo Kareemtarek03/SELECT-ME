@@ -23,10 +23,10 @@ const INITIAL_FORM = {
   material: "",
   hubType: "Fixed",
   sizeMm: "",
-  weightKg: "",
-  moldCost: "",
-  machiningCost: "",
-  transportCost: "",
+  hubWeightKg: "",
+  moldCostWithVat: "",
+  machiningCostWithVat: "",
+  transportationCost: "",
   packingCost: "",
 };
 
@@ -89,10 +89,10 @@ export default function ImpellerHubsTable({
         <Input placeholder="Material" value={newItem.material} onChange={(e) => setNewItem({ ...newItem, material: e.target.value })} {...inputProps} />
         <Input placeholder="Hub Type" value={newItem.hubType} onChange={(e) => setNewItem({ ...newItem, hubType: e.target.value })} {...inputProps} />
         <Input placeholder="Size (mm)" type="number" value={newItem.sizeMm} onChange={(e) => setNewItem({ ...newItem, sizeMm: e.target.value })} {...inputProps} />
-        <Input placeholder="Weight (kg)" type="number" value={newItem.weightKg} onChange={(e) => setNewItem({ ...newItem, weightKg: e.target.value })} {...inputProps} />
-        <Input placeholder="Mold Cost" type="number" value={newItem.moldCost} onChange={(e) => setNewItem({ ...newItem, moldCost: e.target.value })} {...inputProps} />
-        <Input placeholder="Machining" type="number" value={newItem.machiningCost} onChange={(e) => setNewItem({ ...newItem, machiningCost: e.target.value })} {...inputProps} />
-        <Input placeholder="Transport" type="number" value={newItem.transportCost} onChange={(e) => setNewItem({ ...newItem, transportCost: e.target.value })} {...inputProps} />
+        <Input placeholder="Weight (kg)" type="number" value={newItem.hubWeightKg} onChange={(e) => setNewItem({ ...newItem, hubWeightKg: e.target.value })} {...inputProps} />
+        <Input placeholder="Mold Cost" type="number" value={newItem.moldCostWithVat} onChange={(e) => setNewItem({ ...newItem, moldCostWithVat: e.target.value })} {...inputProps} />
+        <Input placeholder="Machining" type="number" value={newItem.machiningCostWithVat} onChange={(e) => setNewItem({ ...newItem, machiningCostWithVat: e.target.value })} {...inputProps} />
+        <Input placeholder="Transport" type="number" value={newItem.transportationCost} onChange={(e) => setNewItem({ ...newItem, transportationCost: e.target.value })} {...inputProps} />
         <Input placeholder="Packing" type="number" value={newItem.packingCost} onChange={(e) => setNewItem({ ...newItem, packingCost: e.target.value })} {...inputProps} />
       </AddFormBox>
 
@@ -148,35 +148,35 @@ export default function ImpellerHubsTable({
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.weightKg}
+                        value={editForm.hubWeightKg}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, weightKg: e.target.value })
+                          setEditForm({ ...editForm, hubWeightKg: e.target.value })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.moldCost}
+                        value={editForm.moldCostWithVat}
                         onChange={(e) =>
-                          setEditForm({ ...editForm, moldCost: e.target.value })
+                          setEditForm({ ...editForm, moldCostWithVat: e.target.value })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.machiningCost}
+                        value={editForm.machiningCostWithVat}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            machiningCost: e.target.value,
+                            machiningCostWithVat: e.target.value,
                           })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.transportCost}
+                        value={editForm.transportationCost}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            transportCost: e.target.value,
+                            transportationCost: e.target.value,
                           })
                         }
                         type="number"

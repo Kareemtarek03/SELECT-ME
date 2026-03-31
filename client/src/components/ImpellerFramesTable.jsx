@@ -23,9 +23,9 @@ const INITIAL_FORM = {
   frameSizeMm: "",
   sizeMm: "",
   weightKg: "",
-  moldCost: "",
-  machiningCost: "",
-  transportCost: "",
+  moldCostWithVat: "",
+  machiningCostWithVat: "",
+  transportationCost: "",
   packingCost: "",
 };
 
@@ -69,7 +69,7 @@ export default function ImpellerFramesTable({
     onUpdate,
     getAuthHeaders,
     setAlert,
-    "Frame"
+    "Frame",
   );
 
   return (
@@ -83,14 +83,71 @@ export default function ImpellerFramesTable({
           setNewItem(INITIAL_FORM);
         }}
       >
-        <Input placeholder="Material" value={newItem.material} onChange={(e) => setNewItem({ ...newItem, material: e.target.value })} {...inputProps} />
-        <Input placeholder="Frame Size (mm)" type="number" value={newItem.frameSizeMm} onChange={(e) => setNewItem({ ...newItem, frameSizeMm: e.target.value })} {...inputProps} />
-        <Input placeholder="Size (mm)" type="number" value={newItem.sizeMm} onChange={(e) => setNewItem({ ...newItem, sizeMm: e.target.value })} {...inputProps} />
-        <Input placeholder="Weight (kg)" type="number" value={newItem.weightKg} onChange={(e) => setNewItem({ ...newItem, weightKg: e.target.value })} {...inputProps} />
-        <Input placeholder="Mold Cost" type="number" value={newItem.moldCost} onChange={(e) => setNewItem({ ...newItem, moldCost: e.target.value })} {...inputProps} />
-        <Input placeholder="Machining" type="number" value={newItem.machiningCost} onChange={(e) => setNewItem({ ...newItem, machiningCost: e.target.value })} {...inputProps} />
-        <Input placeholder="Transport" type="number" value={newItem.transportCost} onChange={(e) => setNewItem({ ...newItem, transportCost: e.target.value })} {...inputProps} />
-        <Input placeholder="Packing" type="number" value={newItem.packingCost} onChange={(e) => setNewItem({ ...newItem, packingCost: e.target.value })} {...inputProps} />
+        <Input
+          placeholder="Material"
+          value={newItem.material}
+          onChange={(e) => setNewItem({ ...newItem, material: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Frame Size (mm)"
+          type="number"
+          value={newItem.frameSizeMm}
+          onChange={(e) =>
+            setNewItem({ ...newItem, frameSizeMm: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Size (mm)"
+          type="number"
+          value={newItem.sizeMm}
+          onChange={(e) => setNewItem({ ...newItem, sizeMm: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Weight (kg)"
+          type="number"
+          value={newItem.weightKg}
+          onChange={(e) => setNewItem({ ...newItem, weightKg: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Mold Cost"
+          type="number"
+          value={newItem.moldCostWithVat}
+          onChange={(e) =>
+            setNewItem({ ...newItem, moldCostWithVat: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Machining"
+          type="number"
+          value={newItem.machiningCostWithVat}
+          onChange={(e) =>
+            setNewItem({ ...newItem, machiningCostWithVat: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Transport"
+          type="number"
+          value={newItem.transportationCost}
+          onChange={(e) =>
+            setNewItem({ ...newItem, transportationCost: e.target.value })
+          }
+          {...inputProps}
+        />
+        <Input
+          placeholder="Packing"
+          type="number"
+          value={newItem.packingCost}
+          onChange={(e) =>
+            setNewItem({ ...newItem, packingCost: e.target.value })
+          }
+          {...inputProps}
+        />
       </AddFormBox>
 
       <PricingTableWrapper
@@ -150,28 +207,31 @@ export default function ImpellerFramesTable({
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.moldCost}
-                        onChange={(e) =>
-                          setEditForm({ ...editForm, moldCost: e.target.value })
-                        }
-                        type="number"
-                      />
-                      <EditableCell
-                        value={editForm.machiningCost}
+                        value={editForm.moldCostWithVat}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            machiningCost: e.target.value,
+                            moldCostWithVat: e.target.value,
                           })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.transportCost}
+                        value={editForm.machiningCostWithVat}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            transportCost: e.target.value,
+                            machiningCostWithVat: e.target.value,
+                          })
+                        }
+                        type="number"
+                      />
+                      <EditableCell
+                        value={editForm.transportationCost}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            transportationCost: e.target.value,
                           })
                         }
                         type="number"

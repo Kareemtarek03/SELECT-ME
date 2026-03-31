@@ -24,10 +24,10 @@ const INITIAL_FORM = {
   bladeType: "",
   lengthMm: "",
   bladeWeightKg: "",
-  bladeMoldCost: "",
-  bladeMachiningCost: "",
-  bladeTransportCost: "",
-  bladePackingCost: "",
+  moldCostWithVat: "",
+  machiningCostWithVat: "",
+  transportationCost: "",
+  packingCost: "",
   steelBallsCost: "",
   bladeFactor: "",
 };
@@ -124,29 +124,29 @@ export default function ImpellerBladesTable({
         <Input
           placeholder="Mold Cost"
           type="number"
-          value={newItem.bladeMoldCost}
-          onChange={(e) => setNewItem({ ...newItem, bladeMoldCost: e.target.value })}
+          value={newItem.moldCostWithVat}
+          onChange={(e) => setNewItem({ ...newItem, moldCostWithVat: e.target.value })}
           {...inputProps}
         />
         <Input
           placeholder="Machining"
           type="number"
-          value={newItem.bladeMachiningCost}
-          onChange={(e) => setNewItem({ ...newItem, bladeMachiningCost: e.target.value })}
+          value={newItem.machiningCostWithVat}
+          onChange={(e) => setNewItem({ ...newItem, machiningCostWithVat: e.target.value })}
           {...inputProps}
         />
         <Input
           placeholder="Transport"
           type="number"
-          value={newItem.bladeTransportCost}
-          onChange={(e) => setNewItem({ ...newItem, bladeTransportCost: e.target.value })}
+          value={newItem.transportationCost}
+          onChange={(e) => setNewItem({ ...newItem, transportationCost: e.target.value })}
           {...inputProps}
         />
         <Input
           placeholder="Packing"
           type="number"
-          value={newItem.bladePackingCost}
-          onChange={(e) => setNewItem({ ...newItem, bladePackingCost: e.target.value })}
+          value={newItem.packingCost}
+          onChange={(e) => setNewItem({ ...newItem, packingCost: e.target.value })}
           {...inputProps}
         />
         <Input
@@ -231,41 +231,41 @@ export default function ImpellerBladesTable({
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.bladeMoldCost}
+                        value={editForm.moldCostWithVat}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            bladeMoldCost: e.target.value,
+                            moldCostWithVat: e.target.value,
                           })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.bladeMachiningCost}
+                        value={editForm.machiningCostWithVat}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            bladeMachiningCost: e.target.value,
+                            machiningCostWithVat: e.target.value,
                           })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.bladeTransportCost}
+                        value={editForm.transportationCost}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            bladeTransportCost: e.target.value,
+                            transportationCost: e.target.value,
                           })
                         }
                         type="number"
                       />
                       <EditableCell
-                        value={editForm.bladePackingCost}
+                        value={editForm.packingCost}
                         onChange={(e) =>
                           setEditForm({
                             ...editForm,
-                            bladePackingCost: e.target.value,
+                            packingCost: e.target.value,
                           })
                         }
                         type="number"
