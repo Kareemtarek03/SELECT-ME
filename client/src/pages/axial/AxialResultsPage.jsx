@@ -1,11 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "../../context/FormContext";
-import {
-  Flex,
-  Box,
-  Text,
-} from "@chakra-ui/react";
+import { Flex, Box, Text } from "@chakra-ui/react";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 import {
   LineChart,
@@ -19,6 +15,7 @@ import {
   Cell,
   CartesianGrid,
   ReferenceDot,
+  ReferenceLine,
 } from "recharts";
 import "./AxialResultsPage.css";
 
@@ -135,7 +132,12 @@ function generateNiceTicks(dataMax, numIntervals = 10) {
 // Returns { ticks: number[], min: number, max: number, step: number }
 function generateNiceTicksRange(dataMin, dataMax, numIntervals = 10) {
   // Fallback: if range is invalid, delegate to zero-based
-  if (dataMax == null || dataMin == null || !Number.isFinite(dataMin) || !Number.isFinite(dataMax)) {
+  if (
+    dataMax == null ||
+    dataMin == null ||
+    !Number.isFinite(dataMin) ||
+    !Number.isFinite(dataMax)
+  ) {
     const result = generateNiceTicks(dataMax || 100, numIntervals);
     return { ...result, min: 0 };
   }
@@ -187,6 +189,43 @@ function generateNiceTicksRange(dataMin, dataMax, numIntervals = 10) {
   }
 
   return { ticks, min: ticks[0], max: ticks[ticks.length - 1], step };
+}
+
+// Interpolate a series value at a given X from merged chart data.
+// Uses linear interpolation between nearest valid points and clamps outside range.
+function interpolateSeriesAtX(data, dataKey, targetX) {
+  if (!Array.isArray(data) || data.length === 0 || !Number.isFinite(targetX)) {
+    return null;
+  }
+
+  const series = data
+    .filter(
+      (pt) =>
+        pt != null && Number.isFinite(pt.x) && Number.isFinite(pt[dataKey]),
+    )
+    .sort((a, b) => a.x - b.x);
+
+  if (series.length === 0) return null;
+
+  if (targetX <= series[0].x) return Number(series[0][dataKey]);
+  if (targetX >= series[series.length - 1].x) {
+    return Number(series[series.length - 1][dataKey]);
+  }
+
+  for (let i = 0; i < series.length - 1; i++) {
+    const p1 = series[i];
+    const p2 = series[i + 1];
+    if (targetX >= p1.x && targetX <= p2.x) {
+      const dx = p2.x - p1.x;
+      if (Math.abs(dx) < 1e-10) return Number(p1[dataKey]);
+      const t = (targetX - p1.x) / dx;
+      return (
+        Number(p1[dataKey]) + (Number(p2[dataKey]) - Number(p1[dataKey])) * t
+      );
+    }
+  }
+
+  return null;
 }
 
 // Cubic spline interpolation for smooth curves
@@ -360,12 +399,37 @@ function calculateSoundPowerSpectrum(
 }
 
 // Custom Tooltip Component that always shows all curve values
-const CustomTooltip = ({ active, payload, label, units }) => {
-  if (!active || !payload || !payload.length) return null;
+const CustomTooltip = ({ active, payload, label, units, chartData }) => {
+  if (!active) return null;
 
-  // Get the data point from payload
-  const dataPoint = payload[0]?.payload;
-  if (!dataPoint) return null;
+  const hoveredXRaw = label ?? payload?.[0]?.payload?.x;
+  const hoveredX = Number(hoveredXRaw);
+  if (!Number.isFinite(hoveredX)) return null;
+
+  const dataPoint = {
+    x: hoveredX,
+    StaticPressureNew: interpolateSeriesAtX(
+      chartData,
+      "StaticPressureNew",
+      hoveredX,
+    ),
+    FanInputPowerNew: interpolateSeriesAtX(
+      chartData,
+      "FanInputPowerNew",
+      hoveredX,
+    ),
+    FanStaticEfficiency: interpolateSeriesAtX(
+      chartData,
+      "FanStaticEfficiency",
+      hoveredX,
+    ),
+    FanTotalEfficiency: interpolateSeriesAtX(
+      chartData,
+      "FanTotalEfficiency",
+      hoveredX,
+    ),
+    SystemCurve: interpolateSeriesAtX(chartData, "SystemCurve", hoveredX),
+  };
 
   const labels = {
     StaticPressureNew: "Pst",
@@ -410,7 +474,7 @@ const CustomTooltip = ({ active, payload, label, units }) => {
           fontSize: "13px",
         }}
       >
-        Q: {Number(label).toLocaleString()} {units?.airFlow || "CFM"}
+        Q: {Number(dataPoint.x).toLocaleString()} {units?.airFlow || "CFM"}
       </div>
       {curves.map((curve) => {
         const value = dataPoint[curve.key];
@@ -1335,10 +1399,25 @@ export default function ResultsPage() {
 
                     // Build blade designation: materialCode + symbol (e.g. "AM")
                     const bladeMat = item.Blades?.material;
-                    const bladeMatDisplay = bladeMat === "A" || bladeMat === "Aluminum" ? "Aluminum" : bladeMat === "P" || bladeMat === "PAG" ? "Plastic" : bladeMat || "";
+                    const bladeMatDisplay =
+                      bladeMat === "A" || bladeMat === "Aluminum"
+                        ? "Aluminum"
+                        : bladeMat === "P" || bladeMat === "PAG"
+                          ? "Plastic"
+                          : bladeMat || "";
                     const bladeSym = item.Blades?.symbol;
-                    const bladeMatCode = bladeMat === "Aluminum" ? "A" : bladeMat === "PAG" ? "P" : bladeMat ? bladeMat.charAt(0) : "";
-                    const bladeDesignation = bladeMatCode && bladeSym ? `${bladeMatCode}${bladeSym}` : (bladeSym || "");
+                    const bladeMatCode =
+                      bladeMat === "Aluminum"
+                        ? "A"
+                        : bladeMat === "PAG"
+                          ? "P"
+                          : bladeMat
+                            ? bladeMat.charAt(0)
+                            : "";
+                    const bladeDesignation =
+                      bladeMatCode && bladeSym
+                        ? `${bladeMatCode}${bladeSym}`
+                        : bladeSym || "";
                     const bladeNoBlades = item.Blades?.noBlades;
                     const bladeAngle = item.Blades?.angle;
 
@@ -1461,34 +1540,104 @@ export default function ResultsPage() {
                                   borderBottom: "1px solid #e2e8f0",
                                 }}
                               >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.375rem" }}>
-                                  <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Blades</span>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "0.375rem",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      color: "#64748b",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    Blades
+                                  </span>
                                   {bladeDesignation && (
-                                    <span style={{
-                                      background: "#eff6ff",
-                                      color: "#1d4ed8",
-                                      fontSize: "0.8125rem",
-                                      fontWeight: "700",
-                                      padding: "0.125rem 0.625rem",
-                                      borderRadius: "4px",
-                                      letterSpacing: "0.05em",
-                                    }}>
+                                    <span
+                                      style={{
+                                        background: "#eff6ff",
+                                        color: "#1d4ed8",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "700",
+                                        padding: "0.125rem 0.625rem",
+                                        borderRadius: "4px",
+                                        letterSpacing: "0.05em",
+                                      }}
+                                    >
                                       {bladeDesignation}
                                     </span>
                                   )}
                                 </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.25rem", paddingLeft: "0.5rem" }}>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr 1fr",
+                                    gap: "0.25rem",
+                                    paddingLeft: "0.5rem",
+                                  }}
+                                >
                                   <div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Material</span>
-                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeMatDisplay || "—"}</div>
+                                    <span
+                                      style={{
+                                        color: "#94a3b8",
+                                        fontSize: "0.75rem",
+                                      }}
+                                    >
+                                      Material
+                                    </span>
+                                    <div
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {bladeMatDisplay || "—"}
+                                    </div>
                                   </div>
                                   <div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>No. of Blades</span>
-                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeNoBlades ?? "—"}</div>
+                                    <span
+                                      style={{
+                                        color: "#94a3b8",
+                                        fontSize: "0.75rem",
+                                      }}
+                                    >
+                                      No. of Blades
+                                    </span>
+                                    <div
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {bladeNoBlades ?? "—"}
+                                    </div>
                                   </div>
                                   <div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Angle</span>
-                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{bladeAngle != null ? `${bladeAngle}°` : "—"}</div>
+                                    <span
+                                      style={{
+                                        color: "#94a3b8",
+                                        fontSize: "0.75rem",
+                                      }}
+                                    >
+                                      Angle
+                                    </span>
+                                    <div
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {bladeAngle != null
+                                        ? `${bladeAngle}°`
+                                        : "—"}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1499,30 +1648,85 @@ export default function ResultsPage() {
                                   padding: "0.625rem 0",
                                 }}
                               >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.375rem" }}>
-                                  <span style={{ color: "#64748b", fontSize: "0.875rem" }}>Impeller</span>
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    marginBottom: "0.375rem",
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      color: "#64748b",
+                                      fontSize: "0.875rem",
+                                    }}
+                                  >
+                                    Impeller
+                                  </span>
                                   {impConf && (
-                                    <span style={{
-                                      background: "#f0fdf4",
-                                      color: "#15803d",
-                                      fontSize: "0.8125rem",
-                                      fontWeight: "700",
-                                      padding: "0.125rem 0.625rem",
-                                      borderRadius: "4px",
-                                      letterSpacing: "0.05em",
-                                    }}>
+                                    <span
+                                      style={{
+                                        background: "#f0fdf4",
+                                        color: "#15803d",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "700",
+                                        padding: "0.125rem 0.625rem",
+                                        borderRadius: "4px",
+                                        letterSpacing: "0.05em",
+                                      }}
+                                    >
                                       {impConf}
                                     </span>
                                   )}
                                 </div>
-                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.25rem", paddingLeft: "0.5rem" }}>
+                                <div
+                                  style={{
+                                    display: "grid",
+                                    gridTemplateColumns: "1fr 1fr",
+                                    gap: "0.25rem",
+                                    paddingLeft: "0.5rem",
+                                  }}
+                                >
                                   <div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Inner Diameter</span>
-                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{impInnerDia != null ? `${impInnerDia} mm` : "—"}</div>
+                                    <span
+                                      style={{
+                                        color: "#94a3b8",
+                                        fontSize: "0.75rem",
+                                      }}
+                                    >
+                                      Inner Diameter
+                                    </span>
+                                    <div
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {impInnerDia != null
+                                        ? `${impInnerDia} mm`
+                                        : "—"}
+                                    </div>
                                   </div>
                                   <div>
-                                    <span style={{ color: "#94a3b8", fontSize: "0.75rem" }}>Hub Type</span>
-                                    <div style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>{hubType ?? "—"}</div>
+                                    <span
+                                      style={{
+                                        color: "#94a3b8",
+                                        fontSize: "0.75rem",
+                                      }}
+                                    >
+                                      Hub Type
+                                    </span>
+                                    <div
+                                      style={{
+                                        color: "#1e293b",
+                                        fontSize: "0.8125rem",
+                                        fontWeight: "500",
+                                      }}
+                                    >
+                                      {hubType ?? "—"}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -2012,40 +2216,64 @@ export default function ResultsPage() {
                                       // Collect all visible pressure values from mergedData (fan curve + system curve)
                                       const allPressureVals = [];
                                       mergedData.forEach((pt) => {
-                                        if (pt.StaticPressureNew != null && Number.isFinite(pt.StaticPressureNew)) {
-                                          allPressureVals.push(pt.StaticPressureNew);
+                                        if (
+                                          pt.StaticPressureNew != null &&
+                                          Number.isFinite(pt.StaticPressureNew)
+                                        ) {
+                                          allPressureVals.push(
+                                            pt.StaticPressureNew,
+                                          );
                                         }
-                                        if (pt.SystemCurve != null && Number.isFinite(pt.SystemCurve)) {
+                                        if (
+                                          pt.SystemCurve != null &&
+                                          Number.isFinite(pt.SystemCurve)
+                                        ) {
                                           allPressureVals.push(pt.SystemCurve);
                                         }
                                       });
                                       // Also include the operating point pressure
-                                      if (predictedStaticPressure && Number.isFinite(predictedStaticPressure)) {
-                                        allPressureVals.push(predictedStaticPressure);
+                                      if (
+                                        predictedStaticPressure &&
+                                        Number.isFinite(predictedStaticPressure)
+                                      ) {
+                                        allPressureVals.push(
+                                          predictedStaticPressure,
+                                        );
                                       }
 
-                                      let pMin = allPressureVals.length > 0 ? Math.min(...allPressureVals) : 0;
-                                      let pMax = allPressureVals.length > 0 ? Math.max(...allPressureVals) : 600;
+                                      let pMin =
+                                        allPressureVals.length > 0
+                                          ? Math.min(...allPressureVals)
+                                          : 0;
+                                      let pMax =
+                                        allPressureVals.length > 0
+                                          ? Math.max(...allPressureVals)
+                                          : 600;
 
                                       // Cap system curve extremes: if the system curve pushes pMax far beyond the
                                       // fan's static pressure range, limit it to avoid compressing the fan curve
-                                      const rawPressureData = item["StaticPressureNew"] || [];
-                                      const validPressureValues = rawPressureData
-                                        .filter((v) => v != null && !isNaN(v))
-                                        .map(Number);
+                                      const rawPressureData =
+                                        item["StaticPressureNew"] || [];
+                                      const validPressureValues =
+                                        rawPressureData
+                                          .filter((v) => v != null && !isNaN(v))
+                                          .map(Number);
                                       if (validPressureValues.length > 0) {
-                                        const fanPMax = Math.max(...validPressureValues);
+                                        const fanPMax = Math.max(
+                                          ...validPressureValues,
+                                        );
                                         // Don't let system curve inflate axis beyond 2× the fan curve max
                                         if (pMax > fanPMax * 2) {
                                           pMax = fanPMax * 2;
                                         }
                                       }
 
-                                      const pTickResult = generateNiceTicksRange(
-                                        pMin,
-                                        pMax || 600,
-                                        10,
-                                      );
+                                      const pTickResult =
+                                        generateNiceTicksRange(
+                                          pMin,
+                                          pMax || 600,
+                                          10,
+                                        );
                                       const pressureTicks = pTickResult.ticks;
                                       const pressureAxisMin = pTickResult.min;
                                       const pressureAxisMax = pTickResult.max;
@@ -2087,25 +2315,53 @@ export default function ResultsPage() {
                                             bottom: 50,
                                           }}
                                           onClick={(e) => {
-                                            if (
-                                              !e ||
-                                              !e.activePayload ||
-                                              !e.activePayload.length
-                                            )
+                                            if (!e) return;
+
+                                            const clickedXRaw =
+                                              e.activeLabel ??
+                                              e.activePayload?.[0]?.payload?.x;
+                                            const clickedX =
+                                              Number(clickedXRaw);
+
+                                            if (!Number.isFinite(clickedX)) {
                                               return;
-                                            const pt =
-                                              e.activePayload[0]?.payload;
-                                            if (!pt) return;
-                                            setSelectedChartPoint({
-                                              x: pt.x,
+                                            }
+
+                                            const lockedPoint = {
+                                              x: clickedX,
                                               StaticPressureNew:
-                                                pt.StaticPressureNew,
+                                                interpolateSeriesAtX(
+                                                  mergedData,
+                                                  "StaticPressureNew",
+                                                  clickedX,
+                                                ),
                                               FanInputPowerNew:
-                                                pt.FanInputPowerNew,
+                                                interpolateSeriesAtX(
+                                                  mergedData,
+                                                  "FanInputPowerNew",
+                                                  clickedX,
+                                                ),
                                               FanStaticEfficiency:
-                                                pt.FanStaticEfficiency,
+                                                interpolateSeriesAtX(
+                                                  mergedData,
+                                                  "FanStaticEfficiency",
+                                                  clickedX,
+                                                ),
                                               FanTotalEfficiency:
-                                                pt.FanTotalEfficiency,
+                                                interpolateSeriesAtX(
+                                                  mergedData,
+                                                  "FanTotalEfficiency",
+                                                  clickedX,
+                                                ),
+                                              SystemCurve: interpolateSeriesAtX(
+                                                mergedData,
+                                                "SystemCurve",
+                                                clickedX,
+                                              ),
+                                            };
+
+                                            setSelectedChartPoint({
+                                              ...lockedPoint,
                                             });
                                             setIsLocked(true);
                                           }}
@@ -2233,10 +2489,25 @@ export default function ResultsPage() {
                                               },
                                             }}
                                           />
+                                          {isLocked &&
+                                            selectedChartPoint &&
+                                            Number.isFinite(
+                                              Number(selectedChartPoint.x),
+                                            ) && (
+                                              <ReferenceLine
+                                                x={Number(selectedChartPoint.x)}
+                                                stroke="#f59e0b"
+                                                strokeWidth={2}
+                                                strokeDasharray="6 4"
+                                              />
+                                            )}
                                           {!isLocked && (
                                             <Tooltip
                                               content={
-                                                <CustomTooltip units={units} />
+                                                <CustomTooltip
+                                                  units={units}
+                                                  chartData={mergedData}
+                                                />
                                               }
                                             />
                                           )}
@@ -2319,24 +2590,42 @@ export default function ResultsPage() {
                                             const opAirflow = Number(
                                               input?.airFlow,
                                             );
-                                            if (!opAirflow || opAirflow <= 0)
-                                              return null;
-                                            const dots = [];
-                                            const dotStyle = {
-                                              cursor: "pointer",
-                                            };
-                                            const selectedStroke = "#f59e0b";
-                                            const normalStroke = "#ffffff";
 
-                                            const handleDotClick = (e) => {
-                                              if (e && e.stopPropagation)
-                                                e.stopPropagation();
-                                              if (isLocked) {
-                                                setIsLocked(false);
-                                                setSelectedChartPoint(null);
-                                              } else {
-                                                setSelectedChartPoint({
-                                                  x: opAirflow,
+                                            const hasLockedPoint =
+                                              isLocked &&
+                                              selectedChartPoint &&
+                                              Number.isFinite(
+                                                Number(selectedChartPoint.x),
+                                              );
+                                            const hasOperatingPoint =
+                                              Number.isFinite(opAirflow) &&
+                                              opAirflow > 0;
+
+                                            if (
+                                              !hasLockedPoint &&
+                                              !hasOperatingPoint
+                                            ) {
+                                              return null;
+                                            }
+
+                                            const markerX = hasLockedPoint
+                                              ? Number(selectedChartPoint.x)
+                                              : opAirflow;
+
+                                            const markerValues = hasLockedPoint
+                                              ? {
+                                                  StaticPressureNew:
+                                                    selectedChartPoint.StaticPressureNew,
+                                                  FanInputPowerNew:
+                                                    selectedChartPoint.FanInputPowerNew,
+                                                  FanStaticEfficiency:
+                                                    selectedChartPoint.FanStaticEfficiency,
+                                                  FanTotalEfficiency:
+                                                    selectedChartPoint.FanTotalEfficiency,
+                                                  SystemCurve:
+                                                    selectedChartPoint.SystemCurve,
+                                                }
+                                              : {
                                                   StaticPressureNew:
                                                     predictions.StaticPressurePred,
                                                   FanInputPowerNew:
@@ -2355,6 +2644,25 @@ export default function ResultsPage() {
                                                       : null,
                                                   SystemCurve:
                                                     predictedStaticPressure,
+                                                };
+
+                                            const dots = [];
+                                            const dotStyle = {
+                                              cursor: "pointer",
+                                            };
+                                            const selectedStroke = "#f59e0b";
+                                            const normalStroke = "#ffffff";
+
+                                            const handleDotClick = (e) => {
+                                              if (e && e.stopPropagation)
+                                                e.stopPropagation();
+                                              if (isLocked) {
+                                                setIsLocked(false);
+                                                setSelectedChartPoint(null);
+                                              } else {
+                                                setSelectedChartPoint({
+                                                  x: markerX,
+                                                  ...markerValues,
                                                 });
                                                 setIsLocked(true);
                                               }
@@ -2362,15 +2670,15 @@ export default function ResultsPage() {
 
                                             if (
                                               curveVisibility.StaticPressureNew &&
-                                              predictions.StaticPressurePred !=
+                                              markerValues.StaticPressureNew !=
                                                 null
                                             ) {
                                               dots.push(
                                                 <ReferenceDot
                                                   key="op-pressure"
-                                                  x={opAirflow}
+                                                  x={markerX}
                                                   y={
-                                                    predictions.StaticPressurePred
+                                                    markerValues.StaticPressureNew
                                                   }
                                                   r={isLocked ? 8 : 6}
                                                   fill="#FF0000"
@@ -2387,15 +2695,15 @@ export default function ResultsPage() {
                                             }
                                             if (
                                               curveVisibility.FanInputPowerNew &&
-                                              predictions.FanInputPowerPred !=
+                                              markerValues.FanInputPowerNew !=
                                                 null
                                             ) {
                                               dots.push(
                                                 <ReferenceDot
                                                   key="op-power"
-                                                  x={opAirflow}
+                                                  x={markerX}
                                                   y={
-                                                    predictions.FanInputPowerPred
+                                                    markerValues.FanInputPowerNew
                                                   }
                                                   yAxisId="power"
                                                   r={isLocked ? 8 : 6}
@@ -2413,16 +2721,15 @@ export default function ResultsPage() {
                                             }
                                             if (
                                               curveVisibility.FanStaticEfficiency &&
-                                              predictions.FanStaticEfficiencyPred !=
+                                              markerValues.FanStaticEfficiency !=
                                                 null
                                             ) {
                                               dots.push(
                                                 <ReferenceDot
                                                   key="op-seff"
-                                                  x={opAirflow}
+                                                  x={markerX}
                                                   y={
-                                                    predictions.FanStaticEfficiencyPred *
-                                                    100
+                                                    markerValues.FanStaticEfficiency
                                                   }
                                                   yAxisId="efficiency"
                                                   r={isLocked ? 8 : 6}
@@ -2440,16 +2747,15 @@ export default function ResultsPage() {
                                             }
                                             if (
                                               curveVisibility.FanTotalEfficiency &&
-                                              predictions.FanTotalEfficiencyPred !=
+                                              markerValues.FanTotalEfficiency !=
                                                 null
                                             ) {
                                               dots.push(
                                                 <ReferenceDot
                                                   key="op-teff"
-                                                  x={opAirflow}
+                                                  x={markerX}
                                                   y={
-                                                    predictions.FanTotalEfficiencyPred *
-                                                    100
+                                                    markerValues.FanTotalEfficiency
                                                   }
                                                   yAxisId="efficiency"
                                                   r={isLocked ? 8 : 6}
@@ -2467,14 +2773,13 @@ export default function ResultsPage() {
                                             }
                                             if (
                                               curveVisibility.SystemCurve &&
-                                              predictedStaticPressure &&
-                                              opAirflow > 0
+                                              markerValues.SystemCurve != null
                                             ) {
                                               dots.push(
                                                 <ReferenceDot
                                                   key="op-sys"
-                                                  x={opAirflow}
-                                                  y={predictedStaticPressure}
+                                                  x={markerX}
+                                                  y={markerValues.SystemCurve}
                                                   r={isLocked ? 8 : 6}
                                                   fill="#FF0000"
                                                   stroke={
@@ -2515,40 +2820,162 @@ export default function ResultsPage() {
                                         setSelectedChartPoint(null);
                                       }}
                                     >
-                                      <div style={{ fontWeight: "700", fontSize: "13px", color: "#1e293b", marginBottom: "6px", borderBottom: "1px solid #e2e8f0", paddingBottom: "4px" }}>
-                                        Q: {Number(selectedChartPoint.x).toLocaleString()} {units?.airFlow || "CFM"}
+                                      <div
+                                        style={{
+                                          fontWeight: "700",
+                                          fontSize: "13px",
+                                          color: "#1e293b",
+                                          marginBottom: "6px",
+                                          borderBottom: "1px solid #e2e8f0",
+                                          paddingBottom: "4px",
+                                        }}
+                                      >
+                                        Q:{" "}
+                                        {Number(
+                                          selectedChartPoint.x,
+                                        ).toLocaleString()}{" "}
+                                        {units?.airFlow || "CFM"}
                                       </div>
-                                      {selectedChartPoint.StaticPressureNew != null && (
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
-                                          <span style={{ color: "#000000", fontWeight: "500" }}>Pst:</span>
-                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.StaticPressureNew.toFixed(1)} {units?.pressure || "Pa"}</span>
+                                      {selectedChartPoint.StaticPressureNew !=
+                                        null && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "12px",
+                                            marginTop: "3px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: "#000000",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            Pst:
+                                          </span>
+                                          <span style={{ fontWeight: "600" }}>
+                                            {selectedChartPoint.StaticPressureNew.toFixed(
+                                              1,
+                                            )}{" "}
+                                            {units?.pressure || "Pa"}
+                                          </span>
                                         </div>
                                       )}
-                                      {selectedChartPoint.FanInputPowerNew != null && (
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
-                                          <span style={{ color: "#002060", fontWeight: "500" }}>Psh:</span>
-                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanInputPowerNew.toFixed(2)} {units?.power || "kW"}</span>
+                                      {selectedChartPoint.FanInputPowerNew !=
+                                        null && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "12px",
+                                            marginTop: "3px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: "#002060",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            Psh:
+                                          </span>
+                                          <span style={{ fontWeight: "600" }}>
+                                            {selectedChartPoint.FanInputPowerNew.toFixed(
+                                              2,
+                                            )}{" "}
+                                            {units?.power || "kW"}
+                                          </span>
                                         </div>
                                       )}
-                                      {selectedChartPoint.FanStaticEfficiency != null && (
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
-                                          <span style={{ color: "#385723", fontWeight: "500" }}>ηst:</span>
-                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanStaticEfficiency.toFixed(1)} %</span>
+                                      {selectedChartPoint.FanStaticEfficiency !=
+                                        null && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "12px",
+                                            marginTop: "3px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: "#385723",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            ηst:
+                                          </span>
+                                          <span style={{ fontWeight: "600" }}>
+                                            {selectedChartPoint.FanStaticEfficiency.toFixed(
+                                              1,
+                                            )}{" "}
+                                            %
+                                          </span>
                                         </div>
                                       )}
-                                      {selectedChartPoint.FanTotalEfficiency != null && (
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
-                                          <span style={{ color: "#385723", fontWeight: "500" }}>ηtot:</span>
-                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.FanTotalEfficiency.toFixed(1)} %</span>
+                                      {selectedChartPoint.FanTotalEfficiency !=
+                                        null && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "12px",
+                                            marginTop: "3px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: "#385723",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            ηtot:
+                                          </span>
+                                          <span style={{ fontWeight: "600" }}>
+                                            {selectedChartPoint.FanTotalEfficiency.toFixed(
+                                              1,
+                                            )}{" "}
+                                            %
+                                          </span>
                                         </div>
                                       )}
-                                      {selectedChartPoint.SystemCurve != null && (
-                                        <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12px", marginTop: "3px" }}>
-                                          <span style={{ color: "#FF0000", fontWeight: "500" }}>System:</span>
-                                          <span style={{ fontWeight: "600" }}>{selectedChartPoint.SystemCurve.toFixed(1)} {units?.pressure || "Pa"}</span>
+                                      {selectedChartPoint.SystemCurve !=
+                                        null && (
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            justifyContent: "space-between",
+                                            fontSize: "12px",
+                                            marginTop: "3px",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              color: "#FF0000",
+                                              fontWeight: "500",
+                                            }}
+                                          >
+                                            System:
+                                          </span>
+                                          <span style={{ fontWeight: "600" }}>
+                                            {selectedChartPoint.SystemCurve.toFixed(
+                                              1,
+                                            )}{" "}
+                                            {units?.pressure || "Pa"}
+                                          </span>
                                         </div>
                                       )}
-                                      <div style={{ fontSize: "10px", color: "#94a3b8", marginTop: "6px", textAlign: "center" }}>Click to dismiss</div>
+                                      <div
+                                        style={{
+                                          fontSize: "10px",
+                                          color: "#94a3b8",
+                                          marginTop: "6px",
+                                          textAlign: "center",
+                                        }}
+                                      >
+                                        Click to dismiss
+                                      </div>
                                     </div>
                                   )}
                                 </div>
