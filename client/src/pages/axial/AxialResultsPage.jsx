@@ -459,8 +459,8 @@ const CustomTooltip = ({ active, payload, label, units, chartData }) => {
   return (
     <div
       style={{
-        backgroundColor: "#ffffff",
-        border: "1px solid #e2e8f0",
+        backgroundColor: "transparent",
+        border: "1px solid #1e293b",
         borderRadius: "8px",
         padding: "8px 12px",
         boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
