@@ -3739,6 +3739,41 @@ export default function ResultsPage() {
                               };
                               const impellerCost = impellerPricing;
                               const casingCost = casingPricing;
+                              const accessoriesCost =
+                                accessoryPricing?.priceWithVatLe;
+
+                              const toNumberOrNull = (value) => {
+                                if (value === null || value === undefined)
+                                  return null;
+                                const n =
+                                  typeof value === "number"
+                                    ? value
+                                    : parseFloat(value);
+                                return Number.isFinite(n) ? n : null;
+                              };
+
+                              const directCostValues = [
+                                electricalMotorCost,
+                                electricalComponentCost,
+                                impellerCost,
+                                casingCost,
+                                accessoriesCost,
+                              ]
+                                .map(toNumberOrNull)
+                                .filter((v) => v != null);
+
+                              const totalDirectCost =
+                                directCostValues.length > 0
+                                  ? directCostValues.reduce(
+                                      (sum, val) => sum + val,
+                                      0,
+                                    )
+                                  : null;
+
+                              const isAnyPricingLoading =
+                                impellerPricingLoading ||
+                                casingPricingLoading ||
+                                accessoryPricingLoading;
 
                               return (
                                 <div className="detail-card">
@@ -3751,6 +3786,61 @@ export default function ResultsPage() {
                                       marginTop: "1rem",
                                     }}
                                   >
+                                    {/* Total Direct Cost */}
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "space-between",
+                                        alignItems: "center",
+                                        padding: "1rem 1.5rem",
+                                        background:
+                                          "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
+                                        borderRadius: "0.5rem",
+                                        border: "1px solid #34d399",
+                                      }}
+                                    >
+                                      <div>
+                                        <span
+                                          style={{
+                                            color: "#065f46",
+                                            fontSize: "0.875rem",
+                                            fontWeight: "600",
+                                          }}
+                                        >
+                                          Total Direct Cost
+                                        </span>
+                                        <div
+                                          style={{
+                                            color: "#047857",
+                                            fontSize: "0.75rem",
+                                            marginTop: "0.25rem",
+                                          }}
+                                        >
+                                          Motor + Electrical Component + Impeller + Casing + Accessories
+                                        </div>
+                                      </div>
+                                      <span
+                                        style={{
+                                          color: "#047857",
+                                          fontSize: "1.35rem",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        {isAnyPricingLoading
+                                          ? "Loading..."
+                                          : formatPricingValue(totalDirectCost)}{" "}
+                                        <span
+                                          style={{
+                                            fontSize: "0.875rem",
+                                            color: "#065f46",
+                                            fontWeight: "normal",
+                                          }}
+                                        >
+                                          L.E
+                                        </span>
+                                      </span>
+                                    </div>
+
                                     {/* Electrical Motor Cost */}
                                     <div
                                       style={{
@@ -4021,7 +4111,7 @@ export default function ResultsPage() {
                                         {accessoryPricingLoading
                                           ? "Loading..."
                                           : formatPricingValue(
-                                              accessoryPricing?.priceWithVatLe,
+                                              accessoriesCost,
                                             )}{" "}
                                         <span
                                           style={{
