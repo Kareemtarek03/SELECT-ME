@@ -249,6 +249,7 @@ model AxialImpellerBlade {
   transportationCost   Float
   packingCost          Float
   steelBallsCost       Float
+  bladeFactor          Float?   // Manual blade factor override per blade
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

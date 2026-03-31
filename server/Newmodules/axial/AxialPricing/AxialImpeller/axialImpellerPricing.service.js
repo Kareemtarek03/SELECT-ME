@@ -2,25 +2,16 @@ import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
 const prisma = new PrismaClient();
 
-// SR# Constants for pricing items
-const PRICING_SR = {
-  MOLD_FACTOR: 13,
-  MOLD_LIFETIME: 15,
-  RAW_MATERIAL_INJ: 9, // Used for both AL and PAG
-  MACHINE_FACTOR: 14,
-  INJ_MACHINE_COST_AL: 17, // For Aluminum (Blade)
-  INJ_MACHINE_COST_PAG: 20, // For PAG/Plastic (Blade)
-  BLADE_FACTOR: 26, // Only for Aluminum
-  INJ_MACHINE_COST_HUB_FIXED: 19, // For Fixed Hub
-};
-
 /**
  * Helper function to get pricing item by description.
  * Tries exact match first, then contains match for common variations.
  */
-async function getPricingItemByDescription(description, fallbackContains = null) {
+async function getPricingItemByDescription(
+  description,
+  fallbackContains = null,
+) {
   let item = await prisma.pricingItem.findFirst({
-    where: { description },
+    where: { description: { contains: description } },
   });
   if (!item && fallbackContains) {
     item = await prisma.pricingItem.findFirst({
@@ -36,7 +27,6 @@ async function getPricingItemByDescription(description, fallbackContains = null)
 async function logAllPricingItems() {
   try {
     const allItems = await prisma.pricingItem.findMany({
-      
       include: {
         category: true,
       },
@@ -60,19 +50,26 @@ async function logAllPricingItems() {
         "PAG injection Small machine cost",
       ];
       const missing = impellerCritical.filter(
-        (d) => !allItems.some((i) => i.description === d && (i.priceWithVat ?? i.priceWithoutVat) > 0)
+        (d) =>
+          !allItems.some(
+            (i) =>
+              i.description === d && (i.priceWithVat ?? i.priceWithoutVat) > 0,
+          ),
       );
       if (missing.length > 0) {
         console.warn(
           "[AxialImpeller] Pricing items missing or zero - impeller totalCost may be 0:",
-          missing.join(", ")
+          missing.join(", "),
         );
       }
       allItems.forEach((item) => {
         console.log(
           `SR# ${item.sr
             .toString()
-            .padStart(3, " ")} | ${item.category?.name?.padEnd(20, " ") || "N/A"} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat ?? item.priceWithoutVat ?? 0}`,
+            .padStart(
+              3,
+              " ",
+            )} | ${item.category?.name?.padEnd(20, " ") || "N/A"} | ${item.description.padEnd(50, " ")} | ${item.priceWithVat ?? item.priceWithoutVat ?? 0}`,
         );
       });
     }
@@ -113,7 +110,10 @@ export const AxialImpellerPricingService = {
         const calc = await this.calculateBladeCost(blade, 1);
         enriched.push({ ...blade, totalCost: calc.totalCost });
       } catch (err) {
-        console.warn(`[AxialImpeller] Blade ${blade.id} (${blade.symbol}) totalCost calc failed:`, err.message);
+        console.warn(
+          `[AxialImpeller] Blade ${blade.id} (${blade.symbol}) totalCost calc failed:`,
+          err.message,
+        );
         enriched.push({ ...blade, totalCost: 0 });
       }
     }
@@ -152,11 +152,18 @@ export const AxialImpellerPricingService = {
         bladeType: data.bladeType,
         lengthMm: parseFloat(data.lengthMm),
         bladeWeightKg: parseFloat(data.bladeWeightKg),
-        moldCostWithVat: parseFloat(data.moldCostWithVat),
-        machiningCostWithVat: parseFloat(data.machiningCostWithVat),
-        transportationCost: parseFloat(data.transportationCost),
-        packingCost: parseFloat(data.packingCost),
+        // Support both old field names (bladeMoldCost) and new names (moldCostWithVat)
+        moldCostWithVat: parseFloat(data.moldCostWithVat || data.bladeMoldCost),
+        machiningCostWithVat: parseFloat(
+          data.machiningCostWithVat || data.bladeMachiningCost,
+        ),
+        transportationCost: parseFloat(
+          data.transportationCost || data.bladeTransportCost,
+        ),
+        packingCost: parseFloat(data.packingCost || data.bladePackingCost),
         steelBallsCost: parseFloat(data.steelBallsCost),
+        bladeFactor:
+          data.bladeFactor !== undefined ? parseFloat(data.bladeFactor) : null,
       },
     });
   },
@@ -173,17 +180,34 @@ export const AxialImpellerPricingService = {
     if (data.lengthMm !== undefined)
       updateData.lengthMm = parseFloat(data.lengthMm);
     if (data.bladeWeightKg !== undefined)
-      updateData.bladeWeightKg = parseFloat(data.bladeWeightKg);
-    if (data.moldCostWithVat !== undefined)
-      updateData.moldCostWithVat = parseFloat(data.moldCostWithVat);
-    if (data.machiningCostWithVat !== undefined)
-      updateData.machiningCostWithVat = parseFloat(data.machiningCostWithVat);
-    if (data.transportationCost !== undefined)
-      updateData.transportationCost = parseFloat(data.transportationCost);
-    if (data.packingCost !== undefined)
-      updateData.packingCost = parseFloat(data.packingCost);
+      updateData.bladeWeightKg = parseFloat(data.bladeWeightKg); // Support both old field names (bladeMoldCost) and new names (moldCostWithVat)
+    if (data.moldCostWithVat !== undefined || data.bladeMoldCost !== undefined)
+      updateData.moldCostWithVat = parseFloat(
+        data.moldCostWithVat || data.bladeMoldCost,
+      );
+    if (
+      data.machiningCostWithVat !== undefined ||
+      data.bladeMachiningCost !== undefined
+    )
+      updateData.machiningCostWithVat = parseFloat(
+        data.machiningCostWithVat || data.bladeMachiningCost,
+      );
+    if (
+      data.transportationCost !== undefined ||
+      data.bladeTransportCost !== undefined
+    )
+      updateData.transportationCost = parseFloat(
+        data.transportationCost || data.bladeTransportCost,
+      );
+    if (data.packingCost !== undefined || data.bladePackingCost !== undefined)
+      updateData.packingCost = parseFloat(
+        data.packingCost || data.bladePackingCost,
+      );
     if (data.steelBallsCost !== undefined)
       updateData.steelBallsCost = parseFloat(data.steelBallsCost);
+    if (data.bladeFactor !== undefined)
+      updateData.bladeFactor =
+        data.bladeFactor !== null ? parseFloat(data.bladeFactor) : null;
 
     return await prisma.axialImpellerBlade.update({
       where: { id: parseInt(id) },
@@ -217,7 +241,10 @@ export const AxialImpellerPricingService = {
         const calc = await this.calculateHubCost(hub);
         enriched.push({ ...hub, totalCost: calc.totalCost });
       } catch (err) {
-        console.warn(`[AxialImpeller] Hub ${hub.id} (${hub.symbol}) totalCost calc failed:`, err.message);
+        console.warn(
+          `[AxialImpeller] Hub ${hub.id} (${hub.symbol}) totalCost calc failed:`,
+          err.message,
+        );
         enriched.push({ ...hub, totalCost: 0 });
       }
     }
@@ -316,7 +343,10 @@ export const AxialImpellerPricingService = {
         const calc = await this.calculateFrameCost(frame);
         enriched.push({ ...frame, totalCost: calc.totalCost });
       } catch (err) {
-        console.warn(`[AxialImpeller] Frame ${frame.id} (${frame.frameSizeMm}mm) totalCost calc failed:`, err.message);
+        console.warn(
+          `[AxialImpeller] Frame ${frame.id} (${frame.frameSizeMm}mm) totalCost calc failed:`,
+          err.message,
+        );
         enriched.push({ ...frame, totalCost: 0 });
       }
     }
@@ -420,7 +450,7 @@ export const AxialImpellerPricingService = {
     );
     const moldLifetime = await getPricingItemByDescription("Mold Life time");
     const rawMaterialInj =
-      blade.material === "A"
+      blade.material === "Aluminum"
         ? await getPricingItemByDescription(
             "336 Aluminum Raw Material (Injection)",
           )
@@ -432,18 +462,16 @@ export const AxialImpellerPricingService = {
     // Determine InjMachineCost based on material (A or P)
     // Aluminum: "Aluminum injection Small machine cost" or "Aluminum injection machine cost (AM)"
     const injMachineCost =
-      blade.material === "A"
+      blade.material === "Aluminum"
         ? await getPricingItemByDescription(
             "Aluminum injection Small machine cost",
-            "Aluminum injection machine cost"
+            "Aluminum injection machine cost",
           )
         : await getPricingItemByDescription("PAG injection Small machine cost");
 
     // BladeFactor only applies to Aluminum (A), otherwise 0
-    const bladeFactor =
-      blade.material === "A"
-        ? await getPricingItemByDescription("Blade Cutting")
-        : 0;
+    // Use bladeFactor from database if set, otherwise fetch from pricing items
+    let bladeFactor = blade.bladeFactor;
 
     // Calculate components
     const moldCostComponent =
@@ -467,7 +495,7 @@ export const AxialImpellerPricingService = {
         blade.packingCost +
         blade.steelBallsCost +
         injMachineComponent +
-        bladeFactor) *
+        bladeFactor * 1.14) *
       numberOfBlades;
 
     return {

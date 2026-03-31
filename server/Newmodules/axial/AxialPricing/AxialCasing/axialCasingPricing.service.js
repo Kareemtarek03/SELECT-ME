@@ -82,13 +82,14 @@ function calculateTotalCost(casing, pricingItems) {
   }
 
   const totalCost =
-    (weightWithScrap * (SR1 / 1000) +
+    ((weightWithScrap * (SR1 / 1000) +
       SR2 * parseFloat(casing.casingCircumferenceMeter) +
       parseFloat(casing.laserTimeMinutes) * SR5 +
       parseFloat(casing.bendingLine) * SR4 +
       parseFloat(casing.rolling) * SR3 +
       parseFloat(casing.paintingDiameter) * SR6) /
-    (100 - profit);
+      (100 - profit)) *
+    100;
 
   return totalCost;
 }
@@ -135,7 +136,7 @@ export const AxialCasingPricingService = {
         console.error("Error calculating total cost:", error);
       }
 
-      const totalCostWithVat = totalCost * 1.14;
+      const totalCostWithVat = totalCost;
       // Return plain object with numbers so JSON serialization is reliable
       const row = { ...casing };
       row.weightWithScrap = Number(weightWithScrap);
@@ -294,7 +295,7 @@ export const AxialCasingPricingService = {
     return {
       ...casing,
       weightWithScrap,
-      totalCost: totalCost * 1.14,
+      totalCost: totalCost,
     };
   },
 };

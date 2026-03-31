@@ -29,6 +29,7 @@ const INITIAL_FORM = {
   bladeTransportCost: "",
   bladePackingCost: "",
   steelBallsCost: "",
+  bladeFactor: "",
 };
 
 const HEADERS = [
@@ -42,6 +43,7 @@ const HEADERS = [
   "Transport",
   "Packing",
   "Steel Balls",
+  "Blade Factor",
   "Total Cost w/ VAT",
   "Actions",
 ];
@@ -152,6 +154,14 @@ export default function ImpellerBladesTable({
           type="number"
           value={newItem.steelBallsCost}
           onChange={(e) => setNewItem({ ...newItem, steelBallsCost: e.target.value })}
+          {...inputProps}
+        />
+        <Input
+          placeholder="Blade Factor"
+          type="number"
+          step="0.01"
+          value={newItem.bladeFactor}
+          onChange={(e) => setNewItem({ ...newItem, bladeFactor: e.target.value })}
           {...inputProps}
         />
       </AddFormBox>
@@ -270,6 +280,17 @@ export default function ImpellerBladesTable({
                         }
                         type="number"
                       />
+                      <EditableCell
+                        value={editForm.bladeFactor}
+                        onChange={(e) =>
+                          setEditForm({
+                            ...editForm,
+                            bladeFactor: e.target.value,
+                          })
+                        }
+                        type="number"
+                        step="0.01"
+                      />
                       <TableCell>-</TableCell>
                       <TableCell isLast>
                         <EditModeButtons
@@ -290,6 +311,11 @@ export default function ImpellerBladesTable({
                       <TableCell>{item.transportationCost}</TableCell>
                       <TableCell>{item.packingCost}</TableCell>
                       <TableCell>{item.steelBallsCost}</TableCell>
+                      <TableCell>
+                        {item.bladeFactor != null
+                          ? Number(item.bladeFactor).toFixed(2)
+                          : "-"}
+                      </TableCell>
                       <TableCell>
                         {item.totalCost != null
                           ? Number(item.totalCost).toFixed(2)
