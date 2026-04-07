@@ -49,8 +49,7 @@ export const AccessoriesService = {
     async getAll() {
         const accessories = await prisma.accessoryPricing.findMany({
             orderBy: [
-                { fanModel: "asc" },
-                { fanSizeMm: "asc" },
+                { id: "asc" },
             ],
         });
 

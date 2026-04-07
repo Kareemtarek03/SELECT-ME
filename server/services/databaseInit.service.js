@@ -150,47 +150,47 @@ async function seedMotorData() {
         model: m["Model"],
         powerKW: parseFloat_(m["Power (kW)"]),
         speedRPM: parseFloat_(m["Speed (RPM)"]),
-        NoPoles: parseInt_(m["No of Poles"]),
+        noOfPoles: parseInt_(m["No of Poles"]),
 
         ratedCurrentIn: parseFloat_(m["Rated current-In (A)"]),
         ratedTorqueMn: parseFloat_(m["Rated Torque – Mn (Nm)"]),
 
-        dolLockedRotorCurrent: parseFloat_(
+        lockedRotorCurrentDOL: parseFloat_(
           m["Locked rotor Current – Ia (A) (DOL)"],
         ),
-        dolIaIn: parseFloat_(m["Ia / In (DOL)"]),
-        dolLockedRotorTorque: parseFloat_(
+        iaPerInDOL: parseFloat_(m["Ia / In (DOL)"]),
+        lockedRotorTorqueDOL: parseFloat_(
           m["Locked rotor Torque – Ma (Nm) (DOL)"],
         ),
-        dolMaMn: parseFloat_(m["Ma / Mn (DOL)"]),
+        maPerMnDOL: parseFloat_(m["Ma / Mn (DOL)"]),
 
-        starDeltaLockedRotorCurrent: parseFloat_(
+        lockedRotorCurrentYD: parseFloat_(
           m["Locked rotor Current – Ia (A) (Y / ∆ Starting)"],
         ),
-        starDeltaIaIn: parseFloat_(m["Ia / I-n (Y / ∆ Starting)"]),
-        starDeltaLockedRotorTorque: parseFloat_(
+        iaPerInYD: parseFloat_(m["Ia / I-n (Y / ∆ Starting)"]),
+        lockedRotorTorqueYD: parseFloat_(
           m["Locked rotor Torque – Ma (Nm) (Y / ∆ Starting)"],
         ),
-        starDeltaMaMn: parseFloat_(m["Ma / Mn (Y / ∆ Starting)"]),
+        maPerMnYD: parseFloat_(m["Ma / Mn (Y / ∆ Starting)"]),
 
-        powerFactor: parseFloat_(m["Power factor Cos φ"]),
-        Phase: parseInt_(m["Phase"]),
-        frameSize: parseInt_(m["Frame Size (mm)"]),
-        shaftDia: parseFloat_(m["Shaft Diameter (mm)"]),
+        powerFactorCos: parseFloat_(m["Power factor Cos φ"]),
+        phase: String(parseInt_(m["Phase"]) || ""),
+        frameSize: String(parseInt_(m["Frame Size (mm)"]) || ""),
+        shaftDiameter: parseFloat_(m["Shaft Diameter (mm)"]),
         shaftLength: parseFloat_(m["Shaft Length (mm)"]),
-        shaftFeather: parseFloat_(m["Shaft Feather Key Length (mm)"]),
-        IE: parseInt_(m["IE"]),
-        frontBear: m["front Brearing"],
-        rearBear: m["Rear Bearing"],
-        noiseLvl: parseInt_(m["Noise Level (dB-A)"]),
-        weightKg: parseFloat_(m["Weight (KG)"]),
+        shaftFeatherKeyLength: parseFloat_(m["Shaft Feather Key Length (mm)"]),
+        ie: String(parseInt_(m["IE"]) || ""),
+        frontBearing: m["front Brearing"],
+        rearBearing: m["Rear Bearing"],
+        noiseLevel: parseFloat_(m["Noise Level (dB-A)"]),
+        weight: parseFloat_(m["Weight (KG)"]),
 
         efficiency50Hz: parseFloat_(m["Efficiency @ 50 Hz"]),
-        efficiency375Hz: parseFloat_(m["Efficiency @ 37.5 Hz"]),
+        efficiency37_5Hz: parseFloat_(m["Efficiency @ 37.5 Hz"]),
         efficiency25Hz: parseFloat_(m["Efficiency @ 25 Hz"]),
 
-        runCapacitor400V: parseFloat_(m["Run Capacitor 400 V (µF)"]),
-        startCapacitor330V: parseFloat_(m["Start Capacitor 330 V (µF) "]),
+        runCapacitor: parseFloat_(m["Run Capacitor 400 V (µF)"]),
+        startCapacitor: parseFloat_(m["Start Capacitor 330 V (µF) "]),
         NoCapacitors: parseInt_(m["No. of Capacitors"]),
         NoPhases: parseInt_(m["No. of Phases"]),
         insClass: m["Insulation Class"],
@@ -204,20 +204,13 @@ async function seedMotorData() {
 
         cableCurrent: parseFloat_(m["Current (A) with S.F (25%)(Cable)"]),
         cableSize: m["Cable Size (mm2)(Cable) "],
-        cablePriceWithoutVat: parseFloat_(m["Price w/o VAT Per Meter (Cable)"]),
         cablePriceWithVat: parseFloat_(m["Price With VAT Per Meter (Cable)"]),
 
         cableLugsNo: parseInt_(m["No.(Cable Lugs )"]),
-        cableLugsUPWithoutVat: parseFloat_(
-          m["U.P Price w/o VAT (Cable Lugs )"],
-        ),
         cableLugsUPWithVat: parseFloat_(m["U.P Price with VAT (Cable Lugs )"]),
         cableLugsTPWithVat: parseFloat_(m["T.P Price with VAT (Cable Lugs )"]),
 
         cableHeatShrinkNo: parseFloat_(m["No.(Cable Heat Shrink)"]),
-        cableHeatShrinkUPWithoutVat: parseFloat_(
-          m["U.P Price w/o VAT (Cable Heat Shrink)"],
-        ),
         cableHeatShrinkUPWithVat: parseFloat_(
           m["U.P Price with VAT (Cable Heat Shrink)"],
         ),
@@ -227,9 +220,6 @@ async function seedMotorData() {
 
         flexibleConnectorMeter: parseFloat_(m["Meter (Flexible Connector)"]),
         flexibleConnectorSize: m["Size (mm) (Flexible Connector) "],
-        flexibleConnectorUPWithoutVat: parseFloat_(
-          m["U.P Price w/o VAT (Flexible Connector)"],
-        ),
         flexibleConnectorUPWithVat: parseFloat_(
           m["U.P Price with VAT (Flexible Connector)"],
         ),
@@ -238,25 +228,27 @@ async function seedMotorData() {
         ),
 
         glandNo: parseFloat_(m["No. (Gland)"]),
-        glandUPWithoutVat: parseFloat_(m["U.P Price w/o VAT (Gland)"]),
         glandUPWithVat: parseFloat_(m["U.P Price with VAT (Gland)"]),
         glandTPWithVat: parseFloat_(m["T.P Price with VAT (Gland)"]),
 
         brassBarNo: parseFloat_(m["No. (Brass Bar)"]),
-        brassBarUPWithoutVat: parseFloat_(m["U.P Price w/o VAT (Brass Bar)"]),
         brassBarUPWithVat: parseFloat_(m["U.P Price with VAT (Brass Bar)"]),
         brassBarTPWithVat: parseFloat_(m["T.P Price with VAT (Brass Bar)"]),
 
         electricalBoxSize: m["Size (mm) (Electrical Box)"],
-        electricalBoxUPWithoutVat: parseFloat_(
-          m["U.P Price w/o VAT (Electrical Box)"],
-        ),
         electricalBoxUPWithVat: parseFloat_(
           m["U.P Price with VAT(Electrical Box)"],
         ),
 
         totalPriceWithVat: parseFloat_(m["Price With VAT Per Meter (Total)"]),
         powerHorse: parseFloat_(m["Power (HP)"]),
+        // Calculate netpower = powerKW * efficiency50Hz (critical for motor matching)
+        netpower: (() => {
+          const pKW = parseFloat_(m["Power (kW)"]);
+          const eff = parseFloat_(m["Efficiency @ 50 Hz"]);
+          if (pKW && eff) return pKW * eff;
+          return null;
+        })(),
       },
     });
   }

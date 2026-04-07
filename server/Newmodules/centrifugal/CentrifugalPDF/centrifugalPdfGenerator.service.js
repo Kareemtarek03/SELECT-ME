@@ -645,11 +645,12 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
         .strokeColor(COLORS.black).lineWidth(0.5).stroke();
     rightY += mm(7);
 
+    const motorPhaseVal = phase17Motor.noOfPhases ?? phase17Motor.NoPhases ?? 3;
     const motorRows = [
         ["- Motor Model", ":", phase17Motor.model || "AGM3EL 100 L 4a"],
         ["- Motor Power [kW]", ":", fmt(phase17Motor.powerKW, 1)],
         ["- No. of Poles", ":", fmt(phase17Motor.noOfPoles, 0)],
-        ["- Voltage [V]/Phase/Frequency [Hz]", ":", "380/3/50"],
+        ["- Voltage [V]/Phase/Frequency [Hz]", ":", `${motorPhaseVal == 3 ? "380" : "220"}/${motorPhaseVal}/50`],
         ["- Motor Efficiency [%]", ":", fmtPct(motorEff)],
         ["- Insulation Class", ":", phase17Motor.insulationClass || "F"],
     ];

@@ -2607,27 +2607,21 @@ async function loadBeltLengthStandardFromDb() {
 async function loadCentrifugalMotorDataFromDb() {
   const prisma = await getPrismaClient();
   if (!prisma) return null;
-  const rows = await prisma.MotorData.findMany();
+  const rows = await prisma.motorData.findMany();
   return rows.map((r) => {
-    let efficiency50Hz = 0.85;
-    if (r.effCurve) {
-      try {
-        const arr = typeof r.effCurve === "string" ? JSON.parse(r.effCurve) : r.effCurve;
-        if (Array.isArray(arr) && arr.length > 0) efficiency50Hz = Number(arr[0]) || 0.85;
-      } catch (_) {}
-    }
+    let efficiency50Hz = r.efficiency50Hz ?? 0.85;
     return {
-      "No of Poles": r.NoPoles,
-      "No. of Phases": r.NoPhases ?? r.Phase,
+      "No of Poles": r.noOfPoles,
+      "No. of Phases": r.NoPhases,
       "Insulation Class": r.insClass ?? "",
       "Power (kW)": r.powerKW,
       "Efficiency @ 50 Hz": efficiency50Hz,
       "Power (HP)": r.powerHorse,
-      "Shaft Feather Key Length (mm)": r.shaftFeather,
-      "Shaft Diameter (mm)": r.shaftDia,
+      "Shaft Feather Key Length (mm)": r.shaftFeatherKeyLength,
+      "Shaft Diameter (mm)": r.shaftDiameter,
       "Model": r.model,
       "No. of Capacitors": r.NoCapacitors,
-      "IE": r.IE,
+      "IE": r.ie,
     };
   });
 }

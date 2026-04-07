@@ -657,11 +657,12 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
     .strokeColor(COLORS.black).lineWidth(0.5).stroke();
   rightY += mm(7);
 
+  const motorPhase = motor.NoPhases ?? motor.phase ?? motor.Phase;
   const motorRows = [
     ["- Motor Model", ":", motor.model || "—"],
     ["- Motor Power [kW]", ":", fmt(motor.powerKW, 2)],
-    ["- No. of Poles", ":", fmt(motor.NoPoles, 0)],
-    ["- Voltage [V]/Phase/Frequency [Hz]", ":", `${motor.Phase === 3 ? "380" : "220"}/${motor.Phase || "—"}/50`],
+    ["- No. of Poles", ":", fmt(motor.noOfPoles, 0)],
+    ["- Voltage [V]/Phase/Frequency [Hz]", ":", `${motorPhase == 3 ? "380" : "220"}/${motorPhase || "—"}/50`],
     ["- Motor Efficiency [%]", ":", fmtPct(motorEff)],
     ["- Insulation Class", ":", motor.insClass || "F"],
   ];

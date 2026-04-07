@@ -164,40 +164,40 @@
     "Description": "Electrical Cables (Sweedy Factor)",
     "Unit": "Percentage",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 0.4,
+    " Price with VAT ": 0.4
   },
   {
     "Sr.": "19",
     "Description": "Electrical Component Factor",
     "Unit": "Percentage",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 0.05,
+    " Price with VAT ": 0.05
   },
   {
     "Sr.": "20",
     "Description": "Electrical Motors",
     "Unit": "Percentage",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 0.15,
+    " Price with VAT ": 0.15
   },
   {
     "Sr.": "21",
     "Description": "Bolts & Nuts",
     "Unit": "Kg",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 145,
+    " Price with VAT ": 165.3
   },
   {
     "Sr.": "22",
     "Description": "Dollar exchange",
     "Unit": "EGY",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 54,
+    " Price with VAT ": 54
   },
   {
     "Sr.": "23",

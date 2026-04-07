@@ -637,13 +637,13 @@ export async function Output({ units, input, dataSource }) {
         let effCurveArray = [];
         if (
           m.efficiency50Hz != null ||
-          m.efficiency375Hz != null ||
+          m.efficiency37_5Hz != null ||
           m.efficiency25Hz != null
         ) {
           // Web schema: separate efficiency fields
           effCurveArray = [
             m.efficiency50Hz ?? 0,
-            m.efficiency375Hz ?? 0,
+            m.efficiency37_5Hz ?? 0,
             m.efficiency25Hz ?? 0,
           ];
         } else if (m.effCurve) {
@@ -663,7 +663,7 @@ export async function Output({ units, input, dataSource }) {
           effCurve: effCurveArray,
           // Also set individual efficiency fields for compatibility
           efficiency50Hz: effCurveArray[0] ?? 0,
-          efficiency375Hz: effCurveArray[1] ?? 0,
+          efficiency37_5Hz: effCurveArray[1] ?? 0,
           efficiency25Hz: effCurveArray[2] ?? 0,
         };
       });
@@ -722,8 +722,8 @@ export async function Output({ units, input, dataSource }) {
 
         if (
           net >= requiredMotorPower &&
-          noPoles == m.NoPoles &&
-          m.Phase == input.NoPhases &&
+          noPoles == m.noOfPoles &&
+          m.NoPhases == input.NoPhases &&
           m.insClass == units.insulationClass
         )
           candidatesAbove.push({ m, net });

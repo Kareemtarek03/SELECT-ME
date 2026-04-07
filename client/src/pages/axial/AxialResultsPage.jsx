@@ -1830,7 +1830,7 @@ export default function ResultsPage() {
                                     fontWeight: "500",
                                   }}
                                 >
-                                  {motor?.NoPoles || "—"}
+                                  {motor?.noOfPoles || "—"}
                                 </span>
                               </div>
                               <div
@@ -1856,14 +1856,14 @@ export default function ResultsPage() {
                                     fontWeight: "500",
                                   }}
                                 >
-                                  {motor?.Phase
+                                  {motor?.NoPhases
                                     ? `${
-                                        motor.Phase === 1
+                                        motor.NoPhases === 1
                                           ? "220"
-                                          : motor.Phase === 3
+                                          : motor.NoPhases === 3
                                             ? "380"
                                             : "—"
-                                      }V / ${motor.Phase}Ph / 50Hz`
+                                      }V / ${motor.NoPhases}Ph / 50Hz`
                                     : "—"}
                                 </span>
                               </div>
