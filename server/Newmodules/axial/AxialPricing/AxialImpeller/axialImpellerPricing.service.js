@@ -443,7 +443,7 @@ export const AxialImpellerPricingService = {
    * @param {number} numberOfBlades - Number of blades
    * @returns {Object} - Calculated cost breakdown
    */
-  async calculateBladeCost(blade, numberOfBlades) {
+  async calculateBladeCost(blade, numberOfBlades = 1) {
     // Fetch pricing items
     const moldFactor = await getPricingItemByDescription(
       "Mold Currency change Factor",
@@ -462,12 +462,21 @@ export const AxialImpellerPricingService = {
     // Determine InjMachineCost based on material (A or P)
     // Aluminum: "Aluminum injection Small machine cost" or "Aluminum injection machine cost (AM)"
     const injMachineCost =
-      blade.material === "Aluminum"
+      blade.symbol === "AM"
         ? await getPricingItemByDescription(
-            "Aluminum injection Small machine cost",
-            "Aluminum injection machine cost",
+            "Aluminum injection machine cost (AM)",
           )
-        : await getPricingItemByDescription("PAG injection Small machine cost");
+        : blade.symbol === "AV" || blade.symbol === "AG"
+          ? await getPricingItemByDescription(
+              "Aluminum injection machine cost (AV & AG)",
+            )
+          : await getPricingItemByDescription(
+              "PAG injection Small machine cost",
+            );
+    console.log(
+      `InjMachineCost for blade ${blade.symbol} (${blade.material}):`,
+      injMachineCost,
+    );
 
     // BladeFactor only applies to Aluminum (A), otherwise 0
     // Use bladeFactor from database if set, otherwise fetch from pricing items
@@ -480,7 +489,7 @@ export const AxialImpellerPricingService = {
         : 0;
 
     const rawMaterialComponent =
-      (blade.bladeWeightKg * 1.1 * rawMaterialInj) / 1000;
+      blade.bladeWeightKg * 1.1 * (rawMaterialInj / 1000);
 
     const machiningComponent = blade.machiningCostWithVat * machineFactor;
 
@@ -547,44 +556,68 @@ export const AxialImpellerPricingService = {
       "Mold Currency change Factor",
     );
     const moldLifetime = await getPricingItemByDescription("Mold Life time");
-    const rawMaterialInj = isFixed
-      ? await getPricingItemByDescription(
-          "336 Aluminum Raw Material (Injection)",
-        )
-      : await getPricingItemByDescription("PAG 30% Raw Material");
+    const rawMaterialInj = await getPricingItemByDescription(
+      "336 Aluminum Raw Material (Injection)",
+    );
+
     const machineFactor = await getPricingItemByDescription(
       "Axial Impeller Maching Factor",
     );
 
     // Calculate mold cost based on hub type
-    let moldCostComponent = 0;
-    if (moldLifetime !== 0) {
-      if (isFixed) {
-        moldCostComponent =
-          (hub.moldCostWithVat * moldFactor) / (moldLifetime * 2);
-      } else {
-        moldCostComponent =
-          ((hub.moldCostWithVat * moldFactor) / (moldLifetime / 2)) * 2;
-      }
-    }
-
+    let moldCostComponent =
+      (hub.moldCostWithVat * moldFactor) / (moldLifetime * 2);
+    console.log(
+      moldCostComponent,
+      hub.moldCostWithVat,
+      moldFactor,
+      moldLifetime,
+    );
     // Raw material component (same as blade formula but no numberOfBlades)
     const rawMaterialComponent =
-      (hub.hubWeightKg * 1.1 * rawMaterialInj) / 1000;
-
+      hub.hubWeightKg * 1.1 * (rawMaterialInj / 1000);
+    console.log(
+      `RawMaterialComponent for hub ${hub.symbol} (${hub.hubType}):`,
+      rawMaterialComponent,
+      hub.hubWeightKg,
+      rawMaterialInj,
+    );
     // Machining component
     const machiningComponent = hub.machiningCostWithVat * machineFactor;
+    console.log(
+      `MachiningComponent for hub ${hub.symbol} (${hub.hubType}):`,
+      machiningComponent,
+      hub.machiningCostWithVat,
+      machineFactor,
+    );
 
     // Injection machine cost based on hub type
     let injMachineComponent = 0;
-    if (isFixed) {
-      const injMachineCostFixed = await getPricingItemByDescription(
-        "Aluminum injection machine cost (Hub 6)",
-      );
-      injMachineComponent = injMachineCostFixed * 1.1;
-    } else {
-      injMachineComponent = hub.hubWeightKg * 45 * 1.14 * 1.1;
-    }
+    const injMachineCost =
+      hub.symbol === "6" || hub.symbol === "14"
+        ? await getPricingItemByDescription(
+            "Aluminum injection machine cost (Hub 6)",
+          )
+        : hub.symbol === "5"
+          ? await getPricingItemByDescription(
+              "Aluminum injection machine cost (Hub 5)",
+            )
+          : hub.symbol === "9"
+            ? await getPricingItemByDescription(
+                "Aluminum injection machine cost (Hub 9)",
+              )
+            : hub.symbol === "12"
+              ? await getPricingItemByDescription(
+                  "Aluminum injection machine cost (Hub 12)",
+                )
+              : await getPricingItemByDescription(
+                  "Aluminum injection machine cost (Hub 16)",
+                );
+    injMachineComponent = injMachineCost * 1.1;
+    console.log(
+      `InjMachineComponent for hub ${hub.symbol} (${hub.hubType}):`,
+      injMachineComponent,
+    );
 
     // Total hub cost
     const totalHubCost =
@@ -639,7 +672,7 @@ export const AxialImpellerPricingService = {
       "Axial Impeller Maching Factor",
     );
     const injMachineCost = await getPricingItemByDescription(
-      "Aluminum injection machine cost (AM)",
+      "Aluminum injection Small machine cost",
     );
 
     // Mold cost component (same as non-fixed hub)
@@ -650,7 +683,7 @@ export const AxialImpellerPricingService = {
     }
 
     // Raw material component
-    const rawMaterialComponent = (frame.weightKg * 1.1 * rawMaterialInj) / 1000;
+    const rawMaterialComponent = frame.weightKg * 1.1 * (rawMaterialInj / 1000);
 
     // Machining component
     const machiningComponent = frame.machiningCostWithVat * machineFactor;

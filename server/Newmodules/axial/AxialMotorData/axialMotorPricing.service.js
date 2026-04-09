@@ -2,41 +2,27 @@ import pkg from "@prisma/client";
 
 const { PrismaClient } = pkg;
 
-
-
 let prisma = null;
 
 async function getPrismaClient() {
-
   if (!prisma) {
-
     try {
-
       prisma = new PrismaClient();
-
     } catch (err) {
-
       console.warn("Prisma client not available - database mode disabled");
 
       prisma = null;
-
     }
-
   }
 
   return prisma;
-
 }
-
-
 
 // =============================================
 
 // CONSTANTS - Motor Pricing Configuration
 
 // =============================================
-
-
 
 // SR values for pricing items lookup
 
@@ -48,18 +34,13 @@ export const ELECTRICAL_CABLES_SR = 18; // Electrical Cables (Sweedy Factor)
 
 export const ELECTRICAL_COMPONENT_SR = 19; // Electrical Component Factor
 
-
-
 // VAT Rate constant
 
 export const VAT_RATE = 1.14;
 
-
-
 // Calculated field names (JSON format)
 
 export const CALCULATED_FIELDS = [
-
   "B3 Price with VAT & Factor (L.E)",
 
   "Other Price with VAT & Factor (L.E)",
@@ -89,15 +70,11 @@ export const CALCULATED_FIELDS = [
   "U.P Price with VAT(Electrical Box)",
 
   "Price With VAT Per Meter (Total)",
-
 ];
-
-
 
 // Calculated field names (DB format)
 
 export const CALCULATED_DB_FIELDS = [
-
   "b3PriceWithVat",
 
   "otherPriceWithVat",
@@ -127,18 +104,13 @@ export const CALCULATED_DB_FIELDS = [
   "electricalBoxUPWithVat",
 
   "totalPriceWithVat",
-
 ];
-
-
 
 // =============================================
 
 // HELPER FUNCTIONS
 
 // =============================================
-
-
 
 /**
 
@@ -151,7 +123,6 @@ export const CALCULATED_DB_FIELDS = [
  */
 
 export const parsePrice = (value) => {
-
   if (value === null || value === undefined || value === "") return null;
 
   if (typeof value === "number") return Number.isFinite(value) ? value : null;
@@ -161,10 +132,7 @@ export const parsePrice = (value) => {
   const parsed = parseFloat(cleaned);
 
   return isNaN(parsed) ? null : parsed;
-
 };
-
-
 
 /**
 
@@ -175,22 +143,16 @@ export const parsePrice = (value) => {
  */
 
 export const getDollarRate = async () => {
-
   const prismaClient = await getPrismaClient();
 
   if (!prismaClient) return 0;
 
   const item = await prismaClient.pricingItem.findFirst({
-
     where: { description: "Dollar exchange" },
-
   });
 
   return item?.priceWithVat || 0;
-
 };
-
-
 
 /**
 
@@ -201,22 +163,16 @@ export const getDollarRate = async () => {
  */
 
 export const getElectricalMotorsFactor = async () => {
-
   const prismaClient = await getPrismaClient();
 
   if (!prismaClient) return 0;
 
   const item = await prismaClient.pricingItem.findFirst({
-
     where: { description: "Electrical Motors" },
-
   });
 
   return item?.priceWithVat || 0;
-
 };
-
-
 
 /**
 
@@ -227,22 +183,16 @@ export const getElectricalMotorsFactor = async () => {
  */
 
 export const getElectricalCablesFactor = async () => {
-
   const prismaClient = await getPrismaClient();
 
   if (!prismaClient) return 0;
 
   const item = await prismaClient.pricingItem.findFirst({
-
     where: { description: "Electrical Cables (Sweedy Factor)" },
-
   });
 
   return item?.priceWithVat || 0;
-
 };
-
-
 
 /**
 
@@ -253,22 +203,16 @@ export const getElectricalCablesFactor = async () => {
  */
 
 export const getElectricalComponentFactor = async () => {
-
   const prismaClient = await getPrismaClient();
 
   if (!prismaClient) return 0;
 
   const item = await prismaClient.pricingItem.findFirst({
-
     where: { description: "Electrical Component Factor" },
-
   });
 
   return item?.priceWithVat || 0;
-
 };
-
-
 
 /**
 
@@ -279,13 +223,10 @@ export const getElectricalComponentFactor = async () => {
  */
 
 export const getPricingFactors = async () => {
-
   const prismaClient = await getPrismaClient();
 
   if (!prismaClient) {
-
     return {
-
       dollarRate: 0,
 
       electricalMotorsFactor: 0,
@@ -293,13 +234,10 @@ export const getPricingFactors = async () => {
       electricalCablesFactor: 0,
 
       electricalComponentFactor: 0,
-
     };
-
   }
 
   const [
-
     dollarRateItem,
 
     electricalMotorsItem,
@@ -307,39 +245,25 @@ export const getPricingFactors = async () => {
     electricalCablesItem,
 
     electricalComponentItem,
-
   ] = await Promise.all([
-
     prismaClient.pricingItem.findFirst({
-
       where: { description: "Dollar exchange" },
-
     }),
 
     prismaClient.pricingItem.findFirst({
-
       where: { description: "Electrical Motors" },
-
     }),
 
     prismaClient.pricingItem.findFirst({
-
       where: { description: "Electrical Cables (Sweedy Factor)" },
-
     }),
 
     prismaClient.pricingItem.findFirst({
-
       where: { description: "Electrical Component Factor" },
-
     }),
-
   ]);
 
-
-
   return {
-
     dollarRate: dollarRateItem?.priceWithVat || 0,
 
     electricalMotorsFactor: 1 + (electricalMotorsItem?.priceWithVat || 0),
@@ -347,20 +271,14 @@ export const getPricingFactors = async () => {
     electricalCablesFactor: 1 + (electricalCablesItem?.priceWithVat || 0),
 
     electricalComponentFactor: 1 + (electricalComponentItem?.priceWithVat || 0),
-
   };
-
 };
-
-
 
 // =============================================
 
 // CALCULATION FUNCTIONS
 
 // =============================================
-
-
 
 /**
 
@@ -381,30 +299,22 @@ export const getPricingFactors = async () => {
  */
 
 export const calculateB3PriceWithVat = (
-
   b3PriceWithoutVat,
 
   dollarRate,
 
   electricalMotorsFactor,
-
 ) => {
-
   const basePrice = parsePrice(b3PriceWithoutVat);
 
   if (basePrice === null || basePrice === 0) return null;
 
   if (!dollarRate || !electricalMotorsFactor) return null;
 
-
-
   const calculated = basePrice * dollarRate * electricalMotorsFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100; // Round to 2 decimal places
-
 };
-
-
 
 /**
 
@@ -425,38 +335,28 @@ export const calculateB3PriceWithVat = (
  */
 
 export const calculateOtherPriceWithVat = (
-
   otherPriceWithoutVat,
 
   dollarRate,
 
   electricalMotorsFactor,
-
 ) => {
-
   const basePrice = parsePrice(otherPriceWithoutVat);
 
   if (basePrice === null || basePrice === 0) return null;
 
   if (!dollarRate || !electricalMotorsFactor) return null;
 
-
-
   const calculated = basePrice * dollarRate * electricalMotorsFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100; // Round to 2 decimal places
-
 };
-
-
 
 // =============================================
 
 // CABLE, CABLE LUGS, HEAT SHRINK CALCULATIONS
 
 // =============================================
-
-
 
 /**
 
@@ -467,28 +367,21 @@ export const calculateOtherPriceWithVat = (
  */
 
 export const calculateCablePriceWithVat = (
-
   cablePriceWithoutVat,
 
   electricalCablesFactor,
-
 ) => {
-
   const basePrice = parsePrice(cablePriceWithoutVat);
-
+  console.log(basePrice);
   if (basePrice === null) return null;
 
   if (!electricalCablesFactor) return null;
-
-
+  console.log(electricalCablesFactor);
 
   const calculated = basePrice * electricalCablesFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -499,28 +392,20 @@ export const calculateCablePriceWithVat = (
  */
 
 export const calculateCableLugsUPWithVat = (
-
   cableLugsUPWithoutVat,
 
   electricalComponentFactor,
-
 ) => {
-
   const basePrice = parsePrice(cableLugsUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalComponentFactor) return null;
 
-
-
   const calculated = basePrice * electricalComponentFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -531,28 +416,20 @@ export const calculateCableLugsUPWithVat = (
  */
 
 export const calculateCableLugsTPWithVat = (
-
   cableLugsUPWithVat,
 
   cableLugsNo,
-
 ) => {
-
   const unitPrice = parsePrice(cableLugsUPWithVat);
 
   const quantity = parsePrice(cableLugsNo);
 
   if (unitPrice === null || quantity === null) return null;
 
-
-
   const calculated = unitPrice * quantity;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -563,28 +440,20 @@ export const calculateCableLugsTPWithVat = (
  */
 
 export const calculateCableHeatShrinkUPWithVat = (
-
   cableHeatShrinkUPWithoutVat,
 
   electricalComponentFactor,
-
 ) => {
-
   const basePrice = parsePrice(cableHeatShrinkUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalComponentFactor) return null;
 
-
-
   const calculated = basePrice * electricalComponentFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -595,36 +464,26 @@ export const calculateCableHeatShrinkUPWithVat = (
  */
 
 export const calculateCableHeatShrinkTPWithVat = (
-
   cableHeatShrinkUPWithVat,
 
   cableHeatShrinkNo,
-
 ) => {
-
   const unitPrice = parsePrice(cableHeatShrinkUPWithVat);
 
   const quantity = parsePrice(cableHeatShrinkNo);
 
   if (unitPrice === null || quantity === null) return null;
 
-
-
   const calculated = unitPrice * quantity;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 // =============================================
 
 // FLEXIBLE CONNECTOR, GLAND, BRASS BAR, ELECTRICAL BOX CALCULATIONS
 
 // =============================================
-
-
 
 /**
 
@@ -635,28 +494,20 @@ export const calculateCableHeatShrinkTPWithVat = (
  */
 
 export const calculateFlexibleConnectorUPWithVat = (
-
   flexibleConnectorUPWithoutVat,
 
   electricalComponentFactor,
-
 ) => {
-
   const basePrice = parsePrice(flexibleConnectorUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalComponentFactor) return null;
 
-
-
   const calculated = basePrice * electricalComponentFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -667,28 +518,20 @@ export const calculateFlexibleConnectorUPWithVat = (
  */
 
 export const calculateFlexibleConnectorTPWithVat = (
-
   flexibleConnectorUPWithVat,
 
   flexibleConnectorMeter,
-
 ) => {
-
   const unitPrice = parsePrice(flexibleConnectorUPWithVat);
 
   const meter = parsePrice(flexibleConnectorMeter);
 
   if (unitPrice === null || meter === null) return null;
 
-
-
   const calculated = unitPrice * meter;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -699,28 +542,20 @@ export const calculateFlexibleConnectorTPWithVat = (
  */
 
 export const calculateGlandUPWithVat = (
-
   glandUPWithoutVat,
 
   electricalComponentFactor,
-
 ) => {
-
   const basePrice = parsePrice(glandUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalComponentFactor) return null;
 
-
-
   const calculated = basePrice * electricalComponentFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -731,22 +566,16 @@ export const calculateGlandUPWithVat = (
  */
 
 export const calculateGlandTPWithVat = (glandUPWithVat, glandNo) => {
-
   const unitPrice = parsePrice(glandUPWithVat);
 
   const quantity = parsePrice(glandNo);
 
   if (unitPrice === null || quantity === null) return null;
 
-
-
   const calculated = unitPrice * quantity;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -757,28 +586,20 @@ export const calculateGlandTPWithVat = (glandUPWithVat, glandNo) => {
  */
 
 export const calculateBrassBarUPWithVat = (
-
   brassBarUPWithoutVat,
 
   electricalCablesFactor,
-
 ) => {
-
   const basePrice = parsePrice(brassBarUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalCablesFactor) return null;
 
-
-
   const calculated = basePrice * electricalCablesFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -789,22 +610,16 @@ export const calculateBrassBarUPWithVat = (
  */
 
 export const calculateBrassBarTPWithVat = (brassBarUPWithVat, brassBarNo) => {
-
   const unitPrice = parsePrice(brassBarUPWithVat);
 
   const quantity = parsePrice(brassBarNo);
 
   if (unitPrice === null || quantity === null) return null;
 
-
-
   const calculated = unitPrice * quantity;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -815,28 +630,20 @@ export const calculateBrassBarTPWithVat = (brassBarUPWithVat, brassBarNo) => {
  */
 
 export const calculateElectricalBoxUPWithVat = (
-
   electricalBoxUPWithoutVat,
 
   electricalComponentFactor,
-
 ) => {
-
   const basePrice = parsePrice(electricalBoxUPWithoutVat);
 
   if (basePrice === null) return null;
 
   if (!electricalComponentFactor) return null;
 
-
-
   const calculated = basePrice * electricalComponentFactor * VAT_RATE;
 
   return Math.round(calculated * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -847,7 +654,6 @@ export const calculateElectricalBoxUPWithVat = (
  */
 
 export const calculateTotalPriceWithVat = (
-
   cablePriceWithVat,
 
   cableLugsTPWithVat,
@@ -861,13 +667,10 @@ export const calculateTotalPriceWithVat = (
   brassBarTPWithVat,
 
   electricalBoxUPWithVat,
-
 ) => {
-
   // Sum all values, treating null as 0
 
   const values = [
-
     parsePrice(cablePriceWithVat) || 0,
 
     parsePrice(cableLugsTPWithVat) || 0,
@@ -881,10 +684,7 @@ export const calculateTotalPriceWithVat = (
     parsePrice(brassBarTPWithVat) || 0,
 
     parsePrice(electricalBoxUPWithVat) || 0,
-
   ];
-
-
 
   const total = values.reduce((sum, val) => sum + val, 0);
 
@@ -893,10 +693,7 @@ export const calculateTotalPriceWithVat = (
   if (total === 0) return null;
 
   return Math.round(total * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -911,13 +708,11 @@ export const calculateTotalPriceWithVat = (
  */
 
 export const calculateMotorPrices = async (motorData, factors = null) => {
-
   // Get pricing factors if not provided
 
   const allFactors = factors || (await getPricingFactors());
 
   const {
-
     dollarRate,
 
     electricalMotorsFactor,
@@ -925,179 +720,123 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
     electricalCablesFactor,
 
     electricalComponentFactor,
-
   } = allFactors;
 
   console.log("Factors:", allFactors);
 
-
-
   // B3 and Other prices
 
   const b3PriceWithVat = calculateB3PriceWithVat(
-
     motorData.b3PriceWithoutVat ?? motorData["B3 Price ($) w/o VAT"],
 
     dollarRate,
 
     electricalMotorsFactor,
-
   );
 
-
-
   const otherPriceWithVat = calculateOtherPriceWithVat(
-
     motorData.otherPriceWithoutVat ?? motorData["Other Price ($) w/o VAT"],
 
     dollarRate,
 
     electricalMotorsFactor,
-
   );
-
-
 
   // Cable price
 
   const cablePriceWithVat = calculateCablePriceWithVat(
-
     motorData.cablePriceWithoutVat ??
-
       motorData["Price w/o VAT Per Meter (Cable)"],
 
     electricalCablesFactor,
-
   );
-
-
 
   // Cable Lugs prices
 
   const cableLugsUPWithVat = calculateCableLugsUPWithVat(
-
     motorData.cableLugsUPWithoutVat ??
-
       motorData["U.P Price w/o VAT (Cable Lugs)"],
 
     electricalComponentFactor,
-
   );
 
   const cableLugsTPWithVat = calculateCableLugsTPWithVat(
-
     cableLugsUPWithVat,
 
     motorData.cableLugsNo ?? motorData["No.(Cable Lugs)"],
-
   );
-
-
 
   // Cable Heat Shrink prices
 
   const cableHeatShrinkUPWithVat = calculateCableHeatShrinkUPWithVat(
-
     motorData.cableHeatShrinkUPWithoutVat ??
-
       motorData["U.P Price w/o VAT (Cable Heat Shrink)"],
 
     electricalComponentFactor,
-
   );
 
   const cableHeatShrinkTPWithVat = calculateCableHeatShrinkTPWithVat(
-
     cableHeatShrinkUPWithVat,
 
     motorData.cableHeatShrinkNo ?? motorData["No.(Cable Heat Shrink)"],
-
   );
-
-
 
   // Flexible Connector prices
 
   const flexibleConnectorUPWithVat = calculateFlexibleConnectorUPWithVat(
-
     motorData.flexibleConnectorUPWithoutVat ??
-
       motorData["U.P Price w/o VAT (Flexible Connector)"],
 
     electricalComponentFactor,
-
   );
 
   const flexibleConnectorTPWithVat = calculateFlexibleConnectorTPWithVat(
-
     flexibleConnectorUPWithVat,
 
     motorData.flexibleConnectorMeter ?? motorData["Meter (Flexible Connector)"],
-
   );
-
-
 
   // Gland prices
 
   const glandUPWithVat = calculateGlandUPWithVat(
-
     motorData.glandUPWithoutVat ?? motorData["U.P Price w/o VAT (Gland)"],
 
     electricalComponentFactor,
-
   );
 
   const glandTPWithVat = calculateGlandTPWithVat(
-
     glandUPWithVat,
 
     motorData.glandNo ?? motorData["No. (Gland)"],
-
   );
-
-
 
   // Brass Bar prices (uses electricalCablesFactor sr=18)
 
   const brassBarUPWithVat = calculateBrassBarUPWithVat(
-
     motorData.brassBarUPWithoutVat ??
-
       motorData["U.P Price w/o VAT (Brass Bar)"],
 
     electricalCablesFactor,
-
   );
 
   const brassBarTPWithVat = calculateBrassBarTPWithVat(
-
     brassBarUPWithVat,
 
     motorData.brassBarNo ?? motorData["No. (Brass Bar)"],
-
   );
-
-
 
   // Electrical Box price
 
   const electricalBoxUPWithVat = calculateElectricalBoxUPWithVat(
-
     motorData.electricalBoxUPWithoutVat ??
-
       motorData["U.P Price w/o VAT (Electrical Box)"],
 
     electricalComponentFactor,
-
   );
-
-
 
   // Total price
 
   const totalPriceWithVat = calculateTotalPriceWithVat(
-
     cablePriceWithVat,
 
     cableLugsTPWithVat,
@@ -1111,13 +850,9 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
     brassBarTPWithVat,
 
     electricalBoxUPWithVat,
-
   );
 
-
-
   return {
-
     b3PriceWithVat,
 
     otherPriceWithVat,
@@ -1147,20 +882,14 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
     electricalBoxUPWithVat,
 
     totalPriceWithVat,
-
   };
-
 };
-
-
 
 // =============================================
 
 // DERIVED FIELD AUTO-COMPUTATION (Excel IF-chain lookups)
 
 // =============================================
-
-
 
 /**
 
@@ -1171,16 +900,12 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
  */
 
 export const computeCableCurrent = (ratedCurrentIn) => {
-
   const current = parsePrice(ratedCurrentIn);
 
   if (current === null) return null;
 
   return Math.round(current * 1.25 * 100) / 100;
-
 };
-
-
 
 /**
 
@@ -1191,7 +916,6 @@ export const computeCableCurrent = (ratedCurrentIn) => {
  */
 
 export const computeCableSize = (currentWithSF) => {
-
   const I = parsePrice(currentWithSF);
 
   if (I === null || I <= 0) return null;
@@ -1223,64 +947,82 @@ export const computeCableSize = (currentWithSF) => {
   if (I < 266) return "3x150 SM";
 
   return "N/A";
-
 };
-
-
 
 /** Cable base price w/o VAT lookup by cable size (Excel column AP inner IF) */
 
 const CABLE_BASE_PRICES = {
+  "2x1.5 RM": 44,
+  "3x1.5 RM": 59,
+  "3x2.5 RM": 87,
+  "3x4 RM": 132,
 
-  "2x1.5 RM": 44, "3x1.5 RM": 59, "3x2.5 RM": 87, "3x4 RM": 132,
+  "3x6 RM": 193,
+  "3x10 RM": 291,
+  "3x16 RM": 454,
+  "3x25 RM": 939,
 
-  "3x6 RM": 193, "3x10 RM": 291, "3x16 RM": 454, "3x25 RM": 939,
+  "3x35 RM": 1292,
+  "3x50 SM": 1529,
+  "3x70 SM": 2221,
+  "3x95 SM": 3057,
 
-  "3x35 RM": 1292, "3x50 SM": 1529, "3x70 SM": 2221, "3x95 SM": 3057,
-
-  "3x120 SM": 3918, "3x150 SM": 4677,
-
+  "3x120 SM": 3918,
+  "3x150 SM": 4677,
 };
 
-export const lookupCableBasePrice = (cableSize) => CABLE_BASE_PRICES[cableSize] ?? null;
-
-
+export const lookupCableBasePrice = (cableSize) =>
+  CABLE_BASE_PRICES[cableSize] ?? null;
 
 /** Cable Lugs base price w/o VAT lookup (Excel column AR inner IF) */
 
 const CABLE_LUGS_BASE_PRICES = {
+  "2x1.5 RM": 5,
+  "3x1.5 RM": 5,
+  "3x2.5 RM": 6,
+  "3x4 RM": 7,
 
-  "2x1.5 RM": 5, "3x1.5 RM": 5, "3x2.5 RM": 6, "3x4 RM": 7,
+  "3x6 RM": 8,
+  "3x10 RM": 11,
+  "3x16 RM": 14,
+  "3x25 RM": 18,
 
-  "3x6 RM": 8, "3x10 RM": 11, "3x16 RM": 14, "3x25 RM": 18,
+  "3x35 RM": 27,
+  "3x50 SM": 38,
+  "3x70 SM": 55,
+  "3x95 SM": 75,
 
-  "3x35 RM": 27, "3x50 SM": 38, "3x70 SM": 55, "3x95 SM": 75,
-
-  "3x120 SM": 130, "3x150 SM": 155,
-
+  "3x120 SM": 130,
+  "3x150 SM": 155,
 };
 
-export const lookupCableLugsBasePrice = (cableSize) => CABLE_LUGS_BASE_PRICES[cableSize] ?? null;
-
-
+export const lookupCableLugsBasePrice = (cableSize) =>
+  CABLE_LUGS_BASE_PRICES[cableSize] ?? null;
 
 /** Cable Heat Shrink base price w/o VAT lookup (Excel column AU inner IF) */
 
 const HEAT_SHRINK_BASE_PRICES = {
+  "2x1.5 RM": 2,
+  "3x1.5 RM": 2,
+  "3x2.5 RM": 2,
+  "3x4 RM": 4,
 
-  "2x1.5 RM": 2, "3x1.5 RM": 2, "3x2.5 RM": 2, "3x4 RM": 4,
+  "3x6 RM": 4,
+  "3x10 RM": 5,
+  "3x16 RM": 6,
+  "3x25 RM": 7,
 
-  "3x6 RM": 4, "3x10 RM": 5, "3x16 RM": 6, "3x25 RM": 7,
+  "3x35 RM": 7,
+  "3x50 SM": 8,
+  "3x70 SM": 8,
+  "3x95 SM": 10,
 
-  "3x35 RM": 7, "3x50 SM": 8, "3x70 SM": 8, "3x95 SM": 10,
-
-  "3x120 SM": 14, "3x150 SM": 14,
-
+  "3x120 SM": 14,
+  "3x150 SM": 14,
 };
 
-export const lookupHeatShrinkBasePrice = (cableSize) => HEAT_SHRINK_BASE_PRICES[cableSize] ?? null;
-
-
+export const lookupHeatShrinkBasePrice = (cableSize) =>
+  HEAT_SHRINK_BASE_PRICES[cableSize] ?? null;
 
 /**
 
@@ -1291,7 +1033,6 @@ export const lookupHeatShrinkBasePrice = (cableSize) => HEAT_SHRINK_BASE_PRICES[
  */
 
 export const computeFlexibleConnectorSize = (powerKW) => {
-
   const kw = parsePrice(powerKW);
 
   if (kw === null) return null;
@@ -1303,18 +1044,14 @@ export const computeFlexibleConnectorSize = (powerKW) => {
   if (kw <= 110) return '1.5"';
 
   return "N/A";
-
 };
-
-
 
 /** Flexible Connector base price w/o VAT lookup (Excel column AY inner IF) */
 
 const FLEX_CONNECTOR_BASE_PRICES = { '3/4"': 98, '1"': 135, '1.5"': 185 };
 
-export const lookupFlexConnectorBasePrice = (size) => FLEX_CONNECTOR_BASE_PRICES[size] ?? null;
-
-
+export const lookupFlexConnectorBasePrice = (size) =>
+  FLEX_CONNECTOR_BASE_PRICES[size] ?? null;
 
 /** Gland base price w/o VAT lookup (Excel column BB inner IF) */
 
@@ -1322,13 +1059,9 @@ const GLAND_BASE_PRICES = { '3/4"': 85, '1"': 110, '1.5"': 130 };
 
 export const lookupGlandBasePrice = (size) => GLAND_BASE_PRICES[size] ?? null;
 
-
-
 /** Brass Bar base price w/o VAT — fixed value (Excel column BE: always 40) */
 
 export const BRASS_BAR_BASE_PRICE = 40;
-
-
 
 /**
 
@@ -1339,26 +1072,22 @@ export const BRASS_BAR_BASE_PRICE = 40;
  */
 
 export const computeElectricalBoxSize = (flexConnectorSize) => {
-
   if (!flexConnectorSize) return null;
 
   if (flexConnectorSize === '3/4"') return "110 x 110 x 55";
 
-  if (flexConnectorSize === '1"' || flexConnectorSize === '1.5"') return "160 x 140 x 55";
+  if (flexConnectorSize === '1"' || flexConnectorSize === '1.5"')
+    return "160 x 140 x 55";
 
   return null;
-
 };
-
-
 
 /** Electrical Box base price w/o VAT lookup (Excel column BH inner IF) */
 
 const ELEC_BOX_BASE_PRICES = { "110 x 110 x 55": 450, "160 x 140 x 55": 1550 };
 
-export const lookupElecBoxBasePrice = (boxSize) => ELEC_BOX_BASE_PRICES[boxSize] ?? null;
-
-
+export const lookupElecBoxBasePrice = (boxSize) =>
+  ELEC_BOX_BASE_PRICES[boxSize] ?? null;
 
 /**
 
@@ -1371,14 +1100,13 @@ export const lookupElecBoxBasePrice = (boxSize) => ELEC_BOX_BASE_PRICES[boxSize]
  */
 
 export const computeDerivedFields = (motorData) => {
-
-  const ratedCurrent = parsePrice(motorData.ratedCurrentIn ?? motorData["Rated current-In (A)"]);
+  const ratedCurrent = parsePrice(
+    motorData.ratedCurrentIn ?? motorData["Rated current-In (A)"],
+  );
 
   const powerKW = parsePrice(motorData.powerKW ?? motorData["Power (kW)"]);
 
   const derived = {};
-
-
 
   // Cable current & size
 
@@ -1386,12 +1114,9 @@ export const computeDerivedFields = (motorData) => {
 
   if (cableCurrent !== null) derived.cableCurrent = cableCurrent;
 
-
-
   const cableSize = computeCableSize(cableCurrent);
 
   if (cableSize !== null) {
-
     derived.cableSize = cableSize;
 
     derived.cablePriceWithoutVat = lookupCableBasePrice(cableSize);
@@ -1399,52 +1124,37 @@ export const computeDerivedFields = (motorData) => {
     derived.cableLugsUPWithoutVat = lookupCableLugsBasePrice(cableSize);
 
     derived.cableHeatShrinkUPWithoutVat = lookupHeatShrinkBasePrice(cableSize);
-
   }
-
-
 
   // Flexible connector size & prices
 
   const flexSize = computeFlexibleConnectorSize(powerKW);
 
   if (flexSize !== null && flexSize !== "N/A") {
-
     derived.flexibleConnectorSize = flexSize;
 
-    derived.flexibleConnectorUPWithoutVat = lookupFlexConnectorBasePrice(flexSize);
+    derived.flexibleConnectorUPWithoutVat =
+      lookupFlexConnectorBasePrice(flexSize);
 
     derived.glandUPWithoutVat = lookupGlandBasePrice(flexSize);
-
-
 
     // Electrical box
 
     const boxSize = computeElectricalBoxSize(flexSize);
 
     if (boxSize !== null) {
-
       derived.electricalBoxSize = boxSize;
 
       derived.electricalBoxUPWithoutVat = lookupElecBoxBasePrice(boxSize);
-
     }
-
   }
-
-
 
   // Brass bar base price is always fixed
 
   derived.brassBarUPWithoutVat = BRASS_BAR_BASE_PRICE;
 
-
-
   return derived;
-
 };
-
-
 
 /**
 
@@ -1457,10 +1167,7 @@ export const computeDerivedFields = (motorData) => {
  */
 
 export const stripCalculatedFields = (data) => {
-
   const stripped = { ...data };
-
-
 
   // Remove JSON format calculated fields
 
@@ -1510,8 +1217,6 @@ export const stripCalculatedFields = (data) => {
 
   delete stripped["U.P Price w/o VAT (Electrical Box)"];
 
-
-
   // Remove DB format fields
 
   delete stripped.b3PriceWithVat;
@@ -1544,21 +1249,14 @@ export const stripCalculatedFields = (data) => {
 
   delete stripped.totalPriceWithVat;
 
-
-
   return stripped;
-
 };
-
-
 
 // =============================================
 
 // RECALCULATION FUNCTIONS
 
 // =============================================
-
-
 
 /**
 
@@ -1575,148 +1273,95 @@ export const stripCalculatedFields = (data) => {
  */
 
 export const recalculateAllMotorPrices = async (newFactors = null) => {
-
   console.log(`\n${"=".repeat(60)}`);
 
   console.log(`🔄 RECALCULATING ALL MOTOR PRICES (B3 & Other)`);
 
   console.log(`${"=".repeat(60)}`);
 
-
-
   // Get the current pricing factors from DB (fresh query)
 
   const factors = newFactors || (await getPricingFactors());
 
   console.log(
-
     `📊 Using Dollar Rate (Sr=${DOLLAR_RATE_SR}): ${factors.dollarRate}`,
-
   );
 
   console.log(
-
     `📊 Using Electrical Motors Factor (Sr=${ELECTRICAL_MOTORS_SR}): ${factors.electricalMotorsFactor}`,
-
   );
 
   console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
-
-
   // Get all motors that have base prices set
 
   const motors = await (
-
     await getPrismaClient()
-
   ).motorData.findMany({
-
     where: {
-
       OR: [
-
         { b3PriceWithoutVat: { not: null } },
 
         { otherPriceWithoutVat: { not: null } },
-
       ],
-
     },
-
   });
 
-
-
   if (motors.length === 0) {
-
     console.log(
-
       `⚠️ No motors with base prices found in database to recalculate`,
-
     );
 
     return [];
-
   }
-
-
 
   console.log(`📊 Found ${motors.length} motors to recalculate...`);
 
-
-
   const results = [];
 
-
-
   for (const motor of motors) {
-
     const oldB3Price = motor.b3PriceWithVat;
 
     const oldOtherPrice = motor.otherPriceWithVat;
 
-
-
     // Calculate new prices
 
     const newB3Price = calculateB3PriceWithVat(
-
       motor.b3PriceWithoutVat,
 
       factors.dollarRate,
 
       factors.electricalMotorsFactor,
-
     );
 
-
-
     const newOtherPrice = calculateOtherPriceWithVat(
-
       motor.otherPriceWithoutVat,
 
       factors.dollarRate,
 
       factors.electricalMotorsFactor,
-
     );
-
-
 
     // Update the motor record
 
     const updated = await (
-
       await getPrismaClient()
-
     ).motorData.update({
-
       where: { id: motor.id },
 
       data: {
-
         b3PriceWithVat: newB3Price,
 
         otherPriceWithVat: newOtherPrice,
-
       },
-
     });
 
-
-
     console.log(
-
       `   ✓ Motor ID ${motor.id} (${motor.model || "N/A"}): B3: ${oldB3Price} → ${newB3Price}, Other: ${oldOtherPrice} → ${newOtherPrice}`,
-
     );
 
     results.push(updated);
-
   }
-
-
 
   console.log(`${"=".repeat(60)}`);
 
@@ -1724,13 +1369,8 @@ export const recalculateAllMotorPrices = async (newFactors = null) => {
 
   console.log(`${"=".repeat(60)}\n`);
 
-
-
   return results;
-
 };
-
-
 
 /**
 
@@ -1745,106 +1385,70 @@ export const recalculateAllMotorPrices = async (newFactors = null) => {
  */
 
 export const recalculateAllCablePrices = async () => {
-
   console.log(`\n${"=".repeat(60)}`);
 
   console.log(`🔄 RECALCULATING ALL CABLE PRICES`);
 
   console.log(`${"=".repeat(60)}`);
 
-
-
   const factors = await getPricingFactors();
 
   console.log("Factors:", factors);
 
   console.log(
-
     `📊 Using Electrical Cables Factor (Sr=${ELECTRICAL_CABLES_SR}): ${factors.electricalCablesFactor}`,
-
   );
 
   console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
-
-
   const motors = await (
-
     await getPrismaClient()
-
   ).motorData.findMany({
-
     where: { ratedCurrentIn: { not: null } },
-
   });
 
-
-
   if (motors.length === 0) {
-
     console.log(`⚠️ No motors with rated current found`);
 
     return [];
-
   }
 
-
-
   console.log(
-
     `📊 Found ${motors.length} motors to recalculate cable prices...`,
-
   );
-
-
 
   const results = [];
 
   for (const motor of motors) {
-
     const derived = computeDerivedFields(motor);
 
     const oldPrice = motor.cablePriceWithVat;
-
+    console.log(motor.cableSize);
+    console.log(CABLE_BASE_PRICES[motor.cableSize]);
+    console.log(CABLE_BASE_PRICES["2x1.5 RM"]);
     const newPrice = calculateCablePriceWithVat(
-
       derived.cablePriceWithoutVat,
 
       factors.electricalCablesFactor,
-
     );
 
-
-
     const updated = await (
-
       await getPrismaClient()
-
     ).motorData.update({
-
       where: { id: motor.id },
 
       data: { cablePriceWithVat: newPrice },
-
     });
-
-
 
     console.log(`   ✓ Motor ID ${motor.id}: Cable: ${oldPrice} → ${newPrice}`);
 
     results.push(updated);
-
   }
-
-
 
   console.log(`✅ Successfully recalculated ${results.length} cable prices\n`);
 
   return results;
-
 };
-
-
 
 /**
 
@@ -1859,109 +1463,73 @@ export const recalculateAllCablePrices = async () => {
  */
 
 export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
-
   console.log(`\n${"=".repeat(60)}`);
 
   console.log(`🔄 RECALCULATING ALL CABLE LUGS & HEAT SHRINK PRICES`);
 
   console.log(`${"=".repeat(60)}`);
 
-
-
   const factors = await getPricingFactors();
 
   console.log(
-
     `📊 Using Electrical Component Factor (Sr=${ELECTRICAL_COMPONENT_SR}): ${factors.electricalComponentFactor}`,
-
   );
 
   console.log(`📊 VAT Rate: ${VAT_RATE}`);
 
-
-
   const motors = await (
-
     await getPrismaClient()
-
   ).motorData.findMany({
-
     where: { ratedCurrentIn: { not: null } },
-
   });
 
-
-
   if (motors.length === 0) {
-
     console.log(`⚠️ No motors with rated current found`);
 
     return [];
-
   }
 
-
-
   console.log(`📊 Found ${motors.length} motors to recalculate...`);
-
-
 
   const results = [];
 
   for (const motor of motors) {
-
     const derived = computeDerivedFields(motor);
 
     // Cable Lugs
 
     const newCableLugsUP = calculateCableLugsUPWithVat(
-
       derived.cableLugsUPWithoutVat,
 
       factors.electricalComponentFactor,
-
     );
 
     const newCableLugsTP = calculateCableLugsTPWithVat(
-
       newCableLugsUP,
 
       motor.cableLugsNo,
-
     );
-
-
 
     // Heat Shrink
 
     const newHeatShrinkUP = calculateCableHeatShrinkUPWithVat(
-
       derived.cableHeatShrinkUPWithoutVat,
 
       factors.electricalComponentFactor,
-
     );
 
     const newHeatShrinkTP = calculateCableHeatShrinkTPWithVat(
-
       newHeatShrinkUP,
 
       motor.cableHeatShrinkNo,
-
     );
 
-
-
     const updated = await (
-
       await getPrismaClient()
-
     ).motorData.update({
-
       where: { id: motor.id },
 
       data: {
-
         cableLugsUPWithVat: newCableLugsUP,
 
         cableLugsTPWithVat: newCableLugsTP,
@@ -1969,36 +1537,22 @@ export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
         cableHeatShrinkUPWithVat: newHeatShrinkUP,
 
         cableHeatShrinkTPWithVat: newHeatShrinkTP,
-
       },
-
     });
 
-
-
     console.log(
-
       `   ✓ Motor ID ${motor.id}: Lugs UP: ${newCableLugsUP}, Lugs TP: ${newCableLugsTP}, HeatShrink UP: ${newHeatShrinkUP}, HeatShrink TP: ${newHeatShrinkTP}`,
-
     );
 
     results.push(updated);
-
   }
 
-
-
   console.log(
-
     `✅ Successfully recalculated ${results.length} cable lugs & heat shrink prices\n`,
-
   );
 
   return results;
-
 };
-
-
 
 /**
 
@@ -2013,139 +1567,96 @@ export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
  */
 
 export const recalculateAllElectricalPrices = async () => {
-
   console.log(`\n${"=".repeat(60)}`);
 
   console.log(
-
     `🔄 RECALCULATING ALL ELECTRICAL PRICES (Flex Connector, Gland, Brass Bar, Elec Box, Total)`,
-
   );
 
   console.log(`${"=".repeat(60)}`);
 
-
-
   const factors = await getPricingFactors();
 
   console.log(
-
     `📊 Using Electrical Cables Factor (Sr=${ELECTRICAL_CABLES_SR}): ${factors.electricalCablesFactor}`,
-
   );
 
   console.log(
-
     `📊 Using Electrical Component Factor (Sr=${ELECTRICAL_COMPONENT_SR}): ${factors.electricalComponentFactor}`,
-
   );
 
   console.log(`📊 VAT Rate: ${VAT_RATE}`);
-
-
 
   // Get all motors - we need to recalculate totals for all
 
   const motors = await (await getPrismaClient()).motorData.findMany();
 
-
-
   if (motors.length === 0) {
-
     console.log(`⚠️ No motors found in database`);
 
     return [];
-
   }
 
-
-
   console.log(`📊 Found ${motors.length} motors to recalculate...`);
-
-
 
   const results = [];
 
   for (const motor of motors) {
-
     const derived = computeDerivedFields(motor);
 
     // Flexible Connector (uses sr=19)
 
     const flexibleConnectorUPWithVat = calculateFlexibleConnectorUPWithVat(
-
       derived.flexibleConnectorUPWithoutVat,
 
       factors.electricalComponentFactor,
-
     );
 
     const flexibleConnectorTPWithVat = calculateFlexibleConnectorTPWithVat(
-
       flexibleConnectorUPWithVat,
 
       motor.flexibleConnectorMeter,
-
     );
-
-
 
     // Gland (uses sr=19)
 
     const glandUPWithVat = calculateGlandUPWithVat(
-
       derived.glandUPWithoutVat,
 
       factors.electricalComponentFactor,
-
     );
 
     const glandTPWithVat = calculateGlandTPWithVat(
-
       glandUPWithVat,
 
       motor.glandNo,
-
     );
-
-
 
     // Brass Bar (uses sr=18)
 
     const brassBarUPWithVat = calculateBrassBarUPWithVat(
-
       derived.brassBarUPWithoutVat,
 
       factors.electricalCablesFactor,
-
     );
 
     const brassBarTPWithVat = calculateBrassBarTPWithVat(
-
       brassBarUPWithVat,
 
       motor.brassBarNo,
-
     );
-
-
 
     // Electrical Box (uses sr=19)
 
     const electricalBoxUPWithVat = calculateElectricalBoxUPWithVat(
-
       derived.electricalBoxUPWithoutVat,
 
       factors.electricalComponentFactor,
-
     );
-
-
 
     // Total price - sum of all components
 
     const totalPriceWithVat = calculateTotalPriceWithVat(
-
       motor.cablePriceWithVat,
 
       motor.cableLugsTPWithVat,
@@ -2159,21 +1670,14 @@ export const recalculateAllElectricalPrices = async () => {
       brassBarTPWithVat,
 
       electricalBoxUPWithVat,
-
     );
 
-
-
     const updated = await (
-
       await getPrismaClient()
-
     ).motorData.update({
-
       where: { id: motor.id },
 
       data: {
-
         flexibleConnectorUPWithVat,
 
         flexibleConnectorTPWithVat,
@@ -2189,36 +1693,22 @@ export const recalculateAllElectricalPrices = async () => {
         electricalBoxUPWithVat,
 
         totalPriceWithVat,
-
       },
-
     });
 
-
-
     console.log(
-
       `   ✓ Motor ID ${motor.id}: FlexConn: ${flexibleConnectorTPWithVat}, Gland: ${glandTPWithVat}, BrassBar: ${brassBarTPWithVat}, ElecBox: ${electricalBoxUPWithVat}, Total: ${totalPriceWithVat}`,
-
     );
 
     results.push(updated);
-
   }
 
-
-
   console.log(
-
     `✅ Successfully recalculated ${results.length} electrical prices\n`,
-
   );
 
   return results;
-
 };
-
-
 
 /**
 
@@ -2233,78 +1723,53 @@ export const recalculateAllElectricalPrices = async () => {
  */
 
 export const recalculateAllPrices = async () => {
-
   console.log(`\n${"=".repeat(60)}`);
 
   console.log(`🔄 RECALCULATING ALL PRICES FOR ALL MOTORS`);
 
   console.log(`${"=".repeat(60)}`);
 
-
-
   const factors = await getPricingFactors();
 
   const motors = await (await getPrismaClient()).motorData.findMany();
 
-
-
   if (motors.length === 0) {
-
     console.log(`⚠️ No motors found`);
 
     return [];
-
   }
 
-
-
   console.log(`📊 Found ${motors.length} motors to recalculate all prices...`);
-
-
 
   const results = [];
 
   for (const motor of motors) {
-
     const derived = computeDerivedFields(motor);
 
     const motorWithDerived = { ...motor, ...derived };
 
-    const calculatedPrices = await calculateMotorPrices(motorWithDerived, factors);
-
-
+    const calculatedPrices = await calculateMotorPrices(
+      motorWithDerived,
+      factors,
+    );
 
     const updated = await (
-
       await getPrismaClient()
-
     ).motorData.update({
-
       where: { id: motor.id },
 
       data: calculatedPrices,
-
     });
 
-
-
     results.push(updated);
-
   }
 
-
-
   console.log(
-
     `✅ Successfully recalculated all prices for ${results.length} motors\n`,
-
   );
 
   return results;
-
 };
-
-
 
 /**
 
@@ -2317,14 +1782,10 @@ export const recalculateAllPrices = async () => {
  */
 
 export const isMotorPricingTrigger = (sr) => {
-
   const srNum = parseInt(sr);
 
   return srNum === DOLLAR_RATE_SR || srNum === ELECTRICAL_MOTORS_SR;
-
 };
-
-
 
 /**
 
@@ -2337,12 +1798,8 @@ export const isMotorPricingTrigger = (sr) => {
  */
 
 export const isCablePricingTrigger = (sr) => {
-
   return parseInt(sr) === ELECTRICAL_CABLES_SR;
-
 };
-
-
 
 /**
 
@@ -2355,15 +1812,10 @@ export const isCablePricingTrigger = (sr) => {
  */
 
 export const isCableLugsHeatShrinkTrigger = (sr) => {
-
   return parseInt(sr) === ELECTRICAL_COMPONENT_SR;
-
 };
 
-
-
 export default {
-
   // Constants
 
   DOLLAR_RATE_SR,
@@ -2447,6 +1899,4 @@ export default {
   isCablePricingTrigger,
 
   isCableLugsHeatShrinkTrigger,
-
 };
-

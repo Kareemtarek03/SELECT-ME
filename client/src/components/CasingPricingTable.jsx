@@ -52,6 +52,7 @@ const HEADERS = [
   "Accessory 2 Desc",
   "Accessory 2 Price",
   "Total Cost w/ VAT",
+  "Total Cost w/o Scrap",
   "Actions",
 ];
 
@@ -444,6 +445,9 @@ export default function CasingPricingTable({
                       </TableCell>
                       <TableCell>
                         {formatNumber(item.totalCostWithVat ?? item.totalCost)}
+                      </TableCell>
+                      <TableCell>
+                        {formatNumber(item.totalCostWoScrap)}
                       </TableCell>
                       <TableCell isLast>
                         <ViewModeButtons

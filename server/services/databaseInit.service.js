@@ -18,15 +18,16 @@ async function getPrismaClient() {
 
     // In Electron production, DATABASE_URL is already set by electron-main to userDataPath
     // Only resolve relative paths when NOT in Electron production (no APP_PATH/RESOURCES_PATH)
-    const isElectronProduction = process.env.APP_PATH || process.env.RESOURCES_PATH;
-    if (!isElectronProduction && dbUrl && dbUrl.startsWith("file:./")) {
-      const relativePath = dbUrl.replace(/^file:\.?\//, "");
-      const projectRoot = path.join(__dirname, "..", "..");
-      const absolutePath = path.join(projectRoot, relativePath);
-      dbUrl = `file:${absolutePath.replace(/\\/g, "/")}`;
-      process.env.DATABASE_URL = dbUrl;
-      console.log("Resolved DATABASE_URL:", dbUrl);
-    }
+    const isElectronProduction =
+      process.env.APP_PATH || process.env.RESOURCES_PATH;
+    // if (!isElectronProduction && dbUrl && dbUrl.startsWith("file:./")) {
+    //   const relativePath = dbUrl.replace(/^file:\.?\//, "");
+    //   const projectRoot = path.join(__dirname, "..", "..");
+    //   const absolutePath = path.join(projectRoot, relativePath);
+    //   dbUrl = `file:${absolutePath.replace(/\\/g, "/")}`;
+    //   process.env.DATABASE_URL = dbUrl;
+    //   console.log("Resolved DATABASE_URL:", dbUrl);
+    // }
 
     prisma = new PrismaClient();
     console.log("PrismaClient initialized successfully");
@@ -270,7 +271,9 @@ async function seedPricingItems() {
   const priceList = JSON.parse(fs.readFileSync(pricingPath, "utf-8"));
   const pricingCount = await client.pricingItem.count();
   if (pricingCount > 0) {
-    console.log(`   PricingItems already has ${pricingCount} records, skipping.`);
+    console.log(
+      `   PricingItems already has ${pricingCount} records, skipping.`,
+    );
     return;
   }
 
@@ -315,7 +318,9 @@ async function seedAccessoryPricing() {
   const accessories = JSON.parse(fs.readFileSync(accessoryPath, "utf-8"));
   const accCount = await client.accessoryPricing.count();
   if (accCount > 0) {
-    console.log(`   AccessoryPricing already has ${accCount} records, skipping.`);
+    console.log(
+      `   AccessoryPricing already has ${accCount} records, skipping.`,
+    );
     return;
   }
 
@@ -355,7 +360,9 @@ async function seedAxialCasingPricing() {
   const casingConfig = JSON.parse(fs.readFileSync(casingPath, "utf-8"));
   const axialCasingCount = await client.axialCasingPricing.count();
   if (axialCasingCount > 0) {
-    console.log(`   AxialCasingPricing already has ${axialCasingCount} records, skipping.`);
+    console.log(
+      `   AxialCasingPricing already has ${axialCasingCount} records, skipping.`,
+    );
     return;
   }
 
@@ -431,7 +438,9 @@ async function seedAxialImpellerPricing() {
 
   const existingBladeCount = await client.axialImpellerBlade.count();
   if (existingBladeCount > 0) {
-    console.log(`   Axial Impeller already seeded (${existingBladeCount} blades), skipping.`);
+    console.log(
+      `   Axial Impeller already seeded (${existingBladeCount} blades), skipping.`,
+    );
     return;
   }
 
@@ -532,7 +541,9 @@ async function seedCentrifugalCasingPricing() {
 
   const casingCount = await client.centrifugalCasingPricing.count();
   if (casingCount > 0) {
-    console.log(`   CentrifugalCasingPricing already has ${casingCount} records, skipping.`);
+    console.log(
+      `   CentrifugalCasingPricing already has ${casingCount} records, skipping.`,
+    );
     return;
   }
 
@@ -775,7 +786,9 @@ async function seedCentrifugalData() {
 
   const fanCount = await client.centrifugalFanData.count();
   if (fanCount > 0) {
-    console.log(`   CentrifugalFanData already has ${fanCount} records, skipping.`);
+    console.log(
+      `   CentrifugalFanData already has ${fanCount} records, skipping.`,
+    );
     return;
   }
 

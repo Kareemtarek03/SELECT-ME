@@ -142,6 +142,11 @@ export const AxialCasingPricingService = {
       row.weightWithScrap = Number(weightWithScrap);
       row.totalCost = Number(totalCost);
       row.totalCostWithVat = Number(totalCostWithVat);
+      row.totalCostWoScrap = Number(
+        totalCost -
+          (weightWithScrap - casing.casingWeightKgWithoutScrap) *
+            (pricingItems.SR1 / 1000 / 2),
+      );
       return row;
     });
   },
@@ -292,10 +297,15 @@ export const AxialCasingPricingService = {
       throw error;
     }
 
+    let totalCostWoScrap =
+      totalCost -
+      (weightWithScrap - casing.casingWeightKgWithoutScrap) *
+        (pricingItems.SR1 / 1000 / 2);
     return {
       ...casing,
       weightWithScrap,
       totalCost: totalCost,
+      totalCostWoScrap: totalCostWoScrap,
     };
   },
 };
