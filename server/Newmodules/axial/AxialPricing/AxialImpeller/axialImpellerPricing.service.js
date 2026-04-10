@@ -174,40 +174,50 @@ export const AxialImpellerPricingService = {
   async updateBlade(id, data) {
     const updateData = {};
 
+    // Helper to safely parse float, handling 0 values correctly
+    const safeParseFloat = (val) => {
+      if (val === undefined || val === null || val === "") return undefined;
+      const parsed = parseFloat(val);
+      return isNaN(parsed) ? undefined : parsed;
+    };
+
     if (data.symbol !== undefined) updateData.symbol = data.symbol;
     if (data.material !== undefined) updateData.material = data.material;
     if (data.bladeType !== undefined) updateData.bladeType = data.bladeType;
-    if (data.lengthMm !== undefined)
-      updateData.lengthMm = parseFloat(data.lengthMm);
-    if (data.bladeWeightKg !== undefined)
-      updateData.bladeWeightKg = parseFloat(data.bladeWeightKg); // Support both old field names (bladeMoldCost) and new names (moldCostWithVat)
-    if (data.moldCostWithVat !== undefined || data.bladeMoldCost !== undefined)
-      updateData.moldCostWithVat = parseFloat(
-        data.moldCostWithVat || data.bladeMoldCost,
-      );
-    if (
-      data.machiningCostWithVat !== undefined ||
-      data.bladeMachiningCost !== undefined
-    )
-      updateData.machiningCostWithVat = parseFloat(
-        data.machiningCostWithVat || data.bladeMachiningCost,
-      );
-    if (
-      data.transportationCost !== undefined ||
-      data.bladeTransportCost !== undefined
-    )
-      updateData.transportationCost = parseFloat(
-        data.transportationCost || data.bladeTransportCost,
-      );
-    if (data.packingCost !== undefined || data.bladePackingCost !== undefined)
-      updateData.packingCost = parseFloat(
-        data.packingCost || data.bladePackingCost,
-      );
-    if (data.steelBallsCost !== undefined)
-      updateData.steelBallsCost = parseFloat(data.steelBallsCost);
-    if (data.bladeFactor !== undefined)
-      updateData.bladeFactor =
-        data.bladeFactor !== null ? parseFloat(data.bladeFactor) : null;
+    
+    // Numeric fields - use nullish coalescing (??) instead of || to handle 0 values
+    if (data.lengthMm !== undefined) {
+      const val = safeParseFloat(data.lengthMm);
+      if (val !== undefined) updateData.lengthMm = val;
+    }
+    if (data.bladeWeightKg !== undefined) {
+      const val = safeParseFloat(data.bladeWeightKg);
+      if (val !== undefined) updateData.bladeWeightKg = val;
+    }
+    if (data.moldCostWithVat !== undefined || data.bladeMoldCost !== undefined) {
+      const val = safeParseFloat(data.moldCostWithVat ?? data.bladeMoldCost);
+      if (val !== undefined) updateData.moldCostWithVat = val;
+    }
+    if (data.machiningCostWithVat !== undefined || data.bladeMachiningCost !== undefined) {
+      const val = safeParseFloat(data.machiningCostWithVat ?? data.bladeMachiningCost);
+      if (val !== undefined) updateData.machiningCostWithVat = val;
+    }
+    if (data.transportationCost !== undefined || data.bladeTransportCost !== undefined) {
+      const val = safeParseFloat(data.transportationCost ?? data.bladeTransportCost);
+      if (val !== undefined) updateData.transportationCost = val;
+    }
+    if (data.packingCost !== undefined || data.bladePackingCost !== undefined) {
+      const val = safeParseFloat(data.packingCost ?? data.bladePackingCost);
+      if (val !== undefined) updateData.packingCost = val;
+    }
+    if (data.steelBallsCost !== undefined) {
+      const val = safeParseFloat(data.steelBallsCost);
+      if (val !== undefined) updateData.steelBallsCost = val;
+    }
+    if (data.bladeFactor !== undefined) {
+      const parsed = parseFloat(data.bladeFactor);
+      updateData.bladeFactor = (data.bladeFactor === null || data.bladeFactor === "" || isNaN(parsed)) ? null : parsed;
+    }
 
     return await prisma.axialImpellerBlade.update({
       where: { id: parseInt(id) },
@@ -479,8 +489,8 @@ export const AxialImpellerPricingService = {
     );
 
     // BladeFactor only applies to Aluminum (A), otherwise 0
-    // Use bladeFactor from database if set, otherwise fetch from pricing items
-    let bladeFactor = blade.bladeFactor;
+    // Use bladeFactor from database if set, otherwise default to 0
+    let bladeFactor = blade.bladeFactor ?? 0;
 
     // Calculate components
     const moldCostComponent =

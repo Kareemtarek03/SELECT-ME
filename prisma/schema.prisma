@@ -86,9 +86,11 @@ model MotorData {
   cableSize                  String?
   cablePriceWithVat          Float?
   cableLugsNo                Int?
+  cableLugsUPWithoutVat      Float?
   cableLugsUPWithVat         Float?
   cableLugsTPWithVat         Float?
   cableHeatShrinkNo          Float?
+  cableHeatShrinkUPWithoutVat Float?
   cableHeatShrinkUPWithVat   Float?
   cableHeatShrinkTPWithVat   Float?
   flexibleConnectorMeter     Float?

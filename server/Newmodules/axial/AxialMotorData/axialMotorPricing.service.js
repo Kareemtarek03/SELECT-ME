@@ -852,6 +852,14 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
     electricalBoxUPWithVat,
   );
 
+  // Get the base prices without VAT for storage
+  const cableLugsUPWithoutVat = parsePrice(
+    motorData.cableLugsUPWithoutVat ?? motorData["U.P Price w/o VAT (Cable Lugs)"]
+  );
+  const cableHeatShrinkUPWithoutVat = parsePrice(
+    motorData.cableHeatShrinkUPWithoutVat ?? motorData["U.P Price w/o VAT (Cable Heat Shrink)"]
+  );
+
   return {
     b3PriceWithVat,
 
@@ -859,9 +867,13 @@ export const calculateMotorPrices = async (motorData, factors = null) => {
 
     cablePriceWithVat,
 
+    cableLugsUPWithoutVat,
+
     cableLugsUPWithVat,
 
     cableLugsTPWithVat,
+
+    cableHeatShrinkUPWithoutVat,
 
     cableHeatShrinkUPWithVat,
 
@@ -909,13 +921,21 @@ export const computeCableCurrent = (ratedCurrentIn) => {
 
 /**
 
- * Compute Cable Size based on current with SF
+ * Compute Cable Size based on current with SF and number of phases
 
- * Excel column AO: nested IF chain
+ * Excel column AP: 
+ * - For 3-phase motors: nested IF chain based on current
+ * - For 1-phase motors: hardcoded as "2x1.5 RM"
+
+ * @param {number} currentWithSF - Current with safety factor (25%)
+ * @param {number} noPhases - Number of phases (1 or 3)
 
  */
 
-export const computeCableSize = (currentWithSF) => {
+export const computeCableSize = (currentWithSF, noPhases = 3) => {
+  // Single-phase motors always use 2x1.5 RM (as per Excel)
+  if (noPhases === 1) return "2x1.5 RM";
+
   const I = parsePrice(currentWithSF);
 
   if (I === null || I <= 0) return null;
@@ -1106,6 +1126,9 @@ export const computeDerivedFields = (motorData) => {
 
   const powerKW = parsePrice(motorData.powerKW ?? motorData["Power (kW)"]);
 
+  // Get number of phases (default to 3 for 3-phase motors)
+  const noPhases = parseInt(motorData.NoPhases ?? motorData["No. of Phases"] ?? 3);
+
   const derived = {};
 
   // Cable current & size
@@ -1114,7 +1137,7 @@ export const computeDerivedFields = (motorData) => {
 
   if (cableCurrent !== null) derived.cableCurrent = cableCurrent;
 
-  const cableSize = computeCableSize(cableCurrent);
+  const cableSize = computeCableSize(cableCurrent, noPhases);
 
   if (cableSize !== null) {
     derived.cableSize = cableSize;
@@ -1530,9 +1553,13 @@ export const recalculateAllCableLugsAndHeatShrinkPrices = async () => {
       where: { id: motor.id },
 
       data: {
+        cableLugsUPWithoutVat: derived.cableLugsUPWithoutVat,
+
         cableLugsUPWithVat: newCableLugsUP,
 
         cableLugsTPWithVat: newCableLugsTP,
+
+        cableHeatShrinkUPWithoutVat: derived.cableHeatShrinkUPWithoutVat,
 
         cableHeatShrinkUPWithVat: newHeatShrinkUP,
 

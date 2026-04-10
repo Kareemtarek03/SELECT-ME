@@ -869,7 +869,7 @@ export async function exportFanData(res) {
     );
   }
 
-  const filename = "FanData-export.xlsx";
+  const filename = "FanData_export.xlsx";
   const ws = xlsx.utils.json_to_sheet(data);
   const wb = xlsx.utils.book_new();
   xlsx.utils.book_append_sheet(wb, ws, "FanData");

@@ -28,7 +28,12 @@ export function usePricingTableActions(
   const handleEdit = useCallback(
     (item) => {
       setEditingId(item.id);
-      setEditForm({ ...initialForm, ...item });
+      // Convert null/undefined values to empty strings to prevent uncontrolled input warnings
+      const sanitizedItem = {};
+      for (const key of Object.keys(initialForm)) {
+        sanitizedItem[key] = item[key] ?? "";
+      }
+      setEditForm({ ...initialForm, ...sanitizedItem });
     },
     [initialForm]
   );

@@ -195,6 +195,7 @@ export const COLUMN_MAPS = {
     ["transportationCost", "Transportation Cost"],
     ["packingCost", "Packing Cost"],
     ["steelBallsCost", "Steel Balls Cost"],
+    ["bladeFactor", "Blade Factor"],
   ],
 
   axialImpellerHub: [
@@ -419,7 +420,7 @@ export const NUMBER_FIELDS = {
   beltLengthStandard: ["spz", "spa", "spb", "spc"],
   pulleyStandard: ["no", "spz", "spa", "spb", "spc"],
   accessoryPricing: ["sr", "fanSizeMm", "vinylStickersLe", "namePlateLe", "packingLe", "labourCostLe", "internalTransportationLe", "boltsAndNutsKg", "priceWithVatLe"],
-  axialImpellerBlade: ["lengthMm", "bladeWeightKg", "moldCostWithVat", "machiningCostWithVat", "transportationCost", "packingCost", "steelBallsCost"],
+  axialImpellerBlade: ["lengthMm", "bladeWeightKg", "moldCostWithVat", "machiningCostWithVat", "transportationCost", "packingCost", "steelBallsCost", "bladeFactor"],
   axialImpellerHub: ["sizeMm", "hubWeightKg", "moldCostWithVat", "machiningCostWithVat", "transportationCost", "packingCost"],
   axialImpellerFrame: ["frameSizeMm", "sizeMm", "weightKg", "moldCostWithVat", "machiningCostWithVat", "transportationCost", "packingCost"],
   axialCasingPricing: ["sizeMm", "casingWeightKgWithoutScrap", "scrapPercentage", "casingCircumferenceMeter", "laserTimeMinutes", "bendingLine", "rolling", "paintingDiameter", "profitPercentage", "accessory1PriceWithoutVat", "accessory2PriceWithoutVat"],

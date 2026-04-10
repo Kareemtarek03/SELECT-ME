@@ -16,7 +16,7 @@ export async function exportCentrifugalFanData(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.centrifugalFanData.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.centrifugalFanData, "Centrifugal Fans");
-  sendExcelResponse(res, buf, "CentrifugalFanData-export.xlsx");
+  sendExcelResponse(res, buf, "CentrifugalFanData_export.xlsx");
 }
 
 export async function importCentrifugalFanData(fileBase64) {
@@ -54,7 +54,7 @@ export async function exportPulleys(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.pulleyData.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.pulleyData, "Pulleys");
-  sendExcelResponse(res, buf, "Pulleys-export.xlsx");
+  sendExcelResponse(res, buf, "Pulleys_export.xlsx");
 }
 
 export async function importPulleys(fileBase64) {
@@ -84,7 +84,7 @@ export async function exportBeltStandards(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.beltLengthStandard.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.beltLengthStandard, "Belt Standards");
-  sendExcelResponse(res, buf, "BeltLengthStandard-export.xlsx");
+  sendExcelResponse(res, buf, "BeltLengthStandard_export.xlsx");
 }
 
 export async function importBeltStandards(fileBase64) {
@@ -114,7 +114,7 @@ export async function exportPulleyStandards(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.pulleyStandard.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.pulleyStandard, "Pulley Standards");
-  sendExcelResponse(res, buf, "PulleyStandard-export.xlsx");
+  sendExcelResponse(res, buf, "PulleyStandard_export.xlsx");
 }
 
 export async function importPulleyStandards(fileBase64) {
@@ -181,7 +181,7 @@ export async function exportCasingPricingAll(res) {
   }
 
   const buf = createMultiSheetExcelBuffer(sheets);
-  sendExcelResponse(res, buf, "CentrifugalCasingPricing-export.xlsx");
+  sendExcelResponse(res, buf, "CentrifugalCasingPricing_export.xlsx");
 }
 
 export async function importCasingPricingAll(fileBase64) {
@@ -269,7 +269,7 @@ export async function exportAccessoryPricing(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.accessoryPricing.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.accessoryPricing, "Accessories");
-  sendExcelResponse(res, buf, "AccessoryPricing-export.xlsx");
+  sendExcelResponse(res, buf, "AccessoryPricing_export.xlsx");
 }
 
 export async function importAccessoryPricing(fileBase64) {
@@ -299,7 +299,7 @@ export async function exportAxialImpellerBlades(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.axialImpellerBlade.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.axialImpellerBlade, "Impeller Blades");
-  sendExcelResponse(res, buf, "AxialImpellerBlades-export.xlsx");
+  sendExcelResponse(res, buf, "AxialImpellerBlades_export.xlsx");
 }
 
 export async function importAxialImpellerBlades(fileBase64) {
@@ -329,7 +329,7 @@ export async function exportAxialImpellerHubs(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.axialImpellerHub.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.axialImpellerHub, "Impeller Hubs");
-  sendExcelResponse(res, buf, "AxialImpellerHubs-export.xlsx");
+  sendExcelResponse(res, buf, "AxialImpellerHubs_export.xlsx");
 }
 
 export async function importAxialImpellerHubs(fileBase64) {
@@ -359,7 +359,7 @@ export async function exportAxialImpellerFrames(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.axialImpellerFrame.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.axialImpellerFrame, "Impeller Frames");
-  sendExcelResponse(res, buf, "AxialImpellerFrames-export.xlsx");
+  sendExcelResponse(res, buf, "AxialImpellerFrames_export.xlsx");
 }
 
 export async function importAxialImpellerFrames(fileBase64) {
@@ -389,7 +389,7 @@ export async function exportAxialCasingPricing(res) {
   if (!prisma) return res.status(503).json({ error: "Database not available" });
   const data = await prisma.axialCasingPricing.findMany({ orderBy: { id: "asc" } });
   const buf = createExcelBuffer(data, COLUMN_MAPS.axialCasingPricing, "Axial Casing");
-  sendExcelResponse(res, buf, "AxialCasingPricing-export.xlsx");
+  sendExcelResponse(res, buf, "AxialCasingPricing_export.xlsx");
 }
 
 export async function importAxialCasingPricing(fileBase64) {

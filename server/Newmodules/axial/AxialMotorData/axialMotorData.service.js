@@ -288,11 +288,15 @@ function mapDbRowToJsonFormat(r) {
 
     "No.(Cable Lugs)": r.cableLugsNo,
 
+    "U.P Price without VAT (Cable Lugs)": r.cableLugsUPWithoutVat,
+
     "U.P Price with VAT (Cable Lugs)": r.cableLugsUPWithVat,
 
     "T.P Price with VAT (Cable Lugs)": r.cableLugsTPWithVat,
 
     "No.(Cable Heat Shrink)": r.cableHeatShrinkNo,
+
+    "U.P Price without VAT (Cable Heat Shrink)": r.cableHeatShrinkUPWithoutVat,
 
     "U.P Price with VAT (Cable Heat Shrink)": r.cableHeatShrinkUPWithVat,
 
@@ -468,11 +472,19 @@ function mapJsonToDbFormat(jsonData) {
 
     cableLugsNo: toInt(jsonData["No.(Cable Lugs)"]),
 
+    cableLugsUPWithoutVat: toFloat(jsonData["U.P Price without VAT (Cable Lugs)"]),
+
     cableLugsUPWithVat: toFloat(jsonData["U.P Price with VAT (Cable Lugs)"]),
 
     cableLugsTPWithVat: toFloat(jsonData["T.P Price with VAT (Cable Lugs)"]),
 
     cableHeatShrinkNo: toFloat(jsonData["No.(Cable Heat Shrink)"]),
+
+    cableHeatShrinkUPWithoutVat: toFloat(
+
+      jsonData["U.P Price without VAT (Cable Heat Shrink)"],
+
+    ),
 
     cableHeatShrinkUPWithVat: toFloat(
 
@@ -663,9 +675,13 @@ export async function createMotor(jsonData) {
 
       cablePriceWithVat: calculatedPrices.cablePriceWithVat,
 
+      cableLugsUPWithoutVat: calculatedPrices.cableLugsUPWithoutVat,
+
       cableLugsUPWithVat: calculatedPrices.cableLugsUPWithVat,
 
       cableLugsTPWithVat: calculatedPrices.cableLugsTPWithVat,
+
+      cableHeatShrinkUPWithoutVat: calculatedPrices.cableHeatShrinkUPWithoutVat,
 
       cableHeatShrinkUPWithVat: calculatedPrices.cableHeatShrinkUPWithVat,
 
@@ -878,9 +894,15 @@ export async function updateMotorById(id, jsonData) {
 
     updateData.cablePriceWithVat = calculatedPrices.cablePriceWithVat;
 
+    updateData.cableLugsUPWithoutVat = calculatedPrices.cableLugsUPWithoutVat;
+
     updateData.cableLugsUPWithVat = calculatedPrices.cableLugsUPWithVat;
 
     updateData.cableLugsTPWithVat = calculatedPrices.cableLugsTPWithVat;
+
+    updateData.cableHeatShrinkUPWithoutVat =
+
+      calculatedPrices.cableHeatShrinkUPWithoutVat;
 
     updateData.cableHeatShrinkUPWithVat =
 
@@ -1108,11 +1130,15 @@ export async function exportMotorData(res) {
 
       "No.(Cable Lugs)": r["No.(Cable Lugs)"],
 
+      "U.P Price without VAT (Cable Lugs)": r["U.P Price without VAT (Cable Lugs)"],
+
       "U.P Price with VAT (Cable Lugs)": r["U.P Price with VAT (Cable Lugs)"],
 
       "T.P Price with VAT (Cable Lugs)": r["T.P Price with VAT (Cable Lugs)"],
 
       "No.(Cable Heat Shrink)": r["No.(Cable Heat Shrink)"],
+
+      "U.P Price without VAT (Cable Heat Shrink)": r["U.P Price without VAT (Cable Heat Shrink)"],
 
       "U.P Price with VAT (Cable Heat Shrink)":
 
@@ -1166,7 +1192,7 @@ export async function exportMotorData(res) {
 
   }
 
-  const filename = "MotorData-export.xlsx";
+  const filename = "MotorData_export.xlsx";
 
 
 
@@ -1277,9 +1303,9 @@ export async function updateMotorDataFromExcel(
 
 
       // Strip removed w/o VAT fields that may come from uploaded Excel
-
+      // NOTE: cableLugsUPWithoutVat and cableHeatShrinkUPWithoutVat are now kept to allow import updates
       const REMOVED_FIELDS = [
-        'cablePriceWithoutVat', 'cableLugsUPWithoutVat', 'cableHeatShrinkUPWithoutVat',
+        'cablePriceWithoutVat',
         'flexibleConnectorUPWithoutVat', 'glandUPWithoutVat', 'brassBarUPWithoutVat',
         'electricalBoxUPWithoutVat',
       ];
@@ -1300,7 +1326,15 @@ export async function updateMotorDataFromExcel(
 
           const derived = computeDerivedFields(baseData);
 
-          const mergedData = { ...baseData, ...derived };
+          // Preserve imported values for cableLugsUPWithoutVat and cableHeatShrinkUPWithoutVat
+          // Only use derived values if not provided in import
+          const mergedData = { 
+            ...baseData, 
+            ...derived,
+            // Override with imported values if they exist
+            cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? derived.cableLugsUPWithoutVat,
+            cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? derived.cableHeatShrinkUPWithoutVat,
+          };
 
           const calculatedPrices = await calculateMotorPrices(mergedData);
 
@@ -1322,9 +1356,15 @@ export async function updateMotorDataFromExcel(
 
             cablePriceWithVat: calculatedPrices.cablePriceWithVat,
 
+            // Use imported values if provided, otherwise use calculated
+            cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? calculatedPrices.cableLugsUPWithoutVat,
+
             cableLugsUPWithVat: calculatedPrices.cableLugsUPWithVat,
 
             cableLugsTPWithVat: calculatedPrices.cableLugsTPWithVat,
+
+            // Use imported values if provided, otherwise use calculated
+            cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? calculatedPrices.cableHeatShrinkUPWithoutVat,
 
             cableHeatShrinkUPWithVat: calculatedPrices.cableHeatShrinkUPWithVat,
 
@@ -1370,7 +1410,13 @@ export async function updateMotorDataFromExcel(
 
           });
 
-          const mergedData = { ...dbData, ...derived };
+          // Preserve imported values for cableLugsUPWithoutVat and cableHeatShrinkUPWithoutVat
+          const mergedData = { 
+            ...dbData, 
+            ...derived,
+            cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? derived.cableLugsUPWithoutVat,
+            cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? derived.cableHeatShrinkUPWithoutVat,
+          };
 
           const calculatedPrices = await calculateMotorPrices(mergedData);
 
@@ -1384,9 +1430,15 @@ export async function updateMotorDataFromExcel(
 
             cablePriceWithVat: calculatedPrices.cablePriceWithVat,
 
+            // Use imported values if provided, otherwise use calculated
+            cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? calculatedPrices.cableLugsUPWithoutVat,
+
             cableLugsUPWithVat: calculatedPrices.cableLugsUPWithVat,
 
             cableLugsTPWithVat: calculatedPrices.cableLugsTPWithVat,
+
+            // Use imported values if provided, otherwise use calculated
+            cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? calculatedPrices.cableHeatShrinkUPWithoutVat,
 
             cableHeatShrinkUPWithVat: calculatedPrices.cableHeatShrinkUPWithVat,
 
@@ -1426,7 +1478,13 @@ export async function updateMotorDataFromExcel(
 
         });
 
-        const mergedData = { ...dbData, ...derived };
+        // Preserve imported values for cableLugsUPWithoutVat and cableHeatShrinkUPWithoutVat
+        const mergedData = { 
+          ...dbData, 
+          ...derived,
+          cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? derived.cableLugsUPWithoutVat,
+          cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? derived.cableHeatShrinkUPWithoutVat,
+        };
 
         const calculatedPrices = await calculateMotorPrices(mergedData);
 
@@ -1440,9 +1498,15 @@ export async function updateMotorDataFromExcel(
 
           cablePriceWithVat: calculatedPrices.cablePriceWithVat,
 
+          // Use imported values if provided, otherwise use calculated
+          cableLugsUPWithoutVat: dbData.cableLugsUPWithoutVat ?? calculatedPrices.cableLugsUPWithoutVat,
+
           cableLugsUPWithVat: calculatedPrices.cableLugsUPWithVat,
 
           cableLugsTPWithVat: calculatedPrices.cableLugsTPWithVat,
+
+          // Use imported values if provided, otherwise use calculated
+          cableHeatShrinkUPWithoutVat: dbData.cableHeatShrinkUPWithoutVat ?? calculatedPrices.cableHeatShrinkUPWithoutVat,
 
           cableHeatShrinkUPWithVat: calculatedPrices.cableHeatShrinkUPWithVat,
 
