@@ -443,10 +443,10 @@ export default function CasingPricingTable({
                       <TableCell>
                         {formatNumber(item.accessory2PriceWithoutVat) || "-"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell isCalculated>
                         {formatNumber(item.totalCostWithVat ?? item.totalCost)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell isCalculated>
                         {formatNumber(item.totalCostWoScrap)}
                       </TableCell>
                       <TableCell isLast>

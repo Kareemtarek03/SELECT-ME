@@ -456,15 +456,25 @@ async function seedAxialImpellerPricing() {
   await client.axialImpellerHub.deleteMany({});
   await client.axialImpellerFrame.deleteMany({});
 
-  // 1. Blades: rows 2-6 (data rows after header at 0, col headers at 1)
+  // 1. Blades: rows 3-7 (0-indexed, corresponds to Excel rows 4-8)
   // Cols: A=Sr, B=Symbol, C=Material, D=Blade Type, E=Length(mm), F=Blade Weight(kg), G-K=costs
+  // Blade Factor values extracted from Excel "Total Price with VAT" formula:
+  // AM=150, AV=150, AG=150, PV=0 (not present), PF=5
+  const bladeFactorMap = {
+    AM: 150,
+    AV: 150,
+    AG: 150,
+    PV: 0,
+    PF: 5,
+  };
   let bladeCount = 0;
-  for (let r = 2; r <= 6 && r < data.length; r++) {
+  for (let r = 3; r <= 7 && r < data.length; r++) {
     const row = data[r];
     if (!row || !toStr(row[1])) continue; // skip empty symbol
+    const symbol = toStr(row[1]);
     await client.axialImpellerBlade.create({
       data: {
-        symbol: toStr(row[1]),
+        symbol: symbol,
         material: toStr(row[2]) || "Aluminum",
         bladeType: toStr(row[3]) || "Variable",
         lengthMm: toNum(row[4]),
@@ -474,15 +484,16 @@ async function seedAxialImpellerPricing() {
         transportationCost: toNum(row[8]),
         packingCost: toNum(row[9]),
         steelBallsCost: toNum(row[10]),
+        bladeFactor: bladeFactorMap[symbol] ?? 0,
       },
     });
     bladeCount++;
   }
 
-  // 2. Hubs: rows 10-15
+  // 2. Hubs: rows 11-16 (0-indexed, corresponds to Excel rows 12-17)
   // Cols: A=Sr, B=Symbol, C=Material, D=Hub Type, E=Size(mm), F=Hub Weight(kg), G-J=costs
   let hubCount = 0;
-  for (let r = 10; r <= 15 && r < data.length; r++) {
+  for (let r = 11; r <= 16 && r < data.length; r++) {
     const row = data[r];
     if (!row || (row[1] === "" && row[2] === "")) continue;
     await client.axialImpellerHub.create({
@@ -501,10 +512,10 @@ async function seedAxialImpellerPricing() {
     hubCount++;
   }
 
-  // 3. Frames (Axial Aluminum sleeve): rows 19-31
+  // 3. Frames (Axial Aluminum sleeve): rows 20-32 (0-indexed, corresponds to Excel rows 21-33)
   // Cols: A=Sr, B=empty, C=Material, D=Frame Size(mm), E=Size(mm), F=Weight(kg), G-J=costs
   let frameCount = 0;
-  for (let r = 19; r <= 31 && r < data.length; r++) {
+  for (let r = 20; r <= 32 && r < data.length; r++) {
     const row = data[r];
     if (!row || !toStr(row[2])) continue; // skip empty material
     await client.axialImpellerFrame.create({

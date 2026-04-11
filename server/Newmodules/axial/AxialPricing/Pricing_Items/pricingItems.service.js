@@ -764,11 +764,12 @@ export const PricingItemsService = {
 
         const rows = xlsx.utils.sheet_to_json(sheet, { defval: null });
 
-        if (!rows || rows.length === 0) return { updated: 0, errors: ["Sheet is empty"] };
+        if (!rows || rows.length === 0) return { updated: 0, created: 0, errors: ["Sheet is empty"] };
 
         const errors = [];
 
         let updated = 0;
+        let created = 0;
 
         for (let i = 0; i < rows.length; i++) {
 
@@ -778,57 +779,75 @@ export const PricingItemsService = {
 
             const sr = row.sr != null ? parseInt(row.sr) : null;
 
-            if (id == null && sr == null) continue;
+            const description = row.description != null ? String(row.description).trim() : null;
 
-            const item = id != null
-
-                ? category.items.find((it) => it.id === id)
-
-                : category.items.find((it) => it.sr === sr);
-
-            if (!item) {
-
-                errors.push(`Row ${i + 2}: no item with id=${id ?? "?"} or sr=${sr ?? "?"}`);
-
-                continue;
-
+            // Find existing item by id, sr, or description
+            let item = null;
+            if (id != null) {
+                item = category.items.find((it) => it.id === id);
+            }
+            if (!item && sr != null) {
+                item = category.items.find((it) => it.sr === sr && it.description === description);
+            }
+            if (!item && description) {
+                item = category.items.find((it) => it.description === description);
             }
 
-            const updateData = {};
+            const priceWithoutVat = row.priceWithoutVat !== undefined && row.priceWithoutVat !== null && row.priceWithoutVat !== ""
+                ? parseFloat(row.priceWithoutVat)
+                : null;
 
-            if (row.priceWithoutVat !== undefined && row.priceWithoutVat !== null && row.priceWithoutVat !== "") {
+            const priceWithVat = row.priceWithVat !== undefined && row.priceWithVat !== null && row.priceWithVat !== ""
+                ? parseFloat(row.priceWithVat)
+                : null;
 
-                const v = parseFloat(row.priceWithoutVat);
+            if (item) {
+                // Update existing item
+                const updateData = {};
 
-                if (!Number.isNaN(v)) updateData.priceWithoutVat = v;
+                if (priceWithoutVat !== null && !Number.isNaN(priceWithoutVat)) {
+                    updateData.priceWithoutVat = priceWithoutVat;
+                }
 
-            }
+                if (priceWithVat !== null && !Number.isNaN(priceWithVat)) {
+                    updateData.priceWithVat = priceWithVat;
+                }
 
-            if (row.priceWithVat !== undefined && row.priceWithVat !== null && row.priceWithVat !== "") {
+                if (Object.keys(updateData).length === 0) continue;
 
-                const v = parseFloat(row.priceWithVat);
-
-                if (!Number.isNaN(v)) updateData.priceWithVat = v;
-
-            }
-
-            if (Object.keys(updateData).length === 0) continue;
-
-            try {
-
-                await this.updateItem(item.id, updateData);
-
-                updated++;
-
-            } catch (err) {
-
-                errors.push(`Row ${i + 2} (id=${item.id}): ${err.message}`);
-
+                try {
+                    await this.updateItem(item.id, updateData);
+                    updated++;
+                } catch (err) {
+                    errors.push(`Row ${i + 2} (id=${item.id}): ${err.message}`);
+                }
+            } else if (sr != null && description) {
+                // Create new item if sr and description are provided
+                try {
+                    const newItemData = {
+                        categoryId: category.id,
+                        sr: sr,
+                        description: description,
+                        unit: row.unit || "Pc",
+                        updatedDate: row.updatedDate || null,
+                        priceWithoutVat: priceWithoutVat !== null && !Number.isNaN(priceWithoutVat) ? priceWithoutVat : 0,
+                        priceWithVat: priceWithVat !== null && !Number.isNaN(priceWithVat) ? priceWithVat : 0,
+                    };
+                    await this.createItem(newItemData);
+                    created++;
+                    // Refresh category items for subsequent lookups
+                    const refreshedCategory = await this.getCategoryByName(categoryName);
+                    category.items = refreshedCategory.items;
+                } catch (err) {
+                    errors.push(`Row ${i + 2}: Failed to create item - ${err.message}`);
+                }
+            } else {
+                errors.push(`Row ${i + 2}: Cannot identify item (need id, or sr+description)`);
             }
 
         }
 
-        return { updated, errors };
+        return { updated, created, errors };
 
     },
 

@@ -268,7 +268,7 @@ export const PricingItemsController = {
         try {
             const categoryName = req.query.categoryName || "axial_pricing";
             const buffer = await PricingItemsService.exportTemplate(categoryName);
-            const filename = `PricingItems-${categoryName}-template.xlsx`;
+            const filename = `PricingItems_${categoryName}_export.xlsx`;
             res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
             res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
             res.send(buffer);
@@ -287,8 +287,9 @@ export const PricingItemsController = {
             const buffer = Buffer.from(fileBase64, "base64");
             const result = await PricingItemsService.importFromExcel(buffer, categoryName);
             res.json({
-                message: `Import complete: ${result.updated} item(s) updated.`,
+                message: `Import complete: ${result.updated} item(s) updated, ${result.created || 0} item(s) created.`,
                 updated: result.updated,
+                created: result.created || 0,
                 errors: result.errors,
             });
         } catch (error) {

@@ -148,10 +148,13 @@ export default function PricingItemsTab() {
             );
             if (!response.ok) throw new Error("Download failed");
             const blob = await response.blob();
+            const disposition = response.headers.get("Content-Disposition") || "";
+            const match = disposition.match(/filename[^;=\n]*=["']?([^"';\n]+)["']?/);
+            const filename = match ? match[1] : "PricingItems_axial_pricing_export.xlsx";
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "PricingItems-axial_pricing-template.xlsx";
+            a.download = filename;
             a.click();
             window.URL.revokeObjectURL(url);
             setAlert({ type: "success", message: "Template downloaded" });

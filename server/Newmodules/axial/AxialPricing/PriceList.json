@@ -68,96 +68,128 @@
     "Description": "336 Aluminum Raw Material (Injection)",
     "Unit": "Ton",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 216300,
+    " Price with VAT ": 246582
   },
   {
     "Sr.": "10",
     "Description": "ADC12 Aluminum Raw Material",
     "Unit": "Ton",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
-  },
-  {
-    "Sr.": "9",
-    "Description": "7075 Aluminum Raw Material (Alu. Sleeve)",
-    "Unit": "Ton",
-    "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 132300,
+    " Price with VAT ": 150822
   },
   {
     "Sr.": "11",
+    "Description": "7075 Aluminum Raw Material (Alu. Sleeve)",
+    "Unit": "Ton",
+    "Updated Date": null,
+    " Price w/o VAT ": 787500,
+    " Price with VAT ": 897750
+  },
+  {
+    "Sr.": "12",
     "Description": "PAG 30% Raw Material",
     "Unit": "Ton",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 248640,
+    " Price with VAT ": 283450
   },
   {
     "Sr.": "12",
     "Description": "Mold Currency change Factor",
     "Unit": "Percentage",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 1.25,
+    " Price with VAT ": 1.25
   },
   {
     "Sr.": "13",
     "Description": "Axial Impeller Maching Factor",
     "Unit": "Percentage",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 1.25,
+    " Price with VAT ": 1.25
   },
   {
     "Sr.": "14",
     "Description": "Mold Life time",
     "Unit": "Pc",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 10000,
+    " Price with VAT ": 10000
   },
   {
     "Sr.": "15",
     "Description": "Aluminum injection Small machine cost",
     "Unit": "Pc",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 15,
+    " Price with VAT ": 17.1
   },
   {
     "Sr.": "16",
     "Description": "Aluminum injection machine cost (AM)",
     "Unit": "Pc",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
-  },
-  {
-    "Sr.": "16",
-    "Description": "Aluminum injection machine cost (AV & AG)",
-    "Unit": "Pc",
-    "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
-  },
-  {
-    "Sr.": "16",
-    "Description": "Aluminum injection machine cost (Hub 6)",
-    "Unit": "Pc",
-    "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 136.5,
+    " Price with VAT ": 155.61
   },
   {
     "Sr.": "17",
+    "Description": "Aluminum injection machine cost (AV & AG)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 126,
+    " Price with VAT ": 143.64
+  },
+  {
+    "Sr.": "19",
+    "Description": "Aluminum injection machine cost (Hub 6)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 73.5,
+    " Price with VAT ": 83.79
+  },
+  {
+    "Sr.": "20",
+    "Description": "Aluminum injection machine cost (Hub 5)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 120.75,
+    " Price with VAT ": 137.655
+  },
+  {
+    "Sr.": "21",
+    "Description": "Aluminum injection machine cost (Hub 9)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 136.5,
+    " Price with VAT ": 155.61
+  },
+  {
+    "Sr.": "22",
+    "Description": "Aluminum injection machine cost (Hub 12)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 278.25,
+    " Price with VAT ": 317.205
+  },
+  {
+    "Sr.": "23",
+    "Description": "Aluminum injection machine cost (Hub 16)",
+    "Unit": "Pc",
+    "Updated Date": null,
+    " Price w/o VAT ": 309.75,
+    " Price with VAT ": 353.115
+  },
+  {
+    "Sr.": "24",
     "Description": "PAG injection Small machine cost",
     "Unit": "Pc",
     "Updated Date": null,
-    " Price w/o VAT ": null,
-    " Price with VAT ": null
+    " Price w/o VAT ": 5,
+    " Price with VAT ": 5.7
   },
   {
     "Sr.": "18",

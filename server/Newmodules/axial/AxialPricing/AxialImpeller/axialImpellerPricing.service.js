@@ -541,19 +541,14 @@ export const AxialImpellerPricingService = {
   },
 
   /**
-   * Calculate hub cost using the formula:
-   * If hubType === "Fixed":
+   * Calculate hub cost using the formula (same for Fixed and Variable):
    *   (moldCostWithVat * moldFactor) / (moldLifetime * 2) +
    *   (hubWeight * 1.1 * RawMaterialInj) / 1000 +
    *   machiningCostWithVat * MachineFactor +
    *   transportation + Packing +
-   *   SR#19 * 1.1
-   * Else:
-   *   ((moldCostWithVat * moldFactor) / (moldLifetime / 2)) * 2 +
-   *   (hubWeight * 1.1 * RawMaterialInj) / 1000 +
-   *   machiningCostWithVat * MachineFactor +
-   *   transportation + Packing +
-   *   hubWeight * 45 * 1.14 * 1.1
+   *   InjMachineCost * 1.1
+   *
+   * InjMachineCost varies by hub symbol (Hub 5, Hub 6, Hub 9, Hub 12, Hub 14, Hub 16)
    *
    * @param {Object} hub - Hub pricing record
    * @returns {Object} - Calculated cost breakdown
@@ -574,10 +569,13 @@ export const AxialImpellerPricingService = {
       "Axial Impeller Maching Factor",
     );
 
-    // Calculate mold cost based on hub type
-    let moldCostComponent =
-      (hub.moldCostWithVat * moldFactor) / (moldLifetime * 2);
+    // Calculate mold cost - same formula for both Fixed and Variable hubs:
+    // (moldCostWithVat * moldFactor) / (moldLifetime * 2)
+    const moldCostComponent = moldLifetime !== 0
+      ? (hub.moldCostWithVat * moldFactor) / (moldLifetime * 2)
+      : 0;
     console.log(
+      `MoldCostComponent for hub ${hub.symbol} (${hub.hubType}):`,
       moldCostComponent,
       hub.moldCostWithVat,
       moldFactor,

@@ -316,7 +316,7 @@ export default function ImpellerBladesTable({
                           ? Number(item.bladeFactor).toFixed(2)
                           : "-"}
                       </TableCell>
-                      <TableCell>
+                      <TableCell isCalculated>
                         {item.totalCost != null
                           ? Number(item.totalCost).toFixed(2)
                           : "-"}

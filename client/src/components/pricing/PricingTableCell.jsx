@@ -5,6 +5,7 @@ export function TableCell({
   children,
   isLast = false,
   textAlign = "center",
+  isCalculated = false,
   ...props
 }) {
   return (
@@ -12,7 +13,8 @@ export function TableCell({
       borderColor="var(--border-color)"
       borderRight={isLast ? "none" : "1px solid var(--border-color)"}
       borderBottom="1px solid var(--border-color)"
-      color="var(--text-primary)"
+      color={isCalculated ? "var(--success)" : "var(--text-primary)"}
+      fontWeight={isCalculated ? "bold" : "normal"}
       py={3}
       px={4}
       textAlign={textAlign}

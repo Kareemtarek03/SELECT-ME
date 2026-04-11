@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { Button, Text, Stack } from "@chakra-ui/react";
+import { Button, Text } from "@chakra-ui/react";
 import { FaFileExcel, FaUpload } from "react-icons/fa";
 
 const API = process.env.REACT_APP_API_BASE_URL || "";
@@ -15,7 +15,8 @@ export default function ExportImportButtons({ exportPath, importPath, onImportDo
       if (!r.ok) throw new Error("Export failed");
       const blob = await r.blob();
       const disposition = r.headers.get("Content-Disposition") || "";
-      const match = disposition.match(/filename="?(.+?)"?$/);
+      // Match filename from Content-Disposition header (handles both quoted and unquoted)
+      const match = disposition.match(/filename[^;=\n]*=["']?([^"';\n]+)["']?/);
       const filename = match ? match[1] : "export.xlsx";
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

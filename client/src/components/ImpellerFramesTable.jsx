@@ -264,7 +264,7 @@ export default function ImpellerFramesTable({
                       <TableCell>{item.machiningCostWithVat}</TableCell>
                       <TableCell>{item.transportationCost}</TableCell>
                       <TableCell>{item.packingCost}</TableCell>
-                      <TableCell>
+                      <TableCell isCalculated>
                         {item.totalCost != null
                           ? Number(item.totalCost).toFixed(2)
                           : "-"}
