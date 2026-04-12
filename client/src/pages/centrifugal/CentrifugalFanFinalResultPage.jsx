@@ -1603,81 +1603,171 @@ export default function CentrifugalFanFinalResultPage() {
                                             </div>
                                         )}
 
-                                        {/* Pricing Tab - Auto-loaded, full breakdown */}
-                                        {activeTab === "pricing" && (
-                                            <div style={{
-                                                background: "#f8fafc",
-                                                borderRadius: "12px",
-                                                border: "1px solid #e2e8f0",
-                                                padding: "1.5rem"
-                                            }}>
-                                                <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                                                    <span style={{ color: "#3b82f6" }}>💰</span> Casing Price Breakdown
-                                                </h4>
-                                                {casingPriceLoading ? (
-                                                    <Flex align="center" gap={2} py={6}>
-                                                        <Spinner size="sm" color="#3b82f6" />
-                                                        <Text color="#64748b" fontSize="sm">Loading pricing...</Text>
-                                                    </Flex>
-                                                ) : casingPriceResult?.error ? (
-                                                    <Text color="#dc2626" fontSize="sm" py={4}>{casingPriceResult.error}</Text>
-                                                ) : casingPriceResult ? (
-                                                    <Box>
-                                                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 2rem", marginBottom: "1rem" }}>
-                                                            {[
-                                                                { key: "volute", label: "Volute" },
-                                                                { key: "voluteWithoutScrap", label: "Volute (w/o Scrap)" },
-                                                                { key: "frame", label: "Frame" },
-                                                                { key: "frameWithoutScrap", label: "Frame (w/o Scrap)" },
-                                                                { key: "impeller", label: "Impeller" },
-                                                                { key: "impellerWithoutScrap", label: "Impeller (w/o Scrap)" },
-                                                                { key: "funnels", label: "Funnels" },
-                                                                { key: "sleeveShaft", label: "Sleeve & Shaft" },
-                                                                { key: "matchingFlange", label: "Matching Flange" },
-                                                                { key: "bearingAssembly", label: "Bearing Assembly" },
-                                                                { key: "fanBase", label: "Fan Base" },
-                                                                { key: "fanBaseWithoutScrap", label: "Fan Base (w/o Scrap)" },
-                                                                { key: "beltCover", label: "Belt Cover" },
-                                                                { key: "beltCoverWithoutScrap", label: "Belt Cover (w/o Scrap)" },
-                                                                { key: "motorBase", label: "Motor Base" },
-                                                                { key: "motorBaseWithoutScrap", label: "Motor Base (w/o Scrap)" },
-                                                                { key: "accessories", label: "Accessories" },
-                                                            ].map(({ key, label }) => {
-                                                                const val = casingPriceResult[key];
-                                                                return (
-                                                                    <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #e2e8f0", alignItems: "center" }}>
-                                                                        <span style={{ color: "#64748b", fontSize: "0.8125rem" }}>{label}</span>
-                                                                        <span style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>
-                                                                            {val != null ? `${Number(val).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E` : "—"}
-                                                                        </span>
+                                        {/* Pricing Tab - includes fan + motor totals */}
+                                        {activeTab === "pricing" && (() => {
+                                            const motor = phase18Data?.phase17Motor || null;
+                                            const fanType = units?.fanType || "";
+                                            const isWFOrARTF = fanType === "WF" || fanType === "ARTF";
+
+                                            const toNumberOrNull = (value) => {
+                                                if (value === null || value === undefined) return null;
+                                                const parsed = typeof value === "number" ? value : Number(value);
+                                                return Number.isFinite(parsed) ? parsed : null;
+                                            };
+
+                                            const formatPriceLe = (value) => {
+                                                const numberValue = toNumberOrNull(value);
+                                                if (numberValue == null) return "—";
+                                                return `${numberValue.toLocaleString(undefined, {
+                                                    minimumFractionDigits: 2,
+                                                    maximumFractionDigits: 2,
+                                                })} L.E`;
+                                            };
+
+                                            let electricalMotorCost = isWFOrARTF
+                                                ? motor?.otherPriceWithVat
+                                                : motor?.b3PriceWithVat;
+                                            if (electricalMotorCost == null) {
+                                                const withoutVatCost = isWFOrARTF
+                                                    ? motor?.otherPriceWithoutVat
+                                                    : motor?.b3PriceWithoutVat;
+                                                const parsedWithoutVat = toNumberOrNull(withoutVatCost);
+                                                electricalMotorCost =
+                                                    parsedWithoutVat != null ? parsedWithoutVat * 1.14 : null;
+                                            }
+
+                                            const electricalComponentCost = motor?.totalPriceWithVat;
+                                            const fanPriceWithVat = casingPriceResult?.totalFanPriceWithVat;
+                                            const fanPriceWithVatScrap = casingPriceResult?.totalFanPriceWithVatScrapRecycle;
+
+                                            const totalWithMotor = [
+                                                fanPriceWithVat,
+                                                electricalMotorCost,
+                                                electricalComponentCost,
+                                            ]
+                                                .map(toNumberOrNull)
+                                                .filter((v) => v != null)
+                                                .reduce((sum, value) => sum + value, 0);
+
+                                            const totalWithMotorScrap = [
+                                                fanPriceWithVatScrap,
+                                                electricalMotorCost,
+                                                electricalComponentCost,
+                                            ]
+                                                .map(toNumberOrNull)
+                                                .filter((v) => v != null)
+                                                .reduce((sum, value) => sum + value, 0);
+
+                                            const hasTotalWithMotor =
+                                                [fanPriceWithVat, electricalMotorCost, electricalComponentCost]
+                                                    .map(toNumberOrNull)
+                                                    .some((v) => v != null);
+                                            const hasTotalWithMotorScrap =
+                                                [fanPriceWithVatScrap, electricalMotorCost, electricalComponentCost]
+                                                    .map(toNumberOrNull)
+                                                    .some((v) => v != null);
+
+                                            return (
+                                                <div style={{
+                                                    background: "#f8fafc",
+                                                    borderRadius: "12px",
+                                                    border: "1px solid #dbeafe",
+                                                    padding: "1.5rem"
+                                                }}>
+                                                    <h4 style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                                        <span style={{ color: "#3b82f6" }}>Pricing Breakdown</span>
+                                                    </h4>
+
+                                                    {casingPriceLoading ? (
+                                                        <Flex align="center" gap={2} py={6}>
+                                                            <Spinner size="sm" color="#3b82f6" />
+                                                            <Text color="#64748b" fontSize="sm">Loading pricing...</Text>
+                                                        </Flex>
+                                                    ) : (
+                                                        <>
+                                                            {casingPriceResult?.error ? (
+                                                                <Text color="#dc2626" fontSize="sm" py={2}>{casingPriceResult.error}</Text>
+                                                            ) : casingPriceResult ? (
+                                                                <Box>
+                                                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 2rem", marginBottom: "1rem" }}>
+                                                                        {[
+                                                                            { key: "volute", label: "Volute" },
+                                                                            { key: "voluteWithoutScrap", label: "Volute (w/o Scrap)" },
+                                                                            { key: "frame", label: "Frame" },
+                                                                            { key: "frameWithoutScrap", label: "Frame (w/o Scrap)" },
+                                                                            { key: "impeller", label: "Impeller" },
+                                                                            { key: "impellerWithoutScrap", label: "Impeller (w/o Scrap)" },
+                                                                            { key: "funnels", label: "Funnels" },
+                                                                            { key: "sleeveShaft", label: "Sleeve & Shaft" },
+                                                                            { key: "matchingFlange", label: "Matching Flange" },
+                                                                            { key: "bearingAssembly", label: "Bearing Assembly" },
+                                                                            { key: "fanBase", label: "Fan Base" },
+                                                                            { key: "fanBaseWithoutScrap", label: "Fan Base (w/o Scrap)" },
+                                                                            { key: "beltCover", label: "Belt Cover" },
+                                                                            { key: "beltCoverWithoutScrap", label: "Belt Cover (w/o Scrap)" },
+                                                                            { key: "motorBase", label: "Motor Base" },
+                                                                            { key: "motorBaseWithoutScrap", label: "Motor Base (w/o Scrap)" },
+                                                                            { key: "accessories", label: "Accessories" },
+                                                                        ].map(({ key, label }) => {
+                                                                            const val = casingPriceResult[key];
+                                                                            return (
+                                                                                <div key={key} style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", borderBottom: "1px solid #e2e8f0", alignItems: "center" }}>
+                                                                                    <span style={{ color: "#64748b", fontSize: "0.8125rem" }}>{label}</span>
+                                                                                    <span style={{ color: "#1e293b", fontSize: "0.8125rem", fontWeight: "500" }}>
+                                                                                        {formatPriceLe(val)}
+                                                                                    </span>
+                                                                                </div>
+                                                                            );
+                                                                        })}
                                                                     </div>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                        <div style={{ marginTop: "1rem", paddingTop: "1rem", borderTop: "2px solid #e2e8f0" }}>
-                                                            <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0", marginBottom: "0.25rem" }}>
-                                                                <span style={{ color: "#1e293b", fontSize: "0.9375rem", fontWeight: "600" }}>Total Fan Price (with VAT)</span>
-                                                                <span style={{ color: "#3b82f6", fontSize: "1rem", fontWeight: "700" }}>
-                                                                    {casingPriceResult.totalFanPriceWithVat != null
-                                                                        ? `${Number(casingPriceResult.totalFanPriceWithVat).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E`
-                                                                        : "—"}
-                                                                </span>
-                                                            </div>
-                                                            {casingPriceResult.totalFanPriceWithVatScrapRecycle != null && (
-                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.5rem 0" }}>
-                                                                    <span style={{ color: "#64748b", fontSize: "0.875rem" }}>With Scrap Recycle</span>
-                                                                    <span style={{ color: "#10b981", fontSize: "0.875rem", fontWeight: "600" }}>
-                                                                        {Number(casingPriceResult.totalFanPriceWithVatScrapRecycle).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} L.E
+                                                                </Box>
+                                                            ) : (
+                                                                <Text color="#94a3b8" fontSize="sm" py={2}>No fan pricing data available for this fan.</Text>
+                                                            )}
+
+                                                            <div style={{
+                                                                marginTop: "0.75rem",
+                                                                padding: "1rem 1.25rem",
+                                                                borderRadius: "10px",
+                                                                border: "1px solid #bfdbfe",
+                                                                background: "#eff6ff"
+                                                            }}>
+                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.3rem 0" }}>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem", fontWeight: "600" }}>Fan Price (with VAT)</span>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem", fontWeight: "700" }}>{formatPriceLe(fanPriceWithVat)}</span>
+                                                                </div>
+                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.3rem 0" }}>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem" }}>
+                                                                        Electrical Motor Cost {isWFOrARTF ? "(Other Price with VAT)" : "(B3 Price with VAT)"}
+                                                                    </span>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem", fontWeight: "600" }}>{formatPriceLe(electricalMotorCost)}</span>
+                                                                </div>
+                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.3rem 0", borderBottom: "1px solid #bfdbfe" }}>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem" }}>Electrical Component Cost</span>
+                                                                    <span style={{ color: "#1e3a8a", fontSize: "0.875rem", fontWeight: "600" }}>{formatPriceLe(electricalComponentCost)}</span>
+                                                                </div>
+
+                                                                <div style={{ display: "flex", justifyContent: "space-between", padding: "0.55rem 0 0.3rem" }}>
+                                                                    <span style={{ color: "#1d4ed8", fontSize: "0.9375rem", fontWeight: "700" }}>Total Price (with VAT + Motor)</span>
+                                                                    <span style={{ color: "#1d4ed8", fontSize: "1rem", fontWeight: "800" }}>
+                                                                        {hasTotalWithMotor ? formatPriceLe(totalWithMotor) : "—"}
                                                                     </span>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    </Box>
-                                                ) : (
-                                                    <Text color="#94a3b8" fontSize="sm" py={4}>No pricing data available for this fan.</Text>
-                                                )}
-                                            </div>
-                                        )}
+
+                                                                {hasTotalWithMotorScrap && (
+                                                                    <div style={{ display: "flex", justifyContent: "space-between", padding: "0.3rem 0" }}>
+                                                                        <span style={{ color: "#334155", fontSize: "0.8125rem" }}>With Scrap Recycle + Motor</span>
+                                                                        <span style={{ color: "#0f766e", fontSize: "0.875rem", fontWeight: "700" }}>
+                                                                            {formatPriceLe(totalWithMotorScrap)}
+                                                                        </span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            );
+                                        })()}
                                     </Box>
                                 )}
 

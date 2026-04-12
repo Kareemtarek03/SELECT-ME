@@ -1552,6 +1552,26 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
       shaftKeyLengthMM: parseFloat(motor["Shaft Feather Key Length (mm)"]) || null,
       shaftDiameterMM: parseFloat(motor["Shaft Diameter (mm)"]) || null,
       model: motor["Model"] || null,
+      b3PriceWithoutVat:
+        parseFloat(motor.b3PriceWithoutVat ?? motor["B3 Price ($) w/o VAT"]) ||
+        null,
+      b3PriceWithVat:
+        parseFloat(
+          motor.b3PriceWithVat ?? motor["B3 Price with VAT & Factor (L.E)"],
+        ) || null,
+      otherPriceWithoutVat:
+        parseFloat(
+          motor.otherPriceWithoutVat ?? motor["Other Price ($) w/o VAT"],
+        ) || null,
+      otherPriceWithVat:
+        parseFloat(
+          motor.otherPriceWithVat ??
+            motor["Other Price with VAT & Factor (L.E)"],
+        ) || null,
+      totalPriceWithVat:
+        parseFloat(
+          motor.totalPriceWithVat ?? motor["Price With VAT Per Meter (Total)"],
+        ) || null,
       motorOutputPowerRequired: Math.round(motorOutputPowerRequired * 10000) / 10000,
       standardOutputPower: standardOutputPower,
       motorEfficiencyUsed: Math.round(motorEfficiency * 10000) / 10000,
@@ -1576,6 +1596,30 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
     shaftKeyLengthMM: parseFloat(selectedMotor["Shaft Feather Key Length (mm)"]) || null,
     shaftDiameterMM: parseFloat(selectedMotor["Shaft Diameter (mm)"]) || null,
     model: selectedMotor["Model"] || null,
+    b3PriceWithoutVat:
+      parseFloat(
+        selectedMotor.b3PriceWithoutVat ?? selectedMotor["B3 Price ($) w/o VAT"],
+      ) || null,
+    b3PriceWithVat:
+      parseFloat(
+        selectedMotor.b3PriceWithVat ??
+          selectedMotor["B3 Price with VAT & Factor (L.E)"],
+      ) || null,
+    otherPriceWithoutVat:
+      parseFloat(
+        selectedMotor.otherPriceWithoutVat ??
+          selectedMotor["Other Price ($) w/o VAT"],
+      ) || null,
+    otherPriceWithVat:
+      parseFloat(
+        selectedMotor.otherPriceWithVat ??
+          selectedMotor["Other Price with VAT & Factor (L.E)"],
+      ) || null,
+    totalPriceWithVat:
+      parseFloat(
+        selectedMotor.totalPriceWithVat ??
+          selectedMotor["Price With VAT Per Meter (Total)"],
+      ) || null,
     motorOutputPowerRequired: Math.round(motorOutputPowerRequired * 10000) / 10000,
     standardOutputPower: standardOutputPower,
     motorEfficiencyUsed: Math.round(motorEfficiency * 10000) / 10000,
@@ -2622,6 +2666,16 @@ async function loadCentrifugalMotorDataFromDb() {
       "Model": r.model,
       "No. of Capacitors": r.NoCapacitors,
       "IE": r.ie,
+      "B3 Price ($) w/o VAT": r.b3PriceWithoutVat,
+      "B3 Price with VAT & Factor (L.E)": r.b3PriceWithVat,
+      "Other Price ($) w/o VAT": r.otherPriceWithoutVat,
+      "Other Price with VAT & Factor (L.E)": r.otherPriceWithVat,
+      "Price With VAT Per Meter (Total)": r.totalPriceWithVat,
+      b3PriceWithoutVat: r.b3PriceWithoutVat,
+      b3PriceWithVat: r.b3PriceWithVat,
+      otherPriceWithoutVat: r.otherPriceWithoutVat,
+      otherPriceWithVat: r.otherPriceWithVat,
+      totalPriceWithVat: r.totalPriceWithVat,
     };
   });
 }
