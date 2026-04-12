@@ -1050,7 +1050,7 @@ export async function casingPriceCalculation(input) {
   price.impeller =
     ((impeller.bladesWeightKgWithScrap + impeller.plateWeightKgWithScrap) *
       priceItems.find((item) =>
-        item.description.includes("Formed Black Steel Raw Material"),
+        item.description.includes("Black Steel Raw Material"),
       )?.priceWithVat) /
       1000 || 0;
   price.impeller += impeller.plateCentrifugalImpellerRigCostPcs;

@@ -79,15 +79,15 @@ function applyUnitConversions(rawData, units = {}) {
   // Apply conversions
   const airFlow_converted = convertArray(
     rawData.airFlow,
-    airFlowConversionFactor
+    airFlowConversionFactor,
   );
   const totalPressure_converted = convertArray(
     rawData.totalPressure,
-    pressureConversionFactor
+    pressureConversionFactor,
   );
   const velocityPressure_converted = convertArray(
     rawData.velocityPressure,
-    pressureConversionFactor
+    pressureConversionFactor,
   );
   // staticPressure_converted = totalPressure_converted - velocityPressure_converted
   const staticPressure_converted = totalPressure_converted.map((tp, i) => {
@@ -97,7 +97,7 @@ function applyUnitConversions(rawData, units = {}) {
   });
   const fanInputPower_converted = convertArray(
     rawData.fanInputPower,
-    powerConversionFactor
+    powerConversionFactor,
   );
 
   return {
@@ -116,17 +116,17 @@ function applyDensityCorrectionAndEfficiency(
   convertedData,
   rawData,
   inputDensity,
-  designDensity
+  designDensity,
 ) {
   const densityRatio = inputDensity / designDensity;
 
   // Density-corrected calculations using Phase 2 converted values
   const airFlow_new = [...convertedData.airFlow];
-  const totalPressure_new = convertedData.totalPressure.map(
-    (v) => (v !== null ? v * densityRatio : null)
+  const totalPressure_new = convertedData.totalPressure.map((v) =>
+    v !== null ? v * densityRatio : null,
   );
-  const velocityPressure_new = convertedData.velocityPressure.map(
-    (v) => (v !== null ? v * densityRatio : null)
+  const velocityPressure_new = convertedData.velocityPressure.map((v) =>
+    v !== null ? v * densityRatio : null,
   );
   // staticPressure_new = totalPressure_new - velocityPressure_new
   const staticPressure_new = totalPressure_new.map((tp, i) => {
@@ -134,8 +134,8 @@ function applyDensityCorrectionAndEfficiency(
     if (tp === null || vp === null) return null;
     return tp - vp;
   });
-  const fanInputPower_new = convertedData.fanInputPower.map(
-    (v) => (v !== null ? v * densityRatio : null)
+  const fanInputPower_new = convertedData.fanInputPower.map((v) =>
+    v !== null ? v * densityRatio : null,
   );
 
   // Efficiency calculations using RAW DATA (Phase 1)
@@ -168,7 +168,6 @@ function applyDensityCorrectionAndEfficiency(
   };
 }
 
-
 // ============================================================================
 // PHASE 4: Calculate airFlow and staticPressure at minimum and maximum RPM
 // ============================================================================
@@ -178,13 +177,11 @@ function applyDensityCorrectionAndEfficiency(
 //   airFlow_max = (highSpeedRPM / RPM) * airFlow_phase3
 //   staticPressure_max = (highSpeedRPM / RPM)^2 * staticPressure_phase3
 // Uses density-corrected Phase 3 values (all 10 data points)
-function calculatePhase4(
-  selectedFan,
-  phase3Result,
-  numReadings = 10
-) {
+function calculatePhase4(selectedFan, phase3Result, numReadings = 10) {
   if (!selectedFan || !phase3Result) {
-    throw new Error("Missing selectedFan or phase3Result for Phase 4 calculation");
+    throw new Error(
+      "Missing selectedFan or phase3Result for Phase 4 calculation",
+    );
   }
 
   if (!selectedFan.Blades) {
@@ -228,8 +225,12 @@ function calculatePhase4(
     const airFlowPhase3 = phase3AirFlow[i];
     const staticPressurePhase3 = phase3StaticPressure[i];
 
-    if (airFlowPhase3 === null || airFlowPhase3 === undefined ||
-      staticPressurePhase3 === null || staticPressurePhase3 === undefined) {
+    if (
+      airFlowPhase3 === null ||
+      airFlowPhase3 === undefined ||
+      staticPressurePhase3 === null ||
+      staticPressurePhase3 === undefined
+    ) {
       minRpmReadings.push({
         index: i + 1,
         airFlow: null,
@@ -256,8 +257,12 @@ function calculatePhase4(
     const airFlowPhase3 = phase3AirFlow[i];
     const staticPressurePhase3 = phase3StaticPressure[i];
 
-    if (airFlowPhase3 === null || airFlowPhase3 === undefined ||
-      staticPressurePhase3 === null || staticPressurePhase3 === undefined) {
+    if (
+      airFlowPhase3 === null ||
+      airFlowPhase3 === undefined ||
+      staticPressurePhase3 === null ||
+      staticPressurePhase3 === undefined
+    ) {
       maxRpmReadings.push({
         index: i + 1,
         airFlow: null,
@@ -373,7 +378,7 @@ function interpolateInMemory(Xmins, Ymins, nPts, xSel, ratio) {
     // VBA: If xSel >= x0 And xSel <= x1 Then
     if (xSel >= x0 && xSel <= x1) {
       // Linear interpolation: y0 + (y1 - y0) * (xSel - x0) / (x1 - x0)
-      const interpolatedY = y0 + (y1 - y0) * (xSel - x0) / (x1 - x0);
+      const interpolatedY = y0 + ((y1 - y0) * (xSel - x0)) / (x1 - x0);
       return interpolatedY;
     }
   }
@@ -409,13 +414,25 @@ function calculatePhase5(fanData, selX, selY, pressureUnit) {
     return { fanType, matchingRPM: null, error: "Invalid maxRPM" };
   }
   if (minRPM >= maxRPM) {
-    return { fanType, matchingRPM: null, error: "minRPM must be less than maxRPM" };
+    return {
+      fanType,
+      matchingRPM: null,
+      error: "minRPM must be less than maxRPM",
+    };
   }
   if (selX === null || selX === undefined || isNaN(selX)) {
-    return { fanType, matchingRPM: null, error: "Invalid user air flow (SelX)" };
+    return {
+      fanType,
+      matchingRPM: null,
+      error: "Invalid user air flow (SelX)",
+    };
   }
   if (selY === null || selY === undefined || isNaN(selY)) {
-    return { fanType, matchingRPM: null, error: "Invalid user static pressure (SelY)" };
+    return {
+      fanType,
+      matchingRPM: null,
+      error: "Invalid user static pressure (SelY)",
+    };
   }
 
   // Get the 10-point curve from Phase 2 converted data (already in user units like CFM, Pa)
@@ -424,7 +441,12 @@ function calculatePhase5(fanData, selX, selY, pressureUnit) {
   const ratedAirFlow = phase2Converted.airFlow;
   const ratedStaticPressure = phase2Converted.staticPressure;
 
-  if (!ratedAirFlow || !ratedStaticPressure || ratedAirFlow.length === 0 || ratedStaticPressure.length === 0) {
+  if (
+    !ratedAirFlow ||
+    !ratedStaticPressure ||
+    ratedAirFlow.length === 0 ||
+    ratedStaticPressure.length === 0
+  ) {
     return { fanType, matchingRPM: null, error: "Missing curve data from fan" };
   }
 
@@ -432,8 +454,10 @@ function calculatePhase5(fanData, selX, selY, pressureUnit) {
   // Xmins = airFlow at minRPM = (minRPM / ratedRPM) * ratedAirFlow
   // Ymins = staticPressure at minRPM = (minRPM / ratedRPM)^2 * ratedStaticPressure
   const minRatio = minRPM / ratedRPM;
-  const Xmins = ratedAirFlow.map(x => x !== null ? x * minRatio : null);
-  const Ymins = ratedStaticPressure.map(y => y !== null ? y * Math.pow(minRatio, 2) : null);
+  const Xmins = ratedAirFlow.map((x) => (x !== null ? x * minRatio : null));
+  const Ymins = ratedStaticPressure.map((y) =>
+    y !== null ? y * Math.pow(minRatio, 2) : null,
+  );
 
   const nPts = Math.min(Xmins.length, Ymins.length, 10);
 
@@ -441,13 +465,21 @@ function calculatePhase5(fanData, selX, selY, pressureUnit) {
   console.log(`\n=== Phase 5 Debug for ${fanType} ===`);
   console.log(`minRPM: ${minRPM}, maxRPM: ${maxRPM}, ratedRPM: ${ratedRPM}`);
   console.log(`minRatio: ${minRatio}`);
-  console.log(`selX (user airFlow): ${selX}, selY (user staticPressure): ${selY}`);
+  console.log(
+    `selX (user airFlow): ${selX}, selY (user staticPressure): ${selY}`,
+  );
   console.log(`ratedAirFlow (Phase 2, first 3): ${ratedAirFlow.slice(0, 3)}`);
-  console.log(`ratedStaticPressure (Phase 2, first 3): ${ratedStaticPressure.slice(0, 3)}`);
+  console.log(
+    `ratedStaticPressure (Phase 2, first 3): ${ratedStaticPressure.slice(0, 3)}`,
+  );
   console.log(`Xmins (at minRPM, first 3): ${Xmins.slice(0, 3)}`);
   console.log(`Ymins (at minRPM, first 3): ${Ymins.slice(0, 3)}`);
-  console.log(`Xmins range: ${Math.min(...Xmins.filter(x => x !== null))} to ${Math.max(...Xmins.filter(x => x !== null))}`);
-  console.log(`At maxRPM, Xmins would scale to: ${Math.min(...Xmins.filter(x => x !== null)) * (maxRPM / minRPM)} to ${Math.max(...Xmins.filter(x => x !== null)) * (maxRPM / minRPM)}`);
+  console.log(
+    `Xmins range: ${Math.min(...Xmins.filter((x) => x !== null))} to ${Math.max(...Xmins.filter((x) => x !== null))}`,
+  );
+  console.log(
+    `At maxRPM, Xmins would scale to: ${Math.min(...Xmins.filter((x) => x !== null)) * (maxRPM / minRPM)} to ${Math.max(...Xmins.filter((x) => x !== null)) * (maxRPM / minRPM)}`,
+  );
 
   // Brute-force search from minRPM to maxRPM + 50
   // VBA: For rpm = CLng(MinRPM) To CLng(MaxRPM) + 50
@@ -460,7 +492,9 @@ function calculatePhase5(fanData, selX, selY, pressureUnit) {
   const selY_Pa = convFactor !== 0 ? selY / convFactor : selY;
   const tolerancePct = getStaticPressureTolerancePct(selY_Pa);
   const tolFraction = tolerancePct / 100;
-  console.log(`Phase 5 tolerance: selY=${selY} ${pressureUnit || 'Pa'}, selY_Pa=${selY_Pa.toFixed(1)}, tolerancePct=${tolerancePct}%`);
+  console.log(
+    `Phase 5 tolerance: selY=${selY} ${pressureUnit || "Pa"}, selY_Pa=${selY_Pa.toFixed(1)}, tolerancePct=${tolerancePct}%`,
+  );
 
   for (let rpm = rpmStart; rpm <= rpmEnd; rpm++) {
     // ratio = rpm / minRPM (matches VBA)
@@ -505,7 +539,9 @@ function calculatePhase6(fanData) {
   const { rawFan, phase3Result, matchingRPM } = fanData;
 
   if (!rawFan || !phase3Result || !matchingRPM) {
-    console.warn(`Phase 6 early exit: rawFan=${!!rawFan}, phase3Result=${!!phase3Result}, matchingRPM=${matchingRPM}`);
+    console.warn(
+      `Phase 6 early exit: rawFan=${!!rawFan}, phase3Result=${!!phase3Result}, matchingRPM=${matchingRPM}`,
+    );
     return null;
   }
 
@@ -514,7 +550,9 @@ function calculatePhase6(fanData) {
   const ratedRPM = rawFan.RPM;
 
   if (!ratedRPM || ratedRPM <= 0) {
-    console.warn(`Phase 6 early exit for ${model}: Invalid ratedRPM=${ratedRPM}`);
+    console.warn(
+      `Phase 6 early exit for ${model}: Invalid ratedRPM=${ratedRPM}`,
+    );
     return null;
   }
 
@@ -526,24 +564,26 @@ function calculatePhase6(fanData) {
   const phase3Eff = phase3Result.efficiencies;
 
   if (!phase3Density || !phase3Eff) {
-    console.warn(`Phase 6 early exit for ${model}: Missing phase3Density=${!!phase3Density} or phase3Eff=${!!phase3Eff}`);
+    console.warn(
+      `Phase 6 early exit for ${model}: Missing phase3Density=${!!phase3Density} or phase3Eff=${!!phase3Eff}`,
+    );
     return null;
   }
 
   // Apply fan affinity laws to each data point
   // airFlow_new = airFlow_phase3 * speedRatio
-  const airFlow_new = phase3Density.airFlow.map(v =>
-    v !== null ? v * speedRatio : null
+  const airFlow_new = phase3Density.airFlow.map((v) =>
+    v !== null ? v * speedRatio : null,
   );
 
   // totalPressure_new = totalPressure_phase3 * (speedRatio)^2
-  const totalPressure_new = phase3Density.totalPressure.map(v =>
-    v !== null ? v * Math.pow(speedRatio, 2) : null
+  const totalPressure_new = phase3Density.totalPressure.map((v) =>
+    v !== null ? v * Math.pow(speedRatio, 2) : null,
   );
 
   // velocityPressure_new = velocityPressure_phase3 * (speedRatio)^2
-  const velocityPressure_new = phase3Density.velocityPressure.map(v =>
-    v !== null ? v * Math.pow(speedRatio, 2) : null
+  const velocityPressure_new = phase3Density.velocityPressure.map((v) =>
+    v !== null ? v * Math.pow(speedRatio, 2) : null,
   );
 
   // staticPressure_new = totalPressure_new - velocityPressure_new
@@ -554,8 +594,8 @@ function calculatePhase6(fanData) {
   });
 
   // fanInputPower_new = fanInputPower_phase3 * (speedRatio)^3
-  const fanInputPower_new = phase3Density.fanInputPower.map(v =>
-    v !== null ? v * Math.pow(speedRatio, 3) : null
+  const fanInputPower_new = phase3Density.fanInputPower.map((v) =>
+    v !== null ? v * Math.pow(speedRatio, 3) : null,
   );
 
   // Efficiencies remain unchanged (RPM cancels out)
@@ -591,7 +631,9 @@ function matrixMultiply(A, B) {
   const rowsA = A.length;
   const colsA = A[0].length;
   const colsB = B[0].length;
-  const result = Array(rowsA).fill(null).map(() => Array(colsB).fill(0));
+  const result = Array(rowsA)
+    .fill(null)
+    .map(() => Array(colsB).fill(0));
 
   for (let i = 0; i < rowsA; i++) {
     for (let j = 0; j < colsB; j++) {
@@ -606,7 +648,9 @@ function matrixMultiply(A, B) {
 function matrixTranspose(A) {
   const rows = A.length;
   const cols = A[0].length;
-  const result = Array(cols).fill(null).map(() => Array(rows).fill(0));
+  const result = Array(cols)
+    .fill(null)
+    .map(() => Array(rows).fill(0));
 
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
@@ -663,7 +707,7 @@ function matrixInverse(A) {
   }
 
   // Extract inverse from augmented matrix
-  return aug.map(row => row.slice(n));
+  return aug.map((row) => row.slice(n));
 }
 
 // Perform degree-6 polynomial regression WITH intercept (constant term)
@@ -679,20 +723,27 @@ function polynomialRegression(X_values, Y_values) {
   // Filter out null/undefined values
   const validPairs = [];
   for (let i = 0; i < n; i++) {
-    if (X_values[i] !== null && X_values[i] !== undefined &&
-      Y_values[i] !== null && Y_values[i] !== undefined &&
-      !isNaN(X_values[i]) && !isNaN(Y_values[i])) {
+    if (
+      X_values[i] !== null &&
+      X_values[i] !== undefined &&
+      Y_values[i] !== null &&
+      Y_values[i] !== undefined &&
+      !isNaN(X_values[i]) &&
+      !isNaN(Y_values[i])
+    ) {
       validPairs.push({ x: X_values[i], y: Y_values[i] });
     }
   }
 
   if (validPairs.length < degree + 1) {
-    throw new Error(`Not enough valid data points for degree-${degree} polynomial regression with intercept`);
+    throw new Error(
+      `Not enough valid data points for degree-${degree} polynomial regression with intercept`,
+    );
   }
 
   // Build design matrix X WITH intercept column
   // Each row: [1, x, x^2, x^3, x^4, x^5, x^6]
-  const X = validPairs.map(pair => {
+  const X = validPairs.map((pair) => {
     const row = [1]; // Constant term (intercept)
     for (let p = 1; p <= degree; p++) {
       row.push(Math.pow(pair.x, p));
@@ -701,7 +752,7 @@ function polynomialRegression(X_values, Y_values) {
   });
 
   // Build Y vector as column matrix
-  const Y = validPairs.map(pair => [pair.y]);
+  const Y = validPairs.map((pair) => [pair.y]);
 
   // Solve using normal equations: (X'X)^-1 * X'Y
   const Xt = matrixTranspose(X);
@@ -711,7 +762,7 @@ function polynomialRegression(X_values, Y_values) {
   const coefficients = matrixMultiply(XtX_inv, XtY);
 
   // Return as flat array [a0, a1, a2, a3, a4, a5, a6]
-  return coefficients.map(row => row[0]);
+  return coefficients.map((row) => row[0]);
 }
 
 // Evaluate polynomial at a given x value
@@ -735,9 +786,14 @@ function linearInterpolate(X_values, Y_values, x_target) {
   // Create pairs and filter out null/undefined values
   const validPairs = [];
   for (let i = 0; i < X_values.length; i++) {
-    if (X_values[i] !== null && X_values[i] !== undefined &&
-      Y_values[i] !== null && Y_values[i] !== undefined &&
-      !isNaN(X_values[i]) && !isNaN(Y_values[i])) {
+    if (
+      X_values[i] !== null &&
+      X_values[i] !== undefined &&
+      Y_values[i] !== null &&
+      Y_values[i] !== undefined &&
+      !isNaN(X_values[i]) &&
+      !isNaN(Y_values[i])
+    ) {
       validPairs.push({ x: X_values[i], y: Y_values[i] });
     }
   }
@@ -759,7 +815,7 @@ function linearInterpolate(X_values, Y_values, x_target) {
     if (x_target >= x0 && x_target <= x1) {
       // Linear interpolation: y = y0 + (y1 - y0) * (x - x0) / (x1 - x0)
       if (x1 === x0) return y0; // Avoid division by zero
-      return y0 + (y1 - y0) * (x_target - x0) / (x1 - x0);
+      return y0 + ((y1 - y0) * (x_target - x0)) / (x1 - x0);
     }
   }
 
@@ -771,7 +827,7 @@ function linearInterpolate(X_values, Y_values, x_target) {
     const x1 = validPairs[1].x;
     const y1 = validPairs[1].y;
     if (x1 === x0) return y0;
-    return y0 + (y1 - y0) * (x_target - x0) / (x1 - x0);
+    return y0 + ((y1 - y0) * (x_target - x0)) / (x1 - x0);
   } else {
     // Extrapolate using last two points
     const n = validPairs.length;
@@ -780,7 +836,7 @@ function linearInterpolate(X_values, Y_values, x_target) {
     const x1 = validPairs[n - 1].x;
     const y1 = validPairs[n - 1].y;
     if (x1 === x0) return y1;
-    return y0 + (y1 - y0) * (x_target - x0) / (x1 - x0);
+    return y0 + ((y1 - y0) * (x_target - x0)) / (x1 - x0);
   }
 }
 
@@ -798,23 +854,41 @@ function calculatePhase7(phase6Data, airFlow_user) {
     return null;
   }
 
-  if (airFlow_user === null || airFlow_user === undefined || isNaN(airFlow_user)) {
+  if (
+    airFlow_user === null ||
+    airFlow_user === undefined ||
+    isNaN(airFlow_user)
+  ) {
     return null;
   }
 
   try {
     // Perform polynomial regression for each Y-parameter (with intercept)
     const totalPressureCoeffs = polynomialRegression(airFlow, p6.totalPressure);
-    const velocityPressureCoeffs = polynomialRegression(airFlow, p6.velocityPressure);
-    const staticPressureCoeffs = polynomialRegression(airFlow, p6.staticPressure);
+    const velocityPressureCoeffs = polynomialRegression(
+      airFlow,
+      p6.velocityPressure,
+    );
+    const staticPressureCoeffs = polynomialRegression(
+      airFlow,
+      p6.staticPressure,
+    );
     const fanInputPowerCoeffs = polynomialRegression(airFlow, p6.fanInputPower);
-    const totalEfficiencyCoeffs = polynomialRegression(airFlow, p6.totalEfficiency);
-    const staticEfficiencyCoeffs = polynomialRegression(airFlow, p6.staticEfficiency);
+    const totalEfficiencyCoeffs = polynomialRegression(
+      airFlow,
+      p6.totalEfficiency,
+    );
+    const staticEfficiencyCoeffs = polynomialRegression(
+      airFlow,
+      p6.staticEfficiency,
+    );
 
     // Debug: Log coefficients to compare with Excel
     console.log(`\n=== Phase 7 Coefficients Debug for ${phase6Data.model} ===`);
     console.log(`AirFlow data (first 3): ${airFlow.slice(0, 3)}`);
-    console.log(`TotalPressure data (first 3): ${p6.totalPressure.slice(0, 3)}`);
+    console.log(
+      `TotalPressure data (first 3): ${p6.totalPressure.slice(0, 3)}`,
+    );
     console.log(`Total Pressure Coefficients [a0, a1, a2, a3, a4, a5, a6]:`);
     console.log(`  a0 (constant): ${totalPressureCoeffs[0]}`);
     console.log(`  a1 (x^1): ${totalPressureCoeffs[1]}`);
@@ -828,11 +902,17 @@ function calculatePhase7(phase6Data, airFlow_user) {
     // Evaluate polynomials at user airflow
     const predicted = {
       totalPressure: evaluatePolynomial(totalPressureCoeffs, airFlow_user),
-      velocityPressure: evaluatePolynomial(velocityPressureCoeffs, airFlow_user),
+      velocityPressure: evaluatePolynomial(
+        velocityPressureCoeffs,
+        airFlow_user,
+      ),
       staticPressure: evaluatePolynomial(staticPressureCoeffs, airFlow_user),
       fanInputPower: evaluatePolynomial(fanInputPowerCoeffs, airFlow_user),
       totalEfficiency: evaluatePolynomial(totalEfficiencyCoeffs, airFlow_user),
-      staticEfficiency: evaluatePolynomial(staticEfficiencyCoeffs, airFlow_user),
+      staticEfficiency: evaluatePolynomial(
+        staticEfficiencyCoeffs,
+        airFlow_user,
+      ),
     };
 
     console.log(`Predicted Total Pressure: ${predicted.totalPressure}`);
@@ -852,7 +932,9 @@ function calculatePhase7(phase6Data, airFlow_user) {
       },
     };
   } catch (error) {
-    console.warn(`Phase 7 calculation failed for ${phase6Data.model}: ${error.message}`);
+    console.warn(
+      `Phase 7 calculation failed for ${phase6Data.model}: ${error.message}`,
+    );
     return null;
   }
 }
@@ -863,7 +945,12 @@ function calculatePhase7(phase6Data, airFlow_user) {
 // Takes Phase 6 arrays (10 points) and appends the Phase 7 predicted point
 // Result: arrays with 11 points each
 function calculatePhase8(phase6Data, phase7Data) {
-  if (!phase6Data || !phase6Data.phase6 || !phase7Data || !phase7Data.predicted) {
+  if (
+    !phase6Data ||
+    !phase6Data.phase6 ||
+    !phase7Data ||
+    !phase7Data.predicted
+  ) {
     return null;
   }
 
@@ -907,7 +994,11 @@ function calculatePhase9(phase8Data, airFlow_user) {
     return null;
   }
 
-  if (airFlow_user === null || airFlow_user === undefined || isNaN(airFlow_user)) {
+  if (
+    airFlow_user === null ||
+    airFlow_user === undefined ||
+    isNaN(airFlow_user)
+  ) {
     return null;
   }
 
@@ -919,13 +1010,13 @@ function calculatePhase9(phase8Data, airFlow_user) {
   // Step 2: Reorder ALL arrays based on sorted airflow indices
   // This matches Excel FILTER functions that align arrays with sorted airflow
   const sortedArrays = {
-    airFlow: indexedData.map(item => p8.airFlow[item.idx]),
-    totalPressure: indexedData.map(item => p8.totalPressure[item.idx]),
-    velocityPressure: indexedData.map(item => p8.velocityPressure[item.idx]),
-    staticPressure: indexedData.map(item => p8.staticPressure[item.idx]),
-    fanInputPower: indexedData.map(item => p8.fanInputPower[item.idx]),
-    totalEfficiency: indexedData.map(item => p8.totalEfficiency[item.idx]),
-    staticEfficiency: indexedData.map(item => p8.staticEfficiency[item.idx]),
+    airFlow: indexedData.map((item) => p8.airFlow[item.idx]),
+    totalPressure: indexedData.map((item) => p8.totalPressure[item.idx]),
+    velocityPressure: indexedData.map((item) => p8.velocityPressure[item.idx]),
+    staticPressure: indexedData.map((item) => p8.staticPressure[item.idx]),
+    fanInputPower: indexedData.map((item) => p8.fanInputPower[item.idx]),
+    totalEfficiency: indexedData.map((item) => p8.totalEfficiency[item.idx]),
+    staticEfficiency: indexedData.map((item) => p8.staticEfficiency[item.idx]),
   };
 
   console.log(`Phase 9 sortedArrays created for ${phase8Data.model}:`);
@@ -937,7 +1028,10 @@ function calculatePhase9(phase8Data, airFlow_user) {
   let matchIndex = -1;
 
   for (let i = 0; i < p8.airFlow.length; i++) {
-    if (Math.abs(p8.airFlow[i] - airFlow_user) < tolerance || p8.airFlow[i] === airFlow_user) {
+    if (
+      Math.abs(p8.airFlow[i] - airFlow_user) < tolerance ||
+      p8.airFlow[i] === airFlow_user
+    ) {
       matchIndex = i;
       break;
     }
@@ -945,7 +1039,9 @@ function calculatePhase9(phase8Data, airFlow_user) {
 
   // If no exact match found, return null
   if (matchIndex === -1) {
-    console.warn(`Phase 9: No matching airFlow found for ${airFlow_user} in ${phase8Data.model}`);
+    console.warn(
+      `Phase 9: No matching airFlow found for ${airFlow_user} in ${phase8Data.model}`,
+    );
     return null;
   }
 
@@ -975,7 +1071,12 @@ function calculatePhase9(phase8Data, airFlow_user) {
 // ============================================================================
 // Creates consolidated results table from Phase 8/9 data
 // Sorts by Total Efficiency (descending)
-function calculatePhase10(phase9Results, phase5Results, phase8Results, rawDataMap) {
+function calculatePhase10(
+  phase9Results,
+  phase5Results,
+  phase8Results,
+  rawDataMap,
+) {
   if (!phase9Results || phase9Results.length === 0) {
     return [];
   }
@@ -983,8 +1084,8 @@ function calculatePhase10(phase9Results, phase5Results, phase8Results, rawDataMa
   // Build final results table
   // RPM comes directly from Phase 9 (which inherited it from Phase 6 → Phase 8 → Phase 9)
   const resultsTable = phase9Results
-    .filter(p9 => p9 !== null && p9.filteredPoint)
-    .map(p9 => {
+    .filter((p9) => p9 !== null && p9.filteredPoint)
+    .map((p9) => {
       // Use matchingRPM directly from Phase 9 (propagated from Phase 6)
       const rpm = p9.matchingRPM;
 
@@ -992,7 +1093,9 @@ function calculatePhase10(phase9Results, phase5Results, phase8Results, rawDataMa
       const rawFan = rawDataMap?.get(`${p9.model}-${p9.innerDiameter}`);
 
       // Debug: Log Phase 9 sortedArrays
-      console.log(`Phase 10: ${p9.model} - sortedArrays exists: ${!!p9.sortedArrays}, airFlow first 3: ${p9.sortedArrays?.airFlow?.slice(0, 3)}`);
+      console.log(
+        `Phase 10: ${p9.model} - sortedArrays exists: ${!!p9.sortedArrays}, airFlow first 3: ${p9.sortedArrays?.airFlow?.slice(0, 3)}`,
+      );
 
       return {
         fanModel: `${p9.model}-${p9.innerDiameter}`,
@@ -1007,25 +1110,29 @@ function calculatePhase10(phase9Results, phase5Results, phase8Results, rawDataMa
         staticEfficiency: p9.filteredPoint.staticEfficiency,
         rpm: rpm,
         // Include SORTED curve arrays from Phase 9 for Phase 19 (Excel RQ-UK columns)
-        curveArrays: p9.sortedArrays ? {
-          airFlow: p9.sortedArrays.airFlow,
-          totalPressure: p9.sortedArrays.totalPressure,
-          velocityPressure: p9.sortedArrays.velocityPressure,
-          staticPressure: p9.sortedArrays.staticPressure,
-          fanInputPower: p9.sortedArrays.fanInputPower,
-          totalEfficiency: p9.sortedArrays.totalEfficiency,
-          staticEfficiency: p9.sortedArrays.staticEfficiency,
-        } : null,
+        curveArrays: p9.sortedArrays
+          ? {
+              airFlow: p9.sortedArrays.airFlow,
+              totalPressure: p9.sortedArrays.totalPressure,
+              velocityPressure: p9.sortedArrays.velocityPressure,
+              staticPressure: p9.sortedArrays.staticPressure,
+              fanInputPower: p9.sortedArrays.fanInputPower,
+              totalEfficiency: p9.sortedArrays.totalEfficiency,
+              staticEfficiency: p9.sortedArrays.staticEfficiency,
+            }
+          : null,
         // Include original fan data with rated RPM for Phase 19 speed ratio calculation
-        originalFanData: rawFan ? {
-          airFlow: rawFan.airFlow,
-          totPressure: rawFan.totPressure,
-          velPressure: rawFan.velPressure,
-          staticPressure: rawFan.staticPressure,
-          fanInputPow: rawFan.fanInputPow,
-          RPM: rawFan.RPM,
-          desigDensity: rawFan.desigDensity,
-        } : null,
+        originalFanData: rawFan
+          ? {
+              airFlow: rawFan.airFlow,
+              totPressure: rawFan.totPressure,
+              velPressure: rawFan.velPressure,
+              staticPressure: rawFan.staticPressure,
+              fanInputPow: rawFan.fanInputPow,
+              RPM: rawFan.RPM,
+              desigDensity: rawFan.desigDensity,
+            }
+          : null,
         // Rated RPM from original fan data (VX column in Excel)
         RPM: rawFan?.RPM || p9.ratedRPM,
       };
@@ -1069,23 +1176,27 @@ async function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   if (!pulleyDb) {
     return {
       error: "Pulley database unavailable",
-      details: "Database connection or pulley_data table not available. Check server logs.",
+      details:
+        "Database connection or pulley_data table not available. Check server logs.",
     };
   }
   if (pulleyDb.length === 0) {
     return {
       error: "Pulley database is empty",
-      details: "The pulley_data table has no rows. Run the database seed to load pulley data from JSON (e.g. run seed from server or restart server so auto-seed can run).",
+      details:
+        "The pulley_data table has no rows. Run the database seed to load pulley data from JSON (e.g. run seed from server or restart server so auto-seed can run).",
     };
   }
 
   // Filter pulley database entries by belt type
   const filteredPulleys = pulleyDb.filter(
-    (entry) => entry["Belt Type"] === beltType
+    (entry) => entry["Belt Type"] === beltType,
   );
 
   if (filteredPulleys.length === 0) {
-    const types = [...new Set(pulleyDb.map((e) => e["Belt Type"]).filter(Boolean))];
+    const types = [
+      ...new Set(pulleyDb.map((e) => e["Belt Type"]).filter(Boolean)),
+    ];
     return {
       error: "No pulleys for this belt type",
       details: `No pulley entries found for belt type "${beltType}". Valid types in database: ${types.length ? types.join(", ") : "none"}.`,
@@ -1095,9 +1206,10 @@ async function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   // Fixed standard pitch diameter sizes from Units sheet
   // These are the only valid D2 values that can be selected
   const standardSizes = [
-    50, 56, 60, 63, 67, 71, 75, 80, 85, 90, 95, 100, 106, 112, 118, 125, 132, 140,
-    150, 160, 170, 180, 190, 200, 212, 224, 236, 250, 265, 280, 300, 315, 335, 355,
-    375, 400, 425, 450, 475, 500, 530, 560, 630, 710, 800, 900, 1000, 1250
+    50, 56, 60, 63, 67, 71, 75, 80, 85, 90, 95, 100, 106, 112, 118, 125, 132,
+    140, 150, 160, 170, 180, 190, 200, 212, 224, 236, 250, 265, 280, 300, 315,
+    335, 355, 375, 400, 425, 450, 475, 500, 530, 560, 630, 710, 800, 900, 1000,
+    1250,
   ];
 
   // Helper function to find nearest standard size
@@ -1141,23 +1253,33 @@ async function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
 
   // Debug: Log first few D2 calculations
   console.log("Phase 11 Debug - N1:", N1, "N2:", N2);
-  console.log("Phase 11 Debug - First 5 D1 values:", motorPulleyDiameter_D1.slice(0, 5));
-  console.log("Phase 11 Debug - First 5 D2_raw values:", fanPulleyDiameterRaw_D2_raw.slice(0, 5));
+  console.log(
+    "Phase 11 Debug - First 5 D1 values:",
+    motorPulleyDiameter_D1.slice(0, 5),
+  );
+  console.log(
+    "Phase 11 Debug - First 5 D2_raw values:",
+    fanPulleyDiameterRaw_D2_raw.slice(0, 5),
+  );
 
   // Array 5: Fan Pulley Diameter (Standardized) - D2[] - nearest standard size
   const fanPulleyDiameterStandard_D2 = fanPulleyDiameterRaw_D2_raw.map(
-    (D2_raw) => findNearestStandardSize(D2_raw)
+    (D2_raw) => findNearestStandardSize(D2_raw),
   );
 
   // Array 5b: Validated D2 - Check if D2 standard actually exists in pulley database for this belt type
   // This is the critical filter from Excel: FILTER($WH:$WH,($WC:$WC=WN204)*($WB:$WB=WB204)*($WA:$WA=WA204))
   // If D2 doesn't exist as a pulley pitch diameter for this belt type, set to null
-  const fanPulleyDiameterValidated_D2 = fanPulleyDiameterStandard_D2.map((D2_std) => {
-    if (D2_std === null) return null;
-    // Check if this D2 exists in the pulley database for the current belt type
-    const existsInDb = filteredPulleys.some(p => parseFloat(p["Pitch Diameter"]) === parseFloat(D2_std));
-    return existsInDb ? D2_std : null;
-  });
+  const fanPulleyDiameterValidated_D2 = fanPulleyDiameterStandard_D2.map(
+    (D2_std) => {
+      if (D2_std === null) return null;
+      // Check if this D2 exists in the pulley database for the current belt type
+      const existsInDb = filteredPulleys.some(
+        (p) => parseFloat(p["Pitch Diameter"]) === parseFloat(D2_std),
+      );
+      return existsInDb ? D2_std : null;
+    },
+  );
 
   // Array 6: Corrected Fan Speed (RPM) - N2_corrected[] = (N1 * D1) / D2
   // Use validated D2, not just standard D2
@@ -1171,7 +1293,9 @@ async function calculatePhase11(selectedFan, beltType, motorPoles, fanRPM) {
   const bushNo = filteredPulleys.map((entry) => entry["Bush No."] || null);
 
   // Array 8: No. of Grooves - from pulley database
-  const noOfGrooves = filteredPulleys.map((entry) => entry["No. of Grooves"] || null);
+  const noOfGrooves = filteredPulleys.map(
+    (entry) => entry["No. of Grooves"] || null,
+  );
 
   return {
     fanModel: selectedFan.fanModel || selectedFan.model,
@@ -1203,7 +1327,12 @@ export async function processPhase11(params) {
 // ============================================================================
 // Validates fan pulley diameter against fan shaft diameter
 // Recalculates fan input power considering RPM correction, friction losses, and SPF
-async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent) {
+async function calculatePhase12(
+  phase11Result,
+  selectedFan,
+  frictionLossesPercent,
+  spfPercent,
+) {
   if (!phase11Result || !phase11Result.arrays || !selectedFan) {
     return null;
   }
@@ -1214,7 +1343,9 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
   const fanInputPower_old = selectedFan.fanInputPower; // predicted value from Phase 8
 
   if (!oldRPM || !fanInputPower_old) {
-    console.warn(`Phase 12: Missing oldRPM (${oldRPM}) or fanInputPower_old (${fanInputPower_old})`);
+    console.warn(
+      `Phase 12: Missing oldRPM (${oldRPM}) or fanInputPower_old (${fanInputPower_old})`,
+    );
     return null;
   }
 
@@ -1237,25 +1368,34 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
 
   // Find the fan by model and innerDiameter to get fanShaftDiameter
   const matchingFan = fanData.find(
-    (f) => f.Blades?.Model === model && f.Impeller?.innerDiameter === innerDiameter
+    (f) =>
+      f.Blades?.Model === model && f.Impeller?.innerDiameter === innerDiameter,
   );
 
   if (!matchingFan) {
-    console.warn(`Phase 12: No matching fan found for model=${model}, innerDiameter=${innerDiameter}`);
+    console.warn(
+      `Phase 12: No matching fan found for model=${model}, innerDiameter=${innerDiameter}`,
+    );
     return null;
   }
 
   const fanShaftDiameter = matchingFan.Impeller?.fanShaftDiameter;
   if (!fanShaftDiameter) {
-    console.warn(`Phase 12: fanShaftDiameter not found for ${model}-${innerDiameter}`);
+    console.warn(
+      `Phase 12: fanShaftDiameter not found for ${model}-${innerDiameter}`,
+    );
     return null;
   }
 
   // Filter pulley database by belt type
-  const filteredPulleys = pulleyDb.filter((entry) => entry["Belt Type"] === beltType);
+  const filteredPulleys = pulleyDb.filter(
+    (entry) => entry["Belt Type"] === beltType,
+  );
 
   if (filteredPulleys.length === 0) {
-    console.warn(`Phase 12: No pulley entries found for belt type: ${beltType}`);
+    console.warn(
+      `Phase 12: No pulley entries found for belt type: ${beltType}`,
+    );
     return null;
   }
 
@@ -1304,9 +1444,10 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
     }
 
     // Get D2 pulleys with MATCHING groove count (D1 and D2 must have same grooves)
-    const matchingD2Pulleys = filteredPulleys.filter(p =>
-      parseFloat(p["Pitch Diameter"]) === parseFloat(D2_standard) &&
-      parseInt(p["No. of Grooves"]) === d1Grooves
+    const matchingD2Pulleys = filteredPulleys.filter(
+      (p) =>
+        parseFloat(p["Pitch Diameter"]) === parseFloat(D2_standard) &&
+        parseInt(p["No. of Grooves"]) === d1Grooves,
     );
     if (matchingD2Pulleys.length === 0) {
       D2_checked.push(null);
@@ -1320,9 +1461,10 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
     // represents a D1 pulley, and the bore check validates if fan shaft fits in that row's bore.
     // Get the D1 pulley entry for this row to get its bore range
     const D1_value = motorPulleyDiameter_D1[i];
-    const d1PulleyEntry = filteredPulleys.find(p =>
-      parseFloat(p["Pitch Diameter"]) === parseFloat(D1_value) &&
-      parseInt(p["No. of Grooves"]) === d1Grooves
+    const d1PulleyEntry = filteredPulleys.find(
+      (p) =>
+        parseFloat(p["Pitch Diameter"]) === parseFloat(D1_value) &&
+        parseInt(p["No. of Grooves"]) === d1Grooves,
     );
 
     let isValid = false;
@@ -1343,9 +1485,12 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
       // Excel AAM formula: Original Power × (New RPM / Original RPM)^3
       // Note: Friction losses and SPF are NOT applied here - they are accounted for
       // in Phase 13 via the safety factor (15%) and service factor (10%)
-      const fanInputPower_calculated = fanInputPower_old * Math.pow(correctedRPM / oldRPM, 3);
+      const fanInputPower_calculated =
+        fanInputPower_old * Math.pow(correctedRPM / oldRPM, 3);
 
-      fanInputPower_new.push(Math.round(fanInputPower_calculated * 10000) / 10000); // 4 decimals
+      fanInputPower_new.push(
+        Math.round(fanInputPower_calculated * 10000) / 10000,
+      ); // 4 decimals
     } else {
       D2_checked.push(null);
       fanInputPower_new.push(null);
@@ -1373,10 +1518,14 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
     filteredArrays.motorSpeed_N1.push(motorSpeed_N1[i]);
     filteredArrays.fanSpeed_N2.push(fanSpeed_N2[i]);
     filteredArrays.motorPulleyDiameter_D1.push(motorPulleyDiameter_D1[i]);
-    filteredArrays.fanPulleyDiameterRaw_D2_raw.push(fanPulleyDiameterRaw_D2_raw[i]);
-    filteredArrays.fanPulleyDiameterStandard_D2.push(fanPulleyDiameterStandard_D2[i]);
+    filteredArrays.fanPulleyDiameterRaw_D2_raw.push(
+      fanPulleyDiameterRaw_D2_raw[i],
+    );
+    filteredArrays.fanPulleyDiameterStandard_D2.push(
+      fanPulleyDiameterStandard_D2[i],
+    );
     filteredArrays.correctedFanSpeed_N2_corrected.push(
-      Math.round(correctedFanSpeed_N2_corrected[i] * 10000) / 10000
+      Math.round(correctedFanSpeed_N2_corrected[i] * 10000) / 10000,
     );
     filteredArrays.bushNo.push(bushNo[i]);
     filteredArrays.noOfGrooves.push(noOfGrooves[i]);
@@ -1402,15 +1551,24 @@ async function calculatePhase12(phase11Result, selectedFan, frictionLossesPercen
 
 // Exported function for Phase 12 endpoint
 export async function processPhase12(params) {
-  const { phase11Result, selectedFan, frictionLossesPercent, spfPercent } = params;
-  return await calculatePhase12(phase11Result, selectedFan, frictionLossesPercent, spfPercent);
+  const { phase11Result, selectedFan, frictionLossesPercent, spfPercent } =
+    params;
+  return await calculatePhase12(
+    phase11Result,
+    selectedFan,
+    frictionLossesPercent,
+    spfPercent,
+  );
 }
 
 // ============================================================================
 // PHASE 13: Motor Selection Logic (Corrected to match Excel logic)
 // ============================================================================
 // Standard motor power values in kW (from Excel)
-const STANDARD_MOTOR_POWERS_KW = [0.09, 0.12, 0.18, 0.25, 0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3, 4, 5.5, 7.5, 11, 15, 18.5, 22, 30, 37, 45, 55];
+const STANDARD_MOTOR_POWERS_KW = [
+  0.09, 0.12, 0.18, 0.25, 0.37, 0.55, 0.75, 1.1, 1.5, 2.2, 3, 4, 5.5, 7.5, 11,
+  15, 18.5, 22, 30, 37, 45, 55,
+];
 
 // Helper function to round up to next standard motor power
 function roundUpToStandardPower(powerKW) {
@@ -1431,19 +1589,35 @@ function roundUpToStandardPower(powerKW) {
 // 5. ZH = Motor Power = (YY / ZG) × (1 + Service Factor 10%)
 // 6. ZI = Round ZH up to standard kW values
 // 7. ZK = Motor Model (lookup from Motor Eff sheet for ZI + constraints)
-async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass, safetyFactor = 0.15, serviceFactor = 0.10) {
+async function calculatePhase13(
+  netFanPowerKW,
+  userPoles,
+  userPhases,
+  userInsulationClass,
+  safetyFactor = 0.15,
+  serviceFactor = 0.1,
+) {
   if (!netFanPowerKW || netFanPowerKW <= 0) {
-    return { error: "Invalid net fan power", details: "netFanPowerKW must be a positive number" };
+    return {
+      error: "Invalid net fan power",
+      details: "netFanPowerKW must be a positive number",
+    };
   }
 
   if (!userPoles || !userPhases || !userInsulationClass) {
-    return { error: "Missing required parameters", details: "userPoles, userPhases, and userInsulationClass are required" };
+    return {
+      error: "Missing required parameters",
+      details: "userPoles, userPhases, and userInsulationClass are required",
+    };
   }
 
   // Load motor data from DB
   const motorData = await loadCentrifugalMotorDataFromDb();
   if (!motorData || motorData.length === 0) {
-    return { error: "Motor data not found or empty (DB)", details: "CentrifugalMotorData table is empty" };
+    return {
+      error: "Motor data not found or empty (DB)",
+      details: "CentrifugalMotorData table is empty",
+    };
   }
 
   // Step 1: Calculate Motor Output Power Required (YY in Excel)
@@ -1498,7 +1672,8 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
       .sort((a, b) => a.powerKW - b.powerKW);
 
     if (sortedByPower.length > 0) {
-      motorEfficiency = parseFloat(sortedByPower[0]["Efficiency @ 50 Hz"]) || 0.85;
+      motorEfficiency =
+        parseFloat(sortedByPower[0]["Efficiency @ 50 Hz"]) || 0.85;
     } else {
       motorEfficiency = 0.85; // Default efficiency if not found
     }
@@ -1506,7 +1681,8 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
 
   // Step 5: Calculate required Motor Input Power (ZH in Excel)
   // Motor Power = (Motor Output Power Required / Motor Efficiency) × (1 + Service Factor)
-  const motorInputPowerRequired = (motorOutputPowerRequired / motorEfficiency) * (1 + serviceFactor);
+  const motorInputPowerRequired =
+    (motorOutputPowerRequired / motorEfficiency) * (1 + serviceFactor);
 
   // Step 6: Round up to standard motor power (ZI in Excel - Motor Power as Standard kW)
   const standardMotorPower = roundUpToStandardPower(motorInputPowerRequired);
@@ -1549,7 +1725,8 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
       efficiency50Hz: efficiency50Hz,
       powerKW: motor.powerKW,
       powerHP: parseFloat(motor["Power (HP)"]) || null,
-      shaftKeyLengthMM: parseFloat(motor["Shaft Feather Key Length (mm)"]) || null,
+      shaftKeyLengthMM:
+        parseFloat(motor["Shaft Feather Key Length (mm)"]) || null,
       shaftDiameterMM: parseFloat(motor["Shaft Diameter (mm)"]) || null,
       model: motor["Model"] || null,
       b3PriceWithoutVat:
@@ -1572,10 +1749,12 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
         parseFloat(
           motor.totalPriceWithVat ?? motor["Price With VAT Per Meter (Total)"],
         ) || null,
-      motorOutputPowerRequired: Math.round(motorOutputPowerRequired * 10000) / 10000,
+      motorOutputPowerRequired:
+        Math.round(motorOutputPowerRequired * 10000) / 10000,
       standardOutputPower: standardOutputPower,
       motorEfficiencyUsed: Math.round(motorEfficiency * 10000) / 10000,
-      motorInputPowerRequired: Math.round(motorInputPowerRequired * 10000) / 10000,
+      motorInputPowerRequired:
+        Math.round(motorInputPowerRequired * 10000) / 10000,
       standardMotorPower: standardMotorPower,
       netFanPowerRequired: Math.round(netFanPowerKW * 10000) / 10000,
     };
@@ -1593,12 +1772,14 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
     efficiency50Hz: efficiency50Hz,
     powerKW: powerKW,
     powerHP: parseFloat(selectedMotor["Power (HP)"]) || null,
-    shaftKeyLengthMM: parseFloat(selectedMotor["Shaft Feather Key Length (mm)"]) || null,
+    shaftKeyLengthMM:
+      parseFloat(selectedMotor["Shaft Feather Key Length (mm)"]) || null,
     shaftDiameterMM: parseFloat(selectedMotor["Shaft Diameter (mm)"]) || null,
     model: selectedMotor["Model"] || null,
     b3PriceWithoutVat:
       parseFloat(
-        selectedMotor.b3PriceWithoutVat ?? selectedMotor["B3 Price ($) w/o VAT"],
+        selectedMotor.b3PriceWithoutVat ??
+          selectedMotor["B3 Price ($) w/o VAT"],
       ) || null,
     b3PriceWithVat:
       parseFloat(
@@ -1620,10 +1801,12 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
         selectedMotor.totalPriceWithVat ??
           selectedMotor["Price With VAT Per Meter (Total)"],
       ) || null,
-    motorOutputPowerRequired: Math.round(motorOutputPowerRequired * 10000) / 10000,
+    motorOutputPowerRequired:
+      Math.round(motorOutputPowerRequired * 10000) / 10000,
     standardOutputPower: standardOutputPower,
     motorEfficiencyUsed: Math.round(motorEfficiency * 10000) / 10000,
-    motorInputPowerRequired: Math.round(motorInputPowerRequired * 10000) / 10000,
+    motorInputPowerRequired:
+      Math.round(motorInputPowerRequired * 10000) / 10000,
     standardMotorPower: standardMotorPower,
     netFanPowerRequired: Math.round(netFanPowerKW * 10000) / 10000,
   };
@@ -1632,7 +1815,12 @@ async function calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsula
 // Exported function for Phase 13 endpoint
 export async function processPhase13(params) {
   const { netFanPowerKW, userPoles, userPhases, userInsulationClass } = params;
-  return await calculatePhase13(netFanPowerKW, userPoles, userPhases, userInsulationClass);
+  return await calculatePhase13(
+    netFanPowerKW,
+    userPoles,
+    userPhases,
+    userInsulationClass,
+  );
 }
 
 // ============================================================================
@@ -1653,7 +1841,7 @@ async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
   }
 
   // Filter pulleys by belt type
-  const beltPulleys = pulleyData.filter(p => p["Belt Type"] === beltType);
+  const beltPulleys = pulleyData.filter((p) => p["Belt Type"] === beltType);
 
   const entryCount = phase11Arrays.motorPulleyDiameter_D1?.length || 0;
   const checkMotorPulleyD1 = [];
@@ -1662,12 +1850,18 @@ async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
   for (let i = 0; i < entryCount; i++) {
     const d1 = phase11Arrays.motorPulleyDiameter_D1[i];
     const motor = phase13Motors[i];
-    const grooves = phase11Arrays.noOfGrooves ? phase11Arrays.noOfGrooves[i] : null;
+    const grooves = phase11Arrays.noOfGrooves
+      ? phase11Arrays.noOfGrooves[i]
+      : null;
 
     // If no motor selected for this row, D1 is invalid
     if (!motor || !d1) {
       checkMotorPulleyD1.push(null);
-      validationDetails.push({ index: i, valid: false, reason: "No motor or D1 available" });
+      validationDetails.push({
+        index: i,
+        valid: false,
+        reason: "No motor or D1 available",
+      });
       continue;
     }
 
@@ -1676,14 +1870,20 @@ async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
 
     // Find the pulley entry matching this D1, belt type, AND groove count
     // The groove count must match because different groove counts have different bore ranges and F(Width)
-    const pulleyEntry = beltPulleys.find(p =>
-      parseFloat(p["Pitch Diameter"]) === parseFloat(d1) &&
-      (grooves === null || parseInt(p["No. of Grooves"]) === parseInt(grooves))
+    const pulleyEntry = beltPulleys.find(
+      (p) =>
+        parseFloat(p["Pitch Diameter"]) === parseFloat(d1) &&
+        (grooves === null ||
+          parseInt(p["No. of Grooves"]) === parseInt(grooves)),
     );
 
     if (!pulleyEntry) {
       checkMotorPulleyD1.push(null);
-      validationDetails.push({ index: i, valid: false, reason: `Pulley D1=${d1} not found in database for belt type ${beltType}` });
+      validationDetails.push({
+        index: i,
+        valid: false,
+        reason: `Pulley D1=${d1} not found in database for belt type ${beltType}`,
+      });
       continue;
     }
 
@@ -1693,7 +1893,8 @@ async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
 
     // Condition 1: Shaft Diameter Compatibility
     // Min Bore <= Motor Shaft Diameter <= Max Bore
-    const shaftCompatible = motorShaftDiameter >= minBore && motorShaftDiameter <= maxBore;
+    const shaftCompatible =
+      motorShaftDiameter >= minBore && motorShaftDiameter <= maxBore;
 
     // Condition 2: Feather Key Length Compatibility
     // F (Width) <= Shaft Feather Key Length
@@ -1731,7 +1932,7 @@ async function calculatePhase14(phase11Arrays, phase13Motors, beltType) {
     }
   }
 
-  const validCount = checkMotorPulleyD1.filter(d => d !== null).length;
+  const validCount = checkMotorPulleyD1.filter((d) => d !== null).length;
 
   return {
     beltType,
@@ -1755,7 +1956,12 @@ export async function processPhase14(params) {
 // ============================================================================
 // Calculates Belt Length, Belt Length per Standard, and Center Distance
 // Inputs: D1 (from Phase 14), D2 (from Phase 12), Inner Diameter, Belt Section
-async function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection) {
+async function calculatePhase15(
+  phase12Arrays,
+  phase14Arrays,
+  innerDiameter,
+  beltSection,
+) {
   if (!phase12Arrays || !phase14Arrays || !innerDiameter || !beltSection) {
     return { error: "Missing required parameters for Phase 15" };
   }
@@ -1768,15 +1974,17 @@ async function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, bel
 
   // Extract standard belt lengths for the selected belt section
   const standardLengths = beltStandardData
-    .map(entry => {
+    .map((entry) => {
       const val = entry[beltSection];
       return val !== null && val !== undefined ? parseFloat(val) : null;
     })
-    .filter(v => v !== null && !isNaN(v))
+    .filter((v) => v !== null && !isNaN(v))
     .sort((a, b) => a - b);
 
   if (standardLengths.length === 0) {
-    return { error: `No standard belt lengths found for belt section: ${beltSection}` };
+    return {
+      error: `No standard belt lengths found for belt section: ${beltSection}`,
+    };
   }
 
   const minStandard = standardLengths[0];
@@ -1863,7 +2071,7 @@ async function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, bel
     }
   }
 
-  const validCount = beltLength.filter(v => v !== null).length;
+  const validCount = beltLength.filter((v) => v !== null).length;
 
   return {
     beltSection,
@@ -1882,7 +2090,12 @@ async function calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, bel
 // Exported function for Phase 15 endpoint
 export async function processPhase15(params) {
   const { phase12Arrays, phase14Arrays, innerDiameter, beltSection } = params;
-  return await calculatePhase15(phase12Arrays, phase14Arrays, innerDiameter, beltSection);
+  return await calculatePhase15(
+    phase12Arrays,
+    phase14Arrays,
+    innerDiameter,
+    beltSection,
+  );
 }
 
 // ============================================================================
@@ -1890,7 +2103,14 @@ export async function processPhase15(params) {
 // ============================================================================
 // Creates a filtered table combining valid results from Phases 11-15
 // Filters rows based on RPM window: MinRPM <= UserRPM <= MinRPM + maxRpmChange
-function calculatePhase16(phase11Data, phase12Arrays, phase14Arrays, phase15Arrays, userRPM, maxRpmChange) {
+function calculatePhase16(
+  phase11Data,
+  phase12Arrays,
+  phase14Arrays,
+  phase15Arrays,
+  userRPM,
+  maxRpmChange,
+) {
   if (!phase12Arrays) {
     return { error: "Missing Phase 12 data" };
   }
@@ -1904,14 +2124,15 @@ function calculatePhase16(phase11Data, phase12Arrays, phase14Arrays, phase15Arra
 
   for (let i = 0; i < entryCount; i++) {
     // Get values from Phase 12 filtered arrays (indices are aligned)
-    const D2 = phase12Arrays?.D2_checked?.[i] || null;  // Fan Pulley Dia from Phase 12
-    const D1 = phase14Arrays?.checkMotorPulleyD1?.[i] || null;  // Motor Pulley Dia from Phase 14
-    const N2_corrected = phase12Arrays?.correctedFanSpeed_N2_corrected?.[i] || null;  // Corrected Fan Speed from Phase 12
-    const N1 = phase12Arrays?.motorSpeed_N1?.[i] || null;  // Motor Speed from Phase 12
-    const noOfGrooves = phase12Arrays?.noOfGrooves?.[i] || null;  // No. of Grooves from Phase 12
-    const bushNo = phase12Arrays?.bushNo?.[i] || null;  // Bush No. from Phase 12
-    const beltLengthStandard = phase15Arrays?.beltLengthStandard?.[i] || null;  // Belt Length Standard from Phase 15
-    const centerDistance = phase15Arrays?.centerDistance?.[i] || null;  // Center Distance from Phase 15
+    const D2 = phase12Arrays?.D2_checked?.[i] || null; // Fan Pulley Dia from Phase 12
+    const D1 = phase14Arrays?.checkMotorPulleyD1?.[i] || null; // Motor Pulley Dia from Phase 14
+    const N2_corrected =
+      phase12Arrays?.correctedFanSpeed_N2_corrected?.[i] || null; // Corrected Fan Speed from Phase 12
+    const N1 = phase12Arrays?.motorSpeed_N1?.[i] || null; // Motor Speed from Phase 12
+    const noOfGrooves = phase12Arrays?.noOfGrooves?.[i] || null; // No. of Grooves from Phase 12
+    const bushNo = phase12Arrays?.bushNo?.[i] || null; // Bush No. from Phase 12
+    const beltLengthStandard = phase15Arrays?.beltLengthStandard?.[i] || null; // Belt Length Standard from Phase 15
+    const centerDistance = phase15Arrays?.centerDistance?.[i] || null; // Center Distance from Phase 15
 
     // Skip if essential values are null
     if (D2 === null || D1 === null || N2_corrected === null) {
@@ -1922,7 +2143,12 @@ function calculatePhase16(phase11Data, phase12Arrays, phase14Arrays, phase15Arra
     // MinRPM = UserRPM (from Phase 10 selected fan)
     // MaxRPM = UserRPM + maxRpmChange
     // Include row only if N2_corrected falls within this range
-    if (userRPM !== null && userRPM !== undefined && maxRpmChange !== null && maxRpmChange !== undefined) {
+    if (
+      userRPM !== null &&
+      userRPM !== undefined &&
+      maxRpmChange !== null &&
+      maxRpmChange !== undefined
+    ) {
       const minRPM = userRPM;
       const maxRPM = userRPM + maxRpmChange;
       if (N2_corrected < minRPM || N2_corrected > maxRPM) {
@@ -1957,8 +2183,22 @@ function calculatePhase16(phase11Data, phase12Arrays, phase14Arrays, phase15Arra
 
 // Exported function for Phase 16 endpoint
 export function processPhase16(params) {
-  const { phase11Data, phase12Arrays, phase14Arrays, phase15Arrays, userRPM, maxRpmChange } = params;
-  return calculatePhase16(phase11Data, phase12Arrays, phase14Arrays, phase15Arrays, userRPM, maxRpmChange);
+  const {
+    phase11Data,
+    phase12Arrays,
+    phase14Arrays,
+    phase15Arrays,
+    userRPM,
+    maxRpmChange,
+  } = params;
+  return calculatePhase16(
+    phase11Data,
+    phase12Arrays,
+    phase14Arrays,
+    phase15Arrays,
+    userRPM,
+    maxRpmChange,
+  );
 }
 
 // ============================================================================
@@ -1968,12 +2208,12 @@ export function processPhase16(params) {
 // Combines data from selected fan, Phase 16 row, and Phase 17 motor
 function calculatePhase18(params) {
   const {
-    selectedFan,        // Original fan data from Phase 10
-    phase16Row,         // Selected row from Phase 16
-    phase17Motor,       // Motor data from Phase 17 (recalled from Phase 13)
-    userPoles,          // User-selected poles
-    userPhases,         // User-selected phases (1 or 3)
-    innerDiameter,      // Inner diameter from selected fan
+    selectedFan, // Original fan data from Phase 10
+    phase16Row, // Selected row from Phase 16
+    phase17Motor, // Motor data from Phase 17 (recalled from Phase 13)
+    userPoles, // User-selected poles
+    userPhases, // User-selected phases (1 or 3)
+    innerDiameter, // Inner diameter from selected fan
   } = params;
 
   // Validate required inputs
@@ -1983,44 +2223,88 @@ function calculatePhase18(params) {
 
   // Extract original fan data (from Phase 10 selected fan)
   // Phase 10 data uses: rpm, totalEfficiency, staticEfficiency, airFlow, staticPressure, velocityPressure, totalPressure, fanInputPower
-  const originalSpeed = parseFloat(selectedFan.rpm) || parseFloat(selectedFan.speed) || parseFloat(selectedFan.Speed) || null;
-  const originalTotalEff = parseFloat(selectedFan.totalEfficiency) || parseFloat(selectedFan["Total Eff."]) || null;
-  const originalStaticEff = parseFloat(selectedFan.staticEfficiency) || parseFloat(selectedFan["Static Eff."]) || null;
-  const originalAirFlow = parseFloat(selectedFan.airFlow) || parseFloat(selectedFan["Air Flow"]) || null;
-  const originalStaticPressure = parseFloat(selectedFan.staticPressure) || parseFloat(selectedFan["Static Pressure"]) || null;
-  const originalDynamicPressure = parseFloat(selectedFan.velocityPressure) || parseFloat(selectedFan.dynamicPressure) || parseFloat(selectedFan["Dynamic Pressure"]) || null;
-  const originalTotalPressure = parseFloat(selectedFan.totalPressure) || parseFloat(selectedFan["Total Pressure"]) || null;
-  const originalFanInputPower = parseFloat(selectedFan.fanInputPower) || parseFloat(selectedFan["Fan Input Power"]) || null;
-  const fanModel = selectedFan.fanModel || selectedFan["Fan Model"] || selectedFan.model || null;
+  const originalSpeed =
+    parseFloat(selectedFan.rpm) ||
+    parseFloat(selectedFan.speed) ||
+    parseFloat(selectedFan.Speed) ||
+    null;
+  const originalTotalEff =
+    parseFloat(selectedFan.totalEfficiency) ||
+    parseFloat(selectedFan["Total Eff."]) ||
+    null;
+  const originalStaticEff =
+    parseFloat(selectedFan.staticEfficiency) ||
+    parseFloat(selectedFan["Static Eff."]) ||
+    null;
+  const originalAirFlow =
+    parseFloat(selectedFan.airFlow) ||
+    parseFloat(selectedFan["Air Flow"]) ||
+    null;
+  const originalStaticPressure =
+    parseFloat(selectedFan.staticPressure) ||
+    parseFloat(selectedFan["Static Pressure"]) ||
+    null;
+  const originalDynamicPressure =
+    parseFloat(selectedFan.velocityPressure) ||
+    parseFloat(selectedFan.dynamicPressure) ||
+    parseFloat(selectedFan["Dynamic Pressure"]) ||
+    null;
+  const originalTotalPressure =
+    parseFloat(selectedFan.totalPressure) ||
+    parseFloat(selectedFan["Total Pressure"]) ||
+    null;
+  const originalFanInputPower =
+    parseFloat(selectedFan.fanInputPower) ||
+    parseFloat(selectedFan["Fan Input Power"]) ||
+    null;
+  const fanModel =
+    selectedFan.fanModel ||
+    selectedFan["Fan Model"] ||
+    selectedFan.model ||
+    null;
 
   // Extract Phase 16 row data
-  const N2 = parseFloat(phase16Row.fanSpeed_N2) || null;  // Fan Speed (RPM)
-  const D2 = parseFloat(phase16Row.fanPulleyDia_D2) || null;  // Fan Pulley Dia (mm)
-  const N1 = parseFloat(phase16Row.motorSpeed_N1) || null;  // Motor Speed (RPM)
-  const D1 = parseFloat(phase16Row.motorPulleyDia_D1) || null;  // Motor Pulley Dia (mm)
-  const beltTypeRaw = phase16Row.beltType || null;  // Belt Type (SPA, SPB, SPC, SPZ)
-  const noOfGrooves = phase16Row.noOfGrooves || null;  // No. of Grooves
-  const beltLengthStandard = phase16Row.beltLengthStandard || null;  // Belt Length per Standard (mm)
-  const centerDistance = phase16Row.centerDistance || null;  // Center Distance (mm)
+  const N2 = parseFloat(phase16Row.fanSpeed_N2) || null; // Fan Speed (RPM)
+  const D2 = parseFloat(phase16Row.fanPulleyDia_D2) || null; // Fan Pulley Dia (mm)
+  const N1 = parseFloat(phase16Row.motorSpeed_N1) || null; // Motor Speed (RPM)
+  const D1 = parseFloat(phase16Row.motorPulleyDia_D1) || null; // Motor Pulley Dia (mm)
+  const beltTypeRaw = phase16Row.beltType || null; // Belt Type (SPA, SPB, SPC, SPZ)
+  const noOfGrooves = phase16Row.noOfGrooves || null; // No. of Grooves
+  const beltLengthStandard = phase16Row.beltLengthStandard || null; // Belt Length per Standard (mm)
+  const centerDistance = phase16Row.centerDistance || null; // Center Distance (mm)
 
   // Extract Phase 17 motor data
   // Motor object may use: powerHP, "Power (HP)" (JSON/Excel), powerHorse (DB/Prisma), or derive from powerKW
   const _hp = parseFloat(phase17Motor.powerHP);
   const _hp2 = parseFloat(phase17Motor["Power (HP)"]);
   const _hp3 = parseFloat(phase17Motor.powerHorse);
-  let motorPowerHP = (Number.isFinite(_hp) ? _hp : Number.isFinite(_hp2) ? _hp2 : Number.isFinite(_hp3) ? _hp3 : null);
+  let motorPowerHP = Number.isFinite(_hp)
+    ? _hp
+    : Number.isFinite(_hp2)
+      ? _hp2
+      : Number.isFinite(_hp3)
+        ? _hp3
+        : null;
   if (motorPowerHP == null) {
-    const powerKW = parseFloat(phase17Motor.powerKW) || parseFloat(phase17Motor["Power (kW)"]) || null;
+    const powerKW =
+      parseFloat(phase17Motor.powerKW) ||
+      parseFloat(phase17Motor["Power (kW)"]) ||
+      null;
     if (Number.isFinite(powerKW) && powerKW > 0) {
-      motorPowerHP = powerKW / 0.7457;  // 1 HP = 0.7457 kW
+      motorPowerHP = powerKW / 0.7457; // 1 HP = 0.7457 kW
     }
   }
-  const motorPoles = parseInt(phase17Motor.noOfPoles) || parseInt(phase17Motor["No of Poles"]) || userPoles || null;
+  const motorPoles =
+    parseInt(phase17Motor.noOfPoles) ||
+    parseInt(phase17Motor["No of Poles"]) ||
+    userPoles ||
+    null;
 
   // Calculate speed ratio
-  const speedRatio = (N2 !== null && originalSpeed !== null && originalSpeed !== 0)
-    ? N2 / originalSpeed
-    : null;
+  const speedRatio =
+    N2 !== null && originalSpeed !== null && originalSpeed !== 0
+      ? N2 / originalSpeed
+      : null;
 
   // ========== AAG: Total Efficiency ==========
   // Direct lookup from fan data (no calculation needed)
@@ -2032,33 +2316,38 @@ function calculatePhase18(params) {
 
   // ========== AAI: Air Flow ==========
   // Air Flow = Original Air Flow × (N2 / Original Speed)
-  const airFlow = (originalAirFlow !== null && speedRatio !== null)
-    ? originalAirFlow * speedRatio
-    : null;
+  const airFlow =
+    originalAirFlow !== null && speedRatio !== null
+      ? originalAirFlow * speedRatio
+      : null;
 
   // ========== AAJ: Static Pressure ==========
   // Static Pressure = Original Static Pressure × (N2 / Original Speed)²
-  const staticPressure = (originalStaticPressure !== null && speedRatio !== null)
-    ? originalStaticPressure * Math.pow(speedRatio, 2)
-    : null;
+  const staticPressure =
+    originalStaticPressure !== null && speedRatio !== null
+      ? originalStaticPressure * Math.pow(speedRatio, 2)
+      : null;
 
   // ========== AAK: Dynamic Pressure ==========
   // Dynamic Pressure = Original Dynamic Pressure × (N2 / Original Speed)²
-  const dynamicPressure = (originalDynamicPressure !== null && speedRatio !== null)
-    ? originalDynamicPressure * Math.pow(speedRatio, 2)
-    : null;
+  const dynamicPressure =
+    originalDynamicPressure !== null && speedRatio !== null
+      ? originalDynamicPressure * Math.pow(speedRatio, 2)
+      : null;
 
   // ========== AAL: Total Pressure ==========
   // Total Pressure = Original Total Pressure × (N2 / Original Speed)²
-  const totalPressure = (originalTotalPressure !== null && speedRatio !== null)
-    ? originalTotalPressure * Math.pow(speedRatio, 2)
-    : null;
+  const totalPressure =
+    originalTotalPressure !== null && speedRatio !== null
+      ? originalTotalPressure * Math.pow(speedRatio, 2)
+      : null;
 
   // ========== AAM: Fan Input Power ==========
   // Fan Input Power = Original Power × (N2 / Original Speed)³
-  const fanInputPower = (originalFanInputPower !== null && speedRatio !== null)
-    ? originalFanInputPower * Math.pow(speedRatio, 3)
-    : null;
+  const fanInputPower =
+    originalFanInputPower !== null && speedRatio !== null
+      ? originalFanInputPower * Math.pow(speedRatio, 3)
+      : null;
 
   // ========== AAN: Motor Power (HP) ==========
   // From Phase 13/17 motor selection (ZJ in Excel)
@@ -2104,7 +2393,7 @@ function calculatePhase18(params) {
   // Example: SCF-SIB-B-800-4T-3 [Type - A/2-630/280]
   // ZB = "T" if phases=3, "M" if phases=1
   // Use explicit != null / !== '' so that 0 (e.g. motorPowerHP, noOfGrooves, D2, D1) is still valid
-  const phaseCode = (userPhases === 3) ? "T" : "M";
+  const phaseCode = userPhases === 3 ? "T" : "M";
   const hasFanModel = fanModel != null && fanModel !== "";
   const hasMotorPoles = motorPoles != null;
   const hasMotorPower = motorPowerHPOutput != null;
@@ -2113,7 +2402,15 @@ function calculatePhase18(params) {
   const hasD2 = D2 != null;
   const hasD1 = D1 != null;
   let fanModelFormatted = null;
-  if (hasFanModel && hasMotorPoles && hasMotorPower && hasBeltType && hasGrooves && hasD2 && hasD1) {
+  if (
+    hasFanModel &&
+    hasMotorPoles &&
+    hasMotorPower &&
+    hasBeltType &&
+    hasGrooves &&
+    hasD2 &&
+    hasD1
+  ) {
     fanModelFormatted = `${fanModel}-${motorPoles}${phaseCode}-${motorPowerHPOutput} [${beltTypeFormatted}/${noOfGrooves}-${D2}/${D1}]`;
   }
 
@@ -2127,25 +2424,35 @@ function calculatePhase18(params) {
         hasBeltType ? [] : ["beltType"],
         hasGrooves ? [] : ["noOfGrooves"],
         hasD2 ? [] : ["D2"],
-        hasD1 ? [] : ["D1"]
+        hasD1 ? [] : ["D1"],
       );
 
   // Return Phase 18 results
   return {
     // AAG - Total Efficiency
-    totalEfficiency: totalEfficiency !== null ? Math.round(totalEfficiency * 10000) / 10000 : null,
+    totalEfficiency:
+      totalEfficiency !== null
+        ? Math.round(totalEfficiency * 10000) / 10000
+        : null,
     // AAH - Static Efficiency
-    staticEfficiency: staticEfficiency !== null ? Math.round(staticEfficiency * 10000) / 10000 : null,
+    staticEfficiency:
+      staticEfficiency !== null
+        ? Math.round(staticEfficiency * 10000) / 10000
+        : null,
     // AAI - Air Flow
     airFlow: airFlow !== null ? Math.round(airFlow * 100) / 100 : null,
     // AAJ - Static Pressure
-    staticPressure: staticPressure !== null ? Math.round(staticPressure * 100) / 100 : null,
+    staticPressure:
+      staticPressure !== null ? Math.round(staticPressure * 100) / 100 : null,
     // AAK - Dynamic Pressure
-    dynamicPressure: dynamicPressure !== null ? Math.round(dynamicPressure * 100) / 100 : null,
+    dynamicPressure:
+      dynamicPressure !== null ? Math.round(dynamicPressure * 100) / 100 : null,
     // AAL - Total Pressure
-    totalPressure: totalPressure !== null ? Math.round(totalPressure * 100) / 100 : null,
+    totalPressure:
+      totalPressure !== null ? Math.round(totalPressure * 100) / 100 : null,
     // AAM - Fan Input Power
-    fanInputPower: fanInputPower !== null ? Math.round(fanInputPower * 10000) / 10000 : null,
+    fanInputPower:
+      fanInputPower !== null ? Math.round(fanInputPower * 10000) / 10000 : null,
     // AAN - Motor Power (HP)
     motorPowerHP: motorPowerHPOutput,
     // AAO - Fan Speed (RPM) - N2
@@ -2171,7 +2478,8 @@ function calculatePhase18(params) {
     // When fanModelFormatted is null, which keys were missing (for debugging)
     fanModelFormattedMissing: fanModelFormattedMissing,
     // Additional metadata
-    speedRatio: speedRatio !== null ? Math.round(speedRatio * 10000) / 10000 : null,
+    speedRatio:
+      speedRatio !== null ? Math.round(speedRatio * 10000) / 10000 : null,
     originalSpeed: originalSpeed,
   };
 }
@@ -2186,7 +2494,7 @@ export function processPhase18(params) {
 // ============================================================================
 // Generates 7 curve arrays for plotting fan performance curves
 // Uses Phase 9 sorted arrays and applies fan affinity laws with N2/OriginalRPM ratio
-// 
+//
 // Excel Formulas (Phase 19):
 // ABD (Airflow): Phase9_Airflow * (N2 / OriginalRPM)
 // ABP (Total Pressure): Phase9_TotalPressure * (N2 / OriginalRPM)²
@@ -2211,21 +2519,30 @@ export function processPhase19(params) {
 
   if (!selectedFan || !phase18Result) {
     // console.log("ERROR: Missing required parameters");
-    return { error: "Missing required parameters", details: "selectedFan and phase18Result are required" };
+    return {
+      error: "Missing required parameters",
+      details: "selectedFan and phase18Result are required",
+    };
   }
 
   // N2 = Fan Speed from Phase 18 (AAO column - the operating speed)
   const N2 = phase18Result.fanSpeedN2;
   if (!N2 || N2 <= 0) {
     // console.log("ERROR: Invalid fan speed N2:", N2);
-    return { error: "Invalid fan speed", details: "Phase 18 fanSpeedN2 is required and must be positive" };
+    return {
+      error: "Invalid fan speed",
+      details: "Phase 18 fanSpeedN2 is required and must be positive",
+    };
   }
 
   // OriginalRPM = VX column in Excel (the original rated speed for this fan model)
   // This comes from the fan's rated RPM, not the matching RPM from Phase 6
-  const originalRPM = selectedFan.rpm || selectedFan.RPM ||
+  const originalRPM =
+    selectedFan.rpm ||
+    selectedFan.RPM ||
     selectedFan.originalFanData?.RPM ||
-    phase18Result.originalSpeed || 1000;
+    phase18Result.originalSpeed ||
+    1000;
 
   // console.log("N2 (operating speed):", N2);
   // console.log("OriginalRPM (rated speed):", originalRPM);
@@ -2238,7 +2555,11 @@ export function processPhase19(params) {
   if (phase9Data) {
     curveSource = phase9Data;
     curveSourceName = "phase9Data";
-  } else if (selectedFan.curveArrays && selectedFan.curveArrays.airFlow && selectedFan.curveArrays.airFlow.length > 0) {
+  } else if (
+    selectedFan.curveArrays &&
+    selectedFan.curveArrays.airFlow &&
+    selectedFan.curveArrays.airFlow.length > 0
+  ) {
     curveSource = selectedFan.curveArrays;
     curveSourceName = "selectedFan.curveArrays";
   } else if (selectedFan.originalFanData) {
@@ -2252,29 +2573,58 @@ export function processPhase19(params) {
   // console.log("curveSource.airFlow first 5:", curveSource.airFlow?.slice(0, 5));
 
   // Extract raw arrays from curveSource
-  const rawAirFlow = Array.isArray(curveSource.airFlow) ? curveSource.airFlow : [];
-  const rawTotalPressure = Array.isArray(curveSource.totalPressure) ? curveSource.totalPressure :
-    (Array.isArray(curveSource.totPressure) ? curveSource.totPressure : []);
-  const rawVelocityPressure = Array.isArray(curveSource.velocityPressure) ? curveSource.velocityPressure :
-    (Array.isArray(curveSource.velPressure) ? curveSource.velPressure : []);
-  const rawStaticPressure = Array.isArray(curveSource.staticPressure) ? curveSource.staticPressure : [];
-  const rawFanInputPower = Array.isArray(curveSource.fanInputPower) ? curveSource.fanInputPower :
-    (Array.isArray(curveSource.fanInputPow) ? curveSource.fanInputPow : []);
-  const rawTotalEfficiency = Array.isArray(curveSource.totalEfficiency) ? curveSource.totalEfficiency : [];
-  const rawStaticEfficiency = Array.isArray(curveSource.staticEfficiency) ? curveSource.staticEfficiency : [];
+  const rawAirFlow = Array.isArray(curveSource.airFlow)
+    ? curveSource.airFlow
+    : [];
+  const rawTotalPressure = Array.isArray(curveSource.totalPressure)
+    ? curveSource.totalPressure
+    : Array.isArray(curveSource.totPressure)
+      ? curveSource.totPressure
+      : [];
+  const rawVelocityPressure = Array.isArray(curveSource.velocityPressure)
+    ? curveSource.velocityPressure
+    : Array.isArray(curveSource.velPressure)
+      ? curveSource.velPressure
+      : [];
+  const rawStaticPressure = Array.isArray(curveSource.staticPressure)
+    ? curveSource.staticPressure
+    : [];
+  const rawFanInputPower = Array.isArray(curveSource.fanInputPower)
+    ? curveSource.fanInputPower
+    : Array.isArray(curveSource.fanInputPow)
+      ? curveSource.fanInputPow
+      : [];
+  const rawTotalEfficiency = Array.isArray(curveSource.totalEfficiency)
+    ? curveSource.totalEfficiency
+    : [];
+  const rawStaticEfficiency = Array.isArray(curveSource.staticEfficiency)
+    ? curveSource.staticEfficiency
+    : [];
 
   // ALWAYS sort arrays by airflow ascending (matching Excel Phase 9 RQ-UK logic)
   // This ensures correct order even if curveArrays is null and we fall back to unsorted data
   const indexedData = rawAirFlow.map((val, idx) => ({ val, idx }));
   indexedData.sort((a, b) => a.val - b.val);
 
-  const phase9AirFlow = indexedData.map(item => rawAirFlow[item.idx]);
-  const phase9TotalPressure = indexedData.map(item => rawTotalPressure[item.idx]);
-  const phase9VelocityPressure = indexedData.map(item => rawVelocityPressure[item.idx]);
-  const phase9StaticPressure = indexedData.map(item => rawStaticPressure[item.idx]);
-  const phase9FanInputPower = indexedData.map(item => rawFanInputPower[item.idx]);
-  const phase9TotalEfficiency = indexedData.map(item => rawTotalEfficiency[item.idx]);
-  const phase9StaticEfficiency = indexedData.map(item => rawStaticEfficiency[item.idx]);
+  const phase9AirFlow = indexedData.map((item) => rawAirFlow[item.idx]);
+  const phase9TotalPressure = indexedData.map(
+    (item) => rawTotalPressure[item.idx],
+  );
+  const phase9VelocityPressure = indexedData.map(
+    (item) => rawVelocityPressure[item.idx],
+  );
+  const phase9StaticPressure = indexedData.map(
+    (item) => rawStaticPressure[item.idx],
+  );
+  const phase9FanInputPower = indexedData.map(
+    (item) => rawFanInputPower[item.idx],
+  );
+  const phase9TotalEfficiency = indexedData.map(
+    (item) => rawTotalEfficiency[item.idx],
+  );
+  const phase9StaticEfficiency = indexedData.map(
+    (item) => rawStaticEfficiency[item.idx],
+  );
 
   // console.log("Phase 19 arrays (sorted by airflow):");
   // console.log("  airFlow length:", phase9AirFlow.length, "first 3:", phase9AirFlow.slice(0, 3));
@@ -2288,7 +2638,10 @@ export function processPhase19(params) {
   if (phase9AirFlow.length === 0) {
     // console.log("ERROR: No Phase 9 airflow data found");
     // console.log("Available keys in curveSource:", Object.keys(curveSource));
-    return { error: "No airflow data", details: "Phase 9 airflow array is empty" };
+    return {
+      error: "No airflow data",
+      details: "Phase 9 airflow array is empty",
+    };
   }
 
   // Calculate speed ratio: N2 / OriginalRPM
@@ -2296,32 +2649,45 @@ export function processPhase19(params) {
   // console.log("Speed ratio (N2/OriginalRPM):", speedRatio);
 
   // Helper to safely map arrays
-  const safeMap = (arr, fn) => arr.map((v, i) => {
-    if (v === null || v === undefined || isNaN(v)) return null;
-    return fn(v, i);
-  });
+  const safeMap = (arr, fn) =>
+    arr.map((v, i) => {
+      if (v === null || v === undefined || isNaN(v)) return null;
+      return fn(v, i);
+    });
 
   // Apply fan affinity laws (Excel formulas from ABD-AEH)
   // ABD: Airflow at N2 = Phase9_Airflow × (N2/OriginalRPM)
-  const airFlowNew = safeMap(phase9AirFlow, q => q * speedRatio);
+  const airFlowNew = safeMap(phase9AirFlow, (q) => q * speedRatio);
 
   // ABP: Total Pressure at N2 = Phase9_TotalPressure × (N2/OriginalRPM)²
-  const totalPressureNew = safeMap(phase9TotalPressure, p => p * Math.pow(speedRatio, 2));
+  const totalPressureNew = safeMap(
+    phase9TotalPressure,
+    (p) => p * Math.pow(speedRatio, 2),
+  );
 
   // ACB: Velocity Pressure at N2 = Phase9_VelocityPressure × (N2/OriginalRPM)²
-  const velocityPressureNew = safeMap(phase9VelocityPressure, p => p * Math.pow(speedRatio, 2));
+  const velocityPressureNew = safeMap(
+    phase9VelocityPressure,
+    (p) => p * Math.pow(speedRatio, 2),
+  );
 
   // ACN: Static Pressure at N2 = Phase9_StaticPressure × (N2/OriginalRPM)²
-  const staticPressureNew = safeMap(phase9StaticPressure, p => p * Math.pow(speedRatio, 2));
+  const staticPressureNew = safeMap(
+    phase9StaticPressure,
+    (p) => p * Math.pow(speedRatio, 2),
+  );
 
   // ACZ: Fan Input Power at N2 = Phase9_FanInputPower × (N2/OriginalRPM)³
-  const fanInputPowerNew = safeMap(phase9FanInputPower, w => w * Math.pow(speedRatio, 3));
+  const fanInputPowerNew = safeMap(
+    phase9FanInputPower,
+    (w) => w * Math.pow(speedRatio, 3),
+  );
 
   // ADL: Total Efficiency - unchanged from Phase 9 (efficiency doesn't change with speed)
-  const totalEfficiencyNew = safeMap(phase9TotalEfficiency, e => e);
+  const totalEfficiencyNew = safeMap(phase9TotalEfficiency, (e) => e);
 
   // ADX: Static Efficiency - unchanged from Phase 9
-  const staticEfficiencyNew = safeMap(phase9StaticEfficiency, e => e);
+  const staticEfficiencyNew = safeMap(phase9StaticEfficiency, (e) => e);
 
   // Generate system curve points
   // System curve: P = k × Q² where k = P_operating / Q_operating²
@@ -2331,16 +2697,19 @@ export function processPhase19(params) {
 
   if (operatingAirFlow && operatingAirFlow > 0 && operatingStaticPressure) {
     const k = operatingStaticPressure / Math.pow(operatingAirFlow, 2);
-    systemCurve = airFlowNew.map(q => {
+    systemCurve = airFlowNew.map((q) => {
       if (q === null || q <= 0) return null;
       return k * Math.pow(q, 2);
     });
   }
 
   // Round values for output
-  const roundArray = (arr, decimals = 2) => arr.map(v =>
-    v !== null && !isNaN(v) ? Math.round(v * Math.pow(10, decimals)) / Math.pow(10, decimals) : null
-  );
+  const roundArray = (arr, decimals = 2) =>
+    arr.map((v) =>
+      v !== null && !isNaN(v)
+        ? Math.round(v * Math.pow(10, decimals)) / Math.pow(10, decimals)
+        : null,
+    );
 
   const result = {
     // 7 curve arrays for plotting (matching Excel ABD-AEH)
@@ -2368,7 +2737,10 @@ export function processPhase19(params) {
     fanSpeedN2: N2,
     originalRPM: originalRPM,
     speedRatio: Math.round(speedRatio * 10000) / 10000,
-    fanModel: selectedFan.fanModel || selectedFan.model || phase18Result.fanModelFormatted,
+    fanModel:
+      selectedFan.fanModel ||
+      selectedFan.model ||
+      phase18Result.fanModelFormatted,
   };
 
   // console.log("Phase 19 result arrays lengths:");
@@ -2387,15 +2759,15 @@ export function processPhase19(params) {
 // Frequency bands (Hz): 62, 125, 250, 500, 1000, 2000, 4000, 8000
 // LW(A) = Sound Power Level (dB)
 // LP(A) = Sound Pressure Level (dB)
-// 
+//
 // Formulas from Excel:
 // YX = AAM (Fan Input Power from Phase 18)
 // YY = YX * (1 + H22) where H22 = 0.15 (motor power factor)
 // ZH = (YY / ZG) * (1 + F17) where ZG = motor efficiency, F17 = 0.1 (safety factor)
 // ZV (LW Total) = 62 + 10*LOG(ZH) + 10*LOG(AAJ) where AAJ = Static Pressure
-// 
+//
 // LW bands (ZN-ZU) = ZV - offset for each frequency
-// Offsets: 62Hz=-31.73, 125Hz=-20.73, 250Hz=-4.23, 500Hz=-6.73, 
+// Offsets: 62Hz=-31.73, 125Hz=-20.73, 250Hz=-4.23, 500Hz=-6.73,
 //          1000Hz=-5.73, 2000Hz=-7.73, 4000Hz=-10.73, 8000Hz=-15.73
 //
 // AAE (LP Total) = ZV - ABS(10*LOG(Q/(4*PI*r²)))
@@ -2407,33 +2779,41 @@ export function processPhase19(params) {
 // ============================================================================
 export function processPhase20(params) {
   const {
-    phase18Result,      // Contains staticPressure, fanInputPower
-    distance = 3,       // Distance r in meters (default 3m)
-    directivityQ = 1,   // Directivity factor Q (default 1)
-    motorPowerFactor = 0.15,  // H22 in Excel (default 15%)
-    safetyFactor = 0.1  // F17 in Excel - Safety factor (default 10%)
+    phase18Result, // Contains staticPressure, fanInputPower
+    distance = 3, // Distance r in meters (default 3m)
+    directivityQ = 1, // Directivity factor Q (default 1)
+    motorPowerFactor = 0.15, // H22 in Excel (default 15%)
+    safetyFactor = 0.1, // F17 in Excel - Safety factor (default 10%)
   } = params;
 
   // console.log("\n=== PHASE 20 NOISE CALCULATION ===");
   // console.log("Input parameters:", { distance, directivityQ, motorPowerFactor, safetyFactor });
 
   if (!phase18Result) {
-    return { error: "Missing required parameters", details: "phase18Result is required" };
+    return {
+      error: "Missing required parameters",
+      details: "phase18Result is required",
+    };
   }
 
   // Get values from Phase 18
   const staticPressure = phase18Result.staticPressure; // AAJ in Excel
-  const fanInputPower = phase18Result.fanInputPower;   // AAM in Excel (YX = AAM)
+  const fanInputPower = phase18Result.fanInputPower; // AAM in Excel (YX = AAM)
 
   // Motor efficiency - use from phase18 or default to 0.867 (from Excel ZG4)
   const motorEfficiency = phase18Result.motorEfficiency || 0.867;
 
   // console.log("Phase 18 values:", { staticPressure, fanInputPower, motorEfficiency });
 
-  if (!staticPressure || staticPressure <= 0 || !fanInputPower || fanInputPower <= 0) {
+  if (
+    !staticPressure ||
+    staticPressure <= 0 ||
+    !fanInputPower ||
+    fanInputPower <= 0
+  ) {
     return {
       error: "Invalid input values",
-      details: "staticPressure and fanInputPower must be positive numbers"
+      details: "staticPressure and fanInputPower must be positive numbers",
     };
   }
 
@@ -2461,7 +2841,7 @@ export function processPhase20(params) {
     hz1000: 5.73,
     hz2000: 7.73,
     hz4000: 10.73,
-    hz8000: 15.73
+    hz8000: 15.73,
   };
 
   // Calculate LW(A) for each frequency band
@@ -2474,12 +2854,14 @@ export function processPhase20(params) {
     hz2000: LW_Total - LW_offsets.hz2000,
     hz4000: LW_Total - LW_offsets.hz4000,
     hz8000: LW_Total - LW_offsets.hz8000,
-    total: LW_Total
+    total: LW_Total,
   };
 
   // Calculate LP(A) Total (AAE column)
   // AAE = ZV - ABS(10*LOG10(Q/(4*PI*r²)))
-  const distanceAttenuation = Math.abs(10 * Math.log10(directivityQ / (4 * Math.PI * Math.pow(distance, 2))));
+  const distanceAttenuation = Math.abs(
+    10 * Math.log10(directivityQ / (4 * Math.PI * Math.pow(distance, 2))),
+  );
   const LP_Total = LW_Total - distanceAttenuation;
   // console.log("Distance attenuation:", distanceAttenuation);
   // console.log("LP(A) Total:", LP_Total);
@@ -2493,7 +2875,7 @@ export function processPhase20(params) {
     hz1000: 5.81,
     hz2000: 7.81,
     hz4000: 10.81,
-    hz8000: 15.81
+    hz8000: 15.81,
   };
 
   // Calculate LP(A) for each frequency band
@@ -2506,7 +2888,7 @@ export function processPhase20(params) {
     hz2000: LP_Total - LP_offsets.hz2000,
     hz4000: LP_Total - LP_offsets.hz4000,
     hz8000: LP_Total - LP_offsets.hz8000,
-    total: LP_Total
+    total: LP_Total,
   };
 
   // Round all values to 2 decimal places
@@ -2523,7 +2905,7 @@ export function processPhase20(params) {
       hz2000: roundValue(LW_bands.hz2000),
       hz4000: roundValue(LW_bands.hz4000),
       hz8000: roundValue(LW_bands.hz8000),
-      total: roundValue(LW_bands.total)
+      total: roundValue(LW_bands.total),
     },
     // LP(A) - Sound Pressure Level
     LP: {
@@ -2535,7 +2917,7 @@ export function processPhase20(params) {
       hz2000: roundValue(LP_bands.hz2000),
       hz4000: roundValue(LP_bands.hz4000),
       hz8000: roundValue(LP_bands.hz8000),
-      total: roundValue(LP_bands.total)
+      total: roundValue(LP_bands.total),
     },
     // Arrays for plotting (frequency on x-axis, dB on y-axis)
     frequencies: [62, 125, 250, 500, 1000, 2000, 4000, 8000],
@@ -2547,7 +2929,7 @@ export function processPhase20(params) {
       roundValue(LW_bands.hz1000),
       roundValue(LW_bands.hz2000),
       roundValue(LW_bands.hz4000),
-      roundValue(LW_bands.hz8000)
+      roundValue(LW_bands.hz8000),
     ],
     LP_array: [
       roundValue(LP_bands.hz62),
@@ -2557,7 +2939,7 @@ export function processPhase20(params) {
       roundValue(LP_bands.hz1000),
       roundValue(LP_bands.hz2000),
       roundValue(LP_bands.hz4000),
-      roundValue(LP_bands.hz8000)
+      roundValue(LP_bands.hz8000),
     ],
     // Metadata
     parameters: {
@@ -2567,8 +2949,8 @@ export function processPhase20(params) {
       safetyFactor: safetyFactor,
       staticPressure: staticPressure,
       fanInputPower: fanInputPower,
-      motorEfficiency: motorEfficiency
-    }
+      motorEfficiency: motorEfficiency,
+    },
   };
 
   // console.log("Phase 20 result:", {
@@ -2590,14 +2972,16 @@ export async function getPrismaClient() {
     try {
       const dbUrl = process.env.DATABASE_URL;
 
-      console.log(`Centrifugal Service: Initializing PrismaClient with URL: ${dbUrl}`);
+      console.log(
+        `Centrifugal Service: Initializing PrismaClient with URL: ${dbUrl}`,
+      );
 
       const options = {};
       if (dbUrl) {
         options.datasources = {
           db: {
-            url: dbUrl
-          }
+            url: dbUrl,
+          },
         };
       }
 
@@ -2606,11 +2990,15 @@ export async function getPrismaClient() {
       // Test connection
       await prisma.$connect();
       console.log("Centrifugal Service: Prisma connected successfully");
-
     } catch (err) {
-      console.error("Centrifugal Service: Prisma client not available or connection failed:", err.message);
-      if (err.message.includes('engine') || err.message.includes('binary')) {
-        console.error("This looks like a Prisma engine resolution error. Check PRISMA_QUERY_ENGINE_LIBRARY environment variable.");
+      console.error(
+        "Centrifugal Service: Prisma client not available or connection failed:",
+        err.message,
+      );
+      if (err.message.includes("engine") || err.message.includes("binary")) {
+        console.error(
+          "This looks like a Prisma engine resolution error. Check PRISMA_QUERY_ENGINE_LIBRARY environment variable.",
+        );
       }
       prisma = null;
     }
@@ -2624,7 +3012,7 @@ async function loadPulleyDataFromDb() {
   if (!prisma) return null;
   const rows = await prisma.pulleyData.findMany({ orderBy: { id: "asc" } });
   return rows.map((r) => ({
-    "No": r.no != null ? String(r.no) : "",
+    No: r.no != null ? String(r.no) : "",
     "Belt Type": r.beltType ?? "",
     "No. of Grooves": r.grooves != null ? String(r.grooves) : "",
     "Pitch Diameter": r.pitchDiameter != null ? String(r.pitchDiameter) : "",
@@ -2632,14 +3020,16 @@ async function loadPulleyDataFromDb() {
     "Min Bore": r.minBore != null ? String(r.minBore) : "",
     "Max Bore": r.maxBore != null ? String(r.maxBore) : "",
     "F (Width)": r.widthF != null ? String(r.widthF) : "",
-    "Conditation": r.condition ?? "",
+    Conditation: r.condition ?? "",
   }));
 }
 
 async function loadBeltLengthStandardFromDb() {
   const prisma = await getPrismaClient();
   if (!prisma) return null;
-  const rows = await prisma.beltLengthStandard.findMany({ orderBy: { id: "asc" } });
+  const rows = await prisma.beltLengthStandard.findMany({
+    orderBy: { id: "asc" },
+  });
   return rows.map((r) => ({
     SPZ: r.spz != null ? String(r.spz) : undefined,
     SPA: r.spa != null ? String(r.spa) : undefined,
@@ -2663,9 +3053,9 @@ async function loadCentrifugalMotorDataFromDb() {
       "Power (HP)": r.powerHorse,
       "Shaft Feather Key Length (mm)": r.shaftFeatherKeyLength,
       "Shaft Diameter (mm)": r.shaftDiameter,
-      "Model": r.model,
+      Model: r.model,
       "No. of Capacitors": r.NoCapacitors,
-      "IE": r.ie,
+      IE: r.ie,
       "B3 Price ($) w/o VAT": r.b3PriceWithoutVat,
       "B3 Price with VAT & Factor (L.E)": r.b3PriceWithVat,
       "Other Price ($) w/o VAT": r.otherPriceWithoutVat,
@@ -2699,10 +3089,22 @@ async function loadCentrifugalFanDataFromDb() {
     desigDensity: r.desigDensity,
     RPM: r.RPM,
     airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
-    totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
-    velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
-    staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
-    fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+    totPressure:
+      typeof r.totPressure === "string"
+        ? JSON.parse(r.totPressure)
+        : r.totPressure,
+    velPressure:
+      typeof r.velPressure === "string"
+        ? JSON.parse(r.velPressure)
+        : r.velPressure,
+    staticPressure:
+      typeof r.staticPressure === "string"
+        ? JSON.parse(r.staticPressure)
+        : r.staticPressure,
+    fanInputPow:
+      typeof r.fanInputPow === "string"
+        ? JSON.parse(r.fanInputPow)
+        : r.fanInputPow,
   }));
 }
 
@@ -2711,7 +3113,9 @@ export async function processFanDataService(inputOptions) {
 
   console.log(`\n=== processFanDataService Debug ===`);
   console.log(`selectedFanType received: ${selectedFanType}`);
-  console.log(`input.airFlow: ${input?.airFlow}, input.staticPressure: ${input?.staticPressure}`);
+  console.log(
+    `input.airFlow: ${input?.airFlow}, input.staticPressure: ${input?.staticPressure}`,
+  );
   console.log(`dataSource: ${dataSource}`);
 
   // Load centrifugal fan data from DB only
@@ -2733,10 +3137,22 @@ export async function processFanDataService(inputOptions) {
     desigDensity: r.desigDensity,
     RPM: r.RPM,
     airFlow: typeof r.airFlow === "string" ? JSON.parse(r.airFlow) : r.airFlow,
-    totPressure: typeof r.totPressure === "string" ? JSON.parse(r.totPressure) : r.totPressure,
-    velPressure: typeof r.velPressure === "string" ? JSON.parse(r.velPressure) : r.velPressure,
-    staticPressure: typeof r.staticPressure === "string" ? JSON.parse(r.staticPressure) : r.staticPressure,
-    fanInputPow: typeof r.fanInputPow === "string" ? JSON.parse(r.fanInputPow) : r.fanInputPow,
+    totPressure:
+      typeof r.totPressure === "string"
+        ? JSON.parse(r.totPressure)
+        : r.totPressure,
+    velPressure:
+      typeof r.velPressure === "string"
+        ? JSON.parse(r.velPressure)
+        : r.velPressure,
+    staticPressure:
+      typeof r.staticPressure === "string"
+        ? JSON.parse(r.staticPressure)
+        : r.staticPressure,
+    fanInputPow:
+      typeof r.fanInputPow === "string"
+        ? JSON.parse(r.fanInputPow)
+        : r.fanInputPow,
   }));
   if (rawData.length === 0) {
     throw new Error("No centrifugal fan data found in database");
@@ -2760,16 +3176,24 @@ export async function processFanDataService(inputOptions) {
         throw new Error(`Fan ${index + 1}: Missing or invalid airFlow array`);
       }
       if (!fan.totPressure || !Array.isArray(fan.totPressure)) {
-        throw new Error(`Fan ${index + 1}: Missing or invalid totPressure array`);
+        throw new Error(
+          `Fan ${index + 1}: Missing or invalid totPressure array`,
+        );
       }
       if (!fan.velPressure || !Array.isArray(fan.velPressure)) {
-        throw new Error(`Fan ${index + 1}: Missing or invalid velPressure array`);
+        throw new Error(
+          `Fan ${index + 1}: Missing or invalid velPressure array`,
+        );
       }
       if (!fan.staticPressure || !Array.isArray(fan.staticPressure)) {
-        throw new Error(`Fan ${index + 1}: Missing or invalid staticPressure array`);
+        throw new Error(
+          `Fan ${index + 1}: Missing or invalid staticPressure array`,
+        );
       }
       if (!fan.fanInputPow || !Array.isArray(fan.fanInputPow)) {
-        throw new Error(`Fan ${index + 1}: Missing or invalid fanInputPow array`);
+        throw new Error(
+          `Fan ${index + 1}: Missing or invalid fanInputPow array`,
+        );
       }
       if (!fan.desigDensity || typeof fan.desigDensity !== "number") {
         throw new Error(`Fan ${index + 1}: Missing or invalid desigDensity`);
@@ -2786,7 +3210,7 @@ export async function processFanDataService(inputOptions) {
         phase2Converted,
         phase1Raw,
         inputDensity,
-        fan.desigDensity
+        fan.desigDensity,
       );
 
       // Build fan identifier
@@ -2835,7 +3259,9 @@ export async function processFanDataService(inputOptions) {
 
       // Find all fans that match the selected fan type
       const matchingIndices = results
-        .map((r, idx) => (r.fanMetadata?.Blades?.Model === selectedFanType ? idx : -1))
+        .map((r, idx) =>
+          r.fanMetadata?.Blades?.Model === selectedFanType ? idx : -1,
+        )
         .filter((idx) => idx >= 0);
 
       console.log(`Phase 4 matchingIndices count: ${matchingIndices.length}`);
@@ -2852,7 +3278,9 @@ export async function processFanDataService(inputOptions) {
       phase4Result = [];
     }
   } else {
-    console.log(`Phase 4 skipped: selectedFanType=${selectedFanType}, results.length=${results?.length}`);
+    console.log(
+      `Phase 4 skipped: selectedFanType=${selectedFanType}, results.length=${results?.length}`,
+    );
   }
 
   // ============================================================================
@@ -2871,15 +3299,25 @@ export async function processFanDataService(inputOptions) {
   console.log(`selX (airFlow): ${selX}, selY (staticPressure): ${selY}`);
   console.log(`results count: ${results?.length || 0}`);
   if (results && results.length > 0) {
-    console.log(`First fan Blades.Model: ${results[0]?.fanMetadata?.Blades?.Model}`);
+    console.log(
+      `First fan Blades.Model: ${results[0]?.fanMetadata?.Blades?.Model}`,
+    );
   }
 
-  if (selectedFanType && selX !== undefined && selX !== null && selY !== undefined && selY !== null) {
+  if (
+    selectedFanType &&
+    selX !== undefined &&
+    selX !== null &&
+    selY !== undefined &&
+    selY !== null
+  ) {
     try {
       // Find all fans that match the selected fan type
       // We need both rawData (for metadata like minRPM, maxRPM) and results (for Phase 2 converted data)
       const matchingIndices = results
-        .map((r, idx) => (r.fanMetadata?.Blades?.Model === selectedFanType ? idx : -1))
+        .map((r, idx) =>
+          r.fanMetadata?.Blades?.Model === selectedFanType ? idx : -1,
+        )
         .filter((idx) => idx >= 0);
 
       console.log(`matchingIndices count: ${matchingIndices.length}`);
@@ -2891,7 +3329,12 @@ export async function processFanDataService(inputOptions) {
         phase5Result = matchingIndices.map((idx) => {
           const rawFan = rawData[idx];
           const phase2Converted = results[idx].phase2.converted;
-          const p5Result = calculatePhase5({ rawFan, phase2Converted }, selX, selY, pressureUnit);
+          const p5Result = calculatePhase5(
+            { rawFan, phase2Converted },
+            selX,
+            selY,
+            pressureUnit,
+          );
           // Store the index for Phase 6 lookup
           return { ...p5Result, fanIndex: idx };
         });
@@ -2909,12 +3352,16 @@ export async function processFanDataService(inputOptions) {
 
   console.log(`\n=== Phase 6 Debug ===`);
   console.log(`Phase 5 results count: ${phase5Result.length}`);
-  console.log(`Phase 5 results with valid RPM: ${phase5Result.filter(p5 => p5.matchingRPM !== null && p5.matchingRPM !== undefined).length}`);
+  console.log(
+    `Phase 5 results with valid RPM: ${phase5Result.filter((p5) => p5.matchingRPM !== null && p5.matchingRPM !== undefined).length}`,
+  );
 
   if (phase5Result.length > 0) {
     try {
       // Only process fans with valid matchingRPM from Phase 5
-      const validPhase5 = phase5Result.filter(p5 => p5.matchingRPM !== null && p5.matchingRPM !== undefined);
+      const validPhase5 = phase5Result.filter(
+        (p5) => p5.matchingRPM !== null && p5.matchingRPM !== undefined,
+      );
       console.log(`Valid Phase 5 fans for Phase 6: ${validPhase5.length}`);
 
       phase6Result = validPhase5
@@ -2923,7 +3370,9 @@ export async function processFanDataService(inputOptions) {
           const rawFan = rawData[idx];
           const phase3Result = results[idx].phase3;
 
-          console.log(`Processing Phase 6 for fan ${mapIdx + 1}/${validPhase5.length}, fanIndex=${idx}, matchingRPM=${p5.matchingRPM}`);
+          console.log(
+            `Processing Phase 6 for fan ${mapIdx + 1}/${validPhase5.length}, fanIndex=${idx}, matchingRPM=${p5.matchingRPM}`,
+          );
 
           const p6 = calculatePhase6({
             rawFan,
@@ -2937,7 +3386,7 @@ export async function processFanDataService(inputOptions) {
 
           return p6;
         })
-        .filter(p6 => p6 !== null); // Remove any null results
+        .filter((p6) => p6 !== null); // Remove any null results
 
       console.log(`Phase 6 final results count: ${phase6Result.length}`);
     } catch (phase6Error) {
@@ -2960,7 +3409,12 @@ export async function processFanDataService(inputOptions) {
   console.log(`Phase 6 results count: ${phase6Result.length}`);
   console.log(`User airFlow (selX): ${selX}`);
 
-  if (phase6Result.length > 0 && selX !== undefined && selX !== null && !isNaN(selX)) {
+  if (
+    phase6Result.length > 0 &&
+    selX !== undefined &&
+    selX !== null &&
+    !isNaN(selX)
+  ) {
     try {
       phase7Result = phase6Result
         .map((p6Data) => {
@@ -2971,7 +3425,7 @@ export async function processFanDataService(inputOptions) {
           }
           return p7;
         })
-        .filter(p7 => p7 !== null);
+        .filter((p7) => p7 !== null);
 
       console.log(`Phase 7 final results count: ${phase7Result.length}`);
     } catch (phase7Error) {
@@ -2980,7 +3434,9 @@ export async function processFanDataService(inputOptions) {
       phase7Result = [];
     }
   } else {
-    console.log("No Phase 6 results or user airFlow not provided for Phase 7 calculation");
+    console.log(
+      "No Phase 6 results or user airFlow not provided for Phase 7 calculation",
+    );
   }
 
   // ============================================================================
@@ -2999,16 +3455,22 @@ export async function processFanDataService(inputOptions) {
       phase8Result = phase7Result
         .map((p7Data) => {
           // Find corresponding Phase 6 data
-          const p6Data = phase6Result.find(p6 => p6.model === p7Data.model && p6.innerDiameter === p7Data.innerDiameter);
+          const p6Data = phase6Result.find(
+            (p6) =>
+              p6.model === p7Data.model &&
+              p6.innerDiameter === p7Data.innerDiameter,
+          );
           if (!p6Data) {
-            console.warn(`No matching Phase 6 data for Phase 8: ${p7Data.model}`);
+            console.warn(
+              `No matching Phase 6 data for Phase 8: ${p7Data.model}`,
+            );
             return null;
           }
           console.log(`Processing Phase 8 for ${p7Data.model}`);
           const p8 = calculatePhase8(p6Data, p7Data);
           return p8;
         })
-        .filter(p8 => p8 !== null);
+        .filter((p8) => p8 !== null);
 
       console.log(`Phase 8 final results count: ${phase8Result.length}`);
     } catch (phase8Error) {
@@ -3030,7 +3492,12 @@ export async function processFanDataService(inputOptions) {
   console.log(`Phase 8 results count: ${phase8Result.length}`);
   console.log(`User airFlow (selX): ${selX}`);
 
-  if (phase8Result.length > 0 && selX !== undefined && selX !== null && !isNaN(selX)) {
+  if (
+    phase8Result.length > 0 &&
+    selX !== undefined &&
+    selX !== null &&
+    !isNaN(selX)
+  ) {
     try {
       phase9Result = phase8Result
         .map((p8Data) => {
@@ -3041,7 +3508,7 @@ export async function processFanDataService(inputOptions) {
           }
           return p9;
         })
-        .filter(p9 => p9 !== null);
+        .filter((p9) => p9 !== null);
 
       console.log(`Phase 9 final results count: ${phase9Result.length}`);
     } catch (phase9Error) {
@@ -3050,7 +3517,9 @@ export async function processFanDataService(inputOptions) {
       phase9Result = [];
     }
   } else {
-    console.log("No Phase 8 results or user airFlow not provided for Phase 9 calculation");
+    console.log(
+      "No Phase 8 results or user airFlow not provided for Phase 9 calculation",
+    );
   }
 
   // ============================================================================
@@ -3061,7 +3530,7 @@ export async function processFanDataService(inputOptions) {
 
   // Build rawDataMap for Phase 10 to include original fan data
   const rawDataMap = new Map();
-  rawData.forEach(fan => {
+  rawData.forEach((fan) => {
     const model = fan.Blades?.Model || fan.model;
     const innerDia = fan.Impeller?.innerDia || fan.innerDiameter;
     if (model && innerDia) {
@@ -3071,7 +3540,12 @@ export async function processFanDataService(inputOptions) {
 
   if (phase9Result.length > 0) {
     try {
-      phase10Result = calculatePhase10(phase9Result, phase5Result, phase8Result, rawDataMap);
+      phase10Result = calculatePhase10(
+        phase9Result,
+        phase5Result,
+        phase8Result,
+        rawDataMap,
+      );
     } catch (phase10Error) {
       console.warn("Phase 10 calculation failed:", phase10Error.message);
       console.error("Phase 10 error stack:", phase10Error.stack);
