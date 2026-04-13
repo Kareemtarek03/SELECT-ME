@@ -122,6 +122,11 @@ ipcMain.on("restart-app", () => {
   try {
     console.log("[AutoUpdater] Quitting and installing update silently...");
     
+    // Hide the window immediately to avoid white screen during install
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.hide();
+    }
+    
     // Give the app a moment to clean up
     setTimeout(() => {
       // isSilent = true (no installer UI), isForceRunAfter = true (restart app after install)
@@ -1384,7 +1389,15 @@ function startServer() {
           expressApp.use("/api/motor-data", axialMotorDataModule.default);
           console.log("✅ Axial motor data routes mounted at /api/motor-data");
         } catch (err) {
-          console.warn("⚠️ Could not mount axial motor data routes:", err.message);
+          console.error("❌ Could not mount axial motor data routes:", err.message);
+          console.error("   Stack:", err.stack);
+          // Fallback: return a clear JSON error so the client doesn't get HTML
+          expressApp.all("/api/motor-data/*", (req, res) => {
+            res.status(503).json({ error: "Motor data service unavailable", details: err.message });
+          });
+          expressApp.all("/api/motor-data", (req, res) => {
+            res.status(503).json({ error: "Motor data service unavailable", details: err.message });
+          });
         }
 
         // Axial Pricing routes (items, accessories, impeller, casing)
@@ -1500,6 +1513,10 @@ function startServer() {
 
           // Handle React Router - serve index.html for all non-API routes
           expressApp.get("*", (req, res) => {
+            if (req.path.startsWith("/api")) {
+              // API route not found - return JSON 404 instead of HTML
+              return res.status(404).json({ error: "API endpoint not found", path: req.path });
+            }
             res.sendFile(path.join(clientBuildPath, "index.html"));
           });
 
@@ -1692,6 +1709,28 @@ function createWindow() {
 
   mainWindow.once("ready-to-show", () => {
     mainWindow.show();
+  });
+
+  // Recover from white screen / load failures by retrying after a short delay
+  mainWindow.webContents.on("did-fail-load", (event, errorCode, errorDescription) => {
+    console.error(`[Window] Load failed: ${errorCode} ${errorDescription}`);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      setTimeout(() => {
+        console.log("[Window] Retrying page load...");
+        mainWindow.loadURL("http://127.0.0.1:5001");
+      }, 2000);
+    }
+  });
+
+  // Handle renderer process crash / unresponsive
+  mainWindow.webContents.on("render-process-gone", (event, details) => {
+    console.error("[Window] Renderer process gone:", details.reason);
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      setTimeout(() => {
+        console.log("[Window] Reloading after renderer crash...");
+        mainWindow.loadURL("http://127.0.0.1:5001");
+      }, 2000);
+    }
   });
 
   if (isDev) {
