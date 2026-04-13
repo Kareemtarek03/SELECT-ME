@@ -29,14 +29,14 @@ if (!fs.existsSync(dbPath)) {
 }
 
 try {
-    // Run migrations to ensure schema is up to date
-    console.log("🔄 Running migrations...");
-    execSync("npx prisma migrate deploy", {
+    // Sync schema to database (db push is safer for existing databases)
+    console.log("🔄 Syncing database schema...");
+    execSync("npx prisma db push --skip-generate", {
         cwd: rootDir,
         stdio: "inherit",
         env: { ...process.env, DATABASE_URL: `file:${dbPath.replace(/\\/g, "/")}` }
     });
-    console.log("✅ Migrations completed");
+    console.log("✅ Schema sync completed");
 
     // Generate Prisma client
     console.log("🔨 Generating Prisma client...");
