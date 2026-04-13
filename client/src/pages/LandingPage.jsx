@@ -91,7 +91,7 @@ export default function LandingPage() {
                         color="#888"
                         textAlign="center"
                     >
-                        Version 2.3.2
+                        Version 2.3.4
                     </Text>
                 </VStack>
             </Box>

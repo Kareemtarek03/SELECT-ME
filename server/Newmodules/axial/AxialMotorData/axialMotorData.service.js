@@ -558,6 +558,32 @@ function mapJsonToDbFormat(jsonData) {
 
 
 
+// Ensure motor_data table has all columns the Prisma schema expects.
+// Migration 20260409113523 dropped cableLugsUPWithoutVat & cableHeatShrinkUPWithoutVat
+// but the schema still declares them. This repairs the table in-place.
+async function ensureMotorColumns(prismaClient) {
+  const REQUIRED_COLUMNS = [
+    { name: "cableLugsUPWithoutVat", type: "REAL" },
+    { name: "cableHeatShrinkUPWithoutVat", type: "REAL" },
+  ];
+  try {
+    const cols = await prismaClient.$queryRawUnsafe(
+      `PRAGMA table_info(motor_data)`
+    );
+    const existing = new Set(cols.map((c) => c.name));
+    for (const col of REQUIRED_COLUMNS) {
+      if (!existing.has(col.name)) {
+        console.log(`[MotorData] Adding missing column: ${col.name}`);
+        await prismaClient.$executeRawUnsafe(
+          `ALTER TABLE "motor_data" ADD COLUMN "${col.name}" ${col.type}`
+        );
+      }
+    }
+  } catch (e) {
+    console.warn("[MotorData] ensureMotorColumns warning:", e.message);
+  }
+}
+
 // Try to read motor data from DB
 export async function readMotorFile() {
   console.log("[MotorData] readMotorFile called");
@@ -569,6 +595,9 @@ export async function readMotorFile() {
       console.error("[MotorData] getPrismaClient returned null");
       throw new Error("Database connection not available");
     }
+
+    // Repair missing columns before querying
+    await ensureMotorColumns(prismaClient);
 
     console.log("[MotorData] Querying motorData table...");
     const rows = await prismaClient.motorData.findMany();
