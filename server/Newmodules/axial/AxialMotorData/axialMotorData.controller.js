@@ -12,8 +12,8 @@ export async function getMotorDataController(req, res) {
     const data = await getMotorData();
     res.json({ message: "✅ Motor data", data });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to read motor data" });
+    console.error("[MotorData Controller] getMotorData error:", err);
+    res.status(500).json({ error: "Failed to read motor data", details: err.message || String(err) });
   }
 }
 
