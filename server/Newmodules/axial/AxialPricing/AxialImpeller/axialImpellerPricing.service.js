@@ -1,6 +1,17 @@
 import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
-const prisma = new PrismaClient();
+
+let prisma = null;
+
+function getPrisma() {
+  if (!prisma) {
+    const dbUrl = process.env.DATABASE_URL;
+    prisma = new PrismaClient({
+      datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
+    });
+  }
+  return prisma;
+}
 
 /**
  * Helper function to get pricing item by description.
@@ -10,11 +21,11 @@ async function getPricingItemByDescription(
   description,
   fallbackContains = null,
 ) {
-  let item = await prisma.pricingItem.findFirst({
+  let item = await getPrisma().pricingItem.findFirst({
     where: { description: { contains: description } },
   });
   if (!item && fallbackContains) {
-    item = await prisma.pricingItem.findFirst({
+    item = await getPrisma().pricingItem.findFirst({
       where: { description: { contains: fallbackContains } },
     });
   }
@@ -26,7 +37,7 @@ async function getPricingItemByDescription(
  */
 async function logAllPricingItems() {
   try {
-    const allItems = await prisma.pricingItem.findMany({
+    const allItems = await getPrisma().pricingItem.findMany({
       include: {
         category: true,
       },
@@ -101,7 +112,7 @@ export const AxialImpellerPricingService = {
    * Get all blade pricing records with calculated totalCost (per 1 blade)
    */
   async getAllBlades() {
-    const blades = await prisma.axialImpellerBlade.findMany({
+    const blades = await getPrisma().axialImpellerBlade.findMany({
       orderBy: [{ symbol: "asc" }, { material: "asc" }],
     });
     const enriched = [];
@@ -124,7 +135,7 @@ export const AxialImpellerPricingService = {
    * Get blade by ID
    */
   async getBladeById(id) {
-    return await prisma.axialImpellerBlade.findUnique({
+    return await getPrisma().axialImpellerBlade.findUnique({
       where: { id: parseInt(id) },
     });
   },
@@ -134,7 +145,7 @@ export const AxialImpellerPricingService = {
    */
   async getBladeBySymbolAndMaterial(symbol, material) {
     console.log("Fetching blade with:", { symbol, material });
-    return await prisma.axialImpellerBlade.findFirst({
+    return await getPrisma().axialImpellerBlade.findFirst({
       where: {
         symbol: `${material}${symbol}`,
       },
@@ -145,7 +156,7 @@ export const AxialImpellerPricingService = {
    * Create a new blade pricing record
    */
   async createBlade(data) {
-    return await prisma.axialImpellerBlade.create({
+    return await getPrisma().axialImpellerBlade.create({
       data: {
         symbol: data.symbol,
         material: data.material,
@@ -219,7 +230,7 @@ export const AxialImpellerPricingService = {
       updateData.bladeFactor = (data.bladeFactor === null || data.bladeFactor === "" || isNaN(parsed)) ? null : parsed;
     }
 
-    return await prisma.axialImpellerBlade.update({
+    return await getPrisma().axialImpellerBlade.update({
       where: { id: parseInt(id) },
       data: updateData,
     });
@@ -229,7 +240,7 @@ export const AxialImpellerPricingService = {
    * Delete blade pricing record
    */
   async deleteBlade(id) {
-    return await prisma.axialImpellerBlade.delete({
+    return await getPrisma().axialImpellerBlade.delete({
       where: { id: parseInt(id) },
     });
   },
@@ -242,7 +253,7 @@ export const AxialImpellerPricingService = {
    * Get all hub pricing records with calculated totalCost
    */
   async getAllHubs() {
-    const hubs = await prisma.axialImpellerHub.findMany({
+    const hubs = await getPrisma().axialImpellerHub.findMany({
       orderBy: [{ symbol: "asc" }, { material: "asc" }],
     });
     const enriched = [];
@@ -265,7 +276,7 @@ export const AxialImpellerPricingService = {
    * Get hub by ID
    */
   async getHubById(id) {
-    return await prisma.axialImpellerHub.findUnique({
+    return await getPrisma().axialImpellerHub.findUnique({
       where: { id: parseInt(id) },
     });
   },
@@ -274,7 +285,7 @@ export const AxialImpellerPricingService = {
    * Get hub by symbol
    */
   async getHubBySymbol(symbol) {
-    return await prisma.axialImpellerHub.findFirst({
+    return await getPrisma().axialImpellerHub.findFirst({
       where: {
         symbol: symbol,
       },
@@ -285,7 +296,7 @@ export const AxialImpellerPricingService = {
    * Create a new hub pricing record
    */
   async createHub(data) {
-    return await prisma.axialImpellerHub.create({
+    return await getPrisma().axialImpellerHub.create({
       data: {
         symbol: data.symbol,
         material: data.material,
@@ -321,7 +332,7 @@ export const AxialImpellerPricingService = {
     if (data.packingCost !== undefined)
       updateData.packingCost = parseFloat(data.packingCost);
 
-    return await prisma.axialImpellerHub.update({
+    return await getPrisma().axialImpellerHub.update({
       where: { id: parseInt(id) },
       data: updateData,
     });
@@ -331,7 +342,7 @@ export const AxialImpellerPricingService = {
    * Delete hub pricing record
    */
   async deleteHub(id) {
-    return await prisma.axialImpellerHub.delete({
+    return await getPrisma().axialImpellerHub.delete({
       where: { id: parseInt(id) },
     });
   },
@@ -344,7 +355,7 @@ export const AxialImpellerPricingService = {
    * Get all frame pricing records with calculated totalCost
    */
   async getAllFrames() {
-    const frames = await prisma.axialImpellerFrame.findMany({
+    const frames = await getPrisma().axialImpellerFrame.findMany({
       orderBy: [{ material: "asc" }, { frameSizeMm: "asc" }],
     });
     const enriched = [];
@@ -367,7 +378,7 @@ export const AxialImpellerPricingService = {
    * Get frame by ID
    */
   async getFrameById(id) {
-    return await prisma.axialImpellerFrame.findUnique({
+    return await getPrisma().axialImpellerFrame.findUnique({
       where: { id: parseInt(id) },
     });
   },
@@ -376,7 +387,7 @@ export const AxialImpellerPricingService = {
    * Get frame by frame size
    */
   async getFrameBySize(frameSizeMm) {
-    return await prisma.axialImpellerFrame.findFirst({
+    return await getPrisma().axialImpellerFrame.findFirst({
       where: {
         frameSizeMm: parseFloat(frameSizeMm),
       },
@@ -387,7 +398,7 @@ export const AxialImpellerPricingService = {
    * Create a new frame pricing record
    */
   async createFrame(data) {
-    return await prisma.axialImpellerFrame.create({
+    return await getPrisma().axialImpellerFrame.create({
       data: {
         material: data.material,
         frameSizeMm: parseFloat(data.frameSizeMm),
@@ -422,7 +433,7 @@ export const AxialImpellerPricingService = {
     if (data.packingCost !== undefined)
       updateData.packingCost = parseFloat(data.packingCost);
 
-    return await prisma.axialImpellerFrame.update({
+    return await getPrisma().axialImpellerFrame.update({
       where: { id: parseInt(id) },
       data: updateData,
     });
@@ -432,7 +443,7 @@ export const AxialImpellerPricingService = {
    * Delete frame pricing record
    */
   async deleteFrame(id) {
-    return await prisma.axialImpellerFrame.delete({
+    return await getPrisma().axialImpellerFrame.delete({
       where: { id: parseInt(id) },
     });
   },

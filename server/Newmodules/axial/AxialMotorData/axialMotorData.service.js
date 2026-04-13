@@ -30,11 +30,24 @@ async function getPrismaClient() {
 
     try {
 
-      prisma = new PrismaClient();
+      // Explicitly pass DATABASE_URL to ensure it uses the current env value
+      const dbUrl = process.env.DATABASE_URL;
+      if (!dbUrl) {
+        console.error("DATABASE_URL not set");
+        throw new Error("DATABASE_URL not configured");
+      }
+      
+      prisma = new PrismaClient({
+        datasources: {
+          db: {
+            url: dbUrl,
+          },
+        },
+      });
 
     } catch (err) {
 
-      console.warn("Prisma client not available - database mode disabled");
+      console.warn("Prisma client not available - database mode disabled:", err.message);
 
       prisma = null;
 

@@ -34,7 +34,17 @@ import {
 
 
 
-const prisma = new PrismaClient();
+let prisma = null;
+
+function getPrisma() {
+  if (!prisma) {
+    const dbUrl = process.env.DATABASE_URL;
+    prisma = new PrismaClient({
+      datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
+    });
+  }
+  return prisma;
+}
 
 
 
@@ -74,7 +84,7 @@ export const PricingItemsService = {
 
     async getCategories() {
 
-        return await prisma.pricingCategory.findMany({
+        return await getPrisma().pricingCategory.findMany({
 
             orderBy: { name: "asc" },
 
@@ -102,7 +112,7 @@ export const PricingItemsService = {
 
     async getCategoryByName(name) {
 
-        return await prisma.pricingCategory.findUnique({
+        return await getPrisma().pricingCategory.findUnique({
 
             where: { name },
 
@@ -130,7 +140,7 @@ export const PricingItemsService = {
 
     async getCategoryById(id) {
 
-        return await prisma.pricingCategory.findUnique({
+        return await getPrisma().pricingCategory.findUnique({
 
             where: { id: parseInt(id) },
 
@@ -158,7 +168,7 @@ export const PricingItemsService = {
 
     async createCategory(data) {
 
-        return await prisma.pricingCategory.create({
+        return await getPrisma().pricingCategory.create({
 
             data: {
 
@@ -184,7 +194,7 @@ export const PricingItemsService = {
 
     async updateCategory(id, data) {
 
-        return await prisma.pricingCategory.update({
+        return await getPrisma().pricingCategory.update({
 
             where: { id: parseInt(id) },
 
@@ -210,7 +220,7 @@ export const PricingItemsService = {
 
     async deleteCategory(id) {
 
-        return await prisma.pricingCategory.delete({
+        return await getPrisma().pricingCategory.delete({
 
             where: { id: parseInt(id) },
 
@@ -228,7 +238,7 @@ export const PricingItemsService = {
 
     async getItemsByCategory(categoryId) {
 
-        return await prisma.pricingItem.findMany({
+        return await getPrisma().pricingItem.findMany({
 
             where: { categoryId: parseInt(categoryId) },
 
@@ -248,7 +258,7 @@ export const PricingItemsService = {
 
     async getItemById(id) {
 
-        return await prisma.pricingItem.findUnique({
+        return await getPrisma().pricingItem.findUnique({
 
             where: { id: parseInt(id) },
 
@@ -268,7 +278,7 @@ export const PricingItemsService = {
 
     async createItem(data) {
 
-        return await prisma.pricingItem.create({
+        return await getPrisma().pricingItem.create({
 
             data: {
 
@@ -308,7 +318,7 @@ export const PricingItemsService = {
 
         // First, get the current item to check if it's Bolts & Nuts
 
-        const currentItem = await prisma.pricingItem.findUnique({
+        const currentItem = await getPrisma().pricingItem.findUnique({
 
             where: { id: parseInt(id) },
 
@@ -390,7 +400,7 @@ export const PricingItemsService = {
 
         // Update the pricing item
 
-        const updatedItem = await prisma.pricingItem.update({
+        const updatedItem = await getPrisma().pricingItem.update({
 
             where: { id: parseInt(id) },
 
@@ -594,7 +604,7 @@ export const PricingItemsService = {
 
     async deleteItem(id) {
 
-        return await prisma.pricingItem.delete({
+        return await getPrisma().pricingItem.delete({
 
             where: { id: parseInt(id) },
 
@@ -612,7 +622,7 @@ export const PricingItemsService = {
 
     async logAction(adminId, action, categoryId, itemId, details, oldValue, newValue) {
 
-        return await prisma.pricingLog.create({
+        return await getPrisma().pricingLog.create({
 
             data: {
 
@@ -652,7 +662,7 @@ export const PricingItemsService = {
 
         const [logs, total] = await Promise.all([
 
-            prisma.pricingLog.findMany({
+            getPrisma().pricingLog.findMany({
 
                 skip,
 
@@ -662,7 +672,7 @@ export const PricingItemsService = {
 
             }),
 
-            prisma.pricingLog.count(),
+            getPrisma().pricingLog.count(),
 
         ]);
 

@@ -29,7 +29,15 @@ async function getPrismaClient() {
     //   console.log("Resolved DATABASE_URL:", dbUrl);
     // }
 
-    prisma = new PrismaClient();
+    const options = {};
+    if (dbUrl) {
+      options.datasources = {
+        db: {
+          url: dbUrl,
+        },
+      };
+    }
+    prisma = new PrismaClient(options);
     console.log("PrismaClient initialized successfully");
   }
   return prisma;

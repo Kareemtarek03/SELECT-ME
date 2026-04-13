@@ -2,9 +2,17 @@ import pkg from "@prisma/client";
 
 const { PrismaClient } = pkg;
 
+let prisma = null;
 
-
-const prisma = new PrismaClient();
+function getPrisma() {
+  if (!prisma) {
+    const dbUrl = process.env.DATABASE_URL;
+    prisma = new PrismaClient({
+      datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
+    });
+  }
+  return prisma;
+}
 
 
 
@@ -56,7 +64,7 @@ export const getBoltsAndNutsPrice = async () => {
 
   // Must match BOTH sr = 24 AND description = 'Bolts & Nuts'
 
-  const item = await prisma.pricingItem.findFirst({
+  const item = await getPrisma().pricingItem.findFirst({
 
     where: {
 
@@ -176,7 +184,7 @@ export const recalculateAllAccessoriesPrices = async (newBoltsPrice = null) => {
 
 
 
-  const accessories = await prisma.accessoryPricing.findMany();
+  const accessories = await getPrisma().accessoryPricing.findMany();
 
 
 
@@ -244,7 +252,7 @@ export const recalculateAllAccessoriesPrices = async (newBoltsPrice = null) => {
 
 
 
-    const updated = await prisma.accessoryPricing.update({
+    const updated = await getPrisma().accessoryPricing.update({
 
       where: { id: accessory.id },
 

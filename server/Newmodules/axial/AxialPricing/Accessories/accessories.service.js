@@ -1,7 +1,18 @@
 import { parsePrice, calculateAccessoryPriceWithVat, getBoltsAndNutsPrice } from "../shared/pricingUtils.js";
 import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
-const prisma = new PrismaClient();
+
+let prisma = null;
+
+function getPrisma() {
+  if (!prisma) {
+    const dbUrl = process.env.DATABASE_URL;
+    prisma = new PrismaClient({
+      datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
+    });
+  }
+  return prisma;
+}
 
 /**
  * Helper function to dynamically calculate priceWithVatLe for an accessory
@@ -47,7 +58,7 @@ export const AccessoriesService = {
      * Get all accessories with dynamically calculated prices
      */
     async getAll() {
-        const accessories = await prisma.accessoryPricing.findMany({
+        const accessories = await getPrisma().accessoryPricing.findMany({
             orderBy: [
                 { id: "asc" },
             ],
@@ -64,7 +75,7 @@ export const AccessoriesService = {
      * Get accessory by ID with dynamically calculated price
      */
     async getById(id) {
-        const accessory = await prisma.accessoryPricing.findUnique({
+        const accessory = await getPrisma().accessoryPricing.findUnique({
             where: { id: parseInt(id) },
         });
 
@@ -80,7 +91,7 @@ export const AccessoriesService = {
      * Get accessories by fan model with dynamically calculated prices
      */
     async getByFanModel(fanModel) {
-        const accessories = await prisma.accessoryPricing.findMany({
+        const accessories = await getPrisma().accessoryPricing.findMany({
             where: { fanModel },
             orderBy: { fanSizeMm: "asc" },
         });
@@ -96,7 +107,7 @@ export const AccessoriesService = {
      * Used for fetching pricing in Results Page
      */
     async getByFanModelAndSize(fanModel, fanSizeMm) {
-        const accessory = await prisma.accessoryPricing.findFirst({
+        const accessory = await getPrisma().accessoryPricing.findFirst({
             where: {
                 fanModel,
                 fanSizeMm: parseInt(fanSizeMm),
@@ -118,7 +129,7 @@ export const AccessoriesService = {
     async create(data) {
         const priceWithVatLe = await calculateAccessoryPriceWithVat(data);
 
-        return await prisma.accessoryPricing.create({
+        return await getPrisma().accessoryPricing.create({
             data: {
                 sr: parseInt(data.sr),
                 fanModel: data.fanModel,
@@ -139,7 +150,7 @@ export const AccessoriesService = {
      * Note: priceWithVatLe is always recalculated server-side
      */
     async update(id, data) {
-        const existing = await prisma.accessoryPricing.findUnique({
+        const existing = await getPrisma().accessoryPricing.findUnique({
             where: { id: parseInt(id) },
         });
 
@@ -172,7 +183,7 @@ export const AccessoriesService = {
         // Always recalculate priceWithVatLe
         updateData.priceWithVatLe = await calculateAccessoryPriceWithVat(mergedData);
 
-        return await prisma.accessoryPricing.update({
+        return await getPrisma().accessoryPricing.update({
             where: { id: parseInt(id) },
             data: updateData,
         });
@@ -182,7 +193,7 @@ export const AccessoriesService = {
      * Delete an accessory
      */
     async delete(id) {
-        return await prisma.accessoryPricing.delete({
+        return await getPrisma().accessoryPricing.delete({
             where: { id: parseInt(id) },
         });
     },

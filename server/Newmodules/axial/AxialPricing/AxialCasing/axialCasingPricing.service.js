@@ -1,6 +1,17 @@
 import pkg from "@prisma/client";
 const { PrismaClient } = pkg;
-const prisma = new PrismaClient();
+
+let prisma = null;
+
+function getPrisma() {
+  if (!prisma) {
+    const dbUrl = process.env.DATABASE_URL;
+    prisma = new PrismaClient({
+      datasources: dbUrl ? { db: { url: dbUrl } } : undefined,
+    });
+  }
+  return prisma;
+}
 
 /**
  * Descriptions for casing SR pricing (must match PriceList.json / DB exactly)
@@ -19,7 +30,7 @@ const CASING_PRICING_DESCRIPTIONS = [
  * Fetch SR pricing values from pricing items
  */
 async function getPricingItems() {
-  const items = await prisma.pricingItem.findMany({
+  const items = await getPrisma().pricingItem.findMany({
     where: {
       description: { in: CASING_PRICING_DESCRIPTIONS },
     },
@@ -107,7 +118,7 @@ export const AxialCasingPricingService = {
    * Get all casing pricing records with calculated values
    */
   async getAllCasings() {
-    const casings = await prisma.axialCasingPricing.findMany({
+    const casings = await getPrisma().axialCasingPricing.findMany({
       orderBy: [{ model: "asc" }, { sizeMm: "asc" }],
     });
 
@@ -155,7 +166,7 @@ export const AxialCasingPricingService = {
    * Get casing by ID
    */
   async getCasingById(id) {
-    return await prisma.axialCasingPricing.findUnique({
+    return await getPrisma().axialCasingPricing.findUnique({
       where: { id: parseInt(id) },
     });
   },
@@ -164,7 +175,7 @@ export const AxialCasingPricingService = {
    * Get casing by model and size
    */
   async getCasingByModelAndSize(model, sizeMm) {
-    return await prisma.axialCasingPricing.findFirst({
+    return await getPrisma().axialCasingPricing.findFirst({
       where: {
         model: model,
         sizeMm: parseFloat(sizeMm),
@@ -176,7 +187,7 @@ export const AxialCasingPricingService = {
    * Create a new casing pricing record
    */
   async createCasing(data) {
-    return await prisma.axialCasingPricing.create({
+    return await getPrisma().axialCasingPricing.create({
       data: {
         model: data.model,
         sizeMm: parseFloat(data.sizeMm),
@@ -204,7 +215,7 @@ export const AxialCasingPricingService = {
    * Update a casing pricing record
    */
   async updateCasing(id, data) {
-    return await prisma.axialCasingPricing.update({
+    return await getPrisma().axialCasingPricing.update({
       where: { id: parseInt(id) },
       data: {
         model: data.model,
@@ -233,7 +244,7 @@ export const AxialCasingPricingService = {
    * Delete a casing pricing record
    */
   async deleteCasing(id) {
-    return await prisma.axialCasingPricing.delete({
+    return await getPrisma().axialCasingPricing.delete({
       where: { id: parseInt(id) },
     });
   },
