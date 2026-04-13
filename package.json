@@ -38,6 +38,7 @@
     "cors": "^2.8.5",
     "cubic-spline": "^3.0.3",
     "dotenv": "^16.3.1",
+    "electron-updater": "^6.8.3",
     "express": "^4.21.0",
     "pdfkit": "^0.17.2",
     "prisma": "^5.7.1",
@@ -105,7 +106,9 @@
       {
         "from": "node_modules/.prisma/client",
         "to": "prisma-generated-client",
-        "filter": ["**/*"]
+        "filter": [
+          "**/*"
+        ]
       }
     ],
     "asar": false,
@@ -124,7 +127,13 @@
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "createStartMenuShortcut": true
+      "createStartMenuShortcut": true,
+      "differentialPackage": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "Kareemtarek03",
+      "repo": "SELECT-ME"
     }
   }
 }

@@ -1,9 +1,70 @@
-const { app, BrowserWindow, Menu } = require("electron");
+const { app, BrowserWindow, Menu, dialog } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { pathToFileURL } = require("url");
 const express = require("express");
 const cors = require("cors");
+const { autoUpdater } = require("electron-updater");
+
+// ============================================
+// AUTO-UPDATER CONFIGURATION
+// ============================================
+function setupAutoUpdater() {
+  // Only run auto-updater in production
+  if (!app.isPackaged) {
+    console.log("Skipping auto-updater in development mode");
+    return;
+  }
+
+  // Configure auto-updater
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  // Check for updates
+  autoUpdater.checkForUpdates().catch((err) => {
+    console.log("Auto-updater check failed:", err.message);
+  });
+
+  // Event: Update available
+  autoUpdater.on("update-available", (info) => {
+    console.log("Update available:", info.version);
+  });
+
+  // Event: Update not available
+  autoUpdater.on("update-not-available", (info) => {
+    console.log("No update available. Current version:", app.getVersion());
+  });
+
+  // Event: Download progress
+  autoUpdater.on("download-progress", (progress) => {
+    console.log(`Download progress: ${Math.round(progress.percent)}%`);
+  });
+
+  // Event: Update downloaded - prompt user to restart
+  autoUpdater.on("update-downloaded", (info) => {
+    console.log("Update downloaded:", info.version);
+    
+    dialog.showMessageBox(mainWindow, {
+      type: "info",
+      title: "Update Ready",
+      message: `Version ${info.version} has been downloaded.`,
+      detail: "The update will be installed when you restart the application. Would you like to restart now?",
+      buttons: ["Restart Now", "Later"],
+      defaultId: 0,
+      cancelId: 1
+    }).then((result) => {
+      if (result.response === 0) {
+        // User clicked "Restart Now"
+        autoUpdater.quitAndInstall(false, true);
+      }
+    });
+  });
+
+  // Event: Error
+  autoUpdater.on("error", (err) => {
+    console.error("Auto-updater error:", err.message);
+  });
+}
 
 // Load and normalize environment variables immediately
 require("dotenv").config();
@@ -1531,6 +1592,9 @@ app.whenReady().then(async () => {
     await startServer();
     console.log("Server started successfully");
     createWindow();
+    
+    // Check for updates after window is created
+    setupAutoUpdater();
   } catch (error) {
     console.error("Failed to start application:", error);
     app.quit();
