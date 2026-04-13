@@ -182,7 +182,15 @@ async function setupProductionDatabase() {
   }
 
   const dbExists = fs.existsSync(dbPath);
-  if (!dbExists) {
+  const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
+  const MIN_VALID_DB_SIZE = 100 * 1024; // 100KB minimum for valid seeded database
+  
+  // Copy template if database doesn't exist OR is too small (empty/corrupted)
+  if (!dbExists || dbSize < MIN_VALID_DB_SIZE) {
+    if (dbExists && dbSize < MIN_VALID_DB_SIZE) {
+      console.log(`⚠️ Existing database is too small (${dbSize} bytes), replacing with template...`);
+    }
+    
     const possiblePaths = [
       path.join(process.resourcesPath, "prisma", "dev.db"),
       path.join(app.getAppPath(), "prisma", "dev.db"),
@@ -191,20 +199,19 @@ async function setupProductionDatabase() {
     let templateDbPath = null;
     for (const p of possiblePaths) {
       const exists = fs.existsSync(p);
-      console.log(`  ${p} - Exists: ${exists}`);
-      if (exists) {
-        const templateStats = fs.statSync(p);
-        if (templateStats.size > 1024) {
-          templateDbPath = p;
-          break;
-        }
+      const size = exists ? fs.statSync(p).size : 0;
+      console.log(`  ${p} - Exists: ${exists}, Size: ${size} bytes`);
+      if (exists && size > MIN_VALID_DB_SIZE) {
+        templateDbPath = p;
+        break;
       }
     }
 
     if (templateDbPath) {
       try {
         fs.copyFileSync(templateDbPath, dbPath);
-        console.log("✅ Copied template database to:", dbPath);
+        const newSize = fs.statSync(dbPath).size;
+        console.log(`✅ Copied template database to: ${dbPath} (${newSize} bytes)`);
       } catch (e) {
         console.error("❌ Copy failed:", e.message);
         ensureDatabaseFileExists(dbPath);
@@ -213,6 +220,8 @@ async function setupProductionDatabase() {
       console.warn("⚠️ Template not found - creating empty database");
       ensureDatabaseFileExists(dbPath);
     }
+  } else {
+    console.log(`✅ Database exists and is valid (${dbSize} bytes)`);
   }
 
   // Set DATABASE_URL for Prisma
