@@ -13,7 +13,7 @@ import ImpellerHubsTable from "../../../components/ImpellerHubsTable";
 import ImpellerFramesTable from "../../../components/ImpellerFramesTable";
 import ExportImportButtons from "../../../components/ExportImportButtons";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API_BASE_URL } from "../../../utils/api";
 
 export default function ImpellerPricingTab() {
   const [activeSubTab, setActiveSubTab] = useState("blades");

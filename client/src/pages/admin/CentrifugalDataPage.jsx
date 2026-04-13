@@ -27,7 +27,7 @@ import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 import ExportImportButtons from "../../components/ExportImportButtons.jsx";
 import GenericCrudTab from "../../components/GenericCrudTab.jsx";
 import CentrifugalCasingPricingSection from "./CentrifugalCasingPricingSection.jsx";
-const API = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API } from "../../utils/api";
 
 const TABS = [
   { id: "fans", name: "Fans", icon: FaFan },

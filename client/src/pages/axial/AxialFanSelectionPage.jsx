@@ -78,7 +78,7 @@ export default function AxialFanSelectionPage() {
     };
 
     try {
-      const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "";
+      const { API_BASE: apiBaseUrl } = await import("../../utils/api");
       const resp = await fetch(`${apiBaseUrl}/api/axial/fan-data/filter`, {
         method: "POST",
         headers: {

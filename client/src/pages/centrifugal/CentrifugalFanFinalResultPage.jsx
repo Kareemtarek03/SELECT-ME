@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { API_BASE } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "../../context/FormContext";
 import {
@@ -332,8 +333,7 @@ export default function CentrifugalFanFinalResultPage() {
     // If Phase 20 data doesn't exist, fetch it on-demand using user-provided sound parameters
     if (!phase20Data && item.phase18) {
       try {
-        const apiBaseUrl =
-          process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+        const apiBaseUrl = API_BASE;
         const phase20Resp = await fetch(
           `${apiBaseUrl}/api/centrifugal/fan-data/phase20`,
           {
@@ -375,8 +375,7 @@ export default function CentrifugalFanFinalResultPage() {
     setCasingPriceLoading(true);
     setCasingPriceResult(null);
     try {
-      const apiBaseUrl =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+      const apiBaseUrl = API_BASE;
       const type = "SISW Centrifugal Fan - Belt";
       const r = await fetch(`${apiBaseUrl}/api/centrifugal/data/casing-price`, {
         method: "POST",
@@ -450,8 +449,7 @@ export default function CentrifugalFanFinalResultPage() {
     }
 
     try {
-      const apiBaseUrl =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+      const apiBaseUrl = API_BASE;
 
       // Prepare fan data for PDF generation
       const fanData = {

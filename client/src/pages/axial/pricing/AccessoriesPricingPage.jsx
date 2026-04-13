@@ -14,7 +14,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API_BASE_URL } from "../../../utils/api";
 
 export default function AccessoriesPricingPage() {
     const navigate = useNavigate();

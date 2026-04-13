@@ -14,7 +14,7 @@ import {
 } from "@chakra-ui/react";
 import ExportImportButtons from "./ExportImportButtons";
 
-const API = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API } from "../utils/api";
 
 export function getCellVal(row, key) {
   const formatNumber = (value) => {

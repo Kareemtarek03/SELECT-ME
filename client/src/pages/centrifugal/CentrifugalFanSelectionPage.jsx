@@ -78,7 +78,7 @@ export default function CentrifugalFanSelectionPage() {
         console.log("Submitting centrifugal payload:", payload);
 
         try {
-            const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "";
+            const { API_BASE: apiBaseUrl } = await import("../../utils/api");
             const resp = await fetch(`${apiBaseUrl}/api/centrifugal/fan-data/process`, {
                 method: "POST",
                 headers: {

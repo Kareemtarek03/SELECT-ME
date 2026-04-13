@@ -10,7 +10,7 @@ import {
 import CasingPricingTable from "../../../components/CasingPricingTable";
 import ExportImportButtons from "../../../components/ExportImportButtons";
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API_BASE_URL } from "../../../utils/api";
 
 export default function CasingPricingTab() {
   const [loading, setLoading] = useState(true);

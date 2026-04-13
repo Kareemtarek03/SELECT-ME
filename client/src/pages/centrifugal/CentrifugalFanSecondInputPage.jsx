@@ -54,7 +54,7 @@ export default function CentrifugalFanSecondInputPage() {
         setMessage(null);
 
         try {
-            const apiBaseUrl = process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
+            const { API_BASE: apiBaseUrl } = await import("../../utils/api");
 
             console.log("=== Starting Phase 11-16 Processing ===");
             console.log("Selected Fan for processing:", selectedFan);

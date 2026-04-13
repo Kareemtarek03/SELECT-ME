@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import { API_BASE } from "../../utils/api";
 import { useNavigate } from "react-router-dom";
 import { useFormData } from "../../context/FormContext";
 import { Flex, Box, Text } from "@chakra-ui/react";
@@ -705,7 +706,7 @@ export default function ResultsPage() {
       setCasingPricingLoading(true);
       setCasingPricing(null);
       fetch(
-        `${process.env.REACT_APP_API_BASE_URL || ""}/api/axial/pricing/casing/calculate-casing`,
+        `${API_BASE}/api/axial/pricing/casing/calculate-casing`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -719,7 +720,7 @@ export default function ResultsPage() {
         .catch(() => {
           if (impellerConf) {
             return fetch(
-              `${process.env.REACT_APP_API_BASE_URL || ""}/api/axial/pricing/casing/calculate-casing`,
+              `${API_BASE}/api/axial/pricing/casing/calculate-casing`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },

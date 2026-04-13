@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import { Button, Text } from "@chakra-ui/react";
 import { FaFileExcel, FaUpload } from "react-icons/fa";
 
-const API = process.env.REACT_APP_API_BASE_URL || "";
+import { API_BASE as API } from "../utils/api";
 
 export default function ExportImportButtons({ exportPath, importPath, onImportDone }) {
   const fileRef = useRef(null);
