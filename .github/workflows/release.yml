@@ -20,10 +20,10 @@ jobs:
           cache: "npm"
 
       - name: Install root dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       - name: Install client dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
         working-directory: ./client
 
       - name: Build client
