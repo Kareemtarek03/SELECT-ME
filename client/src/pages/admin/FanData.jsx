@@ -39,7 +39,7 @@ export default function FanDataPage() {
         process.env.REACT_APP_API_BASE_URL,
       );
       const resp = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/fan-data`,
+        `${process.env.REACT_APP_API_BASE_URL || ""}/api/fan-data/fan-data`,
       );
       if (!resp.ok) {
         const text = await resp.text();
@@ -128,7 +128,7 @@ export default function FanDataPage() {
     try {
       setDeletingIds((s) => [...s, fanId]);
       const resp = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/${fanId}`,
+        `${process.env.REACT_APP_API_BASE_URL || ""}/api/fan-data/${fanId}`,
         { method: "DELETE" },
       );
       if (!resp.ok) {
@@ -296,7 +296,7 @@ export default function FanDataPage() {
                 });
                 const base64 = String(dataUrl).split(",")[1] || "";
                 const resp = await fetch(
-                  `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/upload`,
+                  `${process.env.REACT_APP_API_BASE_URL || ""}/api/fan-data/upload`,
                   {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -336,7 +336,7 @@ export default function FanDataPage() {
                 setDownloading(true);
                 setExportMessage(null);
                 const resp = await fetch(
-                  `${process.env.REACT_APP_API_BASE_URL}/api/fan-data/export`,
+                  `${process.env.REACT_APP_API_BASE_URL || ""}/api/fan-data/export`,
                 );
                 if (!resp.ok) {
                   const txt = await resp.text().catch(() => null);

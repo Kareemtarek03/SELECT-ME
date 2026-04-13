@@ -46,7 +46,7 @@ export default function MotorPage() {
         process.env.REACT_APP_API_BASE_URL,
       );
       const resp = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/`,
+        `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/`,
       );
       if (!resp.ok) {
         const text = await resp.text();
@@ -69,7 +69,7 @@ export default function MotorPage() {
     try {
       setDeletingIds((s) => [...s, motorId]);
       const resp = await fetch(
-        `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/${motorId}`,
+        `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/${motorId}`,
         { method: "DELETE" },
       );
       if (!resp.ok) {
@@ -114,8 +114,8 @@ export default function MotorPage() {
 
       const isEdit = editingMotor !== null;
       const url = isEdit
-        ? `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/${editingMotor.id}`
-        : `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/`;
+        ? `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/${editingMotor.id}`
+        : `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/`;
 
       const resp = await fetch(url, {
         method: isEdit ? "PUT" : "POST",
@@ -382,7 +382,7 @@ export default function MotorPage() {
                   const base64 = String(dataUrl).split(",")[1] || "";
 
                   const resp = await fetch(
-                    `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/upload`,
+                    `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/upload`,
                     {
                       method: "POST",
                       headers: { "Content-Type": "application/json" },
@@ -428,7 +428,7 @@ export default function MotorPage() {
                   setDownloading(true);
                   setExportMessage(null);
                   const resp = await fetch(
-                    `${process.env.REACT_APP_API_BASE_URL}/api/motor-data/export`,
+                    `${process.env.REACT_APP_API_BASE_URL || ""}/api/motor-data/export`,
                   );
                   if (!resp.ok) {
                     const txt = await resp.text().catch(() => null);
