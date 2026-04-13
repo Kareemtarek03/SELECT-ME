@@ -1074,6 +1074,18 @@ export const DatabaseInitService = {
         console.log(
           `✅ Database already populated (Axial: ${fanCount}, Centrifugal: ${centrifugalCount})`,
         );
+        // Ensure motor data exists (may have been lost during schema migration)
+        try {
+          const motorCount = await client.motorData.count();
+          if (motorCount === 0) {
+            console.log("⚠️ Motor data is empty (possibly lost during migration). Re-seeding...");
+            await seedMotorData();
+          } else {
+            console.log(`   MotorData: ${motorCount} records`);
+          }
+        } catch (motorErr) {
+          console.error("⚠️ Could not check/seed motor data:", motorErr.message);
+        }
       }
       await ensureCentrifugalReferenceData();
       await this.ensureAxialPricingCategory();

@@ -256,7 +256,7 @@ async function setupProductionDatabase() {
   }
 
   // Schema version - INCREMENT THIS when you change the Prisma schema!
-  const SCHEMA_VERSION = 2; // Bumped for new motor columns
+  const SCHEMA_VERSION = 3; // Bumped: fix motor data lost during migration
   const schemaVersionFile = path.join(dbDir, ".schema_version");
   
   const dbExists = fs.existsSync(dbPath);
