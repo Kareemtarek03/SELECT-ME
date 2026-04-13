@@ -12,6 +12,7 @@ import LandingPage from "./pages/LandingPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
 import CatalogPage from "./pages/CatalogPage";
+import UpdateBar from "./components/UpdateBar";
 import "./index.css";
 
 // Axial fan pages
@@ -45,6 +46,7 @@ function App() {
 
   return (
     <FormProvider>
+      <UpdateBar />
       <Router>
         <Routes>
           {/* Landing Page - Default route */}

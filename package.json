@@ -65,6 +65,7 @@
     },
     "files": [
       "electron-main.cjs",
+      "preload.js",
       "package.json",
       "server/**/*",
       "!server/axialFan.json",

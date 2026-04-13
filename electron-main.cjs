@@ -20,51 +20,65 @@ function setupAutoUpdater() {
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
+  // Helper to send update status to renderer
+  const sendUpdateStatus = (status, data = {}) => {
+    if (mainWindow && mainWindow.webContents) {
+      mainWindow.webContents.send("update-status", { status, ...data });
+    }
+  };
+
   // Check for updates
   autoUpdater.checkForUpdates().catch((err) => {
     console.log("Auto-updater check failed:", err.message);
+    sendUpdateStatus("error", { message: err.message });
+  });
+
+  // Event: Checking for update
+  autoUpdater.on("checking-for-update", () => {
+    console.log("Checking for updates...");
+    sendUpdateStatus("checking");
   });
 
   // Event: Update available
   autoUpdater.on("update-available", (info) => {
     console.log("Update available:", info.version);
+    sendUpdateStatus("available", { version: info.version });
   });
 
   // Event: Update not available
   autoUpdater.on("update-not-available", (info) => {
     console.log("No update available. Current version:", app.getVersion());
+    sendUpdateStatus("not-available");
   });
 
   // Event: Download progress
   autoUpdater.on("download-progress", (progress) => {
     console.log(`Download progress: ${Math.round(progress.percent)}%`);
+    sendUpdateStatus("downloading", { 
+      percent: Math.round(progress.percent),
+      transferred: progress.transferred,
+      total: progress.total
+    });
   });
 
-  // Event: Update downloaded - prompt user to restart
+  // Event: Update downloaded - notify renderer to show restart button
   autoUpdater.on("update-downloaded", (info) => {
     console.log("Update downloaded:", info.version);
-    
-    dialog.showMessageBox(mainWindow, {
-      type: "info",
-      title: "Update Ready",
-      message: `Version ${info.version} has been downloaded.`,
-      detail: "The update will be installed when you restart the application. Would you like to restart now?",
-      buttons: ["Restart Now", "Later"],
-      defaultId: 0,
-      cancelId: 1
-    }).then((result) => {
-      if (result.response === 0) {
-        // User clicked "Restart Now"
-        autoUpdater.quitAndInstall(false, true);
-      }
-    });
+    sendUpdateStatus("downloaded", { version: info.version });
   });
 
   // Event: Error
   autoUpdater.on("error", (err) => {
     console.error("Auto-updater error:", err.message);
+    sendUpdateStatus("error", { message: err.message });
   });
 }
+
+// IPC handler for restart request from renderer
+const { ipcMain } = require("electron");
+ipcMain.on("restart-app", () => {
+  autoUpdater.quitAndInstall(false, true);
+});
 
 // Load and normalize environment variables immediately
 require("dotenv").config();
@@ -1537,6 +1551,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, "preload.js"),
     },
     icon: iconPath,
     title: "SELECT ME",
