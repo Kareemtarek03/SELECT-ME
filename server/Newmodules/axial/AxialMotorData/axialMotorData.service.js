@@ -25,38 +25,39 @@ import {
 let prisma = null;
 
 async function getPrismaClient() {
-
-  if (!prisma) {
-
-    try {
-
-      // Explicitly pass DATABASE_URL to ensure it uses the current env value
-      const dbUrl = process.env.DATABASE_URL;
-      if (!dbUrl) {
-        console.error("DATABASE_URL not set");
-        throw new Error("DATABASE_URL not configured");
-      }
-      
-      prisma = new PrismaClient({
-        datasources: {
-          db: {
-            url: dbUrl,
-          },
-        },
-      });
-
-    } catch (err) {
-
-      console.warn("Prisma client not available - database mode disabled:", err.message);
-
-      prisma = null;
-
-    }
-
+  // Return existing connection if available
+  if (prisma) {
+    return prisma;
   }
-
-  return prisma;
-
+  
+  const dbUrl = process.env.DATABASE_URL;
+  console.log("[MotorData] Initializing PrismaClient...");
+  console.log("[MotorData] DATABASE_URL:", dbUrl);
+  
+  if (!dbUrl) {
+    console.error("[MotorData] DATABASE_URL not set!");
+    throw new Error("DATABASE_URL not configured");
+  }
+  
+  try {
+    prisma = new PrismaClient({
+      datasources: {
+        db: {
+          url: dbUrl,
+        },
+      },
+    });
+    
+    // Test the connection
+    await prisma.$connect();
+    console.log("[MotorData] PrismaClient connected successfully");
+    
+    return prisma;
+  } catch (err) {
+    console.error("[MotorData] PrismaClient initialization failed:", err.message);
+    prisma = null;
+    throw err;
+  }
 }
 
 
@@ -557,34 +558,30 @@ function mapJsonToDbFormat(jsonData) {
 
 
 
-// Try to read motor data from DB; fall back to file read if DB not available
-
+// Try to read motor data from DB
 export async function readMotorFile() {
-
+  console.log("[MotorData] readMotorFile called");
+  
   try {
-
     const prismaClient = await getPrismaClient();
 
-    if (!prismaClient) throw new Error("Database not available");
+    if (!prismaClient) {
+      console.error("[MotorData] getPrismaClient returned null");
+      throw new Error("Database connection not available");
+    }
 
+    console.log("[MotorData] Querying motorData table...");
     const rows = await prismaClient.motorData.findMany();
+    console.log(`[MotorData] Found ${rows.length} motor records`);
 
     // Map DB rows to exact JSON column names
-
     return rows.map(mapDbRowToJsonFormat).sort((a, b) => a.id - b.id);
-
   } catch (err) {
-
+    console.error("[MotorData] readMotorFile error:", err.message);
     throw new Error(
-
-      "Failed to read motor data from database: " +
-
-        (err?.message || String(err)),
-
+      "Failed to read motor data from database: " + (err?.message || String(err))
     );
-
   }
-
 }
 
 

@@ -1,6 +1,6 @@
 {
   "name": "mechatronics-fan-selection",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Mechatronics Fan Selection Desktop Application",
   "main": "electron-main.cjs",
   "author": "Kareem Tarek",
@@ -129,7 +129,9 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "differentialPackage": true
+      "differentialPackage": true,
+      "allowElevation": true,
+      "runAfterFinish": true
     },
     "publish": {
       "provider": "github",

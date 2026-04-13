@@ -5,79 +5,148 @@ const { pathToFileURL } = require("url");
 const express = require("express");
 const cors = require("cors");
 const { autoUpdater } = require("electron-updater");
+const { ipcMain } = require("electron");
 
 // ============================================
-// AUTO-UPDATER CONFIGURATION
+// AUTO-UPDATER CONFIGURATION (Non-blocking)
 // ============================================
+let updateDownloaded = false;
+let downloadedVersion = null;
+
 function setupAutoUpdater() {
   // Only run auto-updater in production
   if (!app.isPackaged) {
-    console.log("Skipping auto-updater in development mode");
+    console.log("[AutoUpdater] Skipping in development mode");
     return;
   }
 
-  // Configure auto-updater
+  console.log("[AutoUpdater] Initializing...");
+  console.log("[AutoUpdater] Current version:", app.getVersion());
+
+  // Configure auto-updater for non-blocking background downloads
   autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.allowDowngrade = false;
+  
+  // Use a separate logger for debugging
+  autoUpdater.logger = {
+    info: (msg) => console.log("[AutoUpdater INFO]", msg),
+    warn: (msg) => console.warn("[AutoUpdater WARN]", msg),
+    error: (msg) => console.error("[AutoUpdater ERROR]", msg),
+    debug: (msg) => console.log("[AutoUpdater DEBUG]", msg),
+  };
 
-  // Helper to send update status to renderer
+  // Helper to safely send update status to renderer
   const sendUpdateStatus = (status, data = {}) => {
-    if (mainWindow && mainWindow.webContents) {
-      mainWindow.webContents.send("update-status", { status, ...data });
+    try {
+      if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
+        mainWindow.webContents.send("update-status", { status, ...data });
+        console.log("[AutoUpdater] Sent status to renderer:", status, data);
+      }
+    } catch (err) {
+      console.error("[AutoUpdater] Failed to send status:", err.message);
     }
   };
 
-  // Check for updates
-  autoUpdater.checkForUpdates().catch((err) => {
-    console.log("Auto-updater check failed:", err.message);
-    sendUpdateStatus("error", { message: err.message });
-  });
-
   // Event: Checking for update
   autoUpdater.on("checking-for-update", () => {
-    console.log("Checking for updates...");
+    console.log("[AutoUpdater] Checking for updates...");
     sendUpdateStatus("checking");
   });
 
-  // Event: Update available
+  // Event: Update available - download will start automatically
   autoUpdater.on("update-available", (info) => {
-    console.log("Update available:", info.version);
+    console.log("[AutoUpdater] Update available:", info.version);
     sendUpdateStatus("available", { version: info.version });
   });
 
   // Event: Update not available
   autoUpdater.on("update-not-available", (info) => {
-    console.log("No update available. Current version:", app.getVersion());
+    console.log("[AutoUpdater] No update available. Current:", app.getVersion());
     sendUpdateStatus("not-available");
   });
 
-  // Event: Download progress
+  // Event: Download progress - throttle updates to avoid UI flooding
+  let lastProgressUpdate = 0;
   autoUpdater.on("download-progress", (progress) => {
-    console.log(`Download progress: ${Math.round(progress.percent)}%`);
-    sendUpdateStatus("downloading", { 
-      percent: Math.round(progress.percent),
-      transferred: progress.transferred,
-      total: progress.total
-    });
+    const now = Date.now();
+    const percent = Math.round(progress.percent);
+    
+    // Only send updates every 500ms or at key milestones
+    if (now - lastProgressUpdate > 500 || percent === 100 || percent === 0) {
+      lastProgressUpdate = now;
+      console.log(`[AutoUpdater] Download progress: ${percent}%`);
+      sendUpdateStatus("downloading", { 
+        percent: percent,
+        transferred: progress.transferred,
+        total: progress.total,
+        bytesPerSecond: progress.bytesPerSecond
+      });
+    }
   });
 
-  // Event: Update downloaded - notify renderer to show restart button
+  // Event: Update downloaded - ready to install
   autoUpdater.on("update-downloaded", (info) => {
-    console.log("Update downloaded:", info.version);
+    console.log("[AutoUpdater] Update downloaded:", info.version);
+    updateDownloaded = true;
+    downloadedVersion = info.version;
     sendUpdateStatus("downloaded", { version: info.version });
   });
 
-  // Event: Error
+  // Event: Error - handle gracefully without crashing
   autoUpdater.on("error", (err) => {
-    console.error("Auto-updater error:", err.message);
+    console.error("[AutoUpdater] Error:", err.message);
+    console.error("[AutoUpdater] Stack:", err.stack);
     sendUpdateStatus("error", { message: err.message });
   });
+
+  // Delay the update check to ensure window is fully loaded
+  setTimeout(() => {
+    console.log("[AutoUpdater] Starting update check...");
+    autoUpdater.checkForUpdates().catch((err) => {
+      console.error("[AutoUpdater] Check failed:", err.message);
+      sendUpdateStatus("error", { message: err.message });
+    });
+  }, 3000); // Wait 3 seconds after app start
 }
 
-// IPC handler for restart request from renderer
-const { ipcMain } = require("electron");
+// IPC handler for restart request from renderer - with safety checks
 ipcMain.on("restart-app", () => {
-  autoUpdater.quitAndInstall(false, true);
+  console.log("[AutoUpdater] Restart requested by user");
+  
+  if (!updateDownloaded) {
+    console.warn("[AutoUpdater] No update downloaded, ignoring restart request");
+    return;
+  }
+  
+  try {
+    console.log("[AutoUpdater] Quitting and installing update silently...");
+    
+    // Give the app a moment to clean up
+    setTimeout(() => {
+      // isSilent = true (no installer UI), isForceRunAfter = true (restart app after install)
+      // This performs a silent update without showing the installation wizard
+      autoUpdater.quitAndInstall(true, true);
+    }, 500);
+  } catch (err) {
+    console.error("[AutoUpdater] Failed to quit and install:", err.message);
+    
+    // Fallback: try to quit normally
+    dialog.showErrorBox(
+      "Update Error",
+      "Failed to install update automatically. Please restart the app manually."
+    );
+    app.quit();
+  }
+});
+
+// IPC handler to check update status on demand
+ipcMain.handle("get-update-status", () => {
+  return {
+    updateDownloaded,
+    downloadedVersion,
+    currentVersion: app.getVersion()
+  };
 });
 
 // Load and normalize environment variables immediately
@@ -181,12 +250,32 @@ async function setupProductionDatabase() {
     console.log("✅ .prisma/client already present");
   }
 
+  // Schema version - INCREMENT THIS when you change the Prisma schema!
+  const SCHEMA_VERSION = 2; // Bumped for new motor columns
+  const schemaVersionFile = path.join(dbDir, ".schema_version");
+  
   const dbExists = fs.existsSync(dbPath);
   const dbSize = dbExists ? fs.statSync(dbPath).size : 0;
   const MIN_VALID_DB_SIZE = 100 * 1024; // 100KB minimum for valid seeded database
   
-  // Copy template if database doesn't exist OR is too small (empty/corrupted)
-  if (!dbExists || dbSize < MIN_VALID_DB_SIZE) {
+  // Check if schema version matches
+  let currentSchemaVersion = 0;
+  try {
+    if (fs.existsSync(schemaVersionFile)) {
+      currentSchemaVersion = parseInt(fs.readFileSync(schemaVersionFile, "utf8").trim(), 10) || 0;
+    }
+  } catch (e) {
+    currentSchemaVersion = 0;
+  }
+  
+  const needsSchemaUpdate = currentSchemaVersion < SCHEMA_VERSION;
+  if (needsSchemaUpdate && dbExists) {
+    console.log(`⚠️ Schema version mismatch (current: ${currentSchemaVersion}, required: ${SCHEMA_VERSION})`);
+    console.log("   Database will be replaced with updated template...");
+  }
+  
+  // Copy template if database doesn't exist, is too small, OR schema version changed
+  if (!dbExists || dbSize < MIN_VALID_DB_SIZE || needsSchemaUpdate) {
     if (dbExists && dbSize < MIN_VALID_DB_SIZE) {
       console.log(`⚠️ Existing database is too small (${dbSize} bytes), replacing with template...`);
     }
@@ -209,9 +298,20 @@ async function setupProductionDatabase() {
 
     if (templateDbPath) {
       try {
+        // Backup old database if it exists and has data
+        if (dbExists && dbSize > MIN_VALID_DB_SIZE) {
+          const backupPath = dbPath + ".backup";
+          fs.copyFileSync(dbPath, backupPath);
+          console.log(`📦 Backed up old database to: ${backupPath}`);
+        }
+        
         fs.copyFileSync(templateDbPath, dbPath);
         const newSize = fs.statSync(dbPath).size;
         console.log(`✅ Copied template database to: ${dbPath} (${newSize} bytes)`);
+        
+        // Update schema version file
+        fs.writeFileSync(schemaVersionFile, String(SCHEMA_VERSION));
+        console.log(`✅ Schema version updated to: ${SCHEMA_VERSION}`);
       } catch (e) {
         console.error("❌ Copy failed:", e.message);
         ensureDatabaseFileExists(dbPath);
@@ -221,7 +321,7 @@ async function setupProductionDatabase() {
       ensureDatabaseFileExists(dbPath);
     }
   } else {
-    console.log(`✅ Database exists and is valid (${dbSize} bytes)`);
+    console.log(`✅ Database exists and is valid (${dbSize} bytes, schema v${currentSchemaVersion})`);
   }
 
   // Set DATABASE_URL for Prisma
