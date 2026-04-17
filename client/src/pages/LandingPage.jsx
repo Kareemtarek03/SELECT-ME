@@ -84,14 +84,14 @@ export default function LandingPage() {
                         textAlign="center"
                         mt={4}
                     >
-                        Developed by Mechatronics Engineering
+                        Developed by Mechatronics 
                     </Text>
                     <Text
                         fontSize="sm"
                         color="#888"
                         textAlign="center"
                     >
-                        Version 2.3.4
+                        Version 2.3.5
                     </Text>
                 </VStack>
             </Box>
