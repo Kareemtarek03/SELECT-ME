@@ -1580,6 +1580,22 @@ function roundUpToStandardPower(powerKW) {
   return null; // No standard power found (exceeds max)
 }
 
+function normalizeInsulationClass(value) {
+  const compact = String(value || "")
+    .trim()
+    .replace(/\s+/g, "")
+    .toUpperCase();
+
+  if (compact === "F" || compact === "F(ATEX)" || compact === "FATEX") {
+    return "F";
+  }
+
+  if (compact === "H(F300)") return "H(F300)";
+  if (compact === "H(F400)") return "H(F400)";
+
+  return compact;
+}
+
 // Selects the minimum suitable motor based on net fan power and user constraints
 // Excel Logic (columns YX to ZL):
 // 1. YX = Fan Input Power (from Phase 12)
@@ -1637,11 +1653,12 @@ async function calculatePhase13(
   const constraintMatchedMotors = motorData.filter((m) => {
     const motorPoles = parseInt(m["No of Poles"]) || 0;
     const motorPhases = parseInt(m["No. of Phases"]) || 0;
-    const motorInsulation = m["Insulation Class"] || "";
+    const motorInsulation = normalizeInsulationClass(m["Insulation Class"]);
+    const userInsulation = normalizeInsulationClass(userInsulationClass);
     return (
       motorPoles === parseInt(userPoles) &&
       motorPhases === parseInt(userPhases) &&
-      motorInsulation === userInsulationClass
+      motorInsulation === userInsulation
     );
   });
 

@@ -432,7 +432,7 @@ export default function CentrifugalFanSecondInputPage() {
                                             <option value="F">F</option>
                                             <option value="F(Atex)">F (ATEX)</option>
                                             <option value="H (F300)">H (F300)</option>
-                                            <option value="H(F400)">H (F400)</option>
+                                            <option value="H (F400)">H (F400)</option>
                                         </select>
                                     </Box>
                                     <Box>

@@ -26,6 +26,11 @@ import {
   Cell,
   ReferenceDot,
 } from "recharts";
+import {
+  canRequestDatasheet,
+  getDatasheetLimitMessage,
+  registerDatasheetView,
+} from "../../middleware/datasheetRequestLimiter";
 import HamburgerMenu from "../../components/HamburgerMenu.jsx";
 import "./CentrifugalFanResultPage.css";
 
@@ -448,6 +453,11 @@ export default function CentrifugalFanFinalResultPage() {
       return;
     }
 
+    if (!canRequestDatasheet()) {
+      // alert(getDatasheetLimitMessage());
+      return;
+    }
+
     try {
       const apiBaseUrl = API_BASE;
 
@@ -505,6 +515,7 @@ export default function CentrifugalFanFinalResultPage() {
 
       form.appendChild(payloadInput);
       document.body.appendChild(form);
+      registerDatasheetView();
       form.submit();
       document.body.removeChild(form);
     } catch (error) {

@@ -18,6 +18,11 @@ import {
   ReferenceDot,
   ReferenceLine,
 } from "recharts";
+import {
+  canRequestDatasheet,
+  getDatasheetLimitMessage,
+  registerDatasheetView,
+} from "../../middleware/datasheetRequestLimiter";
 import "./AxialResultsPage.css";
 
 // Linear Interpolation (matches backend FanCalculationService.cs)
@@ -1165,6 +1170,11 @@ export default function ResultsPage() {
 
                       <button
                         onClick={() => {
+                          if (!canRequestDatasheet()) {
+                            // alert(getDatasheetLimitMessage());
+                            return;
+                          }
+
                           const fan = filteredFans[selectedFanIndex];
                           const payload = {
                             fanData: fan,
@@ -1217,6 +1227,7 @@ export default function ResultsPage() {
 
                           form.appendChild(payloadInput);
                           document.body.appendChild(form);
+                          registerDatasheetView();
                           form.submit();
                           document.body.removeChild(form);
                         }}
