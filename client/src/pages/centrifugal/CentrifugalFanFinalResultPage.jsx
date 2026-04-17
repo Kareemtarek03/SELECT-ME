@@ -442,7 +442,7 @@ export default function CentrifugalFanFinalResultPage() {
   console.log("Phase 18 All Models:", phase18All);
 
   // Handle View Datasheet button click - generate PDF
-  const handleViewDatasheet = async () => {
+  const handleViewDatasheet = () => {
     if (!phase18Data) {
       console.error("No phase18Data available for PDF generation");
       return;
@@ -473,25 +473,40 @@ export default function CentrifugalFanFinalResultPage() {
         distanceFromSource: input?.distanceFromSource ?? 3,
       };
 
-      const response = await fetch(
-        `${apiBaseUrl}/api/centrifugal/pdf/datasheet`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fanData, userInput, units }),
+      const payload = {
+        fanData,
+        userInput,
+        units: {
+          ...units,
+          fanUnitNo: input?.fanUnitNo ?? units?.fanUnitNo ?? "EX-01",
         },
-      );
+      };
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate PDF");
+      const targetName = `centrifugalDatasheet_${Date.now()}`;
+      const previewWindow = window.open("", targetName);
+      if (!previewWindow) {
+        throw new Error("Please allow popups to preview the datasheet.");
       }
 
-      // Open the PDF in a new tab
-      const blob = await response.blob();
-      const file = new Blob([blob], { type: "application/pdf" });
-      const url = window.URL.createObjectURL(file);
-      window.open(url, "_blank");
+      const form = document.createElement("form");
+      const fileBase =
+        String(input?.fanUnitNo ?? units?.fanUnitNo ?? "Datasheet").trim() ||
+        "Datasheet";
+      const filePathPart = `${encodeURIComponent(fileBase)}.pdf`;
+      form.method = "POST";
+      form.action = `${apiBaseUrl}/api/centrifugal/pdf/datasheet/${filePathPart}`;
+      form.target = targetName;
+      form.style.display = "none";
+
+      const payloadInput = document.createElement("input");
+      payloadInput.type = "hidden";
+      payloadInput.name = "jsonPayload";
+      payloadInput.value = JSON.stringify(payload);
+
+      form.appendChild(payloadInput);
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate datasheet PDF: " + error.message);

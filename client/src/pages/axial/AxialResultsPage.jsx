@@ -705,14 +705,11 @@ export default function ResultsPage() {
     if (fanType && innerDia != null) {
       setCasingPricingLoading(true);
       setCasingPricing(null);
-      fetch(
-        `${API_BASE}/api/axial/pricing/casing/calculate-casing`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fanType, sizeMm: Number(innerDia) }),
-        },
-      )
+      fetch(`${API_BASE}/api/axial/pricing/casing/calculate-casing`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fanType, sizeMm: Number(innerDia) }),
+      })
         .then((res) => (res.ok ? res.json() : Promise.reject(res)))
         .then((result) => {
           if (result?.totalCost != null) setCasingPricing(result.totalCost);
@@ -1169,45 +1166,56 @@ export default function ResultsPage() {
                       <button
                         onClick={() => {
                           const fan = filteredFans[selectedFanIndex];
-                          // Open PDF in new tab
-                          fetch("/api/axial/pdf/datasheet", {
-                            method: "POST",
-                            headers: {
-                              "Content-Type": "application/json",
+                          const payload = {
+                            fanData: fan,
+                            userInput: {
+                              ...input,
+                              RPM: input?.RPM ?? 1440,
+                              TempC: input?.TempC ?? 20,
+                              NoPhases: input?.NoPhases ?? 3,
+                              SPF: input?.SPF ?? 10,
+                              Safety: input?.Safety ?? 5,
+                              directivityFactor: input?.directivityFactor ?? 1,
+                              distanceFromSource:
+                                input?.distanceFromSource ?? 3,
                             },
-                            body: JSON.stringify({
-                              fanData: fan,
-                              userInput: {
-                                ...input,
-                                RPM: input?.RPM ?? 1440,
-                                TempC: input?.TempC ?? 20,
-                                NoPhases: input?.NoPhases ?? 3,
-                                SPF: input?.SPF ?? 10,
-                                Safety: input?.Safety ?? 5,
-                                directivityFactor:
-                                  input?.directivityFactor ?? 1,
-                                distanceFromSource:
-                                  input?.distanceFromSource ?? 3,
-                              },
-                              units: {
-                                ...units,
-                                power: units?.power ?? "kW",
-                                insulationClass: units?.insulationClass ?? "F",
-                              },
-                            }),
-                          })
-                            .then((response) => response.blob())
-                            .then((blob) => {
-                              const file = new Blob([blob], {
-                                type: "application/pdf",
-                              });
-                              const url = window.URL.createObjectURL(file);
-                              window.open(url, "_blank");
-                            })
-                            .catch((error) => {
-                              console.error("Error generating PDF:", error);
-                              alert("Failed to generate PDF datasheet");
-                            });
+                            units: {
+                              ...units,
+                              power: units?.power ?? "kW",
+                              insulationClass: units?.insulationClass ?? "F",
+                              fanUnitNo:
+                                input?.fanUnitNo ?? units?.fanUnitNo ?? "EX-01",
+                            },
+                          };
+
+                          const targetName = `axialDatasheet_${Date.now()}`;
+                          const previewWindow = window.open("", targetName);
+                          if (!previewWindow) {
+                            alert(
+                              "Please allow popups to preview the datasheet.",
+                            );
+                            return;
+                          }
+
+                          const form = document.createElement("form");
+                          const fileBase = String(
+                            input?.fanUnitNo ?? units?.fanUnitNo ?? "Datasheet",
+                          ).trim() || "Datasheet";
+                          const filePathPart = `${encodeURIComponent(fileBase)}.pdf`;
+                          form.method = "POST";
+                          form.action = `${API_BASE}/api/axial/pdf/datasheet/${filePathPart}`;
+                          form.target = targetName;
+                          form.style.display = "none";
+
+                          const payloadInput = document.createElement("input");
+                          payloadInput.type = "hidden";
+                          payloadInput.name = "jsonPayload";
+                          payloadInput.value = JSON.stringify(payload);
+
+                          form.appendChild(payloadInput);
+                          document.body.appendChild(form);
+                          form.submit();
+                          document.body.removeChild(form);
                         }}
                         style={{
                           background:
@@ -3817,7 +3825,8 @@ export default function ResultsPage() {
                                             marginTop: "0.25rem",
                                           }}
                                         >
-                                          Motor + Electrical Component + Impeller + Casing + Accessories
+                                          Motor + Electrical Component +
+                                          Impeller + Casing + Accessories
                                         </div>
                                       </div>
                                       <span
@@ -3829,7 +3838,9 @@ export default function ResultsPage() {
                                       >
                                         {isAnyPricingLoading
                                           ? "Loading..."
-                                          : formatPricingValue(totalDirectCost)}{" "}
+                                          : formatPricingValue(
+                                              totalDirectCost,
+                                            )}{" "}
                                         <span
                                           style={{
                                             fontSize: "0.875rem",

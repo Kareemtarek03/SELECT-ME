@@ -191,6 +191,8 @@ export function generateFanDatasheetPDF(fanData, userInput, units) {
   console.log(units)
   // Page setup - A4
   const doc = new PDFDocument({ size: "A4", margin: 0 });
+  const unitTitle = String(units?.fanUnitNo ?? userInput?.fanUnitNo ?? "Datasheet").trim();
+  doc.info.Title = unitTitle || "Datasheet";
   const W = doc.page.width;   // 595.28 points (210mm)
   const H = doc.page.height;  // 841.89 points (297mm)
 

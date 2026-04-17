@@ -1182,7 +1182,7 @@ function startServer() {
 
         // PDF Generation Routes - using Newmodules PDF generators
         // Axial PDF route (prefixed)
-        expressApp.post("/api/axial/pdf/datasheet", async (req, res) => {
+        expressApp.post("/api/axial/pdf/datasheet/:filename?", async (req, res) => {
           try {
             const { fanData, userInput, units } = req.body;
             if (!fanData) {
@@ -1221,7 +1221,7 @@ function startServer() {
         });
 
         // Centrifugal PDF route
-        expressApp.post("/api/centrifugal/pdf/datasheet", async (req, res) => {
+        expressApp.post("/api/centrifugal/pdf/datasheet/:filename?", async (req, res) => {
           try {
             const { fanData, userInput, units } = req.body;
             if (!fanData) {
