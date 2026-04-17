@@ -650,7 +650,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     const motorPhaseVal = phase17Motor.noOfPhases ?? phase17Motor.NoPhases ?? 3;
     const motorRows = [
         ["- Motor Model", ":", phase17Motor.model || "AGM3EL 100 L 4a"],
-        ["- Motor Power [kW]", ":", fmt(phase17Motor.powerKW, 1)],
+        ["- Motor Power [kW]", ":", fmt(phase17Motor.powerKW, 2)],
         ["- No. of Poles", ":", fmt(phase17Motor.noOfPoles, 0)],
         ["- Voltage [V]/Phase/Frequency [Hz]", ":", `${motorPhaseVal == 3 ? "380" : "220"}/${motorPhaseVal}/50`],
         ["- Motor Efficiency [%]", ":", fmtPct(motorEff)],
@@ -740,8 +740,8 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
         doc.text(b, barStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
     });
     const textOffsetY_LP = (cellH - 4) / 2;  // Center 4pt text vertically in cell
-    doc.fontSize(4).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
-    doc.fontSize(5);
+    doc.fontSize(6).text("LP(A)", barStartX + 8 * (barW + barGap), tableY + textOffsetY_LP, { width: barW, align: "center" });
+    doc.fontSize(6);
 
     // dBA row
     doc.fontSize(6).font(getFont()).fillColor(COLORS.black);
@@ -802,7 +802,7 @@ export function generateCentrifugalFanDatasheetPDF(fanData, userInput, units) {
     bands.forEach((b, i) => {
         doc.text(b, rwBarStartX + i * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
     });
-    doc.fontSize(4).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
+    doc.fontSize(5.9).text("LW(A)", rwBarStartX + 8 * (barW + barGap), tableY + mm(0.8), { width: barW, align: "center" });
 
 
     // dBA row

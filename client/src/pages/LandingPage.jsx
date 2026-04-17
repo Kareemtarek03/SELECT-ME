@@ -84,7 +84,7 @@ export default function LandingPage() {
                         textAlign="center"
                         mt={4}
                     >
-                        Developed by Mechatronics 
+                        Developed by Mechatronics Engineering
                     </Text>
                     <Text
                         fontSize="sm"

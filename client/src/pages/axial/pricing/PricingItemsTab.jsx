@@ -14,6 +14,40 @@ import { FaPlus, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
 
 import { API_BASE as API_BASE_URL } from "../../../utils/api";
 
+// Rows whose Price w/o VAT and Price with VAT columns are entered as percentages
+// in the UI (e.g. user types 40) but stored as fractions in the DB (0.40) so that
+// downstream calculations using these values as multipliers (1 + factor) continue
+// to work unchanged. Matched by description (case-sensitive) to align with the
+// backend lookups in server/Newmodules/axial/AxialMotorData/axialMotorPricing.service.js.
+const PERCENTAGE_DESCRIPTIONS = new Set([
+    "Electrical Cables (Sweedy Factor)",
+    "Electrical Component Factor",
+    "Electrical Motors",
+]);
+
+const isPercentRow = (description) =>
+    typeof description === "string" && PERCENTAGE_DESCRIPTIONS.has(description.trim());
+
+// Convert a stored fractional value (0.40) into its UI percentage representation (40).
+// Returns an empty string when the value is null/undefined so controlled inputs stay empty.
+const toDisplayPercent = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const num = typeof value === "number" ? value : parseFloat(value);
+    if (!Number.isFinite(num)) return "";
+    // Round to 4 decimals to avoid floating-point noise like 0.42 * 100 = 42.00000000000001
+    return String(Math.round(num * 10000) / 100);
+};
+
+// Convert a UI percentage value (40 or "40") back into its stored fractional form (0.40).
+// Returns an empty string for empty/invalid input so the backend receives null (no change).
+const fromInputPercent = (value) => {
+    if (value === null || value === undefined || value === "") return "";
+    const num = typeof value === "number" ? value : parseFloat(value);
+    if (!Number.isFinite(num)) return "";
+    // Round to 6 decimals to keep precision without floating-point drift
+    return String(Math.round((num / 100) * 1000000) / 1000000);
+};
+
 export default function PricingItemsTab() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -80,13 +114,18 @@ export default function PricingItemsTab() {
 
     const handleEdit = (item) => {
         setEditingId(item.id);
+        const percent = isPercentRow(item.description);
         setEditForm({
             sr: item.sr,
             description: item.description,
             unit: item.unit,
             updatedDate: item.updatedDate || "",
-            priceWithoutVat: item.priceWithoutVat || "",
-            priceWithVat: item.priceWithVat || "",
+            priceWithoutVat: percent
+                ? toDisplayPercent(item.priceWithoutVat)
+                : item.priceWithoutVat || "",
+            priceWithVat: percent
+                ? toDisplayPercent(item.priceWithVat)
+                : item.priceWithVat || "",
         });
     };
 
@@ -97,10 +136,17 @@ export default function PricingItemsTab() {
 
     const handleSaveEdit = async (id) => {
         try {
+            // Convert percent-row UI values (40) back to fractions (0.40) before persisting
+            const payload = { ...editForm };
+            if (isPercentRow(editForm.description)) {
+                payload.priceWithoutVat = fromInputPercent(editForm.priceWithoutVat);
+                payload.priceWithVat = fromInputPercent(editForm.priceWithVat);
+            }
+
             const response = await fetch(`${API_BASE_URL}/api/pricing/items/${id}`, {
                 method: "PATCH",
                 headers: getAuthHeaders(),
-                body: JSON.stringify(editForm),
+                body: JSON.stringify(payload),
             });
 
             if (response.ok) {
@@ -208,13 +254,17 @@ export default function PricingItemsTab() {
         }
 
         try {
+            // Convert percent-row UI values (40) back to fractions (0.40) before persisting
+            const payload = { ...newItem, categoryId: category.id };
+            if (isPercentRow(newItem.description)) {
+                payload.priceWithoutVat = fromInputPercent(newItem.priceWithoutVat);
+                payload.priceWithVat = fromInputPercent(newItem.priceWithVat);
+            }
+
             const response = await fetch(`${API_BASE_URL}/api/pricing/items`, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify({
-                    ...newItem,
-                    categoryId: category.id,
-                }),
+                body: JSON.stringify(payload),
             });
 
             if (response.ok) {
@@ -383,7 +433,7 @@ export default function PricingItemsTab() {
                             _placeholder={{ color: "#64748b" }}
                         />
                         <Input
-                            placeholder="Price w/o VAT"
+                            placeholder={isPercentRow(newItem.description) ? "Price w/o VAT (e.g. 40 for 40%)" : "Price w/o VAT"}
                             type="number"
                             value={newItem.priceWithoutVat}
                             onChange={(e) => setNewItem({ ...newItem, priceWithoutVat: e.target.value })}
@@ -393,7 +443,7 @@ export default function PricingItemsTab() {
                             _placeholder={{ color: "#64748b" }}
                         />
                         <Input
-                            placeholder="Price with VAT"
+                            placeholder={isPercentRow(newItem.description) ? "Price with VAT (e.g. 40 for 40%)" : "Price with VAT"}
                             type="number"
                             value={newItem.priceWithVat}
                             onChange={(e) => setNewItem({ ...newItem, priceWithVat: e.target.value })}
@@ -524,6 +574,7 @@ export default function PricingItemsTab() {
                                                     bg="var(--bg-page)"
                                                     color="var(--text-primary)"
                                                     border="1px solid var(--border-color)"
+                                                    placeholder={isPercentRow(editForm.description) ? "e.g. 40 for 40%" : undefined}
                                                 />
                                             </Table.Cell>
                                             <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" py={3} px={4}>
@@ -535,6 +586,7 @@ export default function PricingItemsTab() {
                                                     bg="var(--bg-page)"
                                                     color="var(--text-primary)"
                                                     border="1px solid var(--border-color)"
+                                                    placeholder={isPercentRow(editForm.description) ? "e.g. 40 for 40%" : undefined}
                                                 />
                                             </Table.Cell>
                                             <Table.Cell borderColor="var(--border-color)" py={3} px={4}>
@@ -576,10 +628,18 @@ export default function PricingItemsTab() {
                                                 {item.updatedDate || "-"}
                                             </Table.Cell>
                                             <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
-                                                {item.priceWithoutVat != null ? item.priceWithoutVat.toFixed(2) : "-"}
+                                                {item.priceWithoutVat != null
+                                                    ? (isPercentRow(item.description)
+                                                        ? `${(item.priceWithoutVat * 100).toFixed(2)}%`
+                                                        : item.priceWithoutVat.toFixed(2))
+                                                    : "-"}
                                             </Table.Cell>
                                             <Table.Cell borderColor="var(--border-color)" borderRight="1px solid var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
-                                                {item.priceWithVat != null ? item.priceWithVat.toFixed(2) : "-"}
+                                                {item.priceWithVat != null
+                                                    ? (isPercentRow(item.description)
+                                                        ? `${(item.priceWithVat * 100).toFixed(2)}%`
+                                                        : item.priceWithVat.toFixed(2))
+                                                    : "-"}
                                             </Table.Cell>
                                             <Table.Cell borderColor="var(--border-color)" color="var(--text-primary)" py={3} px={4} textAlign="center">
                                                 <Box display="flex" gap={2} justifyContent="center">
