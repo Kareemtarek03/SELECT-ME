@@ -322,7 +322,7 @@ async function setupProductionDatabase() {
   }
 
   // Schema version - INCREMENT THIS when you change the Prisma schema!
-  const SCHEMA_VERSION = 3; // Bumped: fix motor data lost during migration
+  const SCHEMA_VERSION = 4; // Bumped: ensure legacy user DBs get motor_data column fixes
   const schemaVersionFile = path.join(dbDir, ".schema_version");
   
   const dbExists = fs.existsSync(dbPath);
@@ -405,6 +405,58 @@ async function setupProductionDatabase() {
   process.env.APP_PATH = app.getAppPath();
   console.log("DATABASE_URL set to:", process.env.DATABASE_URL);
 
+  async function ensureRequiredMotorDataColumns(prismaClient) {
+    try {
+      const pragmaRows = await prismaClient.$queryRawUnsafe(
+        'PRAGMA table_info("motor_data")',
+      );
+
+      const existingColumns = new Set(
+        (Array.isArray(pragmaRows) ? pragmaRows : []).map(
+          (row) => row?.name || row?.NAME || "",
+        ),
+      );
+
+      const requiredColumns = [
+        {
+          name: "cableLugsUPWithoutVat",
+          sql: 'ALTER TABLE "motor_data" ADD COLUMN "cableLugsUPWithoutVat" REAL',
+        },
+        {
+          name: "cableHeatShrinkUPWithoutVat",
+          sql: 'ALTER TABLE "motor_data" ADD COLUMN "cableHeatShrinkUPWithoutVat" REAL',
+        },
+      ];
+
+      const missingColumns = requiredColumns.filter(
+        (column) => !existingColumns.has(column.name),
+      );
+
+      if (missingColumns.length === 0) {
+        return;
+      }
+
+      console.warn(
+        "⚠️ Missing motor_data columns detected:",
+        missingColumns.map((column) => column.name).join(", "),
+      );
+
+      for (const column of missingColumns) {
+        await prismaClient.$executeRawUnsafe(column.sql);
+      }
+
+      console.log(
+        "✅ Added missing motor_data columns:",
+        missingColumns.map((column) => column.name).join(", "),
+      );
+    } catch (columnFixErr) {
+      console.warn(
+        "⚠️ Could not auto-fix motor_data columns:",
+        columnFixErr?.message || columnFixErr,
+      );
+    }
+  }
+
   // Quick connection test - verify Prisma can connect before server starts
   try {
     const { PrismaClient } = require(
@@ -414,6 +466,7 @@ async function setupProductionDatabase() {
       datasources: { db: { url: dbUrl } },
     });
     await testPrisma.$connect();
+    await ensureRequiredMotorDataColumns(testPrisma);
     await testPrisma.$disconnect();
     console.log("✅ Database connection test passed");
   } catch (connErr) {
@@ -489,7 +542,12 @@ if (isDev) {
     process.env.DATABASE_URL.startsWith("file:./")
   ) {
     const relativePath = process.env.DATABASE_URL.replace("file:./", "");
-    const absolutePath = path.resolve(__dirname, relativePath).replace(/\\/g, "/");
+    const normalized = relativePath.replace(/\\/g, "/");
+    const absolutePath = (
+      normalized.startsWith("prisma/")
+        ? path.resolve(__dirname, normalized)
+        : path.resolve(__dirname, "prisma", normalized)
+    ).replace(/\\/g, "/");
     process.env.DATABASE_URL = `file:${absolutePath}`;
     console.log("Dev DATABASE_URL normalized:", process.env.DATABASE_URL);
   }
@@ -796,7 +854,27 @@ function startServer() {
 
         const expressApp = express();
         expressApp.use(express.json({ limit: "50mb" }));
+        expressApp.use(express.urlencoded({ extended: true, limit: "50mb" }));
         expressApp.use(cors({ origin: true, credentials: true }));
+
+        const parsePdfPayload = (body) => {
+          if (!body || typeof body !== "object") return {};
+
+          if (
+            typeof body.jsonPayload === "string" &&
+            body.jsonPayload.trim() !== ""
+          ) {
+            try {
+              return JSON.parse(body.jsonPayload);
+            } catch {
+              const parseError = new Error("Invalid JSON payload");
+              parseError.statusCode = 400;
+              throw parseError;
+            }
+          }
+
+          return body;
+        };
 
         // Serve static files from the React app build directory
         const clientBuildPath = path.join(resourcesPath, "client", "build");
@@ -1250,7 +1328,7 @@ function startServer() {
         // Axial PDF route (prefixed)
         expressApp.post("/api/axial/pdf/datasheet/:filename?", async (req, res) => {
           try {
-            const { fanData, userInput, units } = req.body;
+            const { fanData, userInput, units } = parsePdfPayload(req.body);
             if (!fanData) {
               return res.status(400).json({ error: "Fan data is required" });
             }
@@ -1279,6 +1357,9 @@ function startServer() {
             doc.pipe(res);
             doc.end();
           } catch (err) {
+            if (err?.statusCode === 400) {
+              return res.status(400).json({ error: err.message });
+            }
             console.error("Axial PDF generation error:", err);
             res
               .status(500)
@@ -1289,7 +1370,7 @@ function startServer() {
         // Centrifugal PDF route
         expressApp.post("/api/centrifugal/pdf/datasheet/:filename?", async (req, res) => {
           try {
-            const { fanData, userInput, units } = req.body;
+            const { fanData, userInput, units } = parsePdfPayload(req.body);
             if (!fanData) {
               return res.status(400).json({ error: "Fan data is required" });
             }
@@ -1323,6 +1404,9 @@ function startServer() {
             doc.pipe(res);
             doc.end();
           } catch (err) {
+            if (err?.statusCode === 400) {
+              return res.status(400).json({ error: err.message });
+            }
             console.error("Centrifugal PDF generation error:", err);
             res
               .status(500)
@@ -1333,7 +1417,7 @@ function startServer() {
         // Legacy PDF route (uses Axial PDF generator)
         expressApp.post("/api/pdf/datasheet", async (req, res) => {
           try {
-            const { fanData, userInput, units } = req.body;
+            const { fanData, userInput, units } = parsePdfPayload(req.body);
             if (!fanData) {
               return res.status(400).json({ error: "Fan data is required" });
             }
@@ -1362,6 +1446,9 @@ function startServer() {
             doc.pipe(res);
             doc.end();
           } catch (err) {
+            if (err?.statusCode === 400) {
+              return res.status(400).json({ error: err.message });
+            }
             console.error("PDF generation error:", err);
             res
               .status(500)
@@ -1371,7 +1458,7 @@ function startServer() {
 
         expressApp.post("/api/pdf/datasheet/download", async (req, res) => {
           try {
-            const { fanData, userInput, units } = req.body;
+            const { fanData, userInput, units } = parsePdfPayload(req.body);
             if (!fanData) {
               return res.status(400).json({ error: "Fan data is required" });
             }
@@ -1400,6 +1487,9 @@ function startServer() {
             doc.pipe(res);
             doc.end();
           } catch (err) {
+            if (err?.statusCode === 400) {
+              return res.status(400).json({ error: err.message });
+            }
             console.error("PDF generation error:", err);
             res
               .status(500)

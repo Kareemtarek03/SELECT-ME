@@ -145,123 +145,226 @@ async function seedMotorData() {
     return;
   }
 
+  const readMotorField = (row, keys) => {
+    for (const key of keys) {
+      if (row[key] !== undefined && row[key] !== null && row[key] !== "") {
+        return row[key];
+      }
+    }
+    return null;
+  };
+
+  const mapMotorJsonToDb = (m) => ({
+    material: m["Material"],
+    model: m["Model"],
+    powerKW: parseFloat_(m["Power (kW)"]),
+    speedRPM: parseFloat_(m["Speed (RPM)"]),
+    noOfPoles: parseInt_(m["No of Poles"]),
+
+    ratedCurrentIn: parseFloat_(m["Rated current-In (A)"]),
+    ratedTorqueMn: parseFloat_(m["Rated Torque – Mn (Nm)"]),
+
+    lockedRotorCurrentDOL: parseFloat_(
+      m["Locked rotor Current – Ia (A) (DOL)"],
+    ),
+    iaPerInDOL: parseFloat_(m["Ia / In (DOL)"]),
+    lockedRotorTorqueDOL: parseFloat_(
+      m["Locked rotor Torque – Ma (Nm) (DOL)"],
+    ),
+    maPerMnDOL: parseFloat_(m["Ma / Mn (DOL)"]),
+
+    lockedRotorCurrentYD: parseFloat_(
+      m["Locked rotor Current – Ia (A) (Y / ∆ Starting)"],
+    ),
+    iaPerInYD: parseFloat_(m["Ia / I-n (Y / ∆ Starting)"]),
+    lockedRotorTorqueYD: parseFloat_(
+      m["Locked rotor Torque – Ma (Nm) (Y / ∆ Starting)"],
+    ),
+    maPerMnYD: parseFloat_(m["Ma / Mn (Y / ∆ Starting)"]),
+
+    powerFactorCos: parseFloat_(m["Power factor Cos φ"]),
+    phase: String(parseInt_(m["Phase"]) || ""),
+    frameSize: String(parseInt_(m["Frame Size (mm)"]) || ""),
+    shaftDiameter: parseFloat_(m["Shaft Diameter (mm)"]),
+    shaftLength: parseFloat_(m["Shaft Length (mm)"]),
+    shaftFeatherKeyLength: parseFloat_(m["Shaft Feather Key Length (mm)"]),
+    ie: String(parseInt_(m["IE"]) || ""),
+    frontBearing: m["front Brearing"],
+    rearBearing: m["Rear Bearing"],
+    noiseLevel: parseFloat_(m["Noise Level (dB-A)"]),
+    weight: parseFloat_(m["Weight (KG)"]),
+
+    efficiency50Hz: parseFloat_(m["Efficiency @ 50 Hz"]),
+    efficiency37_5Hz: parseFloat_(m["Efficiency @ 37.5 Hz"]),
+    efficiency25Hz: parseFloat_(m["Efficiency @ 25 Hz"]),
+
+    runCapacitor: parseFloat_(m["Run Capacitor 400 V (µF)"]),
+    startCapacitor: parseFloat_(
+      readMotorField(m, ["Start Capacitor 330 V (µF) ", "Start Capacitor 330 V (µF)"]),
+    ),
+    NoCapacitors: parseInt_(m["No. of Capacitors"]),
+    NoPhases: parseInt_(m["No. of Phases"]),
+    insClass: m["Insulation Class"],
+
+    b3PriceWithoutVat: parseFloat_(
+      readMotorField(m, [" B3 Price ($) w/o VAT ", "B3 Price ($) w/o VAT"]),
+    ),
+    b3PriceWithVat: parseFloat_(m["B3 Price with VAT & Factor (L.E)"]),
+    otherPriceWithoutVat: parseFloat_(
+      readMotorField(m, ["Other Price ($) w/o VAT ", "Other Price ($) w/o VAT"]),
+    ),
+    otherPriceWithVat: parseFloat_(m["Other Price with VAT & Factor (L.E)"]),
+
+    cableCurrent: parseFloat_(m["Current (A) with S.F (25%)(Cable)"]),
+    cableSize: readMotorField(m, ["Cable Size (mm2)(Cable) ", "Cable Size (mm2)(Cable)"]),
+    cablePriceWithVat: parseFloat_(m["Price With VAT Per Meter (Cable)"]),
+
+    cableLugsNo: parseInt_(m["No.(Cable Lugs )"]),
+    cableLugsUPWithoutVat: parseFloat_(
+      readMotorField(m, [
+        "U.P Price w/o VAT (Cable Lugs )",
+        "U.P Price w/o VAT (Cable Lugs)",
+        "U.P Price without VAT (Cable Lugs )",
+        "U.P Price without VAT (Cable Lugs)",
+      ]),
+    ),
+    cableLugsUPWithVat: parseFloat_(m["U.P Price with VAT (Cable Lugs )"]),
+    cableLugsTPWithVat: parseFloat_(m["T.P Price with VAT (Cable Lugs )"]),
+
+    cableHeatShrinkNo: parseFloat_(m["No.(Cable Heat Shrink)"]),
+    cableHeatShrinkUPWithoutVat: parseFloat_(
+      readMotorField(m, [
+        "U.P Price w/o VAT (Cable Heat Shrink)",
+        "U.P Price without VAT (Cable Heat Shrink)",
+      ]),
+    ),
+    cableHeatShrinkUPWithVat: parseFloat_(
+      m["U.P Price with VAT (Cable Heat Shrink)"],
+    ),
+    cableHeatShrinkTPWithVat: parseFloat_(
+      m["T.P Price with VAT (Cable Heat Shrink)"],
+    ),
+
+    flexibleConnectorMeter: parseFloat_(m["Meter (Flexible Connector)"]),
+    flexibleConnectorSize: readMotorField(m, [
+      "Size (mm) (Flexible Connector) ",
+      "Size (mm) (Flexible Connector)",
+    ]),
+    flexibleConnectorUPWithVat: parseFloat_(
+      m["U.P Price with VAT (Flexible Connector)"],
+    ),
+    flexibleConnectorTPWithVat: parseFloat_(
+      m["T.P Price with VAT (Flexible Connector)"],
+    ),
+
+    glandNo: parseFloat_(m["No. (Gland)"]),
+    glandUPWithVat: parseFloat_(m["U.P Price with VAT (Gland)"]),
+    glandTPWithVat: parseFloat_(m["T.P Price with VAT (Gland)"]),
+
+    brassBarNo: parseFloat_(m["No. (Brass Bar)"]),
+    brassBarUPWithVat: parseFloat_(m["U.P Price with VAT (Brass Bar)"]),
+    brassBarTPWithVat: parseFloat_(m["T.P Price with VAT (Brass Bar)"]),
+
+    electricalBoxSize: m["Size (mm) (Electrical Box)"],
+    electricalBoxUPWithVat: parseFloat_(m["U.P Price with VAT(Electrical Box)"]),
+
+    totalPriceWithVat: parseFloat_(m["Price With VAT Per Meter (Total)"]),
+    powerHorse: parseFloat_(m["Power (HP)"]),
+    netpower: (() => {
+      const pKW = parseFloat_(m["Power (kW)"]);
+      const eff = parseFloat_(m["Efficiency @ 50 Hz"]);
+      if (pKW && eff) return pKW * eff;
+      return null;
+    })(),
+  });
+
+  try {
+    const columns = await client.$queryRawUnsafe('PRAGMA table_info("motor_data")');
+    const existing = new Set((Array.isArray(columns) ? columns : []).map((c) => c.name));
+    if (!existing.has("cableLugsUPWithoutVat")) {
+      await client.$executeRawUnsafe(
+        'ALTER TABLE "motor_data" ADD COLUMN "cableLugsUPWithoutVat" REAL',
+      );
+    }
+    if (!existing.has("cableHeatShrinkUPWithoutVat")) {
+      await client.$executeRawUnsafe(
+        'ALTER TABLE "motor_data" ADD COLUMN "cableHeatShrinkUPWithoutVat" REAL',
+      );
+    }
+  } catch (schemaErr) {
+    console.warn("⚠️ Could not verify/repair motor_data columns:", schemaErr.message);
+  }
+
   const motors = JSON.parse(fs.readFileSync(motorsPath, "utf-8"));
   const motorCount = await client.motorData.count();
+
+  let needsRepair = motorCount === 0;
   if (motorCount > 0) {
-    console.log(`   MotorData already has ${motorCount} records, skipping.`);
-    return;
-  }
-
-  for (const m of motors) {
-    await client.motorData.create({
-      data: {
-        material: m["Material"],
-        model: m["Model"],
-        powerKW: parseFloat_(m["Power (kW)"]),
-        speedRPM: parseFloat_(m["Speed (RPM)"]),
-        noOfPoles: parseInt_(m["No of Poles"]),
-
-        ratedCurrentIn: parseFloat_(m["Rated current-In (A)"]),
-        ratedTorqueMn: parseFloat_(m["Rated Torque – Mn (Nm)"]),
-
-        lockedRotorCurrentDOL: parseFloat_(
-          m["Locked rotor Current – Ia (A) (DOL)"],
-        ),
-        iaPerInDOL: parseFloat_(m["Ia / In (DOL)"]),
-        lockedRotorTorqueDOL: parseFloat_(
-          m["Locked rotor Torque – Ma (Nm) (DOL)"],
-        ),
-        maPerMnDOL: parseFloat_(m["Ma / Mn (DOL)"]),
-
-        lockedRotorCurrentYD: parseFloat_(
-          m["Locked rotor Current – Ia (A) (Y / ∆ Starting)"],
-        ),
-        iaPerInYD: parseFloat_(m["Ia / I-n (Y / ∆ Starting)"]),
-        lockedRotorTorqueYD: parseFloat_(
-          m["Locked rotor Torque – Ma (Nm) (Y / ∆ Starting)"],
-        ),
-        maPerMnYD: parseFloat_(m["Ma / Mn (Y / ∆ Starting)"]),
-
-        powerFactorCos: parseFloat_(m["Power factor Cos φ"]),
-        phase: String(parseInt_(m["Phase"]) || ""),
-        frameSize: String(parseInt_(m["Frame Size (mm)"]) || ""),
-        shaftDiameter: parseFloat_(m["Shaft Diameter (mm)"]),
-        shaftLength: parseFloat_(m["Shaft Length (mm)"]),
-        shaftFeatherKeyLength: parseFloat_(m["Shaft Feather Key Length (mm)"]),
-        ie: String(parseInt_(m["IE"]) || ""),
-        frontBearing: m["front Brearing"],
-        rearBearing: m["Rear Bearing"],
-        noiseLevel: parseFloat_(m["Noise Level (dB-A)"]),
-        weight: parseFloat_(m["Weight (KG)"]),
-
-        efficiency50Hz: parseFloat_(m["Efficiency @ 50 Hz"]),
-        efficiency37_5Hz: parseFloat_(m["Efficiency @ 37.5 Hz"]),
-        efficiency25Hz: parseFloat_(m["Efficiency @ 25 Hz"]),
-
-        runCapacitor: parseFloat_(m["Run Capacitor 400 V (µF)"]),
-        startCapacitor: parseFloat_(m["Start Capacitor 330 V (µF) "]),
-        NoCapacitors: parseInt_(m["No. of Capacitors"]),
-        NoPhases: parseInt_(m["No. of Phases"]),
-        insClass: m["Insulation Class"],
-
-        b3PriceWithoutVat: parseFloat_(m[" B3 Price ($) w/o VAT "]),
-        b3PriceWithVat: parseFloat_(m["B3 Price with VAT & Factor (L.E)"]),
-        otherPriceWithoutVat: parseFloat_(m["Other Price ($) w/o VAT "]),
-        otherPriceWithVat: parseFloat_(
-          m["Other Price with VAT & Factor (L.E)"],
-        ),
-
-        cableCurrent: parseFloat_(m["Current (A) with S.F (25%)(Cable)"]),
-        cableSize: m["Cable Size (mm2)(Cable) "],
-        cablePriceWithVat: parseFloat_(m["Price With VAT Per Meter (Cable)"]),
-
-        cableLugsNo: parseInt_(m["No.(Cable Lugs )"]),
-        cableLugsUPWithVat: parseFloat_(m["U.P Price with VAT (Cable Lugs )"]),
-        cableLugsTPWithVat: parseFloat_(m["T.P Price with VAT (Cable Lugs )"]),
-
-        cableHeatShrinkNo: parseFloat_(m["No.(Cable Heat Shrink)"]),
-        cableHeatShrinkUPWithVat: parseFloat_(
-          m["U.P Price with VAT (Cable Heat Shrink)"],
-        ),
-        cableHeatShrinkTPWithVat: parseFloat_(
-          m["T.P Price with VAT (Cable Heat Shrink)"],
-        ),
-
-        flexibleConnectorMeter: parseFloat_(m["Meter (Flexible Connector)"]),
-        flexibleConnectorSize: m["Size (mm) (Flexible Connector) "],
-        flexibleConnectorUPWithVat: parseFloat_(
-          m["U.P Price with VAT (Flexible Connector)"],
-        ),
-        flexibleConnectorTPWithVat: parseFloat_(
-          m["T.P Price with VAT (Flexible Connector)"],
-        ),
-
-        glandNo: parseFloat_(m["No. (Gland)"]),
-        glandUPWithVat: parseFloat_(m["U.P Price with VAT (Gland)"]),
-        glandTPWithVat: parseFloat_(m["T.P Price with VAT (Gland)"]),
-
-        brassBarNo: parseFloat_(m["No. (Brass Bar)"]),
-        brassBarUPWithVat: parseFloat_(m["U.P Price with VAT (Brass Bar)"]),
-        brassBarTPWithVat: parseFloat_(m["T.P Price with VAT (Brass Bar)"]),
-
-        electricalBoxSize: m["Size (mm) (Electrical Box)"],
-        electricalBoxUPWithVat: parseFloat_(
-          m["U.P Price with VAT(Electrical Box)"],
-        ),
-
-        totalPriceWithVat: parseFloat_(m["Price With VAT Per Meter (Total)"]),
-        powerHorse: parseFloat_(m["Power (HP)"]),
-        // Calculate netpower = powerKW * efficiency50Hz (critical for motor matching)
-        netpower: (() => {
-          const pKW = parseFloat_(m["Power (kW)"]);
-          const eff = parseFloat_(m["Efficiency @ 50 Hz"]);
-          if (pKW && eff) return pKW * eff;
-          return null;
-        })(),
+    const incompleteCount = await client.motorData.count({
+      where: {
+        OR: [
+          { noOfPoles: null },
+          { lockedRotorCurrentDOL: null },
+          { shaftDiameter: null },
+          { shaftFeatherKeyLength: null },
+          { ie: null },
+          { efficiency37_5Hz: null },
+        ],
       },
     });
+
+    needsRepair = incompleteCount > 0;
+    if (needsRepair) {
+      console.warn(
+        `   MotorData has ${incompleteCount} incomplete rows. Starting repair from MotorData.json...`,
+      );
+    } else {
+      console.log(`   MotorData already has ${motorCount} complete records, skipping.`);
+      return;
+    }
   }
-  console.log(`✅ Seeded ${motors.length} axial motor records!`);
+
+  let createdCount = 0;
+  let repairedCount = 0;
+
+  for (const m of motors) {
+    const mapped = mapMotorJsonToDb(m);
+    if (!mapped.model) continue;
+
+    const existing = await client.motorData.findFirst({
+      where: { model: mapped.model },
+    });
+
+    if (!existing) {
+      await client.motorData.create({ data: mapped });
+      createdCount += 1;
+      continue;
+    }
+
+    const patch = {};
+    for (const [key, value] of Object.entries(mapped)) {
+      if (value === null || value === undefined || value === "") continue;
+      if (existing[key] === null || existing[key] === undefined || existing[key] === "") {
+        patch[key] = value;
+      }
+    }
+
+    if (Object.keys(patch).length > 0) {
+      await client.motorData.update({
+        where: { id: existing.id },
+        data: patch,
+      });
+      repairedCount += 1;
+    }
+  }
+
+  if (motorCount === 0) {
+    console.log(`✅ Seeded ${createdCount} axial motor records!`);
+  } else {
+    console.log(
+      `✅ MotorData repair completed. Repaired rows: ${repairedCount}, created rows: ${createdCount}.`,
+    );
+  }
 }
 
 async function seedPricingItems() {
@@ -1082,6 +1185,7 @@ export const DatabaseInitService = {
             await seedMotorData();
           } else {
             console.log(`   MotorData: ${motorCount} records`);
+            await seedMotorData();
           }
         } catch (motorErr) {
           console.error("⚠️ Could not check/seed motor data:", motorErr.message);
