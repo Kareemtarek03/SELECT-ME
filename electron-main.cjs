@@ -12,6 +12,11 @@ const { ipcMain } = require("electron");
 // ============================================
 let updateDownloaded = false;
 let downloadedVersion = null;
+// Set to true once the user clicks "Restart Now" so the rest of the lifecycle
+// handlers know to hand off to the updater instead of running their normal
+// quit logic (which was racing with quitAndInstall and causing the silent
+// "restart in background" symptom).
+let isQuittingForUpdate = false;
 
 function setupAutoUpdater() {
   // Only run auto-updater in production
@@ -66,21 +71,34 @@ function setupAutoUpdater() {
     sendUpdateStatus("not-available");
   });
 
-  // Event: Download progress - throttle updates to avoid UI flooding
+  // Event: Download progress - throttle AND dedupe to avoid UI flooding.
+  // The renderer only needs whole-percent changes; sending 30+/sec caused
+  // heavy Chakra re-renders that compounded with GPU stripe animation and
+  // occasionally froze the renderer to a white screen.
   let lastProgressUpdate = 0;
+  let lastPercent = -1;
   autoUpdater.on("download-progress", (progress) => {
     const now = Date.now();
     const percent = Math.round(progress.percent);
-    
-    // Only send updates every 500ms or at key milestones
-    if (now - lastProgressUpdate > 500 || percent === 100 || percent === 0) {
+
+    // Dispatch when: (a) >= 1s since last send, OR (b) percent actually changed and >=250ms,
+    // OR (c) at key milestones (0%, 100%).
+    const timeSinceLast = now - lastProgressUpdate;
+    const shouldSend =
+      timeSinceLast >= 1000 ||
+      percent === 100 ||
+      percent === 0 ||
+      (percent !== lastPercent && timeSinceLast >= 250);
+
+    if (shouldSend) {
       lastProgressUpdate = now;
+      lastPercent = percent;
       console.log(`[AutoUpdater] Download progress: ${percent}%`);
-      sendUpdateStatus("downloading", { 
+      sendUpdateStatus("downloading", {
         percent: percent,
         transferred: progress.transferred,
         total: progress.total,
-        bytesPerSecond: progress.bytesPerSecond
+        bytesPerSecond: progress.bytesPerSecond,
       });
     }
   });
@@ -110,38 +128,86 @@ function setupAutoUpdater() {
   }, 3000); // Wait 3 seconds after app start
 }
 
-// IPC handler for restart request from renderer - with safety checks
+// IPC handler for restart request from renderer - deterministic handoff to installer.
+//
+// Two root causes we are fixing here:
+//  1) The previous code called `quitAndInstall(true, true)` (silent install).
+//     `isSilent=true` is only valid for NSIS `oneClick: true`. Our build uses
+//     `oneClick: false` + `allowToChangeInstallationDirectory: true`, so the
+//     silent flag produced undefined behavior - NSIS exited without installing
+//     and the app appeared to "restart silently in background" (actually the
+//     old exe was relaunched by NSIS `runAfterFinish`). We now pass
+//     `(false, true)` which lets NSIS show its (brief) install UI, complete
+//     the install, and then relaunch the new app automatically.
+//  2) `window-all-closed` / `before-quit` used to race with `quitAndInstall`
+//     because closing the window triggered `app.quit()` mid-handoff. We set
+//     `isQuittingForUpdate=true` and those handlers bail out below.
 ipcMain.on("restart-app", () => {
   console.log("[AutoUpdater] Restart requested by user");
-  
+
   if (!updateDownloaded) {
     console.warn("[AutoUpdater] No update downloaded, ignoring restart request");
     return;
   }
-  
+
+  if (isQuittingForUpdate) {
+    console.warn("[AutoUpdater] Restart already in progress, ignoring duplicate request");
+    return;
+  }
+
   try {
-    console.log("[AutoUpdater] Quitting and installing update silently...");
-    
-    // Hide the window immediately to avoid white screen during install
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.hide();
+    isQuittingForUpdate = true;
+    console.log("[AutoUpdater] Preparing to install update and restart...");
+
+    // Tell the renderer to swap its entire view to a full-screen "Installing..."
+    // splash so the user sees a polished message instead of a disappearing
+    // window or a brief white flash.
+    if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents) {
+      try {
+        mainWindow.webContents.send("update-status", {
+          status: "installing",
+          version: downloadedVersion,
+        });
+      } catch (e) {
+        console.warn("[AutoUpdater] Could not notify renderer of installing state:", e.message);
+      }
     }
-    
-    // Give the app a moment to clean up
+
+    // Close the embedded Express server BEFORE quitting so port 5001 is free
+    // for the new version when it relaunches. Fire-and-forget; we don't wait
+    // longer than ~800ms total to keep the UX snappy.
+    try {
+      if (server && typeof server.close === "function") {
+        server.close(() => console.log("[AutoUpdater] Embedded server closed"));
+      }
+    } catch (e) {
+      console.warn("[AutoUpdater] Server close error (non-fatal):", e.message);
+    }
+
+    // Give the renderer ~700ms to paint the "Installing..." splash and for the
+    // server socket to release, then hand off to the NSIS installer. Using
+    // `(isSilent=false, isForceRunAfter=true)` matches our `oneClick: false`
+    // NSIS config and reliably relaunches the new version.
     setTimeout(() => {
-      // isSilent = true (no installer UI), isForceRunAfter = true (restart app after install)
-      // This performs a silent update without showing the installation wizard
-      autoUpdater.quitAndInstall(true, true);
-    }, 500);
+      try {
+        console.log("[AutoUpdater] Calling quitAndInstall(false, true)...");
+        autoUpdater.quitAndInstall(false, true);
+      } catch (err) {
+        console.error("[AutoUpdater] quitAndInstall threw:", err.message);
+        isQuittingForUpdate = false;
+        dialog.showErrorBox(
+          "Update Error",
+          "Failed to start the installer automatically. Please restart the app manually to apply the update."
+        );
+      }
+    }, 700);
   } catch (err) {
     console.error("[AutoUpdater] Failed to quit and install:", err.message);
-    
-    // Fallback: try to quit normally
+    isQuittingForUpdate = false;
     dialog.showErrorBox(
       "Update Error",
       "Failed to install update automatically. Please restart the app manually."
     );
-    app.quit();
   }
 });
 
@@ -1765,8 +1831,15 @@ app.whenReady().then(async () => {
 });
 
 app.on("window-all-closed", () => {
+  // When we're mid-way through quitAndInstall, bail out - electron-updater
+  // closes windows itself and we must NOT call app.quit() here or we race
+  // with the installer handoff (old symptom: silent restart of old exe).
+  if (isQuittingForUpdate) {
+    console.log("[Lifecycle] window-all-closed during update install - skipping app.quit()");
+    return;
+  }
   if (server) {
-    server.close();
+    try { server.close(); } catch (_) {}
   }
   if (process.platform !== "darwin") {
     app.quit();
@@ -1780,7 +1853,13 @@ app.on("activate", () => {
 });
 
 app.on("before-quit", () => {
+  // Let the restart-app handler own the server lifecycle during updates so
+  // we don't double-close (which previously threw and was swallowed).
+  if (isQuittingForUpdate) {
+    console.log("[Lifecycle] before-quit during update install - installer will take over");
+    return;
+  }
   if (server) {
-    server.close();
+    try { server.close(); } catch (_) {}
   }
 });
