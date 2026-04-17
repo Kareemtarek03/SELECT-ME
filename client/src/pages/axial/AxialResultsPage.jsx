@@ -1198,9 +1198,12 @@ export default function ResultsPage() {
                           }
 
                           const form = document.createElement("form");
-                          const fileBase = String(
-                            input?.fanUnitNo ?? units?.fanUnitNo ?? "Datasheet",
-                          ).trim() || "Datasheet";
+                          const fileBase =
+                            String(
+                              input?.fanUnitNo ??
+                                units?.fanUnitNo ??
+                                "Datasheet",
+                            ).trim() || "Datasheet";
                           const filePathPart = `${encodeURIComponent(fileBase)}.pdf`;
                           form.method = "POST";
                           form.action = `${API_BASE}/api/axial/pdf/datasheet/${filePathPart}`;
