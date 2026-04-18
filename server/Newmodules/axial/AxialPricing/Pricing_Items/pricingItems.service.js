@@ -66,6 +66,38 @@ console.log(">>> SERVICE LOADED - Cable Pricing Triggers: ELECTRICAL_CABLES_SR="
 
 
 
+// Descriptions whose Price w/o VAT and Price with VAT are presented to users as
+// percentages in the UI and Excel templates (e.g. 40) but stored in the database
+// as fractions (0.40) so downstream calculations using (1 + factor) stay correct.
+// Kept in sync with client/src/pages/axial/pricing/PricingItemsTab.jsx.
+const PERCENTAGE_DESCRIPTIONS = new Set([
+    "Electrical Cables (Sweedy Factor)",
+    "Electrical Component Factor",
+    "Electrical Motors",
+]);
+
+const isPercentDescription = (description) =>
+    typeof description === "string" && PERCENTAGE_DESCRIPTIONS.has(description.trim());
+
+// Convert a stored fractional value (0.40) into its Excel/UI percentage (40).
+// Non-numeric / null values pass through unchanged so empty cells stay empty.
+const fractionToPercent = (value) => {
+    if (value === null || value === undefined || value === "") return value;
+    const num = typeof value === "number" ? value : parseFloat(value);
+    if (!Number.isFinite(num)) return value;
+    return Math.round(num * 10000) / 100;
+};
+
+// Convert an Excel/UI percentage value (40) back to its stored fraction (0.40).
+const percentToFraction = (value) => {
+    if (value === null || value === undefined || value === "") return value;
+    const num = typeof value === "number" ? value : parseFloat(value);
+    if (!Number.isFinite(num)) return value;
+    return Math.round((num / 100) * 1000000) / 1000000;
+};
+
+
+
 /**
 
  * Pricing Items Service
@@ -720,23 +752,33 @@ export const PricingItemsService = {
 
         }
 
-        const rows = category.items.map((item) => ({
+        const rows = category.items.map((item) => {
 
-            id: item.id,
+            const percentRow = isPercentDescription(item.description);
 
-            sr: item.sr,
+            return {
 
-            description: item.description,
+                id: item.id,
 
-            unit: item.unit,
+                sr: item.sr,
 
-            updatedDate: item.updatedDate || "",
+                description: item.description,
 
-            priceWithoutVat: item.priceWithoutVat,
+                unit: item.unit,
 
-            priceWithVat: item.priceWithVat,
+                updatedDate: item.updatedDate || "",
 
-        }));
+                priceWithoutVat: percentRow
+                    ? fractionToPercent(item.priceWithoutVat)
+                    : item.priceWithoutVat,
+
+                priceWithVat: percentRow
+                    ? fractionToPercent(item.priceWithVat)
+                    : item.priceWithVat,
+
+            };
+
+        });
 
         const ws = xlsx.utils.json_to_sheet(rows);
 
@@ -803,13 +845,25 @@ export const PricingItemsService = {
                 item = category.items.find((it) => it.description === description);
             }
 
-            const priceWithoutVat = row.priceWithoutVat !== undefined && row.priceWithoutVat !== null && row.priceWithoutVat !== ""
+            let priceWithoutVat = row.priceWithoutVat !== undefined && row.priceWithoutVat !== null && row.priceWithoutVat !== ""
                 ? parseFloat(row.priceWithoutVat)
                 : null;
 
-            const priceWithVat = row.priceWithVat !== undefined && row.priceWithVat !== null && row.priceWithVat !== ""
+            let priceWithVat = row.priceWithVat !== undefined && row.priceWithVat !== null && row.priceWithVat !== ""
                 ? parseFloat(row.priceWithVat)
                 : null;
+
+            // Determine percent-row status using the DB description (authoritative) or
+            // the Excel row's description as a fallback for newly-created items.
+            const effectiveDescription = item?.description ?? description;
+            if (isPercentDescription(effectiveDescription)) {
+                if (priceWithoutVat !== null && !Number.isNaN(priceWithoutVat)) {
+                    priceWithoutVat = percentToFraction(priceWithoutVat);
+                }
+                if (priceWithVat !== null && !Number.isNaN(priceWithVat)) {
+                    priceWithVat = percentToFraction(priceWithVat);
+                }
+            }
 
             if (item) {
                 // Update existing item
