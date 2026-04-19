@@ -1,6 +1,6 @@
 {
   "name": "mechatronics-fan-selection",
-  "version": "2.3.8",
+  "version": "2.4.0",
   "description": "Mechatronics Fan Selection Desktop Application",
   "main": "electron-main.cjs",
   "author": "Kareem Tarek",
